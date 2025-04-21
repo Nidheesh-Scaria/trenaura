@@ -1,0 +1,33 @@
+
+<head>
+ 
+  <link rel="stylesheet" href="css/userLogin.css" />
+
+</head>
+
+  <div class="login-container">
+    <img src="img/trenauraLogoBlue.png" alt="Trenaura Logo" class="logo" >
+
+    <h2>Welcome Back</h2>
+
+    <button class="google-btn">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="Google icon" />
+      Login with Google
+    </button>
+
+    <div class="divider">or</div>
+
+    <form action="/login" method="POST">
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <div class="forgot-pass">
+        <a href="/forgot-password">Forgot password ?</a>
+      </div>
+      <button type="submit" class="login-btn">Login</button>
+    </form>
+
+    <p class="signup-text">
+      New User? <a href="/signup">Sign up now.</a>
+    </p>
+  </div>
+

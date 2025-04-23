@@ -1,0 +1,49 @@
+<head><link rel="stylesheet" href="css/signup.css"></head>
+
+<div class="container">
+    <!-- Left Column: Logo -->
+    <div class="left">
+      <div class="logo">
+         <img src="img/trenauraLogoBlue.png" alt="Trenaura Logo" class="logoImg" >
+      </div>
+    </div>
+
+    <!-- Right Column: Form -->
+    <div class="right">
+      <h1>Create Account</h1>
+
+      <div class="google-btn">
+        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google logo">
+        Signup with Google
+      </div>
+
+      <div class="divider"><span>or</span></div>
+
+     
+      <form id="signupForm" action="/signup" method="post">
+        <input type="hidden" value="{{{message}}}" id="message">
+        <input type="text" id="name" name="name" placeholder="Name" />
+        <div class="error" id="nameError"></div>
+
+        <input type="text" id="email" name="email" placeholder="Email" />
+        <div class="error" id="emailError"></div>
+        
+        <input type="text" id="mobile" name="phone" placeholder="Mobile Number" />
+        <div class="error" id="mobileError"></div>
+
+        <input type="password" id="password" name="password" placeholder="Password" />
+        <div class="error" id="passwordError"></div>
+
+        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" />
+        <div class="error" id="confirmError"></div>
+
+        <button type="submit" class="signup-btn">SignUp</button>
+      </form>
+
+      <div class="login-link">
+        Already have an account? <a href="/login">Login now!</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/userSignUp.js"></script>

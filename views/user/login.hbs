@@ -1,33 +1,48 @@
-
 <head>
- 
-  <link rel="stylesheet" href="css/userLogin.css" />
-
+  <link rel="stylesheet" href="css/userLogin.css">
 </head>
 
-  <div class="login-container">
-    <img src="img/trenauraLogoBlue.png" alt="Trenaura Logo" class="logo" >
-
-    <h2>Welcome Back</h2>
-
-    <button class="google-btn">
-      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="Google icon" />
-      Login with Google
-    </button>
-
-    <div class="divider">or</div>
-
-    <form action="/login" method="POST">
-      <input type="email" name="email" placeholder="Email" required />
-      <input type="password" name="password" placeholder="Password" required />
-      <div class="forgot-pass">
-        <a href="/forgot-password">Forgot password ?</a>
+<div class="container">
+    <!-- Left Side: Logo -->
+    <div class="left">
+      <div class="logo">
+         <img src="img/trenauraLogoBlue.png" alt="Trenaura Logo" class="logoImg" >
       </div>
-      <button type="submit" class="login-btn">Login</button>
-    </form>
+    </div>
 
-    <p class="signup-text">
-      New User? <a href="/signup">Sign up now.</a>
-    </p>
+    <!-- Right Side: Login Form -->
+    <div class="right">
+      <h1>Welcome Back</h1>
+
+      <div class="google-btn">
+        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google logo">
+        Login with Google
+      </div>
+
+      <div class="divider"><span>or</span></div>
+      <form id="loginForm"  action="/login" method="post">
+        <input type="hidden" value="{{{message}}}" id="message">
+        <input type="hidden" value="{{{messages}}}" id="errorMessage">
+        <input type="text" id="email" name="email" placeholder="Email" />
+        <p class="error" id="emailError"></p>
+
+        <input type="password" id="password" name="password" placeholder="Password" />
+        <p class="error" id="passwordError"></p>
+        <p class="error" id="mainError"></p>
+        <div class="forgot-link">
+          <a href="#">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="login-btn">Login</button>
+      </form>
+
+      <div class="signup-link">
+        New User? <a href="/signup">Sign up now.</a>
+      </div>
+    </div>
   </div>
 
+  <script src="js/userLogIn.js"></script>
+
+
+   

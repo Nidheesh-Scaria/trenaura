@@ -1,0 +1,179 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+  }
+
+  body {
+    display: flex;
+    height: 100vh;
+    background-color: #f7f7f7;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .container {
+    display: flex;
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    max-width: 800px;
+    width: 100%;
+  }
+
+  .left {
+    flex: 1;
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+  }
+
+
+
+  .logo {
+    text-align: center;
+  }
+
+  .logo h1 {
+    font-size: 36px;
+    color: #1a2a6c;
+    letter-spacing: 1px;
+  }
+
+  .logo span {
+    display: block;
+    font-size: 14px;
+    color: #1a2a6c;
+  }
+
+  .right {
+    flex: 1;
+    padding: 40px;
+  }
+
+  .right h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: 600;
+  }
+
+  .otp-label {
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+
+  .otp-inputs {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0 20px;
+  }
+
+  .otp-inputs input {
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    font-size: 24px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+  }
+
+  .otp-inputs input:focus {
+    border-color: #1a2a6c;
+    outline: none;
+  }
+
+  .timer {
+    font-size: 14px;
+    color: red;
+    margin-bottom: 20px;
+  }
+
+  .btn {
+    background: #1a2a6c;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.3s;
+  }
+
+  .btn:hover {
+    background: #112255;
+  }
+
+  .back-link a{
+    margin-top: 20px;
+    text-align: center;
+    display: block;
+    color: #1a2a6c;
+    text-decoration: none;
+    font-size: 14px;
+  }
+
+  .back-link span{
+    
+    font-weight: bold;
+    text-decoration: none;
+}
+
+  .logoImg {
+    height:15rem;
+    width:20rem;
+    margin-bottom: 2px;
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      flex-direction: column;
+    }
+
+    .left, .right {
+      flex: none;
+      width: 100%;
+      padding: 20px;
+    }
+
+    .otp-inputs input {
+      width: 45px;
+      height: 45px;
+    }
+  }
+
+  
+  #timer {
+    margin-top: 10px;
+    font-weight: bold;
+    color: red;
+  }
+
+  #resend {
+    background: transparent;
+    color: #0b2c73;
+    border: 1px solid #0b2c73;
+  }
+
+  .error {
+    color: red;
+    margin-top: 10px;
+  }
+
+  .success {
+    color: green;
+  }
+  button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background: #0b2c73;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px 5px;
+  }

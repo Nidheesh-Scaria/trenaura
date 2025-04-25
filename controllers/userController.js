@@ -1,6 +1,53 @@
 const userSchmea = require("../models/userSchema");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
+const nodeMailer=require('nodemailer')
+const env=require('dotenv').config();
+
+
+function generateOtp(){
+  return Math.floor(100000 + Math.random()*900000).toString()
+}
+
+
+async function sendVerificationEmail(email,otp) {
+  try {
+    const tranporter=nodeMailer.createTransport({
+
+      service:'gmail',
+      port:587,
+      secure:false,
+      requireTLS:true,
+      auth:{
+        user:process.env.NODEMAILER_EMAIL,
+        pass:process.env.NODEMAILER_PASSWORD
+        
+      }, 
+
+
+    })
+
+    const info = await tranporter.sendMail({
+      from:process.env.NODEMAILER_EMAIL,
+      to:email,
+      subject:"Verify your Trenaura account",
+      text:`Your otp is ${otp}`,
+      htmll:`<b> Your Otp:${otp}</b>`
+    })
+
+    return info.accepted.length > 0
+
+
+
+  } catch (error) {
+    console.error("Error sending email",error)
+    return false;
+  }
+  
+} 
+
+
+
 
 const signup = async (req, res) => {
   try {
@@ -17,33 +64,80 @@ const signup = async (req, res) => {
           "&t=" +
           Date.now()
       );
+    } 
+
+    const otp=generateOtp();
+    const emailSent=await sendVerificationEmail(email,otp);
+    if(!emailSent){
+      return res.json("email-error")
     }
-
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    const newUser = new userSchmea({
-      name,
-      email,
-      phone,
-      password: hashedPassword,
-    });
-
-    const done = await newUser.save();
-    console.log(newUser);
-    if (done) {
-      // return res.redirect("/login");
-      return res.redirect(
-        "/login?message=" +
-          encodeURIComponent("User created successfully") +
-          "&t=" +
-          Date.now()
-      );
-    }
+    req.session.userOtp=otp;
+    req.session.userData={name, email, phone, password}
+    res.redirect('/veryfyOtp')
+    console.log("Otp Sent:",otp)
+ 
   } catch (error) {
-    console.error("Error in saving user", error);
+    console.error("Error in signup", error);
     res.status(500).send("Internal server error");
+    res.redirect('/pageNotFound')
   }
 };
+
+const veryfySignupOtp=async(req,res)=>{
+  try {
+    const {otp}=req.body
+    console.log("Entered Otp: ",otp)
+    console.log("Session OTP:",req.session.userOtp)
+
+    if(String(otp) === String(req.session.userOtp)){
+
+      const user=req.session.userData
+      const hashedPassword = await bcrypt.hash(user.password, saltRounds);
+
+      const saveUserData = new userSchmea({
+          name:user.name,
+          email:user.email,
+          phone:user.phone,
+          password: hashedPassword,
+        });
+
+        await saveUserData.save();
+        req.session.user=saveUserData._id;
+        req.session.user=true;
+        res.json({success:true,redirectUrl:"/"})
+
+    }else{
+      res.status(400).json({success:false,message:"Invalid OTP,please try again",})
+    }
+
+  } catch (error) {
+    console.error("Error in verifying the otp",error);
+    res.status(500).json({success:false,message:"An error occured"})
+  }
+}
+
+
+const resendSignupOtp=async(req,res)=>{
+  try {
+    const {email}=req.session.userData;
+    if(!email){
+      return res.status(400).json({success:false,message:"Email not found in session"})
+    }
+    const otp=generateOtp();
+    req.session.userOtp=otp;
+    const emailSent=await sendVerificationEmail(email,otp);
+    if(emailSent){
+      console.log("Resend Otp:",otp)
+      res.status(200).json({success:true,message:"Otp resend successfully"})
+
+    }else{
+      res.status(500).json({success:false,message:"Failed to resend OTP,Please try again"})
+    }
+  } catch (error) {
+    console.error("Error resending OTP",error)
+    res.status(500).json({success:false,message:"Internal server error,Please try later"})
+  }
+}
 
 const login = async (req, res) => {
   try {
@@ -121,6 +215,19 @@ const loadSignup = async (req, res) => {
   }
 };
 
+
+const veryfyOtp= async(req,res)=>{
+  try {
+    return res.render("user/veryfyOtp", {
+      title: "Trenaura veryfyOtp page",
+      hideHeader: true,
+      hideFooter: true,
+    });
+  } catch (error) {
+    
+  }
+}
+
 module.exports = {
   loadHomepage,
   pageNotFound,
@@ -128,4 +235,8 @@ module.exports = {
   loadSignup,
   signup,
   login,
+  veryfyOtp,
+  veryfySignupOtp,
+  resendSignupOtp,
+
 };

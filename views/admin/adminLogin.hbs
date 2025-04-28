@@ -1,0 +1,86 @@
+<head>
+  <link rel="stylesheet" href="/css/adminLogin.css">
+</head>
+
+<div class="container">
+
+  <div class="login-section">
+    <h1>Login as Admin</h1  >
+
+    <button class="google-login">
+      <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo">
+      Login with Google
+    </button>
+
+    <div class="separator">or</div>
+
+<form action="/admin/login" method="POST" id="loginForm">
+
+  <input type="hidden" value="{{{message}}}" id="message">
+  <input type="hidden" value="{{{messages}}}" id="errorMessage">
+
+  <input type="email" id="email" name="email" placeholder="Email">
+  <small class="error" id="emailError"></small>
+
+  <input type="password" id="password" name="password" placeholder="Password">
+  <small class="error" id="passwordError"></small>
+
+  <p class="error" id="mainError" style="color: rgb(231, 12, 12);"></p>
+
+  <button type="submit" class="login-button">Login</button>
+
+</form>
+
+  </div>
+
+  <div class="brand-section">
+    <img src="/img/trenauraLogoBlue.png" alt="Trenaura Logo" class="logoImg" />
+  </div>
+
+</div>
+
+
+
+<script>
+
+const warning = document.getElementById("errorMessage").value;
+if (warning) {
+  document.getElementById('mainError').innerText = warning;
+}
+
+
+document.getElementById('loginForm').addEventListener('submit', function(event) {
+  document.getElementById('emailError').style.display = 'none';
+  document.getElementById('passwordError').style.display = 'none';
+
+  let isValid = true;
+  const email = document.getElementById('email');
+  const password = document.getElementById('password');
+
+  if (!email.value.trim()) {
+    event.preventDefault();
+    document.getElementById('emailError').textContent = 'Email is required.';
+    document.getElementById('emailError').style.display = 'block';
+    isValid = false;
+  } else if (!email.value.match(/^\S+@\S+\.\S+$/)) {
+    event.preventDefault();
+    document.getElementById('emailError').textContent = 'Please enter a valid email.';
+    document.getElementById('emailError').style.display = 'block';
+    isValid = false;
+  }
+
+  if (!password.value.trim()) {
+    event.preventDefault();
+    document.getElementById('passwordError').textContent = 'Password is required.';
+    document.getElementById('passwordError').style.display = 'block';
+    isValid = false;
+  } else if (password.value.length < 4) {
+    event.preventDefault();
+    document.getElementById('passwordError').textContent = 'Password must be at least 4 characters.';
+    document.getElementById('passwordError').style.display = 'block';
+    isValid = false;
+  }
+});
+</script>
+
+

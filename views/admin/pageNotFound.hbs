@@ -1,0 +1,101 @@
+
+
+<head>
+  <style>
+    
+    * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+  }
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #fff;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+  .container {
+    display: flex;
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    max-width: 800px;
+    width: 100%;
+  }
+
+  .left {
+    flex: 1;
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+  }
+
+  .right {
+    flex: 1;
+    padding: 40px;
+  }
+
+  .logoImg {
+    height:15rem;
+    width:20rem;
+    margin-bottom: 2px;
+  }
+  
+.error-code {
+  font-size: 48px;
+  font-weight: bold;
+  color: #333;
+}
+
+p {
+  font-size: 18px;
+  margin: 10px 0;
+}
+
+.home-link {
+  color: red;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.home-link:hover {
+  text-decoration: underline;
+}
+
+  @media (max-width: 768px) {
+    .container {
+      flex-direction: column;
+    }
+
+    .left, .right {
+      flex: none;
+      width: 100%;
+      padding: 20px;
+    }
+  }
+
+  </style>
+  
+</head>
+
+<div class="container">
+  <div class="left">
+    <div class="logo">
+      <img src="img/trenauraLogoBlue.png" alt="Trenaura Logo" class="logoImg" />
+    </div>
+  </div>
+  <div class="right">
+    <h1><span class="error-code">404</span> - Page Not Found</h1>
+    <p>Oops! The page you’re looking for doesn’t exist.</p>
+    <p>Back to <a href="/" class="home-link">Home</a></p>
+  </div>
+</div>

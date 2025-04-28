@@ -83,6 +83,16 @@ body {
   margin-right: 8px;
 }
 
+.google-btn a {
+  color: #1e3a8a;
+  font-weight: bold;
+  text-decoration: none;
+}
+.google-btn a:hover {
+  text-decoration: underline;
+}
+
+
 .divider {
   display: flex;
   align-items: center;

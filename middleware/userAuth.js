@@ -1,13 +1,13 @@
 const checkSession = (req, res, next) => {
-  if (req.session.user) {
+  if (req.session.isLoggedIn) {
     next();
   } else {
     res.redirect("/login");
   }
 };
 
-const isLoggin=(req,res,next)=>{
-    if(req.session.user){
+const isLoggedIn=(req,res,next)=>{
+    if(req.session.isLoggedIn){
         res.redirect('/')
     }else{
         next()
@@ -16,5 +16,5 @@ const isLoggin=(req,res,next)=>{
 
 module.exports ={
     checkSession,
-    isLoggin
+    isLoggedIn
 }

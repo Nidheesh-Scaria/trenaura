@@ -1,0 +1,108 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  body {
+    background: #f5f6fa;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .container {
+    width: 900px;
+    background: white;
+    display: flex;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+  
+  .login-section, .brand-section {
+    flex: 1;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .login-section h2 {
+    margin-bottom: 30px;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  
+  .google-login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: white;
+    border: 1px solid #ccc;
+    padding: 12px;
+    width: 100%;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+  
+  .google-login img {
+    width: 20px;
+  }
+  
+  .separator {
+    margin: 20px 0;
+    font-size: 14px;
+    color: #aaa;
+  }
+  
+  form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  form input {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 100%;
+  }
+  
+  form small.error {
+    color: red;
+    font-size: 12px;
+    display: none;
+  }
+  
+  .login-button {
+    padding: 12px;
+    background: #1d3f92;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .brand-section {
+    background: #fafafa;
+    text-align: center;
+  }
+  
+  .brand-logo {
+    width: 150px;
+    margin-bottom: 20px;
+  }
+  
+  .logoImg {
+    height:15rem;
+    width:20rem;
+    margin-bottom: 2px;
+  }

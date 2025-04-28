@@ -5,21 +5,29 @@
 </head>
 
 <header>
+
     <div class="header-top">
       <div class="logo"><img src="img/logo.png" alt="logo of trenaura" style="height: 2rem; width:10rem"></div>
       <div class="header-icons">
-        <a href="#"><i class="fas fa-search"></i></a>
-        <a href="/login"><i class="fas fa-user"></i></a>
-        <a href="#">
-          <i class="fas fa-shopping-bag"></i>
-          <span class="cart-badge">4</span>
-        </a>
-        <a href="#"><i class="fas fa-heart"></i></a>
+          {{#if isLoggedIn}}
+            <a href="#"><i class="fas fa-search"></i></a>
+            <a href="/myAccount"><i class="fas fa-user"></i></a>
+            <a href="#"><i class="fas fa-shopping-bag"></i>
+              <span class="cart-badge">4</span>
+            </a>
+            <a href="#"><i class="fas fa-heart"></i></a>
+          {{else}}
+            <a href="/login" style="color: #0d0d0d; font-size: 15px; font-weight:600; ">Login</a>
+            <a href="/signup" style="color: #0d0d0d; font-size: 15px;font-weight:600;">Signup</i></a>
+          {{/if}}
+
+
+        
       </div>
     </div>
     <nav>
       <ul>
-        <li><a href="#">HOME</a></li>
+        <li><a href="/">HOME</a></li>
         <li><a href="#">MEN</a></li>
         <li><a href="#">WOMEN</a></li>
         <li><a href="#">BEAUTY</a></li>

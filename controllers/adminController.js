@@ -11,6 +11,7 @@ const loadLogin = async (req, res) => {
         title: "Trenaura-Admin Login page",
         hideHeader: true,
         hideFooter: true,
+        adminHeader:true,
         messages: req.flash("error"),
       });
     }
@@ -61,6 +62,7 @@ const loadDashboard = async (req, res) => {
         title: "Admin Dashboard - Trenaura",
         hideHeader: true,
         hideFooter: true,
+        adminHeader:false,
       });
     } catch (error) {
       console.error("Error rendering dashboard:", error);
@@ -71,8 +73,27 @@ const loadDashboard = async (req, res) => {
   }
 };
 
+const logout = async (req, res) => {
+  try {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Error destroying session:", err);
+        return res.redirect("/pageNoteFound");
+      }
+      res.redirect("/admin/login");
+    });
+  } catch (error) {
+    console.error("Error in admin logout:", error);
+    res.redirect("/pageNoteFound");
+};
+}
+
+
+
 module.exports = {
   loadLogin,
   login,
   loadDashboard,
+  logout
+  
 };

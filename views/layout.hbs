@@ -6,7 +6,7 @@
     <meta name="keywords" content="Male_Fashion, unica, creative, html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="icon" href="img/bag.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="/img/bag.png" sizes="32x32" type="image/png">
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- jQuery -->
@@ -20,13 +20,22 @@
 </head>
 <body>
 
+
+    {{#unless adminHeader}}
+    {{> admin/header }}
+    {{/unless}} <!-- header partial -->
     {{#unless hideHeader}}
-    {{> header }}
+    {{> user/header }}
     {{/unless}} <!-- header partial -->
     {{{body}}}
     {{#unless hideFooter}}
-    {{> footer }}
+    {{> user/footer }}
     {{/unless}}<!-- Footer partial -->
+
+   
+    
+    
+
     
     <!-- Js Plugins -->
     

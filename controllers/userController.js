@@ -189,6 +189,10 @@ const login = async (req, res) => {
       req.flash("error", "Sorry you are blocked by admin");
       return res.redirect("/login");
     }
+    if(user.isAdmin){
+      req.flash("error", "Sorry you cant login");
+      return res.redirect("/login");
+    }
 
     req.session.user = user._id;
     req.session.isLoggedIn = true;
@@ -207,6 +211,7 @@ const loadTrenauraHomepage=async(req,res)=>{
       title: "Trenaura Login page",
       hideHeader: true,
       hideFooter: true,
+      adminHeader:true,
     });
   } catch (error) {
     console.error("Error in rendering home page:", error);
@@ -223,11 +228,11 @@ const loadHomepage = async (req, res) => {
     if(user){
       console.log(" logged in user")
 
-      return res.render("user/home", { title: "Trenaura-Home page",isLoggedIn:true});
+      return res.render("user/home", { title: "Trenaura-Home page",isLoggedIn:true,adminHeader:true,});
       
     }else{
       console.log("user-not logged in")
-      return res.render("user/home", { title: "Trenaura-Home page",isLoggedIn:false });
+      return res.render("user/home", { title: "Trenaura-Home page",isLoggedIn:false ,adminHeader:true,});
       
     }
     
@@ -243,6 +248,7 @@ const loadLogin = async (req, res) => {
       title: "Trenaura Login page",
       hideHeader: true,
       hideFooter: true,
+      adminHeader:true,
       messages: req.flash("error"),
     });
   } catch (error) {
@@ -258,6 +264,7 @@ const pageNotFound = async (req, res) => {
       title: "Trenaura-Page not found",
       hideHeader: true,
       hideFooter: true,
+      adminHeader:true,
     });
   } catch (error) {
     res.redirect("/pageNotfound");
@@ -270,6 +277,7 @@ const loadSignup = async (req, res) => {
       title: "Trenaura Signup page",
       hideHeader: true,
       hideFooter: true,
+      adminHeader:true,
       message: req.query.message,
     });
   } catch (error) {
@@ -284,6 +292,7 @@ const verifyOtp = async (req, res) => {
       title: "Trenaura verifyOtp",
       hideHeader: true,
       hideFooter: true,
+      adminHeader:true,
     });
   } catch (error) {
     console.error("Error in verfyOtp :", error);
@@ -308,7 +317,7 @@ const loadmyAccount = async (req, res) => {
     }
 
     console.log("Rendering My Account Page");
-    res.render("user/myAccount", { title: "My Account", name: user.name });
+    res.render("user/myAccount", { title: "My Account", name: user.name,adminHeader:true, });
   } catch (error) {
     console.error("Error in rendering My account:", error);
     res.redirect("/pageNotFound");

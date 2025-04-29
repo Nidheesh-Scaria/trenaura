@@ -1,0 +1,336 @@
+
+
+<head>
+    <link rel="stylesheet" href="/css/adminCustomers.css">
+    <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+</head>
+
+<main class="main-content">
+            <header class="header">
+                <h1>Customer Management</h1>
+                <div class="header-icons">
+                    {{!-- <input type="text" placeholder="Search...">
+                     <button type="submit" class="btn btn-success " style="height:2.1rem; border-radius: 25px; color:white; background-color:rgba(10, 10, 117, 0.79)" id="searchUserButton">Search</button> --}}
+                    <i class="fas fa-bell"></i>
+                    <i class="fas fa-envelope"></i>
+                    <img src="https://i.pravatar.cc/40" alt="Profile">
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="search-container">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <form action="/admin/users" method="GET" class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" name="search" style="border-radius: 20px;" value="{{search}}" placeholder="Search customers...">
+                            <button type="button" class="clear-btn" title="Clear" onclick="window.location.href='/admin/users'">
+                            <span style="font-weight: 600;">X</span>
+                            </button>
+                        </form>
+
+                    </div>
+
+                    <button id="refreshBtn" class="refresh-btn">
+                      <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                   <form method="GET" action="/admin/users">
+                    <input type="hidden" name="search" value="{{search}}">
+                    <input type="hidden" name="page" value="{{currentPage}}">
+                    <button id="refreshBtn" class="refresh-btn" style="color:rgb(255, 255, 255);background-color:rgba(10, 10, 117, 0.79);border-radius: 25px">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    </form>
+                </div>
+                
+                <div class="table-container">
+                    <table id="customerTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Join Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {{#if customers.length}}
+                            {{#each customers}}
+                                <tr>
+                                    <td>{{this.name}}</td>
+                                    <td>{{this.email}}</td>
+                                    <td>{{this.phone}}</td>
+                                    <td>{{this.createdOn}}</td> 
+                                    <td>
+                                        <span class="status {{this.status}}">
+                                            {{#if this.isBlocked}}Blocked{{else}}Active{{/if}}
+                                        </span>
+                                    </td>
+                                    <td>
+                                       <button class="btn toggle-block btn-red" data-id="{{this._id}}" data-status="{{#if this.isBlocked}}blocked{{else}}active{{/if}}">
+                                            <i class="fas {{#if this.isBlocked}}fa-check{{else}}fa-ban{{/if}}"></i>
+                                            {{#if this.isBlocked}}Unblock{{else}}Block{{/if}}
+                                        </button>
+                                        {{!-- <button 
+                                        class="btn toggle-block {{#if this.isBlocked}}btn-green{{else}}btn-red{{/if}}" 
+                                        data-id="{{this._id}}" 
+                                        data-status="{{#if this.isBlocked}}blocked{{else}}active{{/if}}">
+                                        <i class="fas {{#if this.isBlocked}}fa-check{{else}}fa-ban{{/if}}"></i>
+                                        {{#if this.isBlocked}}Unblock{{else}}Block{{/if}}
+                                     </button> --}}
+                                        
+                                    </td>
+                                </tr>
+                            {{/each}}
+
+                        {{else}}
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 20px;">No customers found</td>
+                            </tr>
+                        {{/if}}
+                    </tbody>
+                    </table>
+                </div>
+                
+
+                <div class="pagination">
+                            {{!-- Previous Button --}}
+                            {{#ifCond currentPage '>' 1}}
+                                <a href="?page={{decrement currentPage}}&search={{search}}" class="page-btn">
+                                    <i class="fas fa-chevron-left"><</i>
+                                </a>
+                            {{else}}
+                                <button class="page-btn" disabled>
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                            {{/ifCond}}
+
+                            {{!-- Numbered Pages --}}
+                            {{#each (range 1 totalPages)}}
+                                {{#ifCond this '===' ../currentPage}}
+                                    <span class="page-number current">{{this}}</span>
+                                {{else}}
+                                    <a href="?page={{this}}&search={{../search}}" class="page-number">{{this}}</a>
+                                {{/ifCond}}
+                            {{/each}}
+
+                            {{!-- Next Button --}}
+                            {{#ifCond currentPage '<' totalPages}}
+                                <a href="?page={{increment currentPage}}&search={{search}}" class="page-btn">
+                                    <i class="fas fa-chevron-right">></i>
+                                </a>
+                            {{else}}
+                                <button class="page-btn" disabled>
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            {{/ifCond}}
+                </div>
+
+
+               
+            </div>
+        </main>
+    </div>
+
+   
+    <!-- Confirmation Modal -->
+<div id="confirmationModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal">&times;</span>
+    <h3 id="modalTitle">Confirm Action</h3>
+    <p id="modalMessage">Are you sure you want to perform this action?</p>
+    <div class="modal-actions">
+      <button id="confirmAction" class="btn confirm-btn">Confirm</button>
+      <button id="cancelAction" class="btn cancel-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast"></div>
+
+
+
+{{!-- <script>
+let customerIdToUpdate = null;
+let actionType = null;
+let currentButton = null;
+
+// Show toast
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.className = "toast show";
+  setTimeout(() => {
+    toast.className = toast.className.replace("show", "");
+  }, 3000);
+}
+
+// Handle button click
+document.addEventListener("click", function (e) {
+  const btn = e.target.closest(".toggle-block");
+  if (btn) {
+    customerIdToUpdate = btn.getAttribute("data-id");
+    actionType = btn.getAttribute("data-status") === "blocked" ? "unblock" : "block";
+    currentButton = btn;
+
+    document.getElementById("modalMessage").textContent =
+      `Are you sure you want to ${actionType} this customer?`;
+
+    document.getElementById("confirmationModal").style.display = "flex";
+  }
+});
+
+// Cancel Modal
+document.getElementById("cancelAction").addEventListener("click", () => {
+  document.getElementById("confirmationModal").style.display = "none";
+  customerIdToUpdate = null;
+  actionType = null;
+  currentButton = null;
+});
+
+// Close Modal X
+document.querySelector(".close-modal").addEventListener("click", () => {
+  document.getElementById("confirmationModal").style.display = "none";
+  customerIdToUpdate = null;
+  actionType = null;
+  currentButton = null;
+});
+
+// Confirm Action
+document.getElementById("confirmAction").addEventListener("click", async () => {
+  if (!customerIdToUpdate || !actionType) return;
+
+  try {
+    const res = await fetch(`/admin/customer${actionType === 'block' ? 'Block' : 'Unblock'}/${customerIdToUpdate}`, {
+      method: "PATCH",
+    });
+
+    if (res.ok) {
+      const newStatus = actionType === "block" ? "blocked" : "active";
+      const newAction = actionType === "block" ? "unblock" : "block";
+      const iconClass = actionType === "block" ? "fa-check" : "fa-ban";
+
+      // Update button
+      currentButton.setAttribute("data-status", newStatus);
+      currentButton.innerHTML = `<i class="fas ${iconClass}"></i> ${actionType === "block" ? "Unblock" : "Block"}`;
+
+      // Update status text in row
+      const row = currentButton.closest("tr");
+      const statusSpan = row.querySelector(".status");
+      if (statusSpan) {
+        statusSpan.className = `status ${newStatus}`;
+        statusSpan.textContent = newStatus === "blocked" ? "Blocked" : "Active";
+      }
+
+      showToast(`Customer ${actionType}ed successfully`);
+    } else {
+      alert("Something went wrong.");
+    }
+  } catch (err) {
+    console.error("Error:", err);
+    alert("Server error. Try again.");
+  } finally {
+    document.getElementById("confirmationModal").style.display = "none";
+    customerIdToUpdate = null;
+    actionType = null;
+    currentButton = null;
+  }
+});
+</script> --}}
+
+<script>
+
+let customerIdToUpdate = null;
+let actionType = null;
+let currentButton = null;
+
+// Show toast
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.className = "toast show";
+  setTimeout(() => {
+    toast.className = toast.className.replace("show", "");
+  }, 3000);
+}
+
+// Handle button click
+document.addEventListener("click", function (e) {
+  const btn = e.target.closest(".toggle-block");
+  if (btn) {
+    customerIdToUpdate = btn.getAttribute("data-id");
+    actionType = btn.getAttribute("data-status") === "blocked" ? "unblock" : "block";
+    currentButton = btn;
+
+    document.getElementById("modalMessage").textContent =
+      `Are you sure you want to ${actionType} this customer?`;
+
+    document.getElementById("confirmationModal").style.display = "flex";
+  }
+});
+
+// Cancel Modal
+document.getElementById("cancelAction").addEventListener("click", () => {
+  document.getElementById("confirmationModal").style.display = "none";
+  customerIdToUpdate = null;
+  actionType = null;
+  currentButton = null;
+});
+
+// Close Modal (X button)
+document.querySelector(".close-modal").addEventListener("click", () => {
+  document.getElementById("confirmationModal").style.display = "none";
+  customerIdToUpdate = null;
+  actionType = null;
+  currentButton = null;
+});
+
+// Confirm Action
+document.getElementById("confirmAction").addEventListener("click", async () => {
+  if (!customerIdToUpdate || !actionType) return;
+
+  try {
+    const res = await fetch(`/admin/customer${actionType === 'block' ? 'Block' : 'Unblock'}/${customerIdToUpdate}`, {
+      method: "PATCH",
+    });
+
+    if (res.ok) {
+      const newStatus = actionType === "block" ? "blocked" : "active";
+      const newAction = actionType === "block" ? "unblock" : "block";
+      const iconClass = actionType === "block" ? "fa-check" : "fa-ban";
+
+      // Update button
+      currentButton.setAttribute("data-status", newStatus);
+      currentButton.innerHTML = `<i class="fas ${iconClass}"></i> ${newAction.charAt(0).toUpperCase() + newAction.slice(1)}`;
+
+      // Update button color
+      currentButton.classList.remove("btn-red", "btn-green");
+      currentButton.classList.add(newAction === "unblock" ? "btn-green" : "btn-red");
+
+      // Update status text in row
+      const row = currentButton.closest("tr");
+      const statusSpan = row.querySelector(".status");
+      if (statusSpan) {
+        statusSpan.className = `status ${newStatus}`;
+        statusSpan.textContent = newStatus === "blocked" ? "Blocked" : "Active";
+      }
+
+      showToast(`Customer ${actionType}ed successfully`);
+    } else {
+      alert("Something went wrong.");
+    }
+  } catch (err) {
+    console.error("Error:", err);
+    alert("Server error. Try again.");
+  } finally {
+    document.getElementById("confirmationModal").style.display = "none";
+    customerIdToUpdate = null;
+    actionType = null;
+    currentButton = null;
+  }
+});
+</script>
+

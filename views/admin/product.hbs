@@ -1,0 +1,229 @@
+<!-- Head -->
+<head>
+  <link rel="stylesheet" href="/css/adminCustomers.css">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css"/>
+</head>
+
+<main class="main-content">
+  <header class="header">
+    <h1>Product Management</h1>
+    <div class="header-icons">
+      <i class="fas fa-envelope"></i>
+      <img src="https://i.pravatar.cc/40" alt="Profile">
+    </div>
+  </header>
+
+  <div class="content">
+    <div class="search-container">
+      {{!-- <form action="/admin/searchProducts" method="GET" class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" name="search" style="border-radius: 20px;" value="{{search}}" placeholder="Search products...">
+        <button type="button" class="clear-btn" title="Clear" onclick="window.location.href='/admin/products'">
+          <span style="font-weight: 600;">X</span>
+        </button>
+      </form> --}}
+
+      <a href="/admin/addProducts" class="btn btn-primary btn-sm">Add Products+</a>
+
+      <form method="GET" action="/admin/products">
+        <input type="hidden" name="search" value="{{search}}">
+        <input type="hidden" name="page" value="{{currentPage}}">
+        <button id="refreshBtn" class="refresh-btn" style="color:white;background-color:rgba(10, 10, 117, 0.79);border-radius: 25px">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+      </form>
+    </div>
+
+    <div class="table-container">
+      <table id="customerTable">
+        <thead>
+          <tr>
+            <th>Products</th>
+            <th>Price</th>
+            <th>Sale Price</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#if products.length}}
+            {{#each products}}
+              <tr>
+                <td>{{this.productName}}</td>
+                <td>{{this.regularPrice}}</td> 
+                <td>{{this.salePrice}}</td>
+                <td>{{this.category}}</td>
+                <td>{{this.status}}</td>
+                <td>
+                  <a href="#" class="btn btn-primary btn-sm" onclick="openEditModal('{{this._id}}', '{{this.productName}}', '{{this.regularPrice}}', '{{this.salePrice}}', '{{this.category}}')">Edit</a>
+                  <a href="#" class="btn btn-danger btn-sm" onclick="openDeleteModal('{{this._id}}')">Delete</a>
+                </td>
+              </tr>
+            {{/each}}
+          {{else}}
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 20px;">No products found</td>
+            </tr>
+          {{/if}}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      {{#ifCond currentPage '>' 1}}
+        <a href="?page={{decrement currentPage}}&search={{search}}" class="page-btn"><i class="fas fa-chevron-left"></i></a>
+      {{else}}
+        <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+      {{/ifCond}}
+
+      {{#each (range 1 totalPages)}}
+        {{#ifCond this '===' ../currentPage}}
+          <span class="page-number current">{{this}}</span>
+        {{else}}
+          <a href="?page={{this}}&search={{../search}}" class="page-number">{{this}}</a>
+        {{/ifCond}}
+      {{/each}}
+
+      {{#ifCond currentPage '<' totalPages}}
+        <a href="?page={{increment currentPage}}&search={{search}}" class="page-btn"><i class="fas fa-chevron-right"></i></a>
+      {{else}}
+        <button class="page-btn" disabled><i class="fas fa-chevron-right"></i></button>
+      {{/ifCond}}
+    </div>
+  </div>
+</main>
+
+<!-- Edit Product Modal -->
+<div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="editCategoryForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Product</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="editCategoryId" />
+          <div class="mb-3">
+            <label class="form-label">Product Name</label>
+            <input type="text" id="editProductName" class="form-control" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Regular Price</label>
+            <input type="number" id="editRegularPrice" class="form-control" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Sale Price</label>
+            <input type="number" id="editSalePrice" class="form-control" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Category</label>
+            <input type="text" id="editCategory" class="form-control" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Product Modal -->
+<div class="modal fade" id="deleteCategoryModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="deleteCategoryForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Delete Product</h5>
+          <input type="hidden" id="deleteCategoryId" />
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{{#if successMessage}}
+<script>
+  Swal.fire({
+    icon: 'success',
+    title: 'Success!',
+    text: '{{successMessage}}',
+    confirmButtonColor: '#3085d6',
+    timer: 2000,
+    timerProgressBar: true
+  });
+</script>
+{{/if}}
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+function openEditModal(id, productName, regularPrice, salePrice, category) {
+  $('#editCategoryId').val(id);
+  $('#editProductName').val(productName);
+  $('#editRegularPrice').val(regularPrice);
+  $('#editSalePrice').val(salePrice);
+  $('#editCategory').val(category);
+  $('#editCategoryModal').modal('show');
+}
+
+$('#editCategoryForm').on('submit', function (e) {
+  e.preventDefault();
+  const id = $('#editCategoryId').val();
+  const productName = $('#editProductName').val().trim();
+  const regularPrice = $('#editRegularPrice').val();
+  const salePrice = $('#editSalePrice').val();
+  const category = $('#editCategory').val().trim();
+
+  if (!productName || !regularPrice || !salePrice || !category) {
+    return Swal.fire('Error', 'All fields are required', 'error');
+  }
+
+  fetch(`/admin/editProducts/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ productName, regularPrice, salePrice, category })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      Swal.fire('Updated!', data.message, 'success').then(() => location.reload());
+    } else {
+      Swal.fire('Error', data.message, 'error');
+    }
+  });
+});
+
+function openDeleteModal(id) {
+  $('#deleteCategoryId').val(id);
+  $('#deleteCategoryModal').modal('show');
+}
+
+$('#deleteCategoryForm').on('submit', function (e) {
+  e.preventDefault();
+  const id = $('#deleteCategoryId').val();
+
+  fetch(`/admin/deleteProducts/${id}`, {
+    method: 'DELETE'
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      Swal.fire('Deleted!', data.message, 'success').then(() => location.reload());
+    } else {
+      Swal.fire('Error', data.message, 'error');
+    }
+  });
+});
+</script>

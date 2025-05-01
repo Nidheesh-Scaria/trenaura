@@ -1,0 +1,129 @@
+
+<head>
+<style>
+
+    body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+}
+
+.container {
+  max-width: 800px;
+  margin: 80px auto;
+  background: white;
+  display: flex;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo-section {
+  flex: 1;
+  text-align: center;
+}
+
+.logo {
+  font-size: 40px;
+  color: #1c2b6c;
+  margin: 0;
+  font-weight: bold;
+}
+
+.logoImg {
+  height:15rem;
+  width:20rem;
+  margin-bottom: 2px;
+}
+
+
+.tagline {
+  font-size: 14px;
+  color: #4e5d9d;
+  margin-top: 8px;
+  letter-spacing: 1px;
+}
+
+.form-section {
+  flex: 1;
+  padding-left: 40px;
+}
+
+.form-section h2 {
+  margin-bottom: 10px;
+}
+
+.form-section p {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+input[type="email"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+button {
+  background-color: #1c2b6c;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  background-color: #16225a;
+}
+
+a {
+  font-size: 13px;
+  color: #333;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+</style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="logo-section">
+       <img src="img/trenauraLogoBlue.png" alt="Trenaura Logo" class="logoImg" >
+    </div>
+
+    <div class="form-section">
+      <h2>Forgot Password ?</h2>
+      <p>Please confirm your mail address</p>
+      
+      <form id="forgotForm" onsubmit="return validateEmail()" method="POST" action="/forgotPasswordVerifyOtp">
+        <input type="email" id="email" name="email" placeholder="Email address"  />
+        <button type="submit">Send Email</button>
+        <p><a href="/login">Go back to Login page</a></p>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function validateEmail() {
+      const email = document.getElementById("email").value;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        alert("Please enter a valid email address.");
+        return false;
+      }
+      return true;
+    }
+  </script>
+</body>
+

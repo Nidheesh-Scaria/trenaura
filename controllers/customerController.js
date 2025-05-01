@@ -81,9 +81,9 @@ const customerUnBlocked = async (req, res) => {
       console.error("Unblock error:", error);
       res.status(500).json({ success: false });
     }
-  } else {
-    res.redirect("/admin/login");
-  }
+    } else {
+      res.redirect("/admin/login");
+    }
 };
 
 module.exports = {

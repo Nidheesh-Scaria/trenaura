@@ -21,6 +21,18 @@ router.get("/verifyOtp", userAuth.isLoggedIn, userController.verifyOtp);
 router.get("/pageNotFound", userController.pageNotFound);
 router.get("/myAccount", userController.loadmyAccount);
 router.get("/logout", userAuth.isLoggedIn, userController.loadLogout);
+router.get('/productDetails', userController.productDetails)
+
+
+
+router.get('/forgotPassword',userAuth.isLoggedIn,userController.forgotPassword);
+router.post("/forgotPasswordVerifyOtp", userAuth.isLoggedIn, userController.forgotPasswordOtp);
+router.post('/verifyForgotPasswordOtp',userController.verifyForgotPasswordOtp)
+router.get('/change-password',userAuth.isLoggedIn,userController.loadForgotPassword)
+router.post('/changePassword',userController.changePassword)
+router.post('/resendPswrdOtp',userController.resendPswrdOtp)
+
+
 
 
 

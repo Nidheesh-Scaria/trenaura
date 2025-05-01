@@ -1,0 +1,184 @@
+
+<head>
+  <link rel="stylesheet" href="css/verifyOtp.css?v=1.0.2" type="text/css" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="left">
+      <div class="logo">
+        <img src="img/trenauraLogoBlue.png" alt="Trenaura Logo" class="logoImg" />
+      </div>
+    </div>
+    <div class="right">
+      <h2>Confirm with OTP</h2>
+      <div class="otp-label">Please check your mail address for OTP</div>
+      
+      <form id="otpForm" onsubmit="return validateOtpForm(event)">
+        <div class="otp-inputs">
+          <input type="text" maxlength="1" />
+          <input type="text" maxlength="1" />
+          <input type="text" maxlength="1" />
+          <input type="text" maxlength="1" />
+          <input type="text" maxlength="1" />
+          <input type="text" maxlength="1" />
+        </div>
+        <div id="timer">02:00</div>
+        <button id="confirm" type="submit" disabled>Confirm</button>
+      </form>
+        <button id="resend" onclick="resendOtp()">Resend OTP</button>
+
+      <div id="message" class="error"></div>
+      <div class="back-link">
+        <a href="/signup">Go back to <span>Signup</span> page</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const inputs = document.querySelectorAll('.otp-inputs input');
+    const confirmBtn = document.getElementById('confirm');
+    const resendBtn = document.getElementById('resend');
+    const timerDisplay = document.getElementById('timer');
+    const message = document.getElementById('message');
+
+    let countdown;
+    let timeLeft = 120;
+
+    function startTimer() {
+      clearInterval(countdown);
+      timeLeft = 120;
+      updateTimerDisplay();
+
+      countdown = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+        if (timeLeft <= 0) {
+          clearInterval(countdown);
+          timerDisplay.textContent = "Expired";
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const minutes = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+      const seconds = String(timeLeft % 60).padStart(2, '0');
+      timerDisplay.textContent = `${minutes}:${seconds}`;
+    }
+
+    function getOTP() {
+      const otp = Array.from(inputs).map(input => input.value.trim()).join('');
+      return otp.length === 6 ? otp : null;
+    }
+
+    function clearInputs() {
+      inputs.forEach(input => input.value = '');
+      inputs[0].focus();
+    }
+
+    inputs.forEach((input, idx) => {
+      input.addEventListener('input', () => {
+        if (input.value && idx < inputs.length - 1) {
+          inputs[idx + 1].focus();
+        }
+        checkOTPInputs();
+      });
+
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Backspace' && !input.value && idx > 0) {
+          inputs[idx - 1].focus();
+        }
+      });
+    });
+
+    function checkOTPInputs() {
+      const allFilled = Array.from(inputs).every(input => input.value.trim() !== '');
+      confirmBtn.disabled = !allFilled;
+    }
+
+    resendBtn.addEventListener('click', () => {
+      clearInputs();
+      message.textContent = "";
+      startTimer();
+      $.ajax({
+        type: "POST",
+        url: "/resendPswrdOtp",
+        success: function(response) {
+          if (response.success) {
+            Swal.fire({
+              icon: "success",
+              title: "OTP Resent",
+              text: "OTP has been resent to your email!"
+            });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Error!",
+              text: "An error occurred while resending. Please try again."
+            });
+          }
+        },
+        error: function() {
+          Swal.fire({
+            icon: "error",
+            title: "Network Error",
+            text: "Failed to resend OTP. Please try again."
+          });
+        }
+      });
+    });
+
+    function validateOtpForm(e) {
+      e.preventDefault();
+      const enteredOTP = getOTP();
+
+      if (!enteredOTP) {
+        message.textContent = "Please enter all 6 digits.";
+        message.className = "error";
+        return false;
+      }
+
+      $.ajax({
+        type: "POST",
+        url: "/verifyForgotPasswordOtp", 
+        data: JSON.stringify({ otp: enteredOTP }),
+        contentType: "application/json",
+        success: function(response) {
+          if (response.success) {
+            Swal.fire({
+              icon: "success",
+              title: "OTP Verified",
+              text: "Your account has been successfully verified!",
+              showConfirmButton: false,
+              timer: 2000
+            }).then(() => {
+              window.location.href = response.redirectUrl; // Use the redirect URL from the response
+            });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Invalid OTP",
+              text: response.message || "OTP did not match"
+            });
+          }
+        },
+        error: function() {
+          Swal.fire({
+            icon: "error",
+            title: "Verification Failed",
+            text: "Please try again."
+          });
+        }
+      });
+
+  return false; // Prevent form submission
+}
+
+    // Init
+    startTimer();
+    checkOTPInputs();
+  </script>
+</body>
+

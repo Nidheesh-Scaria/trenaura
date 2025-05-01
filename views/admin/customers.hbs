@@ -31,9 +31,6 @@
 
                     </div>
 
-                    <button id="refreshBtn" class="refresh-btn">
-                      <i class="fas fa-sync-alt"></i> Refresh
-                    </button>
                    <form method="GET" action="/admin/users">
                     <input type="hidden" name="search" value="{{search}}">
                     <input type="hidden" name="page" value="{{currentPage}}">
@@ -73,14 +70,7 @@
                                             <i class="fas {{#if this.isBlocked}}fa-check{{else}}fa-ban{{/if}}"></i>
                                             {{#if this.isBlocked}}Unblock{{else}}Block{{/if}}
                                         </button>
-                                        {{!-- <button 
-                                        class="btn toggle-block {{#if this.isBlocked}}btn-green{{else}}btn-red{{/if}}" 
-                                        data-id="{{this._id}}" 
-                                        data-status="{{#if this.isBlocked}}blocked{{else}}active{{/if}}">
-                                        <i class="fas {{#if this.isBlocked}}fa-check{{else}}fa-ban{{/if}}"></i>
-                                        {{#if this.isBlocked}}Unblock{{else}}Block{{/if}}
-                                     </button> --}}
-                                        
+                                    
                                     </td>
                                 </tr>
                             {{/each}}

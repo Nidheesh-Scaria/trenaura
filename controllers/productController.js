@@ -193,14 +193,45 @@ const addProducts = async (req, res) => {
 
 
 // Edit Product Controller
+// const editProducts = async (req, res) => {
+//   if (req.session.admin) {
+//     try {
+//       const id = req.params.id;
+//       const { productName, regularPrice, salePrice, category } = req.body;
+
+//       await Product.findByIdAndUpdate(id, {
+//         $set: { productName, regularPrice, salePrice, category }
+//       });
+
+//       res.status(200).json({ success: true, message: "Product updated successfully!" });
+//     } catch (error) {
+//       console.error("Edit error:", error);
+//       res.status(500).json({ success: false, message: "Internal server error" });
+//     }
+//   } else {
+//     res.status(401).json({ success: false, message: "Unauthorized" });
+//   }
+// };
+
 const editProducts = async (req, res) => {
   if (req.session.admin) {
     try {
       const id = req.params.id;
       const { productName, regularPrice, salePrice, category } = req.body;
 
+      // Convert category name to ObjectId
+      const categoryDoc = await Category.findOne({ name: category });
+      if (!categoryDoc) {
+        return res.status(400).json({ success: false, message: "Invalid category" });
+      }
+
       await Product.findByIdAndUpdate(id, {
-        $set: { productName, regularPrice, salePrice, category }
+        $set: {
+          productName,
+          regularPrice,
+          salePrice,
+          category: categoryDoc._id // ✅ using ObjectId
+        }
       });
 
       res.status(200).json({ success: true, message: "Product updated successfully!" });
@@ -212,6 +243,7 @@ const editProducts = async (req, res) => {
     res.status(401).json({ success: false, message: "Unauthorized" });
   }
 };
+
 
 // Delete Product Controller
 const deleteProducts = async (req, res) => {

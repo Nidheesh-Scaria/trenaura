@@ -240,7 +240,7 @@ const loadHomepage = async (req, res) => {
       };
     });
 
-    //console.log(productData.map(p => p.firstImage));
+    
 
     return res.render("user/home", {
       title: "Trenaura - Home page",
@@ -571,17 +571,313 @@ const productDetails = async (req, res) => {
 
     const products = await Product.findById(productId).lean();
 
+    const categories = await Category.find({ isListed: true });
+
+    let productData = await Product.find({
+      isBlocked: false,
+      category: { $in: categories.map((category) => category._id) },
+      quantity: { $gt: 0 },
+    });
+
+    // Get latest 4 products (optional logic)
+    productData = productData.slice().map((product) => {
+      return {
+        ...product._doc,
+        firstImage:
+          product.productImages && product.productImages.length > 0
+            ? product.productImages[0]
+            : "default.jpg",
+      };
+    });
+
+    
     res.render("user/product-details", {
       title: "Product details",
       adminHeader: true,
       hideFooter: true,
       product: products,
+      products: productData,
     });
+
   } catch (error) {
     console.error("Error in rendering home page:", error);
     res.status(500).send("Server error");
   }
 };
+
+// const mensCategory= async(req,res)=>{
+//   try{
+//     const categories = await Category.find({ isListed: true,name:{$regex:'Mens'} });
+
+//     let productData = await Product.find({
+//       isBlocked: false,
+//       category: { $in: categories.map((category) => category._id) },
+//       quantity: { $gt: 0 },
+//     });
+
+//     // Get latest 4 products (optional logic)
+//     productData = productData.slice().map((product) => {
+//       return {
+//         ...product._doc,
+//         firstImage:
+//           product.productImages && product.productImages.length > 0
+//             ? product.productImages[0]
+//             : "default.jpg",
+//       };
+//     });
+    
+//     res.render("user/mens", {
+//       title: "Women Category",
+//       adminHeader: true,
+//       hideFooter: true,
+//       products: productData,
+//     });
+//   }catch(error){
+//     console.error("Error in rendering home page:", error);
+//     res.status(500).send("Server error");
+//   }
+// }
+
+const mensCategory = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1; // Current page
+    const limit = 2; // Products per page
+    const skip = (page - 1) * limit;
+
+    // Find categories related to "Mens"
+    const categories = await Category.find({
+      isListed: true,
+      name: { $regex: 'Mens' }
+    });
+
+    const categoryIds = categories.map((cat) => cat._id);
+
+    // Total count for pagination
+    const totalProducts = await Product.countDocuments({
+      isBlocked: false,
+      category: { $in: categoryIds },
+      quantity: { $gt: 0 },
+    });
+
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    // Paginated product query
+    let productData = await Product.find({
+      isBlocked: false,
+      category: { $in: categoryIds },
+      quantity: { $gt: 0 },
+    })
+      .skip(skip)
+      .limit(limit);
+
+    productData = productData.map((product) => {
+      return {
+        ...product._doc,
+        firstImage:
+          product.productImages && product.productImages.length > 0
+            ? product.productImages[0]
+            : "default.jpg",
+      };
+    });
+
+    res.render("user/mens", {
+      title: "Mens Category",
+      adminHeader: true,
+      hideFooter: true,
+      products: productData,
+      currentPage: page,
+      totalPages: totalPages,
+    });
+  } catch (error) {
+    console.error("Error in rendering mens category:", error);
+    res.status(500).send("Server error");
+  }
+};
+
+
+const womensCategory = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1; // Current page
+    const limit = 2; // Products per page
+    const skip = (page - 1) * limit;
+
+    // Find categories related to "Mens"
+    const categories = await Category.find({
+      isListed: true,
+      name: { $regex: 'Womens',$options:'i' }
+    });
+
+    const categoryIds = categories.map((cat) => cat._id);
+
+    // Total count for pagination
+    const totalProducts = await Product.countDocuments({
+      isBlocked: false,
+      category: { $in: categoryIds },
+      quantity: { $gt: 0 },
+    });
+
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    // Paginated product query
+    let productData = await Product.find({
+      isBlocked: false,
+      category: { $in: categoryIds },
+      quantity: { $gt: 0 },
+    })
+      .skip(skip)
+      .limit(limit);
+
+    productData = productData.map((product) => {
+      return {
+        ...product._doc,
+        firstImage:
+          product.productImages && product.productImages.length > 0
+            ? product.productImages[0]
+            : "default.jpg",
+      };
+    });
+
+    res.render("user/womens", {
+      title: "Mens Category",
+      adminHeader: true,
+      hideFooter: true,
+      products: productData,
+      currentPage: page,
+      totalPages: totalPages,
+    });
+  } catch (error) {
+    console.error("Error in rendering mens category:", error);
+    res.status(500).send("Server error");
+  }
+};
+
+
+const beautyCategory = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1; // Current page
+    const limit = 2; // Products per page
+    const skip = (page - 1) * limit;
+
+    // Find categories related to "Mens"
+    const categories = await Category.find({
+      isListed: true,
+      name: { $regex: 'Beauty',$options:'i' }
+    });
+
+    const categoryIds = categories.map((cat) => cat._id);
+
+    // Total count for pagination
+    const totalProducts = await Product.countDocuments({
+      isBlocked: false,
+      category: { $in: categoryIds },
+      quantity: { $gt: 0 },
+    });
+
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    // Paginated product query
+    let productData = await Product.find({
+      isBlocked: false,
+      category: { $in: categoryIds },
+      quantity: { $gt: 0 },
+    })
+      .skip(skip)
+      .limit(limit);
+
+    productData = productData.map((product) => {
+      return {
+        ...product._doc,
+        firstImage:
+          product.productImages && product.productImages.length > 0
+            ? product.productImages[0]
+            : "default.jpg",
+      };
+    });
+
+    res.render("user/beauty", {
+      title: "Mens Category",
+      adminHeader: true,
+      hideFooter: true,
+      products: productData,
+      currentPage: page,
+      totalPages: totalPages,
+    });
+  } catch (error) {
+    console.error("Error in rendering mens category:", error);
+    res.status(500).send("Server error");
+  }
+};
+
+
+const filter = async (req, res) => {
+  try {
+    const { category, price, page = 1, limit = 2 } = req.query; 
+    const skip = (page - 1) * limit; 
+    let filter = {}; 
+
+    
+    if (category) {
+      filter.category = category;
+    }
+
+    // Filter by price range 
+    if (price) {
+      let priceRange = price.split('-');
+      if (priceRange.length === 2) {
+        filter.salePrice = { $gte: parseInt(priceRange[0]), $lte: parseInt(priceRange[1]) };
+      } else if (priceRange[0] === '8000+') {
+        filter.salePrice = { $gte: 8000 };
+      }
+    }
+
+    
+    const totalProducts = await Product.countDocuments(filter);
+
+    
+    const totalPages = Math.ceil(totalProducts / limit);
+
+  
+    let products = await Product.find(filter)
+      .skip(skip)
+      .limit(limit);
+
+    
+    products = products.map((product) => {
+      return {
+        ...product._doc,
+        firstImage:
+          product.productImages && product.productImages.length > 0
+            ? product.productImages[0]
+            : "default.jpg",
+        productName: product.productName,
+        salePrice: product.salePrice,
+        regularPrice: product.regularPrice,
+        description: product.description, 
+      };
+    });
+
+    
+    res.render('user/mens', {
+      title: "Mens Category",
+      adminHeader: true,
+      hideFooter: true,
+      products,
+      currentPage: parseInt(page),
+      totalPages,
+      category,
+      price,
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server Error');
+  }
+};
+
+
+
+
+
 
 module.exports = {
   loadTrenauraHomepage,
@@ -604,4 +900,9 @@ module.exports = {
   changePassword,
   resendPswrdOtp,
   productDetails,
+  mensCategory,
+  womensCategory,
+  beautyCategory,
+  filter,
+
 };

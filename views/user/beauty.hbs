@@ -1,0 +1,250 @@
+
+
+
+<head>
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+    <!-- Css Styles -->
+    <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css">
+    <link rel="stylesheet" href="css/elegant-icons.css" type="text/css">
+    <link rel="stylesheet" href="css/magnific-popup.css" type="text/css">
+    <link rel="stylesheet" href="css/nice-select.css" type="text/css">
+    <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">
+    <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
+    <link rel="stylesheet" href="css/home.css" type="text/css">
+
+      <style>
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px 0;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #fff;
+            box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1); 
+            z-index: 1000;
+        }
+
+        .pagination .page-number,
+        .pagination .page-btn {
+            padding: 8px 14px;
+            background-color: #f3f3f3;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .pagination .page-number.current {
+            background-color: #111;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .pagination .page-number:hover,
+        .pagination .page-btn:hover {
+            background-color: #ddd;
+        }
+
+        .pagination button:disabled {
+            background-color: #eee;
+            color: #aaa;
+            cursor: not-allowed;
+        }
+
+    </style>
+    
+</head>
+
+
+<body>
+    <!-- Page Preloder -->
+    <div id="preloder">
+        <div class="loader"></div>
+    </div>
+
+
+    <!-- Breadcrumb Section Begin -->
+    <section class="breadcrumb-option">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="breadcrumb__text">
+                        <h4>Shop</h4>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Breadcrumb Section End -->
+
+    <!-- Shop Section Begin -->
+    <section class="shop spad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="shop__sidebar">
+                        <div class="shop__sidebar__search">
+                            <form action="#">
+                                <input type="text" placeholder="Search...">
+                                <button type="submit"><span class="icon_search"></span></button>
+                            </form>
+                        </div>
+                        <div class="shop__sidebar__accordion">
+                            <div class="accordion" id="accordionExample">
+                                <div class="card">
+                                    <div class="card-heading">
+                                        <a data-toggle="collapse" data-target="#collapseOne">Categories</a>
+                                    </div>
+                                    <div id="collapseOne" class="collapse show" data-parent="#accordionExample">
+                                        <div class="card-body">
+                                            <div class="shop__sidebar__categories">
+                                                <ul class="nice-scroll">
+                                                    <li><a href="/mensCategory">Men </a></li>
+                                                    <li><a href="/womensCategory">Women </a></li>
+                                                    <li><a href="/beautyCategory">Beauty </a></li>
+                                                    
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card">
+                                    <div class="card-heading">
+                                        <a data-toggle="collapse" data-target="#collapseThree">Filter Price</a>
+                                    </div>
+                                    <div id="collapseThree" class="collapse show" data-parent="#accordionExample">
+                                        <div class="card-body">
+                                            <div class="shop__sidebar__price">
+                                                <ul>
+                                                    <li><a href="#">&#x20b9;0.00 - &#x20b9;1000</a></li>
+                                                    <li><a href="#">&#x20b9;1000 - &#x20b9;2000</a></li>
+                                                    <li><a href="#">&#x20b9;2000 - &#x20b9;4000</a></li>
+                                                    <li><a href="#">&#x20b9;4000 - &#x20b9;8000</a></li>
+                                                    <li><a href="#">8000+</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                               
+                                <div class="card">
+                                    
+                                </div>
+                                <div class="card">
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-9">
+                  
+                    <div class="row">
+                        {{#each products}}
+                        <div class="col-lg-4 col-md-6 col-sm-6">
+                            <div class="product__item">
+                                <a href="/productDetails?id={{this._id}}">
+                                <div class="product__item__pic set-bg" data-setbg="/uploads/product-images/{{this.firstImage}}">
+                                    <ul class="product__hover">
+                                        <li><img src="img/icon/heart.png" alt=""></li>
+                                        <li><img src="img/icon/compare.png" alt=""> <span>Compare</span></li>
+                                        <li><img src="img/icon/search.png" alt=""></li>
+                                    </ul>
+                                </div>
+                                </a>
+                                <div class="product__item__text">
+                                    <h6>{{this.productName}}</h6>
+                                    <a href="#" class="add-cart">+ Add To Cart</a>
+                                    <div class="rating">
+                                        <i class="fa fa-star-o"></i>
+                                        <i class="fa fa-star-o"></i>
+                                        <i class="fa fa-star-o"></i>
+                                        <i class="fa fa-star-o"></i>
+                                        <i class="fa fa-star-o"></i>
+                                    </div>
+                                    <h5>&#x20b9;{{this.salePrice}} <span style="text-decoration: line-through; color: #888;">&#x20b9;{{this.regularPrice}}</span> </h5>
+                                    <div class="product__color__select">
+                                        <label for="pc-4">
+                                            <input type="radio" id="pc-4">
+                                        </label>
+                                        <label class="active black" for="pc-5">
+                                            <input type="radio" id="pc-5">
+                                        </label>
+                                        <label class="grey" for="pc-6">
+                                            <input type="radio" id="pc-6">
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        
+                    {{/each}}
+                    </div>
+                 <div class="pagination">
+                    {{#ifCond currentPage '>' 1}}
+                        <a href="?page={{decrement currentPage}}&search={{search}}" class="page-btn"><i class="fas fa-chevron-left"></i></a>
+                    {{else}}
+                        <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+                    {{/ifCond}}
+
+                    {{#each (range 1 totalPages)}}
+                        {{#ifCond this '===' ../currentPage}}
+                        <span class="page-number current">{{this}}</span>
+                        {{else}}
+                        <a href="?page={{this}}&search={{../search}}" class="page-number">{{this}}</a>
+                        {{/ifCond}}
+                    {{/each}}
+
+                    {{#ifCond currentPage '<' totalPages}}
+                        <a href="?page={{increment currentPage}}&search={{search}}" class="page-btn"><i class="fas fa-chevron-right"></i></a>
+                    {{else}}
+                        <button class="page-btn" disabled><i class="fas fa-chevron-right"></i></button>
+                    {{/ifCond}}
+                </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Shop Section End -->
+
+   
+
+
+    <!-- Js Plugins -->
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.nice-select.min.js"></script>
+    <script src="js/jquery.nicescroll.min.js"></script>
+    <script src="js/jquery.magnific-popup.min.js"></script>
+    <script src="js/jquery.countdown.min.js"></script>
+    <script src="js/jquery.slicknav.js"></script>
+    <script src="js/mixitup.min.js"></script>
+    <script src="js/owl.carousel.min.js"></script>
+    <script src="js/main.js"></script>
+
+
+    <script src="js/jquery-3.3.1.min.js"></script>
+        <script>
+        $(document).ready(function () {
+            $('.set-bg').each(function () {
+            const bg = $(this).data('setbg');
+            if (bg) {
+                $(this).css('background-image', 'url(' + bg + ')');
+            }
+            });
+        });
+        </script>
+</body>

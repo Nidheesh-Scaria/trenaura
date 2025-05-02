@@ -33,6 +33,12 @@ router.post('/changePassword',userController.changePassword)
 router.post('/resendPswrdOtp',userController.resendPswrdOtp)
 
 
+router.get('/mensCategory',userController.mensCategory);
+router.get('/womensCategory',userController.womensCategory);
+router.get('/beautyCategory',userController.beautyCategory);
+router.get('/filter',userController.filter);
+
+
 
 
 

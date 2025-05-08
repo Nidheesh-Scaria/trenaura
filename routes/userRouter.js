@@ -19,7 +19,7 @@ router.get("/login", userAuth.isLoggedIn, userController.loadLogin);
 router.get("/signup", userAuth.isLoggedIn, userController.loadSignup);
 router.get("/verifyOtp", userAuth.isLoggedIn, userController.verifyOtp);
 router.get("/pageNotFound", userController.pageNotFound);
-router.get("/myAccount", userController.loadmyAccount);
+router.get("/myAccount",userAuth.checkSession, userController.loadmyAccount);
 router.get("/logout", userAuth.isLoggedIn, userController.loadLogout);
 router.get('/productDetails', userController.productDetails)
 

@@ -1,23 +1,30 @@
 const categorySchema = require("../models/categorySchema");
 
 const categoryInfo = async (req, res) => {
-  if (req.session.admin) {
+ 
     try {
+      const search = req.query.search || "";
       const page = parseInt(req.query.page) || 1;
       const limit = 3;
       const skip = (page - 1) * limit;
 
+      
+      const query = {
+        name: { $regex:search, $options: "i" },
+      };
+  
       const successMessage = req.session.successMessage;
       delete req.session.successMessage;
 
       const categoryData = await categorySchema
-        .find({})
+        .find(query)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .lean();
 
-      const totalCategory = await categorySchema.countDocuments();
+      
+      const totalCategory = await categorySchema.countDocuments(query);
       const totalPages = Math.ceil(totalCategory / limit);
 
       const hasPrevPage = page > 1;
@@ -33,7 +40,8 @@ const categoryInfo = async (req, res) => {
         });
       }
 
-      res.render("admin/category", {
+
+      res.render("admin/categories", {
         categories: categoryData,
         currentPage: page,
         totalPages,
@@ -42,45 +50,86 @@ const categoryInfo = async (req, res) => {
         prevPage,
         hasNextPage,
         nextPage,
+        search,
         pages,
         successMessage,
         hideHeader: true,
         hideFooter: true,
         title: "Category Management",
       });
+
+
+
     } catch (error) {
       console.error(error);
       res.redirect("/pageNotFound");
     }
-  } else {
-    res.redirect("/admin/login");
-  }
+  
 };
 
 
+
 const addCategory = async (req, res) => {
-  if (req.session.admin) {
-    const { name, description } = req.body;
-    try {
-      const existingCategory = await categorySchema.findOne({ name });
-      if (existingCategory) {
-        return res.status(400).json({ error: "Category already exists" });
-      }
+  
+ 
+  const { name, description } = req.body;
+  
+  if (!name || !description) {
+    return res.status(400).json({ 
+      success: false,
+      error: "Name and description are required" 
+    });
+  }
 
-      const newCategory = new categorySchema({ name, description });
-      await newCategory.save();
+  const trimmedName = name.trim();
+  const trimmedDescription = description.trim();
 
-      return res.status(200).json({ message: "Category added successfully" });
-    } catch (error) {
-      return res.status(500).json({ error: "Internal server error" });
+  try {
+    
+    const existingCategory = await categorySchema.findOne({ 
+      name: { $regex: new RegExp(`^${trimmedName}$`, 'i') } 
+    });
+
+    if (existingCategory) {
+      return res.status(400).json({ 
+        success: false,
+        error: "Category already exists" 
+      });
     }
-  } else {
-    res.redirect("/admin/login");
+
+    
+    const newCategory = new categorySchema({
+      name: trimmedName,
+      description: trimmedDescription,
+      isListed: true, 
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+
+    await newCategory.save();
+
+  
+    return res.status(201).json({ 
+      success: true,
+      message: "Category added successfully",
+      category: {
+        id: newCategory._id,
+        name: newCategory.name
+      }
+    });
+
+  } catch (error) {
+    console.error("Error adding category:", error);
+    return res.status(500).json({ 
+      success: false,
+      error: "Internal server error",
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
 const listCategory = async (req, res) => {
-  if (req.session.admin) {
+ 
     try {
       const id = req.params.id;
       await categorySchema.updateOne({ _id: id }, { $set: { isListed: true } });
@@ -90,13 +139,11 @@ const listCategory = async (req, res) => {
       console.error("list error:", error);
       res.status(500).send("Internal server error");
     }
-  } else {
-    res.redirect("/admin/login");
-  }
+  
 };
 
 const unlistCategory = async (req, res) => {
-  if (req.session.admin) {
+  
     try {
       const id = req.params.id;
       await categorySchema.updateOne(
@@ -109,14 +156,12 @@ const unlistCategory = async (req, res) => {
       console.error("unlist error:", error);
       res.status(500).send("Internal server error");
     }
-  } else {
-    res.redirect("/admin/login");
-  }
+ 
 };
 
 
 const editCategory = async (req, res) => {
-  if (req.session.admin) {
+  
     try {
       
       console.log("Request received at editCategory");
@@ -133,14 +178,12 @@ const editCategory = async (req, res) => {
       console.error("Edit error:", error);
       res.status(500).json({ success: false, message: "Internal server error" });
     }
-  } else {
-    res.status(401).json({ success: false, message: "Unauthorized" });
-  }
+  
 };
 
 
 const deleteCategory = async (req, res) => {
-  if (req.session.admin) {
+ 
     try {
       const id = req.params.id;
       console.log("Deleting Category ID:", id);
@@ -152,9 +195,7 @@ const deleteCategory = async (req, res) => {
       console.error("Delete error:", error);
       res.status(500).json({ success: false, message: "Internal server error" });
     }
-  } else {
-    res.status(401).json({ success: false, message: "Unauthorized" });
-  }
+  
 };
 
 

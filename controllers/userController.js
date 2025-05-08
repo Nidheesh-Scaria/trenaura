@@ -222,6 +222,15 @@ const loadHomepage = async (req, res) => {
     const user = req.session.user || req.user;
 
     const categories = await Category.find({ isListed: true });
+    const mensCategory= await Category.findOne({name:"Mens"})
+    const womensCategory= await Category.findOne({name:"Womens"})
+    const beautyCategory=await Category.findOne({name:"Beauty"})
+    
+
+    const mensProduct=mensCategory ? await Product.findOne({category:mensCategory._id}):null;
+    const womensProduct=womensCategory?await Product.findOne({category:womensCategory._id}):null;
+    const beautyProduct=beautyCategory?await Product.findOne({category:beautyCategory._id}):null;
+
 
     let productData = await Product.find({
       isBlocked: false,
@@ -240,6 +249,11 @@ const loadHomepage = async (req, res) => {
       };
     });
 
+    const randomImages=(images)=>{
+      if(!images||images.length==0) return null;
+      const randomIndex=Math.floor(Math.random()*images.length);
+      return images[randomIndex]
+    }
     
 
     return res.render("user/home", {
@@ -247,6 +261,9 @@ const loadHomepage = async (req, res) => {
       isLoggedIn: !!user,
       adminHeader: true,
       products: productData,
+      mensImg:mensProduct?.productImages?.[0] ? `/uploads/product-images/${randomImages(mensProduct.productImages)}`:"default.jpg",
+      womensImg:womensProduct?.productImages?.[0] ? `/uploads/product-images/${randomImages(womensProduct.productImages)}`:"default.jpg",
+      beautyImg:beautyProduct?.productImages?.[0] ? `/uploads/product-images/${randomImages(beautyProduct.productImages)}`:"default.jpg",
     });
   } catch (error) {
     console.error("Error in rendering home page:", error);
@@ -377,7 +394,7 @@ const forgotPasswordOtp = async (req, res) => {
   try {
     const { email } = req.body;
 
-    // Check if email exists in DB
+    
     const user = await userSchema.findOne({ email });
     if (!user) {
       return res
@@ -394,13 +411,13 @@ const forgotPasswordOtp = async (req, res) => {
         .json({ success: false, message: "Failed to send email" });
     }
 
-    // Store OTP and expiry in session
+    
     req.session.userOtp = otp;
     req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000; // 5 mins
     req.session.userData = { email };
 
     console.log("OTP sent:", otp);
-    //otp page
+    
     res.render("user/verifyOtpPswd", {
       title: "Trenaura Verify OTP",
       hideHeader: true,
@@ -435,7 +452,7 @@ const verifyForgotPasswordOtp = async (req, res) => {
     }
 
     if (String(otp) === String(sessionOtp)) {
-      // Proceed to reset password page
+      
       req.session.userData = { email: req.session.userData.email };
 
       return res
@@ -487,7 +504,7 @@ const changePassword = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Update the password instead of creating a new user
+   
     const passwordChange = await userSchema.updateOne(
       { email: user.email },
       { $set: { password: hashedPassword } }
@@ -540,7 +557,7 @@ const resendPswrdOtp = async (req, res) => {
 
     const otp = generateOtp();
     req.session.userOtp = otp;
-    req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000; // reset expiry time
+    req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000;
 
     const emailSent = await sendVerificationEmail(email, otp);
 
@@ -579,7 +596,7 @@ const productDetails = async (req, res) => {
       quantity: { $gt: 0 },
     });
 
-    // Get latest 4 products (optional logic)
+    
     productData = productData.slice().map((product) => {
       return {
         ...product._doc,
@@ -605,46 +622,14 @@ const productDetails = async (req, res) => {
   }
 };
 
-// const mensCategory= async(req,res)=>{
-//   try{
-//     const categories = await Category.find({ isListed: true,name:{$regex:'Mens'} });
-
-//     let productData = await Product.find({
-//       isBlocked: false,
-//       category: { $in: categories.map((category) => category._id) },
-//       quantity: { $gt: 0 },
-//     });
-
-//     // Get latest 4 products (optional logic)
-//     productData = productData.slice().map((product) => {
-//       return {
-//         ...product._doc,
-//         firstImage:
-//           product.productImages && product.productImages.length > 0
-//             ? product.productImages[0]
-//             : "default.jpg",
-//       };
-//     });
-    
-//     res.render("user/mens", {
-//       title: "Women Category",
-//       adminHeader: true,
-//       hideFooter: true,
-//       products: productData,
-//     });
-//   }catch(error){
-//     console.error("Error in rendering home page:", error);
-//     res.status(500).send("Server error");
-//   }
-// }
 
 const mensCategory = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; // Current page
-    const limit = 2; // Products per page
+    const page = parseInt(req.query.page) || 1; 
+    const limit = 2; 
     const skip = (page - 1) * limit;
 
-    // Find categories related to "Mens"
+   
     const categories = await Category.find({
       isListed: true,
       name: { $regex: 'Mens' }
@@ -652,7 +637,7 @@ const mensCategory = async (req, res) => {
 
     const categoryIds = categories.map((cat) => cat._id);
 
-    // Total count for pagination
+    
     const totalProducts = await Product.countDocuments({
       isBlocked: false,
       category: { $in: categoryIds },
@@ -661,7 +646,7 @@ const mensCategory = async (req, res) => {
 
     const totalPages = Math.ceil(totalProducts / limit);
 
-    // Paginated product query
+  
     let productData = await Product.find({
       isBlocked: false,
       category: { $in: categoryIds },
@@ -669,6 +654,7 @@ const mensCategory = async (req, res) => {
     })
       .skip(skip)
       .limit(limit);
+
 
     productData = productData.map((product) => {
       return {
@@ -680,6 +666,7 @@ const mensCategory = async (req, res) => {
       };
     });
 
+
     res.render("user/mens", {
       title: "Mens Category",
       adminHeader: true,
@@ -688,6 +675,8 @@ const mensCategory = async (req, res) => {
       currentPage: page,
       totalPages: totalPages,
     });
+
+
   } catch (error) {
     console.error("Error in rendering mens category:", error);
     res.status(500).send("Server error");
@@ -697,11 +686,11 @@ const mensCategory = async (req, res) => {
 
 const womensCategory = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; // Current page
-    const limit = 2; // Products per page
+    const page = parseInt(req.query.page) || 1;
+    const limit = 2; 
     const skip = (page - 1) * limit;
 
-    // Find categories related to "Mens"
+    
     const categories = await Category.find({
       isListed: true,
       name: { $regex: 'Womens',$options:'i' }
@@ -709,7 +698,7 @@ const womensCategory = async (req, res) => {
 
     const categoryIds = categories.map((cat) => cat._id);
 
-    // Total count for pagination
+    
     const totalProducts = await Product.countDocuments({
       isBlocked: false,
       category: { $in: categoryIds },
@@ -718,7 +707,7 @@ const womensCategory = async (req, res) => {
 
     const totalPages = Math.ceil(totalProducts / limit);
 
-    // Paginated product query
+    
     let productData = await Product.find({
       isBlocked: false,
       category: { $in: categoryIds },
@@ -754,11 +743,11 @@ const womensCategory = async (req, res) => {
 
 const beautyCategory = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; // Current page
-    const limit = 2; // Products per page
+    const page = parseInt(req.query.page) || 1; 
+    const limit = 2;
     const skip = (page - 1) * limit;
 
-    // Find categories related to "Mens"
+    
     const categories = await Category.find({
       isListed: true,
       name: { $regex: 'Beauty',$options:'i' }
@@ -766,7 +755,7 @@ const beautyCategory = async (req, res) => {
 
     const categoryIds = categories.map((cat) => cat._id);
 
-    // Total count for pagination
+   
     const totalProducts = await Product.countDocuments({
       isBlocked: false,
       category: { $in: categoryIds },
@@ -775,7 +764,7 @@ const beautyCategory = async (req, res) => {
 
     const totalPages = Math.ceil(totalProducts / limit);
 
-    // Paginated product query
+   
     let productData = await Product.find({
       isBlocked: false,
       category: { $in: categoryIds },
@@ -820,7 +809,7 @@ const filter = async (req, res) => {
       filter.category = category;
     }
 
-    // Filter by price range 
+   
     if (price) {
       let priceRange = price.split('-');
       if (priceRange.length === 2) {

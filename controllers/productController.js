@@ -6,7 +6,7 @@ const userSchema = require("../models/userSchema");
 const sharp = require("sharp");
 
 const getProductPage = async (req, res) => {
-  if (!req.session.admin) return res.redirect("/admin/login");
+ 
 
   try {
     const search = req.query.search || "";
@@ -15,11 +15,12 @@ const getProductPage = async (req, res) => {
 
     const query = {
       isBlocked: false,
+      isDeleted: false,
       productName: { $regex: search, $options: "i" },
     };
 
     const productData = await Product.find(query)
-      .select("productName regularPrice salePrice category status isBlocked")
+      .select("productName regularPrice salePrice category status isBlocked isDeleted")
       .populate('category', 'name')
       .limit(limit)
       .sort({ createdOn: -1 })
@@ -31,21 +32,27 @@ const getProductPage = async (req, res) => {
       productName: product.productName,
       salePrice: product.salePrice,
       regularPrice: product.regularPrice,
-      category: product.category?.name || "Unknown", // safe access
+      category: product.category?.name || "Unknown", 
+      categoryId: product.category?._id || "",
       status: product.status,
       isBlocked: product.isBlocked,
     }));
 
+    
     const count = await Product.countDocuments(query);
+    const categories = await Category.find({isListed:true}).select("_id name").lean();
+    
 
     res.render("admin/product", {
       hideHeader: true,
       hideFooter: true,
       products,
+      categories,
       totalPages: Math.ceil(count / limit),
       currentPage: page,
       search,
     });
+
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
@@ -53,15 +60,18 @@ const getProductPage = async (req, res) => {
 };
 
 const getAddProducts = async (req, res) => {
-  //   if (!req.session.admin) return res.redirect("/admin/login");
   try {
-    const category = await Category.find({ isListed: true }).lean();
+    
+    const category = await Category.find({isListed: true,isDeleted: false}).lean();
     res.render("admin/product-add", {
       categories: category,
       hideHeader: true,
       hideFooter: true,
     });
-  } catch (error) {}
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
 };
 
 
@@ -70,7 +80,7 @@ const addProducts = async (req, res) => {
   try {
     const productData = req.body;
 
-    // Validate required fields
+    
     if (
       !productData.productName ||
       !productData.description ||
@@ -79,13 +89,13 @@ const addProducts = async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Check if product already exists
+    
     const productExists = await Product.findOne({
       productName: productData.productName,
     });
 
     if (productExists) {
-      return res.status(400).render("admin/add-product", {
+      return res.status(400).render("admin/product-add", {
         error: "Product already exists, please try another name",
         productData,
       });
@@ -94,20 +104,19 @@ const addProducts = async (req, res) => {
     // Process images
     const images = [];
     if (req.files && req.files.length > 0) {
-      // Ensure we have at least 3 images
+      
       if (req.files.length < 3) {
-        return res.status(400).render("admin/add-product", {
+        return res.status(400).render("admin/product-add", {
           error: "Please upload at least 3 images",
           productData,
         });
       }
 
-      // Process each image
-      // Process each image
+     
       for (const file of req.files) {
         try {
           const originalPath = file.path;
-          const filename = path.parse(file.originalname).name; // Get filename without extension
+          const filename = path.parse(file.originalname).name; 
           const ext = path.extname(file.originalname);
           const newFilename = `resized-${filename}-${Date.now()}${ext}`;
           const resizedImagePath = path.join(
@@ -190,75 +199,40 @@ const addProducts = async (req, res) => {
 };
 
 
-
-
-// Edit Product Controller
-// const editProducts = async (req, res) => {
-//   if (req.session.admin) {
-//     try {
-//       const id = req.params.id;
-//       const { productName, regularPrice, salePrice, category } = req.body;
-
-//       await Product.findByIdAndUpdate(id, {
-//         $set: { productName, regularPrice, salePrice, category }
-//       });
-
-//       res.status(200).json({ success: true, message: "Product updated successfully!" });
-//     } catch (error) {
-//       console.error("Edit error:", error);
-//       res.status(500).json({ success: false, message: "Internal server error" });
-//     }
-//   } else {
-//     res.status(401).json({ success: false, message: "Unauthorized" });
-//   }
-// };
-
 const editProducts = async (req, res) => {
-  if (req.session.admin) {
-    try {
-      const id = req.params.id;
-      const { productName, regularPrice, salePrice, category } = req.body;
 
-      // Convert category name to ObjectId
-      const categoryDoc = await Category.findOne({ name: category });
-      if (!categoryDoc) {
-        return res.status(400).json({ success: false, message: "Invalid category" });
+  try {
+    const id = req.params.id;
+    const { productName, regularPrice, salePrice, category } = req.body;
+
+    await Product.findByIdAndUpdate(id, {
+      $set: {
+        productName,
+        regularPrice,
+        salePrice,
+        category 
       }
+    });
 
-      await Product.findByIdAndUpdate(id, {
-        $set: {
-          productName,
-          regularPrice,
-          salePrice,
-          category: categoryDoc._id // ✅ using ObjectId
-        }
-      });
-
-      res.status(200).json({ success: true, message: "Product updated successfully!" });
-    } catch (error) {
-      console.error("Edit error:", error);
-      res.status(500).json({ success: false, message: "Internal server error" });
-    }
-  } else {
-    res.status(401).json({ success: false, message: "Unauthorized" });
+    res.status(200).json({ success: true, message: "Product updated successfully!" });
+  } catch (error) {
+    console.error("Edit error:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
-
 // Delete Product Controller
 const deleteProducts = async (req, res) => {
-  if (req.session.admin) {
+  
     try {
       const id = req.params.id;
-      await Product.findByIdAndDelete(id);
+      await Product.findByIdAndUpdate(id,{$set:{isDeleted:true}})
       res.status(200).json({ success: true, message: "Product deleted successfully!" });
     } catch (error) {
       console.error("Delete error:", error);
       res.status(500).json({ success: false, message: "Internal server error" });
     }
-  } else {
-    res.status(401).json({ success: false, message: "Unauthorized" });
-  }
+  
 };
 
 

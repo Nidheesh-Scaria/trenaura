@@ -8,6 +8,7 @@ const multer = require("multer");
 const storage = require("../helpers/multer");
 const uploads = multer({ storage: storage });
 const productController = require("../controllers/productController");
+const brandController = require("../controllers/brandController");
 
 
 
@@ -17,51 +18,18 @@ router.get("/login", adminController.loadLogin);
 router.get("/dashboard", adminAuth.adminAuth, adminController.loadDashboard);
 
 //category
-router.post(
-  "/addCategory",
-  adminAuth.adminAuth,
-  categoryController.addCategory
-);
-router.post(
-  "/listCategory/:id",
-  adminAuth.adminAuth,
-  categoryController.listCategory
-);
-router.post(
-  "/unlistCategory/:id",
-  adminAuth.adminAuth,
-  categoryController.unlistCategory
-);
-router.put(
-  "/editCategory/:id",
-  adminAuth.adminAuth,
-  categoryController.editCategory
-);
-router.put(
-  "/deleteCategory/:id",
-  adminAuth.adminAuth,
-  categoryController.deleteCategory
-);
+router.post("/addCategory",adminAuth.adminAuth,categoryController.addCategory);
+router.post("/listCategory/:id",adminAuth.adminAuth,categoryController.listCategory);
+router.post("/unlistCategory/:id",adminAuth.adminAuth,categoryController.unlistCategory);
+router.put("/editCategory/:id",adminAuth.adminAuth,categoryController.editCategory);
+router.delete("/deleteCategory/:id",adminAuth.adminAuth,categoryController.deleteCategory);
 router.get("/category", adminAuth.adminAuth, categoryController.categoryInfo);
 
 //customer
 router.get("/users", adminAuth.adminAuth, customerController.customerInfo);
+router.patch("/customerBlock/:id",adminAuth.adminAuth,customerController.customerBlocked);
+router.patch("/customerUnblock/:id",adminAuth.adminAuth,customerController.customerUnBlocked);
 
-router.patch(
-  "/customerBlock/:id",
-  adminAuth.adminAuth,
-  customerController.customerBlocked
-);
-router.patch(
-  "/customerUnblock/:id",
-  adminAuth.adminAuth,
-  customerController.customerUnBlocked
-);
-
-//products management
-// router.get('/products',adminAuth.adminAuth,productController.getProductAddPage)
-// router.get('/addProducts',adminAuth.adminAuth,productController.getAddProducts)
-// router.post('/addProducts',adminAuth.adminAuth,uploads.array("images",4),productController.addProducts)
 
 router.get("/products", adminAuth.adminAuth, productController.getProductPage);
 router.get("/addProducts",adminAuth.adminAuth,productController.getAddProducts);
@@ -70,6 +38,12 @@ router.put("/editProducts/:id",adminAuth.adminAuth,productController.editProduct
 router.delete("/deleteProducts/:id", adminAuth.adminAuth, productController.deleteProducts);
 
 
+router.get("/brand", adminAuth.adminAuth,brandController.getBrandPage);
+router.post("/addBrand", adminAuth.adminAuth,brandController.addBrandPage);
+router.put("/editBrand/:id",adminAuth.adminAuth,brandController.editBrand );
+router.delete("/deleteBrand/:id",adminAuth.adminAuth,brandController.deleteBrand );
+router.post("/unblockBrand/:id", adminAuth.adminAuth,brandController.unblockBrand);
+router.post("/blockBrand/:id", adminAuth.adminAuth,brandController.blockBrand);
 
 
 

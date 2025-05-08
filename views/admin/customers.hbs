@@ -9,9 +9,6 @@
             <header class="header">
                 <h1>Customer Management</h1>
                 <div class="header-icons">
-                    {{!-- <input type="text" placeholder="Search...">
-                     <button type="submit" class="btn btn-success " style="height:2.1rem; border-radius: 25px; color:white; background-color:rgba(10, 10, 117, 0.79)" id="searchUserButton">Search</button> --}}
-                    <i class="fas fa-bell"></i>
                     <i class="fas fa-envelope"></i>
                     <img src="https://i.pravatar.cc/40" alt="Profile">
                 </div>
@@ -89,7 +86,7 @@
                             {{!-- Previous Button --}}
                             {{#ifCond currentPage '>' 1}}
                                 <a href="?page={{decrement currentPage}}&search={{search}}" class="page-btn">
-                                    <i class="fas fa-chevron-left"><</i>
+                                    <i class="fas fa-chevron-left"></i>
                                 </a>
                             {{else}}
                                 <button class="page-btn" disabled>
@@ -109,7 +106,7 @@
                             {{!-- Next Button --}}
                             {{#ifCond currentPage '<' totalPages}}
                                 <a href="?page={{increment currentPage}}&search={{search}}" class="page-btn">
-                                    <i class="fas fa-chevron-right">></i>
+                                    <i class="fas fa-chevron-right"></i>
                                 </a>
                             {{else}}
                                 <button class="page-btn" disabled>

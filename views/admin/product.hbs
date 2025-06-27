@@ -415,6 +415,8 @@
         <table id="customerTable">
           <thead>
             <tr>
+              <th>No</th>
+              <th>Image</th>
               <th>Products</th>
               <th>Price</th>
               <th>Sale Price</th>
@@ -427,6 +429,17 @@
             {{#if products.length}}
               {{#each products}}
                 <tr>
+
+                  <td>{{this.serialNumber}}</td>
+                  <td>
+                    {{#if this.firstImage}}
+                      <img src="/images/{{this.firstImage}}" alt="{{this.productName}}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                    {{else}}
+                      <div style="width: 50px; height: 50px; background-color: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #999;">
+                        No Image
+                      </div>
+                    {{/if}}
+                  </td>
                   <td>{{this.productName}}</td>
                   <td>{{this.regularPrice}}</td> 
                   <td>{{this.salePrice}}</td>
@@ -440,7 +453,7 @@
               {{/each}}
             {{else}}
               <tr>
-                <td colspan="6" style="text-align: center; padding: 20px;">No products found</td>
+                <td colspan="8" style="text-align: center; padding: 20px;">No products found</td>
               </tr>
             {{/if}}
           </tbody>

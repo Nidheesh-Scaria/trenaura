@@ -1,6 +1,8 @@
 <head>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
+    <!-- SweetAlert CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style>
         /* General Styles */
         .content-main {
@@ -181,15 +183,7 @@
                                     <input type="text" name="productName" class="form-control border" id="product_name" >
                                     <div id="productName-error" class="error-message"></div>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Brand</label>
-                                    <select class="form-select border" name="brand" >
-                                        {{#each brands}}
-                                            <option value="{{this.brandName}}">{{this.brandName}}</option>
-                                        {{/each}}
-                                    </select>
-                                    <div id="brand-error" class="error-message"></div>
-                                </div>
+                                
                             </div>
 
                             <!-- Pricing and Quantity -->
@@ -214,7 +208,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Color</label>
-                                    <input name="color" type="text" class="form-control border">
+                                    <input name="color" type="text" class="form-control border" >
                                     <div id="color-error" class="error-message"></div>
                                 </div>
                             </div>
@@ -230,7 +224,7 @@
                             <div class="mb-4">
                                 <label class="form-label">Category</label>
                                 <select class="form-select border" name="category" >
-                                    {{#each categories}}
+                                    {{#each category}}
                                         <option value="{{this.name}}">{{this.name}}</option>
                                     {{/each}}
                                 </select>
@@ -241,7 +235,7 @@
                             <div class="mb-3">
                                 <label for="multiImageInput" class="form-label">Upload Product Images (min 3)</label>
                                 <input class="form-control" type="file" name="images" id="multiImageInput" multiple
-                                    accept="image/png, image/jpeg, image/jpg">
+                                    accept="image/png, image/jpeg, image/jpg" >
                                 <div id="images-error" class="error-message"></div>
                             </div>
 
@@ -271,9 +265,15 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
+    <!-- SweetAlert JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>      
+    <script src="/js/main.js"></script>
+    <script src="/js/jquery.slicknav.js"></script>
+
 
 
     <script>
+
         // Global variables
         let cropper;
         let currentImageIndex;
@@ -306,6 +306,7 @@
             // Validate minimum 3 images
             if (files.length < 3) {
                 displayErrorMessage('images-error', 'Please upload at least 3 images');
+                showImageError('Please upload at least 3 images for the product.');
                 return;
             } else {
                 clearErrorMessage('images-error');
@@ -405,22 +406,54 @@
                     thumbnails[currentImageIndex].src = URL.createObjectURL(blob);
                     
                     closeModal();
+                    
+                    // Show success message
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Image Cropped!',
+                        text: 'Image has been cropped successfully.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
                 }, 'image/jpeg', 0.9);
             }
         }
 
         function removeImage(index) {
-            // Remove from arrays
-            uploadedFiles.splice(index, 1);
-            croppedImages.splice(index, 1);
-            
-            // Update the file input
-            const dataTransfer = new DataTransfer();
-            uploadedFiles.forEach(file => dataTransfer.items.add(file));
-            document.getElementById('multiImageInput').files = dataTransfer.files;
-            
-            // Update the preview
-            handleMultipleImageUpload({ target: { files: dataTransfer.files } });
+            // Show confirmation dialog
+            Swal.fire({
+                title: 'Remove Image?',
+                text: 'Are you sure you want to remove this image?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, remove it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Remove from arrays
+                    uploadedFiles.splice(index, 1);
+                    croppedImages.splice(index, 1);
+                    
+                    // Update the file input
+                    const dataTransfer = new DataTransfer();
+                    uploadedFiles.forEach(file => dataTransfer.items.add(file));
+                    document.getElementById('multiImageInput').files = dataTransfer.files;
+                    
+                    // Update the preview
+                    handleMultipleImageUpload({ target: { files: dataTransfer.files } });
+                    
+                    // Show success message
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Image Removed!',
+                        text: 'Image has been removed successfully.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+            });
         }
 
         function validateForm() {
@@ -495,21 +528,65 @@
                     }
                 });
                 
+                // Show loading SweetAlert
+                Swal.fire({
+                    title: 'Adding Product...',
+                    text: 'Please wait while we process your product',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
                 // Submit the form
+                console.log('Submitting form with cropped images...');
+
                 fetch(form.action, {
-                    method: 'POST',
-                    body: formData
+                    method: "POST",
+                    body: formData,
                 })
-                .then(response => {
-                    if (response.ok) {
-                        window.location.href = '/admin/products';
+                .then((response) => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
+                .then((data) => {
+                    console.log('Response data:', data);
+                    if (data.success) {
+                        // Success SweetAlert
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: data.message || 'Product added successfully!',
+                            confirmButtonText: 'View Products',
+                            confirmButtonColor: '#28a745'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "/admin/products";
+                            }
+                        });
                     } else {
-                        throw new Error('Failed to submit form');
+                        // Error SweetAlert
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: data.message || 'Something went wrong',
+                            confirmButtonText: 'Try Again',
+                            confirmButtonColor: '#dc3545'
+                        });
                     }
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error submitting form: ' + error.message);
+                .catch((error) => {
+                    console.error("Form submission error:", error);
+                    // Error SweetAlert
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Submission Failed!',
+                        text: 'Failed to submit product. Please check your connection and try again.',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#dc3545'
+                    });
                 });
             }
             
@@ -534,10 +611,30 @@
                 element.style.display = 'none';
             });
         }
+
+        // Function to show SweetAlert for validation errors
+        function showValidationError(title, message) {
+            Swal.fire({
+                icon: 'warning',
+                title: title,
+                text: message,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#ffc107'
+            });
+        }
+
+        // Function to show SweetAlert for image upload errors
+        function showImageError(message) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Image Upload Error',
+                text: message,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#dc3545'
+            });
+        }
+
+    
+    
     </script>
-
-
-
-
-
 </body>

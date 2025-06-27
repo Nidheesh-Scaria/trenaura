@@ -55,10 +55,11 @@ router.get(
   "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/signup" }),
   (req, res) => {
+    req.session.isLoggedIn = true;
+    req.session.user = req.user._id;
     res.redirect("/");
   }
 );
-
 
 
 module.exports = router;

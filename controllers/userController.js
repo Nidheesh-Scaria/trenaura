@@ -102,11 +102,7 @@ const verifySignupOtp = async (req, res) => {
 
       req.session.user = saveUserData._id;
       req.session.isLoggedIn = true;
-      // Clear sensitive session data
-      // delete req.session.userOtp;
-      // delete req.session.otpExpiresAt;
-      // delete req.session.userData;
-
+      
       console.log("User registered successfully.");
 
       // res.redirect("/");
@@ -261,15 +257,16 @@ const loadHomepage = async (req, res) => {
       isLoggedIn: !!user,
       adminHeader: true,
       products: productData,
-      mensImg:mensProduct?.productImages?.[0] ? `/uploads/product-images/${randomImages(mensProduct.productImages)}`:"default.jpg",
-      womensImg:womensProduct?.productImages?.[0] ? `/uploads/product-images/${randomImages(womensProduct.productImages)}`:"default.jpg",
-      beautyImg:beautyProduct?.productImages?.[0] ? `/uploads/product-images/${randomImages(beautyProduct.productImages)}`:"default.jpg",
+      mensImg:mensProduct?.productImages?.[0] ? `/images/${randomImages(mensProduct.productImages)}`:"default.jpg",
+      womensImg:womensProduct?.productImages?.[0] ? `/images/${randomImages(womensProduct.productImages)}`:"default.jpg",
+      beautyImg:beautyProduct?.productImages?.[0] ? `/images/${randomImages(beautyProduct.productImages)}`:"default.jpg",
     });
   } catch (error) {
     console.error("Error in rendering home page:", error);
     res.status(500).send("Server error");
   }
 };
+
 
 const loadLogin = async (req, res) => {
   try {
@@ -588,6 +585,14 @@ const productDetails = async (req, res) => {
 
     const products = await Product.findById(productId).lean();
 
+    // Add firstImage property to the main product
+    const product = {
+      ...products,
+      firstImage: products.productImages && products.productImages.length > 0
+        ? products.productImages[0]
+        : "default.jpg",
+    };
+
     const categories = await Category.find({ isListed: true });
 
     let productData = await Product.find({
@@ -607,12 +612,12 @@ const productDetails = async (req, res) => {
       };
     });
 
-    
+      
     res.render("user/product-details", {
       title: "Product details",
       adminHeader: true,
       hideFooter: true,
-      product: products,
+      product: product,
       products: productData,
     });
 

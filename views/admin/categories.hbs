@@ -690,10 +690,11 @@ textarea.form-control {
         <table id="customerTable">
           <thead>
             <tr>
+                <th>No</th>
                 <th>Name</th>
                 <th>Description</th>
                 <th>Offers</th>
-                <th>Status</th>
+                <th>List Status</th>
                 <th>List/Unlist</th>
                 <th>Actions</th>
             </tr>
@@ -702,6 +703,7 @@ textarea.form-control {
             {{#if categories.length}}
                 {{#each categories}}
                 <tr>
+                <th>{{this.serialNumber}}</th>
                 <td>{{this.name}}</td>
                 <td>{{this.description}}</td>
                 {{!-- <td>

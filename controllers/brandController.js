@@ -18,11 +18,12 @@ const getBrandPage = async (req, res) => {
       .skip((page - 1) * limit)
       .lean();
 
-    const brands = brandData.map((brand) => ({
+    const brands = brandData.map((brand,index) => ({
       _id: brand._id,
       brandName: brand.brandName,
       status: brand.isBlocked,
       createdAt: brand.createdAt.toISOString().split("T")[0],
+      serialNumber: (page - 1) * limit + index + 1 //
     }));
 
     const count = await Brand.countDocuments(query);

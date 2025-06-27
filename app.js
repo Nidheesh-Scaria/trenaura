@@ -8,11 +8,25 @@ const session = require("express-session");
 const flash = require("connect-flash");
 const nocache = require("nocache");
 const passport = require("./config/passport");
+const { GridFSBucket } = require("mongodb");
+const mongoose = require("mongoose");
+
 
 const app = express();
-db();
+
+
 
 const port = process.env.PORT || 3000;
+
+db();
+
+mongoose.connection.once('open',()=>{
+  const db=mongoose.connection.db;
+  const bucket=new GridFSBucket(db,{bucketName:'uploads'})
+  app.locals.bucket=bucket
+
+  console.log('Grid fs set in app.locals')
+})
 
 
 const hbs = exphbs.create({
@@ -21,8 +35,10 @@ const hbs = exphbs.create({
   layoutsDir: path.join(__dirname, "views"),
   partialsDir: path.join(__dirname, "views/partials"),
   helpers: {
-    increment: (value) => parseInt(value) + 1,
+    increment: (index, offset) => parseInt(index) + parseInt(offset || 0) + 1,
     decrement: (value) => parseInt(value) - 1,
+    multiply: (a, b) => parseInt(a) * parseInt(b),
+
     ifCond: function (v1, operator, v2, options) {
       switch (operator) {
         case "===":
@@ -44,6 +60,7 @@ const hbs = exphbs.create({
     },
   },
 });
+
 
 app.engine("hbs", hbs.engine);
 app.set("view engine", "hbs");
@@ -78,8 +95,33 @@ app.use((req, res, next) => {
 });
 
 app.use(express.static(path.join(__dirname, "public")));
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+// Route to serve GridFS images
+app.get('/images/:filename', async (req, res) => {
+  try {
+    const filename = req.params.filename;
+    const bucket = req.app.locals.bucket;
+    
+    if (!bucket) {
+      return res.status(500).send('GridFS not initialized');
+    }
+
+    const downloadStream = bucket.openDownloadStreamByName(filename);
+    
+    downloadStream.on('error', (error) => {
+      console.error('Error downloading file:', error);
+      res.status(404).send('Image not found');
+    });
+
+    downloadStream.pipe(res);
+  } catch (error) {
+    console.error('Error serving image:', error);
+    res.status(500).send('Internal server error');
+  }
+});
 
 app.use("/", userRouter);
 app.use("/admin", adminRouter);

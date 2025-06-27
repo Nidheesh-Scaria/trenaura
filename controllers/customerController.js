@@ -24,7 +24,7 @@ const customerInfo = async (req, res) => {
       .lean()
       .exec();
 
-    const customers = userData.map((user) => ({
+    const customers = userData.map((user,index) => ({
       _id: user._id,
       name: user.name,
       email: user.email,
@@ -34,6 +34,7 @@ const customerInfo = async (req, res) => {
         : "N/A",
       status: user.isBlocked ? "blocked" : "active",
       isBlocked: user.isBlocked,
+      serialNumber: (page - 1) * limit + index + 1 
     }));
 
     const count = await userSchema.countDocuments(query);

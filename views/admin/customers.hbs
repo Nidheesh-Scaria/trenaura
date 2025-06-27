@@ -41,11 +41,12 @@
                     <table id="customerTable">
                         <thead>
                             <tr>
+                                <th>No</th>
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th>Join Date</th>
-                                <th>Status</th>
+                                <th>Block Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -53,6 +54,7 @@
                         {{#if customers.length}}
                             {{#each customers}}
                                 <tr>
+                                    <td>{{this.serialNumber}}</td>
                                     <td>{{this.name}}</td>
                                     <td>{{this.email}}</td>
                                     <td>{{this.phone}}</td>

@@ -5,8 +5,9 @@ const adminAuth = require("../middleware/userAuth");
 const customerController = require("../controllers/customerController");
 const categoryController = require("../controllers/categoryController");
 const multer = require("multer");
-const storage = require("../helpers/multer");
-const uploads = multer({ storage: storage });
+// const storage = require("../helpers/multer");
+// const uploads = multer({ storage: storage }); commanded for checking adding image issue
+const upload = require("../helpers/multer");
 const productController = require("../controllers/productController");
 const brandController = require("../controllers/brandController");
 
@@ -33,7 +34,7 @@ router.patch("/customerUnblock/:id",adminAuth.adminAuth,customerController.custo
 
 router.get("/products", adminAuth.adminAuth, productController.getProductPage);
 router.get("/addProducts",adminAuth.adminAuth,productController.getAddProducts);
-router.post("/addProducts",adminAuth.adminAuth,storage.array("images", 4),productController.addProducts);
+router.post("/addProducts",upload.array("images", 4),productController.addProducts);
 router.put("/editProducts/:id",adminAuth.adminAuth,productController.editProducts );
 router.delete("/deleteProducts/:id", adminAuth.adminAuth, productController.deleteProducts);
 

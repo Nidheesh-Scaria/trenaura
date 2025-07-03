@@ -35,7 +35,8 @@ router.patch("/customerUnblock/:id",adminAuth.adminAuth,customerController.custo
 router.get("/products", adminAuth.adminAuth, productController.getProductPage);
 router.get("/addProducts",adminAuth.adminAuth,productController.getAddProducts);
 router.post("/addProducts",upload.array("images", 4),productController.addProducts);
-router.put("/editProducts/:id",adminAuth.adminAuth,productController.editProducts );
+router.get("/editProducts/:id", adminAuth.adminAuth, productController.getEditProduct);
+router.post("/editProducts/:id",upload.array('images'),adminAuth.adminAuth,productController.editProducts );
 router.delete("/deleteProducts/:id", adminAuth.adminAuth, productController.deleteProducts);
 
 

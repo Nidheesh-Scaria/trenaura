@@ -490,7 +490,7 @@
     <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
-          <form id="editCategoryForm">
+          <form id="editCategoryForm" method="POST" enctype="multipart/form-data">
             <div class="modal-header">
               <h5 class="modal-title">Edit Product</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
@@ -499,29 +499,37 @@
               <input type="hidden" id="editCategoryId" />
               <div class="mb-3">
                 <label class="form-label">Product Name</label>
-                <input type="text" id="editProductName" class="form-control" />
+                <input type="text" id="editProductName" name="productName" class="form-control" />
               </div>
               <div class="mb-3">
                 <label class="form-label">Regular Price</label>
-                <input type="number" id="editRegularPrice" class="form-control" />
+                <input type="number" id="editRegularPrice" name="regularPrice" class="form-control" />
               </div>
               <div class="mb-3">
                 <label class="form-label">Sale Price</label>
-                <input type="number" id="editSalePrice" class="form-control" />
+                <input type="number" id="editSalePrice" name="salePrice" class="form-control" />
               </div>
               <div class="mb-3">
                 <label class="form-label">Category</label>
-                {{!-- <input type="text" id="editCategory" class="form-control" /> --}}
                 <select class="form-select border" name="category" id="editCategory" class="form-control" >
                   {{#each categories}}
-                    <option value="{{this._id}}"
-                      {{#ifCond this._id "===" ../categoryId}}selected{{/ifCond}}>
-                      {{this.name}}
-                    </option>
+                    <option value="{{this._id}}">{{this.name}}</option>
                   {{/each}}
                 </select>
               </div>
             </div>
+            <div class="mb-3">
+                <label class="form-label">Current Images</label><br />
+                <div class="d-flex flex-wrap gap-2 current-images-container">
+                </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Upload New Images</label>
+              <input type="file" name="images" multiple class="form-control" />
+            </div>
+
+
+                        
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
               <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -530,6 +538,8 @@
         </div>
       </div>
     </div>
+
+
 
   <!-- Delete Product Modal -->
   <div class="modal fade" id="deleteCategoryModal" tabindex="-1">
@@ -579,40 +589,75 @@
 
 <script>
 function openEditModal(id, productName, regularPrice, salePrice, category) {
-  $('#editCategoryId').val(id);
-  $('#editProductName').val(productName);
-  $('#editRegularPrice').val(regularPrice);
-  $('#editSalePrice').val(salePrice);
-  $('#editCategory').val(category);
-  $('#editCategoryModal').modal('show');
+
+  fetch(`/admin/editProducts/${id}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const product = data.product;
+        
+        
+        $('#editCategoryId').val(product._id);
+        $('#editProductName').val(product.productName);
+        $('#editRegularPrice').val(product.regularPrice);
+        $('#editSalePrice').val(product.salePrice);
+        $('#editCategory').val(product.category);
+        
+        // Clear previous images and show with current images
+        $('.current-images-container').empty();
+        
+        if (product.productImages && product.productImages.length > 0) {
+          product.productImages.forEach(function(image) {
+            const imageHtml = `
+              <div class="text-center">
+                <img src="/images/${image}" width="100" class="mb-1" />
+                <br />
+                <input type="checkbox" name="deleteImages" value="${image}" /> Delete
+              </div>
+            `;
+            $('.current-images-container').append(imageHtml);
+          });
+        }
+        
+        // Showing the modal
+        $('#editCategoryModal').modal('show');
+      } else {
+        Swal.fire('Error', 'Failed to load product data', 'error');
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching product:', error);
+      Swal.fire('Error', 'Failed to load product data', 'error');
+    });
 }
 
+//edit modal eith images
 $('#editCategoryForm').on('submit', function (e) {
   e.preventDefault();
-  const id = $('#editCategoryId').val();
-  const productName = $('#editProductName').val().trim();
-  const regularPrice = $('#editRegularPrice').val();
-  const salePrice = $('#editSalePrice').val();
-  const category = $('#editCategory').val().trim();
 
-  if (!productName || !regularPrice || !salePrice || !category) {
-    return Swal.fire('Error', 'All fields are required', 'error');
-  }
+  const form = document.getElementById('editCategoryForm');
+  const formData = new FormData(form); // geting form data
+
+  const id = $('#editCategoryId').val();
 
   fetch(`/admin/editProducts/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ productName, regularPrice, salePrice, category })
+    method: 'POST', 
+    body: formData,
   })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      Swal.fire('Updated!', data.message, 'success').then(() => location.reload());
-    } else {
-      Swal.fire('Error', data.message, 'error');
-    }
-  });
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        Swal.fire('Updated!', data.message, 'success').then(() => location.reload());
+      } else {
+        Swal.fire('Error', data.message, 'error');
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      Swal.fire('Error', 'Something went wrong', 'error');
+    });
 });
+
 
 function openDeleteModal(id) {
   $('#deleteCategoryId').val(id);

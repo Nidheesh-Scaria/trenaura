@@ -1,6 +1,7 @@
 const userSchema = require("../models/userSchema");
 const Product = require("../models/productSchema");
 const Category = require("../models/categorySchema");
+const Address = require("../models/addressSchema");
 
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
@@ -102,7 +103,7 @@ const verifySignupOtp = async (req, res) => {
 
       req.session.user = saveUserData._id;
       req.session.isLoggedIn = true;
-      
+
       console.log("User registered successfully.");
 
       // res.redirect("/");
@@ -191,6 +192,7 @@ const login = async (req, res) => {
 
     req.session.user = user._id;
     req.session.isLoggedIn = true;
+    req.session.userBlocked = user.isBlocked;
     res.redirect("/");
   } catch (error) {
     console.error("Error in saving user", error);
@@ -216,17 +218,23 @@ const loadTrenauraHomepage = async (req, res) => {
 const loadHomepage = async (req, res) => {
   try {
     const user = req.session.user || req.user;
+    const isBlocked = req.session.isBlocked || req.isBlocked;
 
+    const userOk = await userSchema.findById(user);
     const categories = await Category.find({ isListed: true });
-    const mensCategory= await Category.findOne({name:"Mens"})
-    const womensCategory= await Category.findOne({name:"Womens"})
-    const beautyCategory=await Category.findOne({name:"Beauty"})
-    
+    const mensCategory = await Category.findOne({ name: "Mens" });
+    const womensCategory = await Category.findOne({ name: "Womens" });
+    const beautyCategory = await Category.findOne({ name: "Beauty" });
 
-    const mensProduct=mensCategory ? await Product.findOne({category:mensCategory._id}):null;
-    const womensProduct=womensCategory?await Product.findOne({category:womensCategory._id}):null;
-    const beautyProduct=beautyCategory?await Product.findOne({category:beautyCategory._id}):null;
-
+    const mensProduct = mensCategory
+      ? await Product.findOne({ category: mensCategory._id })
+      : null;
+    const womensProduct = womensCategory
+      ? await Product.findOne({ category: womensCategory._id })
+      : null;
+    const beautyProduct = beautyCategory
+      ? await Product.findOne({ category: beautyCategory._id })
+      : null;
 
     let productData = await Product.find({
       isBlocked: false,
@@ -245,21 +253,26 @@ const loadHomepage = async (req, res) => {
       };
     });
 
-    const randomImages=(images)=>{
-      if(!images||images.length==0) return null;
-      const randomIndex=Math.floor(Math.random()*images.length);
-      return images[randomIndex]
-    }
-    
+    const randomImages = (images) => {
+      if (!images || images.length == 0) return null;
+      const randomIndex = Math.floor(Math.random() * images.length);
+      return images[randomIndex];
+    };
 
     return res.render("user/home", {
       title: "Trenaura - Home page",
       isLoggedIn: !!user,
       adminHeader: true,
       products: productData,
-      mensImg:mensProduct?.productImages?.[0] ? `/images/${randomImages(mensProduct.productImages)}`:"default.jpg",
-      womensImg:womensProduct?.productImages?.[0] ? `/images/${randomImages(womensProduct.productImages)}`:"default.jpg",
-      beautyImg:beautyProduct?.productImages?.[0] ? `/images/${randomImages(beautyProduct.productImages)}`:"default.jpg",
+      mensImg: mensProduct?.productImages?.[0]
+        ? `/images/${randomImages(mensProduct.productImages)}`
+        : "default.jpg",
+      womensImg: womensProduct?.productImages?.[0]
+        ? `/images/${randomImages(womensProduct.productImages)}`
+        : "default.jpg",
+      beautyImg: beautyProduct?.productImages?.[0]
+        ? `/images/${randomImages(beautyProduct.productImages)}`
+        : "default.jpg",
     });
   } catch (error) {
     console.error("Error in rendering home page:", error);
@@ -267,9 +280,16 @@ const loadHomepage = async (req, res) => {
   }
 };
 
-
 const loadLogin = async (req, res) => {
   try {
+    
+    const blockMsg = req.cookies?.blockMessage;
+    if (blockMsg) {
+      req.flash("error", blockMsg);
+      res.clearCookie("blockMessage");
+    }
+
+
     return res.render("user/login", {
       title: "Trenaura Login page",
       hideHeader: true,
@@ -328,8 +348,7 @@ const verifyOtp = async (req, res) => {
 const loadmyAccount = async (req, res) => {
   try {
     const userId = req.session.user || req.user;
-    // const userId = req.session.user;
-    console.log("Checking login status:", userId);
+
     if (!userId) {
       return res.redirect("/login");
     }
@@ -339,7 +358,6 @@ const loadmyAccount = async (req, res) => {
       return res.redirect("/login");
     }
 
-    console.log("Rendering My Account Page");
     res.render("user/myAccount", {
       title: "My Account",
       name: user.name,
@@ -391,7 +409,6 @@ const forgotPasswordOtp = async (req, res) => {
   try {
     const { email } = req.body;
 
-    
     const user = await userSchema.findOne({ email });
     if (!user) {
       return res
@@ -408,13 +425,12 @@ const forgotPasswordOtp = async (req, res) => {
         .json({ success: false, message: "Failed to send email" });
     }
 
-    
     req.session.userOtp = otp;
     req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000; // 5 mins
     req.session.userData = { email };
 
     console.log("OTP sent:", otp);
-    
+
     res.render("user/verifyOtpPswd", {
       title: "Trenaura Verify OTP",
       hideHeader: true,
@@ -449,7 +465,6 @@ const verifyForgotPasswordOtp = async (req, res) => {
     }
 
     if (String(otp) === String(sessionOtp)) {
-      
       req.session.userData = { email: req.session.userData.email };
 
       return res
@@ -501,7 +516,6 @@ const changePassword = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-   
     const passwordChange = await userSchema.updateOne(
       { email: user.email },
       { $set: { password: hashedPassword } }
@@ -588,9 +602,10 @@ const productDetails = async (req, res) => {
     // Add firstImage property to the main product
     const product = {
       ...products,
-      firstImage: products.productImages && products.productImages.length > 0
-        ? products.productImages[0]
-        : "default.jpg",
+      firstImage:
+        products.productImages && products.productImages.length > 0
+          ? products.productImages[0]
+          : "default.jpg",
     };
 
     const categories = await Category.find({ isListed: true });
@@ -601,7 +616,6 @@ const productDetails = async (req, res) => {
       quantity: { $gt: 0 },
     });
 
-    
     productData = productData.slice().map((product) => {
       return {
         ...product._doc,
@@ -612,7 +626,6 @@ const productDetails = async (req, res) => {
       };
     });
 
-      
     res.render("user/product-details", {
       title: "Product details",
       adminHeader: true,
@@ -620,29 +633,25 @@ const productDetails = async (req, res) => {
       product: product,
       products: productData,
     });
-
   } catch (error) {
     console.error("Error in rendering home page:", error);
     res.status(500).send("Server error");
   }
 };
 
-
 const mensCategory = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; 
-    const limit = 2; 
+    const page = parseInt(req.query.page) || 1;
+    const limit = 2;
     const skip = (page - 1) * limit;
 
-   
     const categories = await Category.find({
       isListed: true,
-      name: { $regex: 'Mens' }
+      name: { $regex: "Mens" },
     });
 
     const categoryIds = categories.map((cat) => cat._id);
 
-    
     const totalProducts = await Product.countDocuments({
       isBlocked: false,
       category: { $in: categoryIds },
@@ -651,7 +660,6 @@ const mensCategory = async (req, res) => {
 
     const totalPages = Math.ceil(totalProducts / limit);
 
-  
     let productData = await Product.find({
       isBlocked: false,
       category: { $in: categoryIds },
@@ -659,7 +667,6 @@ const mensCategory = async (req, res) => {
     })
       .skip(skip)
       .limit(limit);
-
 
     productData = productData.map((product) => {
       return {
@@ -671,7 +678,6 @@ const mensCategory = async (req, res) => {
       };
     });
 
-
     res.render("user/mens", {
       title: "Mens Category",
       adminHeader: true,
@@ -680,30 +686,25 @@ const mensCategory = async (req, res) => {
       currentPage: page,
       totalPages: totalPages,
     });
-
-
   } catch (error) {
     console.error("Error in rendering mens category:", error);
     res.status(500).send("Server error");
   }
 };
 
-
 const womensCategory = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 2; 
+    const limit = 2;
     const skip = (page - 1) * limit;
 
-    
     const categories = await Category.find({
       isListed: true,
-      name: { $regex: 'Womens',$options:'i' }
+      name: { $regex: "Womens", $options: "i" },
     });
 
     const categoryIds = categories.map((cat) => cat._id);
 
-    
     const totalProducts = await Product.countDocuments({
       isBlocked: false,
       category: { $in: categoryIds },
@@ -712,7 +713,6 @@ const womensCategory = async (req, res) => {
 
     const totalPages = Math.ceil(totalProducts / limit);
 
-    
     let productData = await Product.find({
       isBlocked: false,
       category: { $in: categoryIds },
@@ -745,22 +745,19 @@ const womensCategory = async (req, res) => {
   }
 };
 
-
 const beautyCategory = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; 
+    const page = parseInt(req.query.page) || 1;
     const limit = 2;
     const skip = (page - 1) * limit;
 
-    
     const categories = await Category.find({
       isListed: true,
-      name: { $regex: 'Beauty',$options:'i' }
+      name: { $regex: "Beauty", $options: "i" },
     });
 
     const categoryIds = categories.map((cat) => cat._id);
 
-   
     const totalProducts = await Product.countDocuments({
       isBlocked: false,
       category: { $in: categoryIds },
@@ -769,7 +766,6 @@ const beautyCategory = async (req, res) => {
 
     const totalPages = Math.ceil(totalProducts / limit);
 
-   
     let productData = await Product.find({
       isBlocked: false,
       category: { $in: categoryIds },
@@ -802,40 +798,34 @@ const beautyCategory = async (req, res) => {
   }
 };
 
-
 const filter = async (req, res) => {
   try {
-    const { category, price, page = 1, limit = 2 } = req.query; 
-    const skip = (page - 1) * limit; 
-    let filter = {}; 
+    const { category, price, page = 1, limit = 2 } = req.query;
+    const skip = (page - 1) * limit;
+    let filter = {};
 
-    
     if (category) {
       filter.category = category;
     }
 
-   
     if (price) {
-      let priceRange = price.split('-');
+      let priceRange = price.split("-");
       if (priceRange.length === 2) {
-        filter.salePrice = { $gte: parseInt(priceRange[0]), $lte: parseInt(priceRange[1]) };
-      } else if (priceRange[0] === '8000+') {
+        filter.salePrice = {
+          $gte: parseInt(priceRange[0]),
+          $lte: parseInt(priceRange[1]),
+        };
+      } else if (priceRange[0] === "8000+") {
         filter.salePrice = { $gte: 8000 };
       }
     }
 
-    
     const totalProducts = await Product.countDocuments(filter);
 
-    
     const totalPages = Math.ceil(totalProducts / limit);
 
-  
-    let products = await Product.find(filter)
-      .skip(skip)
-      .limit(limit);
+    let products = await Product.find(filter).skip(skip).limit(limit);
 
-    
     products = products.map((product) => {
       return {
         ...product._doc,
@@ -846,12 +836,11 @@ const filter = async (req, res) => {
         productName: product.productName,
         salePrice: product.salePrice,
         regularPrice: product.regularPrice,
-        description: product.description, 
+        description: product.description,
       };
     });
 
-    
-    res.render('user/mens', {
+    res.render("user/mens", {
       title: "Mens Category",
       adminHeader: true,
       hideFooter: true,
@@ -861,17 +850,11 @@ const filter = async (req, res) => {
       category,
       price,
     });
-
   } catch (error) {
     console.error(error);
-    res.status(500).send('Server Error');
+    res.status(500).send("Server Error");
   }
 };
-
-
-
-
-
 
 module.exports = {
   loadTrenauraHomepage,
@@ -898,5 +881,4 @@ module.exports = {
   womensCategory,
   beautyCategory,
   filter,
-
 };

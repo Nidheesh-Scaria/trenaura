@@ -35,7 +35,7 @@ form.addEventListener("submit", function (e) {
   document.getElementById("emailError").innerText = "";
   document.getElementById("passwordError").innerText = "";
   document.getElementById("mainError").innerText = "";
-  
+  document.getElementById("blockError").innerText=""
   
 
   // Get field values

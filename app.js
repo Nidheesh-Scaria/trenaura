@@ -10,6 +10,8 @@ const nocache = require("nocache");
 const passport = require("./config/passport");
 const { GridFSBucket } = require("mongodb");
 const mongoose = require("mongoose");
+const cookieParser = require("cookie-parser");
+
 
 
 const app = express();
@@ -83,6 +85,7 @@ app.use(flash());
 app.use(nocache());
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(cookieParser());
 
 app.use((req, res, next) => {
   res.locals.JSONstringify = (obj) =>

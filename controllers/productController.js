@@ -5,6 +5,11 @@ const fs = require("fs");
 const path = require("path");
 const userSchema = require("../models/userSchema");
 const sharp = require("sharp");
+const httpStatus = require('../util/statusCodes')
+const {MESSAGES} = require('../util/constants')
+
+
+
 
 const getProductPage = async (req, res) => {
   try {
@@ -37,9 +42,9 @@ const getProductPage = async (req, res) => {
       categoryId: product.category?._id || "",
       status: product.status,
       isBlocked: product.isBlocked,
-      productImages: product.productImages || [],
+      productImages: product.productImages || [], //image is passing
       firstImage: product.productImages?.[0] || null,
-      serialNumber: (page - 1) * limit + index + 1, //for serial number
+      serialNumber: (page - 1) * limit + index + 1, //to get serial number
     }));
 
     const count = await Product.countDocuments(query);
@@ -58,7 +63,7 @@ const getProductPage = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error");
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).send(MESSAGES.INTERNAL_SERVER_ERROR || "Internal Server Error");
   }
 };
 
@@ -75,22 +80,29 @@ const getAddProducts = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error");
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).send(MESSAGES.INTERNAL_SERVER_ERROR || "Internal Server Error");
   }
 };
 
 const getEditProduct = async (req, res) => {
   try {
+    
+    
     const productId = req.params.id;
     const product = await Product.findById(productId)
       .populate("category", "name _id")
       .lean();
 
+    
+
     if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found" });
+      console.log("Product not found");
+      return res
+        .status(404)
+        .json({ success: false, message: MESSAGES.PRODUCT_NOT_FOUND ||"PRODUCT NOT FOUND"});
     }
 
-    res.json({
+    const responseData = {
       success: true,
       product: {
         _id: product._id,
@@ -99,29 +111,40 @@ const getEditProduct = async (req, res) => {
         salePrice: product.salePrice,
         category: product.category?._id,
         categoryName: product.category?.name,
-        productImages: product.productImages || []
-      }
-    });
+        productImages: product.productImages || [],
+      },
+    };
+
+    console.log("Sending response:", responseData);
+    res.json(responseData);
   } catch (error) {
     console.error("Error fetching product:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR || "internal server error"});
   }
 };
 
 const addProducts = async (req, res) => {
+
   try {
     const productData = req.body;
-    console.log("Received form:", req.body);
-    console.log("Received files:", req.files);
-
+    
     if (
       !productData.productName ||
       !productData.description ||
       !productData.category
     ) {
+      const missingFields = [];
+      if (!productData.productName) missingFields.push("Product Name");
+      if (!productData.description) missingFields.push("Description");
+      if (!productData.category) missingFields.push("Category");
+      
+      
       return res
         .status(400)
-        .json({ success: false, message: "Missing required fields" });
+        .json({ 
+          success: false, 
+          message: `${MESSAGES.MISSING_FIELDS}: ${missingFields.join(", ")}` || "missing fields"
+        });
     }
 
     const productExists = await Product.findOne({
@@ -129,18 +152,28 @@ const addProducts = async (req, res) => {
     });
 
     if (productExists) {
-      return res.status(400).render("admin/product-add", {
-        error: "Product already exists, please try another name",
-        productData,
+      return res.status(400).json({
+        success: false,
+        message: MESSAGES.PRODUCT_EXISTS,
       });
     }
-    //new image add code
 
+    //new image add code
+   
     const images = [];
     if (req.files && req.files.length >= 3) {
       const bucket = req.app.locals.bucket;
+      
       for (const file of req.files) {
-        const filename = `product-${Date.now()}-${file.originalname}}`;
+        // console.log("File details:", {
+        //   originalname: file.originalname,
+        //   mimetype: file.mimetype,
+        //   size: file.size,
+        //   buffer: file.buffer ? 'Buffer present' : 'No buffer'
+        // });
+        
+        const filename = `product-${Date.now()}-${file.originalname}`;
+        
         const uploadStream = bucket.openUploadStream(filename, {
           contentType: "image/jpg",
         });
@@ -154,28 +187,33 @@ const addProducts = async (req, res) => {
               .on("finish", resolve);
           });
           images.push(filename);
+          // console.log("Successfully uploaded:", filename);
         } catch (error) {
           console.log(`error uploading ${filename}:`, error);
         }
       }
     } else {
-      return res.status(400).render("admin/product-add", {
-        error: "Please upload atleast 3 images",
-        productData,
+      
+      return res.status(400).json({
+        success: false,
+        message: MESSAGES.UPLOAD_AT_LEAST_3_IMAGES || "Please upload at least 3 images",
       });
     }
 
-  
     // Find category
+    
     const category = await Category.findOne({ name: productData.category });
+    console.log("Found category:", category);
+    
     if (!category) {
-      return res.status(400).render("admin/product-add", {
-        error: "Invalid category",
-        productData,
+      return res.status(400).json({
+        success: false,
+        message: MESSAGES.INVALID_CATEGORY || "Invalid category",
       });
     }
 
     // Create new product
+    
     const newProduct = await Product.create({
       productName: productData.productName,
       description: productData.description,
@@ -189,12 +227,14 @@ const addProducts = async (req, res) => {
       status: "Available",
       productImages: images,
     });
+    
+    console.log("Product created successfully:", newProduct._id);
 
-    // Redirect with success message
-    req.flash("success", "Product added successfully");
-    // return res.status(200).json({ success: true });
-
-    return res.redirect("/admin/products");
+    
+    return res.status(200).json({
+      success: true,
+      message: MESSAGES.PRODUCT_ADDED_SUCCESS|| "Product added successfully"
+    });
   } catch (error) {
     console.error("Error saving product:", error);
 
@@ -209,12 +249,14 @@ const addProducts = async (req, res) => {
       });
     }
 
-    req.flash("error", "Failed to add product");
     console.log(error);
-    return res.redirect("/admin/addProducts");
+    return res.status(500).json({
+      success: false,
+      message: MESSAGES.PRODUCT_ADD_FAILED + error.message || "Failed to add product: "
+    });
   }
 };
-
+//PRODUCT EDIT 
 const editProducts = async (req, res) => {
   try {
     const id = req.params.id;
@@ -229,7 +271,9 @@ const editProducts = async (req, res) => {
 
     const product = await Product.findById(id);
     if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found" });
+      return res
+        .status(httpStatus.NOT_FOUND)
+        .json({ success: false, message:MESSAGES.PRODUCT_NOT_FOUND ||"Product not found" });
     }
 
     // Deleting selected images
@@ -238,7 +282,9 @@ const editProducts = async (req, res) => {
       if (file.length > 0) {
         await bucket.delete(file[0]._id);
       }
-      product.productImages = product.productImages.filter(img => img !== filename);
+      product.productImages = product.productImages.filter(
+        (img) => img !== filename
+      );
     }
 
     // Uploading new image
@@ -271,14 +317,14 @@ const editProducts = async (req, res) => {
 
     await product.save();
 
-    res.status(200).json({ success: true, message: "Product updated successfully!" });
+    res
+      .status(200)
+      .json({ success: true, message:MESSAGES.PRODUCT_UPDATED_SUCCESS || "Product updated successfully!" });
   } catch (error) {
     console.error("Edit error:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message:MESSAGES.INTERNAL_SERVER_ERROR ||"Internal server error" });
   }
 };
-
-
 
 //delete products
 const deleteProducts = async (req, res) => {
@@ -287,10 +333,10 @@ const deleteProducts = async (req, res) => {
     await Product.findByIdAndUpdate(id, { $set: { isDeleted: true } });
     res
       .status(200)
-      .json({ success: true, message: "Product deleted successfully!" });
+      .json({ success: true, message:MESSAGES.PRODUCT_DELETED || "Product deleted successfully!" });
   } catch (error) {
     console.error("Delete error:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message:MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error" });
   }
 };
 

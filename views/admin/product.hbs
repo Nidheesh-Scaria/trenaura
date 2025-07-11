@@ -38,8 +38,12 @@
     .delete{
       color: red;
     }
-  
-  
+  .error-message {
+    color: red;
+    font-size: 0.9rem;
+    margin-top: 4px;
+  }
+    
 
 
   /* Edit Modal Styles - Centered and Stable */
@@ -500,14 +504,17 @@
               <div class="mb-3">
                 <label class="form-label">Product Name</label>
                 <input type="text" id="editProductName" name="productName" class="form-control" />
+                <div class="error-message" id="editProductName-error"></div>
               </div>
               <div class="mb-3">
                 <label class="form-label">Regular Price</label>
                 <input type="number" id="editRegularPrice" name="regularPrice" class="form-control" />
+                <div class="error-message" id="editRegularPrice-error"></div>
               </div>
               <div class="mb-3">
                 <label class="form-label">Sale Price</label>
                 <input type="number" id="editSalePrice" name="salePrice" class="form-control" />
+                <div class="error-message" id="editSalePrice-error"></div>
               </div>
               <div class="mb-3">
                 <label class="form-label">Category</label>
@@ -516,6 +523,7 @@
                     <option value="{{this._id}}">{{this.name}}</option>
                   {{/each}}
                 </select>
+                <div class="error-message" id="editCategory-error"></div>
               </div>
             </div>
             <div class="mb-3">
@@ -591,8 +599,16 @@
 function openEditModal(id, productName, regularPrice, salePrice, category) {
 
   fetch(`/admin/editProducts/${id}`)
-    .then(response => response.json())
+    .then(response => {
+      console.log('Response status:', response.status);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
     .then(data => {
+      console.log('Received data:', data);
+      
       if (data.success) {
         const product = data.product;
         
@@ -617,12 +633,18 @@ function openEditModal(id, productName, regularPrice, salePrice, category) {
             `;
             $('.current-images-container').append(imageHtml);
           });
+        } else {
+          console.log('No product images found');
         }
         
-        // Showing the modal
+        // Clear previous error messages
+        $('.error-message').text('');
+        
+        // Showing modal
         $('#editCategoryModal').modal('show');
       } else {
-        Swal.fire('Error', 'Failed to load product data', 'error');
+        console.error('API returned error:', data.message);
+        Swal.fire('Error', data.message || 'Failed to load product data', 'error');
       }
     })
     .catch(error => {
@@ -634,11 +656,52 @@ function openEditModal(id, productName, regularPrice, salePrice, category) {
 //edit modal eith images
 $('#editCategoryForm').on('submit', function (e) {
   e.preventDefault();
-
-  const form = document.getElementById('editCategoryForm');
-  const formData = new FormData(form); // geting form data
-
+  
+  // Clear previous error messages
+  $('.error-message').text('');
+  
+  let isValid = true;
+  
+  const productName = $('#editProductName').val().trim();
+  const regularPrice = parseFloat($('#editRegularPrice').val());
+  const salePrice = parseFloat($('#editSalePrice').val());
+  const category = $('#editCategory').val();
   const id = $('#editCategoryId').val();
+
+
+  if (!productName) {
+    $('#editProductName-error').text('Product name is required');
+    isValid = false;
+  }
+  
+  if (isNaN(regularPrice) || regularPrice <= 0) {
+    $('#editRegularPrice-error').text('Regular price must be valid');
+    isValid = false;
+  }
+
+  if (isNaN(salePrice) || salePrice <= 0) {
+    $('#editSalePrice-error').text('Sale price must be valid');
+   isValid = false;
+  }
+  
+  
+  if (regularPrice <= salePrice) {
+    $('#editRegularPrice-error').text('Regular price must be greater than sale price');
+    isValid = false;
+  }
+
+  if (!category) {
+    $('#editCategory-error').text('Category is required');  
+    isValid = false;
+  }
+  
+  if (!isValid) {
+    Swal.fire('Error', 'Please fix the errors in the form.', 'error');
+    return;
+  }
+
+const form = document.getElementById('editCategoryForm');
+const formData = new FormData(form);
 
   fetch(`/admin/editProducts/${id}`, {
     method: 'POST', 
@@ -680,8 +743,5 @@ $('#deleteCategoryForm').on('submit', function (e) {
     }
   });
 });
-
-
-
 
 </script>

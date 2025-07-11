@@ -1,6 +1,6 @@
 <head>
     
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.css">
     <!-- SweetAlert CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style>
@@ -101,12 +101,26 @@
             justify-content: center;
             gap: 5px;
             padding: 5px;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.7);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .thumbnail:hover .thumbnail-actions {
+            opacity: 1;
         }
 
         .thumbnail-actions button {
-            padding: 2px 5px;
-            font-size: 12px;
+            padding: 4px 8px;
+            font-size: 11px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .thumbnail-actions button:hover {
+            transform: scale(1.05);
         }
 
         /* Modal Styles */
@@ -120,6 +134,7 @@
             height: 100%;
             overflow: auto;
             background-color: rgba(0,0,0,0.8);
+            cursor: pointer;
         }
 
         .modal-content {
@@ -132,6 +147,7 @@
             border-radius: 5px;
             max-width: 90%;
             max-height: 90%;
+            cursor: default;
         }
 
         .modal-image-container {
@@ -224,6 +240,7 @@
                             <div class="mb-4">
                                 <label class="form-label">Category</label>
                                 <select class="form-select border" name="category" >
+                                        <option ></option>
                                     {{#each category}}
                                         <option value="{{this.name}}">{{this.name}}</option>
                                     {{/each}}
@@ -243,6 +260,7 @@
 
                             <div class="mt-4">
                                 <button class="btn btn-primary btn-lg" type="submit">Publish Product</button>
+                                
                             </div>
                         </form>
                     </div>
@@ -252,19 +270,34 @@
     </section>
 
     <!-- Cropping Modal -->
-    <div id="cropModal" class="modal">
-        <div class="modal-content">
+    <div id="cropModal" class="modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-image-container">
                 <img id="modalImage" src="">
             </div>
             <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="saveCrop()">Save Crop</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveCrop()">Save Crop</button>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.js"></script>
+    <script>
+        
+        if (typeof Cropper === 'undefined') {
+            console.log('Primary CDN failed, trying fallback...');
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/cropperjs@1.5.12/dist/cropper.min.js';
+            script.onload = function() {
+                console.log('Fallback CDN loaded successfully');
+            };
+            script.onerror = function() {
+                console.error('Both CDNs failed to load Cropper.js');
+            };
+            document.head.appendChild(script);
+        }
+    </script>
     <!-- SweetAlert JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>      
     <script src="/js/main.js"></script>
@@ -280,17 +313,49 @@
         const uploadedFiles = [];
         const croppedImages = [];
 
-        // Initialize form
+       
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                if (typeof Cropper === 'undefined') {
+                    console.error('Cropper library not loaded!');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Library Error',
+                        text: 'Image cropper library not loaded. Please refresh the page.',
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    console.log('Cropper library loaded successfully');
+                    console.log('Cropper version:', Cropper.version);
+                }
+            }, 1000); 
+        });
+
+       
         document.getElementById('productForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            console.log("Form submission started");
             if (validateForm()) {
+                console.log("Form validation passed, submitting...");
                 this.submit();
+            } else {
+                console.log("Form validation failed");
             }
         });
 
-        // Handle file selection
+
+
+       
         document.getElementById('multiImageInput').addEventListener('change', function(e) {
             handleMultipleImageUpload(e);
+        });
+
+       
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.thumbnail-actions')) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
         });
 
         function handleMultipleImageUpload(event) {
@@ -298,12 +363,12 @@
             const previewContainer = document.getElementById('thumbnailPreview');
             const errorElement = document.getElementById('images-error');
             
-            // Clear previous previews
+            
             previewContainer.innerHTML = '';
             uploadedFiles.length = 0;
             croppedImages.length = 0;
             
-            // Validate minimum 3 images
+          
             if (files.length < 3) {
                 displayErrorMessage('images-error', 'Please upload at least 3 images');
                 showImageError('Please upload at least 3 images for the product.');
@@ -312,10 +377,10 @@
                 clearErrorMessage('images-error');
             }
             
-            // Process each file
+            
             Array.from(files).forEach((file, index) => {
                 uploadedFiles.push(file);
-                croppedImages.push(null); // Initialize cropped images array
+                croppedImages.push(null); 
                 
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -326,6 +391,7 @@
         }
 
         function createThumbnail(index, imageSrc) {
+            console.log('Creating thumbnail for index:', index);
             const previewContainer = document.getElementById('thumbnailPreview');
             
             const thumbnailDiv = document.createElement('div');
@@ -340,87 +406,209 @@
             
             const cropBtn = document.createElement('button');
             cropBtn.className = 'btn btn-sm btn-primary';
+            cropBtn.type = 'button'; 
             cropBtn.textContent = 'Crop';
-            cropBtn.onclick = () => openCropper(index, imageSrc);
+            cropBtn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Crop button clicked for index:', index);
+                openCropper(index, imageSrc);
+            };
             
             const removeBtn = document.createElement('button');
             removeBtn.className = 'btn btn-sm btn-danger';
+            removeBtn.type = 'button'; 
             removeBtn.textContent = 'Remove';
-            removeBtn.onclick = () => removeImage(index);
+            removeBtn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Remove button clicked for index:', index);
+                removeImage(index);
+            };
             
             actionsDiv.appendChild(cropBtn);
             actionsDiv.appendChild(removeBtn);
             thumbnailDiv.appendChild(img);
             thumbnailDiv.appendChild(actionsDiv);
             previewContainer.appendChild(thumbnailDiv);
+            
+            console.log('Thumbnail created for index:', index);
         }
 
         function openCropper(index, imageSrc) {
+            console.log('Opening cropper for index:', index);
+            console.log('Image source:', imageSrc);
+            
+           
+            if (typeof Cropper === 'undefined') {
+                console.error('Cropper library not available');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Library Error',
+                    text: 'Image cropper library not loaded. Please refresh the page and try again.',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+            
             currentImageIndex = index;
             const modal = document.getElementById('cropModal');
             const modalImage = document.getElementById('modalImage');
             
+            if (!modal || !modalImage) {
+                console.error('Modal elements not found');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Modal Error',
+                    text: 'Modal elements not found',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+            
             modal.style.display = 'block';
             modalImage.src = imageSrc;
             
-            // Initialize cropper when image is loaded
+          
             modalImage.onload = function() {
+                console.log('Modal image loaded, initializing cropper');
+                console.log('Image dimensions:', modalImage.naturalWidth, 'x', modalImage.naturalHeight);
+                
                 if (cropper) {
-                    cropper.destroy();
+                    try {
+                        cropper.destroy();
+                    } catch (error) {
+                        console.error('Error destroying previous cropper:', error);
+                    }
                 }
                 
-                cropper = new Cropper(modalImage, {
-                    aspectRatio: 1,
-                    viewMode: 1,
-                    autoCropArea: 0.8,
-                    responsive: true,
-                    guides: false
+                try {
+                    cropper = new Cropper(modalImage, {
+                        aspectRatio: 1,
+                        viewMode: 1,
+                        autoCropArea: 0.8,
+                        responsive: true,
+                        guides: false,
+                        ready: function() {
+                            console.log('Cropper ready');
+                        },
+                        error: function(error) {
+                            console.error('Cropper error:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Cropper Error',
+                                text: 'Error during cropping: ' + error.message,
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    });
+                    console.log('Cropper initialized successfully');
+                } catch (error) {
+                    console.error('Error initializing cropper:', error);
+                    console.error('Error details:', {
+                        name: error.name,
+                        message: error.message,
+                        stack: error.stack
+                    });
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Cropper Error',
+                        text: 'Failed to initialize image cropper: ' + error.message,
+                        confirmButtonText: 'OK'
+                    });
+                }
+            };
+            
+           
+            modalImage.onerror = function() {
+                console.error('Failed to load image');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Image Error',
+                    text: 'Failed to load image for cropping',
+                    confirmButtonText: 'OK'
                 });
             };
         }
 
-        function closeModal() {
-            document.getElementById('cropModal').style.display = 'none';
+        function closeModal(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            console.log('Closing modal');
+            const modal = document.getElementById('cropModal');
+            modal.style.display = 'none';
+            
             if (cropper) {
-                cropper.destroy();
+                try {
+                    cropper.destroy();
+                } catch (error) {
+                    console.error('Error destroying cropper:', error);
+                }
                 cropper = null;
             }
         }
 
-        function saveCrop() {
+        function saveCrop(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            console.log('Saving crop for index:', currentImageIndex);
             if (cropper) {
-                const canvas = cropper.getCroppedCanvas({
-                    width: 800,
-                    height: 800,
-                    minWidth: 256,
-                    minHeight: 256,
-                    fillColor: '#fff'
-                });
-                
-                canvas.toBlob(blob => {
-                    // Store the cropped image
-                    croppedImages[currentImageIndex] = blob;
-                    
-                    // Update the thumbnail preview
-                    const thumbnails = document.querySelectorAll('.thumbnail img');
-                    thumbnails[currentImageIndex].src = URL.createObjectURL(blob);
-                    
-                    closeModal();
-                    
-                    // Show success message
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Image Cropped!',
-                        text: 'Image has been cropped successfully.',
-                        timer: 1500,
-                        showConfirmButton: false
+                try {
+                    const canvas = cropper.getCroppedCanvas({
+                        width: 800,
+                        height: 800,
+                        minWidth: 256,
+                        minHeight: 256,
+                        fillColor: '#fff'
                     });
-                }, 'image/jpeg', 0.9);
+                    
+                    canvas.toBlob(blob => {
+                        
+                        croppedImages[currentImageIndex] = blob;
+                        
+                       
+                        const thumbnails = document.querySelectorAll('.thumbnail img');
+                        if (thumbnails[currentImageIndex]) {
+                            thumbnails[currentImageIndex].src = URL.createObjectURL(blob);
+                        }
+                        
+                        closeModal();
+                        
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Image Cropped!',
+                            text: 'Image has been cropped successfully.',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    }, 'image/jpeg', 0.9);
+                } catch (error) {
+                    console.error('Error saving crop:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Crop Error',
+                        text: 'Failed to save cropped image',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            } else {
+                console.error('No cropper instance found');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Crop Error',
+                    text: 'No cropper instance found',
+                    confirmButtonText: 'OK'
+                });
             }
         }
 
         function removeImage(index) {
-            // Show confirmation dialog
+            
             Swal.fire({
                 title: 'Remove Image?',
                 text: 'Are you sure you want to remove this image?',
@@ -432,27 +620,40 @@
                 cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Remove from arrays
+                   
                     uploadedFiles.splice(index, 1);
                     croppedImages.splice(index, 1);
                     
-                    // Update the file input
+                    
                     const dataTransfer = new DataTransfer();
                     uploadedFiles.forEach(file => dataTransfer.items.add(file));
                     document.getElementById('multiImageInput').files = dataTransfer.files;
                     
-                    // Update the preview
-                    handleMultipleImageUpload({ target: { files: dataTransfer.files } });
-                    
-                    // Show success message
+                   
+                    recreateThumbnails();
+        
                     Swal.fire({
                         icon: 'success',
                         title: 'Image Removed!',
                         text: 'Image has been removed successfully.',
-                        timer: 1500,
+                        timer: 1000,
                         showConfirmButton: false
                     });
                 }
+            });
+        }
+
+        function recreateThumbnails() {
+            const previewContainer = document.getElementById('thumbnailPreview');
+            previewContainer.innerHTML = '';
+            
+          
+            uploadedFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    createThumbnail(index, e.target.result);
+                };
+                reader.readAsDataURL(file);
             });
         }
 
@@ -460,21 +661,21 @@
             let isValid = true;
             clearErrorMessages();
             
-            // Validate product name
+           
             const productName = document.getElementById('product_name').value.trim();
             if (!productName) {
                 displayErrorMessage('productName-error', 'Product name is required');
                 isValid = false;
             }
             
-            // Validate description
+           
             const description = document.getElementById('descriptionid').value.trim();
             if (!description) {
                 displayErrorMessage('description-error', 'Description is required');
                 isValid = false;
             }
             
-            // Validate prices
+            
             const regularPrice = parseFloat(document.getElementsByName('regularPrice')[0].value);
             const salePrice = parseFloat(document.getElementsByName('salePrice')[0].value);
             
@@ -493,42 +694,48 @@
                 isValid = false;
             }
             
-            // Validate quantity
+           
             const quantity = parseInt(document.getElementsByName('quantity')[0].value);
             if (isNaN(quantity) || quantity < 0) {
                 displayErrorMessage('quantity-error', 'Valid quantity is required');
                 isValid = false;
             }
             
-            // Validate color
+            
             const color = document.getElementsByName('color')[0].value.trim();
             if (!color) {
                 displayErrorMessage('color-error', 'Color is required');
                 isValid = false;
             }
             
-            // Validate images
+            
             if (uploadedFiles.length < 3) {
                 displayErrorMessage('images-error', 'At least 3 images are required');
                 isValid = false;
             }
             
-            // If valid, prepare form data with cropped images
-            if (isValid) {
-                const form = document.getElementById('productForm');
-                const formData = new FormData(form);
+                            
+                if (isValid) {
+                    const form = document.getElementById('productForm');
+                    const formData = new FormData(form);
+                    
+                    console.log("Form element:", form);
+                    console.log("Form action:", form.action);
+                    console.log("Form method:", form.method);
                 
-                // Replace original files with cropped versions
-                formData.delete('images');
-                croppedImages.forEach((croppedImage, index) => {
-                    if (croppedImage) {
-                        formData.append('images', croppedImage, `product-${index}.jpg`);
-                    } else {
-                        formData.append('images', uploadedFiles[index]);
-                    }
-                });
+                                   
+                    formData.delete('images');
+                    croppedImages.forEach((croppedImage, index) => {
+                        if (croppedImage) {
+                            formData.append('images', croppedImage, `product-${index}.jpg`);
+                        } else {
+                            formData.append('images', uploadedFiles[index]);
+                        }
+                    });
+                    
+                    console.log("FormData prepared with files");
                 
-                // Show loading SweetAlert
+                
                 Swal.fire({
                     title: 'Adding Product...',
                     text: 'Please wait while we process your product',
@@ -540,8 +747,11 @@
                     }
                 });
                 
-                // Submit the form
-                console.log('Submitting form with cropped images...');
+               
+              
+                for (let [key, value] of formData.entries()) {
+                    console.log(key, value);
+                }
 
                 fetch(form.action, {
                     method: "POST",
@@ -549,12 +759,24 @@
                 })
                 .then((response) => {
                     console.log('Response status:', response.status);
-                    return response.json();
+                    console.log('Response headers:', response.headers);
+                    
+                   
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        return response.json();
+                    } else {
+                       
+                        return response.text().then(text => {
+                            console.log('Non-JSON response:', text);
+                            throw new Error(`Server returned non-JSON response: ${text}`);
+                        });
+                    }
                 })
                 .then((data) => {
                     console.log('Response data:', data);
                     if (data.success) {
-                        // Success SweetAlert
+                        
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
@@ -567,7 +789,7 @@
                             }
                         });
                     } else {
-                        // Error SweetAlert
+                        
                         Swal.fire({
                             icon: 'error',
                             title: 'Error!',
@@ -579,11 +801,17 @@
                 })
                 .catch((error) => {
                     console.error("Form submission error:", error);
-                    // Error SweetAlert
+                    console.error("Error details:", {
+                        name: error.name,
+                        message: error.message,
+                        stack: error.stack
+                    });
+                    
+                    
                     Swal.fire({
                         icon: 'error',
                         title: 'Submission Failed!',
-                        text: 'Failed to submit product. Please check your connection and try again.',
+                        text: error.message || 'Network error occurred',
                         confirmButtonText: 'OK',
                         confirmButtonColor: '#dc3545'
                     });
@@ -612,7 +840,7 @@
             });
         }
 
-        // Function to show SweetAlert for validation errors
+        // Function for SweetAlert - validation errors
         function showValidationError(title, message) {
             Swal.fire({
                 icon: 'warning',
@@ -623,7 +851,7 @@
             });
         }
 
-        // Function to show SweetAlert for image upload errors
+        // Function for SweetAlert - image upload errors
         function showImageError(message) {
             Swal.fire({
                 icon: 'error',
@@ -633,8 +861,6 @@
                 confirmButtonColor: '#dc3545'
             });
         }
-
-    
     
     </script>
 </body>

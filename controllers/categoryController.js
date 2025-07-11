@@ -1,4 +1,5 @@
 const categorySchema = require("../models/categorySchema");
+const productSchema = require("../models/productSchema");
 
 const categoryInfo = async (req, res) => {
   try {
@@ -40,7 +41,6 @@ const categoryInfo = async (req, res) => {
       ...category,
       serialNumber: skip + index + 1,
     }));
-
 
     res.render("admin/categories", {
       categories: categoryData,
@@ -173,8 +173,7 @@ const deleteCategory = async (req, res) => {
     const id = req.params.id;
     console.log("Deleting Category ID:", id);
 
-    await categorySchema.findByIdAndDelete(id);
-
+    await categorySchema.findByIdAndDelete(id)
     res
       .status(200)
       .json({ success: true, message: "Category deleted successfully!" });

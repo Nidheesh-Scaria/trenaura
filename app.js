@@ -129,6 +129,25 @@ app.get('/images/:filename', async (req, res) => {
 app.use("/", userRouter);
 app.use("/admin", adminRouter);
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).json({ 
+    success: false, 
+    message: 'Internal server error',
+    error: err.message 
+  });
+});
+
+// 404 handler
+app.use((req, res) => {
+  console.log('404 - Route not found:', req.method, req.url);
+  res.status(404).json({ 
+    success: false, 
+    message: 'Route not found' 
+  });
+});
+
 app.listen(port, () => console.log(`Server running at ${port}`));
 
 module.exports = app;

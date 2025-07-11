@@ -173,8 +173,8 @@
 
 <div class="container">
     <div class="easyzoom easyzoom--overlay">
-        <a href="/images/{{product.firstImage}}">
-         <img style="height: 20rem; width:22rem" src="/images/{{product.firstImage}}" alt="Zoomed Product Image" />
+        <a href="/uploads/product-images/{{product.productImages.[0]}}">
+         <img style="height: 25rem; width:28rem" src="/uploads/product-images/{{product.productImages.[0]}}" alt="Zoomed Product Image" />
         </a>
     </div>
     <div class="product-details">
@@ -225,7 +225,7 @@
                 <div class="col-lg-3 col-md-6 col-sm-6 mix new-arrivals">
                     <div class="product__item">
                         <a href="/productDetails?id={{this._id}}">
-                            <div class="product__item__pic set-bg" data-setbg="/images/{{this.productImages.[0]}}">
+                            <div class="product__item__pic set-bg" data-setbg="/uploads/product-images/{{this.firstImage}}">
                                 <span class="label">New</span>
                                 <ul class="product__hover">
                                     <li><img src="img/icon/heart.png" alt=""></li>

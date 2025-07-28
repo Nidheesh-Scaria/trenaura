@@ -8,6 +8,8 @@ const saltRounds = 10;
 const nodeMailer = require("nodemailer");
 const { isLoggedIn } = require("../middleware/userAuth");
 const env = require("dotenv").config();
+const httpStatus = require("../util/statusCodes");
+const { MESSAGES } = require("../util/constants");
 
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -50,9 +52,7 @@ const signup = async (req, res) => {
     if (existingEmail || existingPhone) {
       return res.redirect(
         "/signup?message=" +
-          encodeURIComponent(
-            "Email or phone number already in use. Please use a different one."
-          ) +
+          encodeURIComponent(MESSAGES.ALREADY_EXISTS) +
           "&t=" +
           Date.now()
       );
@@ -84,7 +84,7 @@ const verifySignupOtp = async (req, res) => {
       delete req.session.userOtp;
       delete req.session.otpExpiresAt;
       return res
-        .status(400)
+        .status(httpStatus.BAD_REQUEST)
         .json({ success: false, message: "OTP expired. Please resend OTP." });
     }
 
@@ -107,24 +107,25 @@ const verifySignupOtp = async (req, res) => {
       console.log("User registered successfully.");
 
       // res.redirect("/");
-      res.status(200).json({ success: true, redirectUrl: "/" });
+      res.status(httpStatus.OK).json({ success: true, redirectUrl: "/" });
     } else {
-      res
-        .status(400)
-        .json({ success: false, message: "Invalid OTP, please try again" });
+      res.status(httpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.INVALID_OTP });
     }
   } catch (error) {
     console.error("Error in verifying the OTP", error);
-    res.status(500).json({ success: false, message: "An error occurred" });
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
   }
 };
 
 const resendSignupOtp = async (req, res) => {
   try {
     if (!req.session.userData) {
-      return res.status(400).json({
+      return res.status(httpStatus.BAD_REQUEST).json({
         success: false,
-        message: "Session expired. Please login again.",
+        message:
+          MESSAGES.EXPIRED_SESSION || "Session expired. Please login again.",
       });
     }
 
@@ -132,7 +133,7 @@ const resendSignupOtp = async (req, res) => {
 
     if (!email) {
       return res
-        .status(400)
+        .status(httpStatus.BAD_REQUEST)
         .json({ success: false, message: "Email not found in session" });
     }
 
@@ -146,19 +147,21 @@ const resendSignupOtp = async (req, res) => {
       console.log("Resend Otp:", otp);
       // req.session.touch(); // Refresh session
       res
-        .status(200)
+        .status(httpStatus.OK)
         .json({ success: true, message: "OTP resent successfully" });
     } else {
-      res.status(500).json({
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to resend OTP. Please try again.",
       });
     }
   } catch (error) {
     console.error("Error resending OTP", error.message);
-    res.status(500).json({
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Internal server error. Please try later.",
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "Internal server error. Please try later.",
     });
   }
 };
@@ -211,7 +214,9 @@ const loadTrenauraHomepage = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in rendering home page:", error);
-    res.status(500).send("Server error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
   }
 };
 
@@ -238,11 +243,12 @@ const loadHomepage = async (req, res) => {
 
     let productData = await Product.find({
       isBlocked: false,
+      isDeleted:false,
       category: { $in: categories.map((category) => category._id) },
       quantity: { $gt: 0 },
     });
 
-    // Get latest 4 products (optional logic)
+    // Get latest 4 products
     productData = productData.slice(0, 4).map((product) => {
       return {
         ...product._doc,
@@ -276,19 +282,19 @@ const loadHomepage = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in rendering home page:", error);
-    res.status(500).send("Server error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
   }
 };
 
 const loadLogin = async (req, res) => {
   try {
-    
     const blockMsg = req.cookies?.blockMessage;
     if (blockMsg) {
       req.flash("error", blockMsg);
       res.clearCookie("blockMessage");
     }
-
 
     return res.render("user/login", {
       title: "Trenaura Login page",
@@ -299,7 +305,9 @@ const loadLogin = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in rendering login page:", error);
-    res.status(500).send("Server error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
   }
 };
 
@@ -327,7 +335,9 @@ const loadSignup = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in rendering signup page:", error);
-    res.status(500).send("Server error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
   }
 };
 
@@ -341,7 +351,9 @@ const verifyOtp = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in verfyOtp :", error);
-    res.status(500).send("Server error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
   }
 };
 
@@ -380,14 +392,20 @@ const logout = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in logout:", error);
-    res.status(500).send("Server error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
   }
 };
 
 const loadLogout = async (req, res) => {
   try {
     res.redirect("/login");
-  } catch (error) {}
+  } catch (error) {
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
+  }
 };
 
 const forgotPassword = async (req, res) => {
@@ -401,7 +419,9 @@ const forgotPassword = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in rendering login page:", error);
-    res.status(500).send("Server error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
   }
 };
 
@@ -412,7 +432,7 @@ const forgotPasswordOtp = async (req, res) => {
     const user = await userSchema.findOne({ email });
     if (!user) {
       return res
-        .status(404)
+        .status(httpStatus.NOT_FOUND)
         .json({ success: false, message: "User not found with this email" });
     }
 
@@ -421,7 +441,7 @@ const forgotPasswordOtp = async (req, res) => {
     const emailSent = await sendVerificationEmail(email, otp);
     if (!emailSent) {
       return res
-        .status(500)
+        .status(httpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: "Failed to send email" });
     }
 
@@ -439,7 +459,9 @@ const forgotPasswordOtp = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in forgotPasswordOtp:", error);
-    res.status(500).send("Server error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
   }
 };
 
@@ -451,14 +473,14 @@ const verifyForgotPasswordOtp = async (req, res) => {
 
     if (!sessionOtp || !otpExpiresAt) {
       return res
-        .status(400)
+        .status(httpStatus.BAD_REQUEST)
         .json({ success: false, message: "OTP session expired or invalid." });
     }
 
     if (Date.now() > otpExpiresAt) {
       delete req.session.userOtp;
       delete req.session.otpExpiresAt;
-      return res.status(400).json({
+      return res.status(httpStatus.BAD_REQUEST).json({
         success: false,
         message: "OTP expired. Please request a new one.",
       });
@@ -468,16 +490,18 @@ const verifyForgotPasswordOtp = async (req, res) => {
       req.session.userData = { email: req.session.userData.email };
 
       return res
-        .status(200)
+        .status(httpStatus.OK)
         .json({ success: true, redirectUrl: "/change-password" });
     } else {
       return res
-        .status(400)
+        .status(httpStatus.BAD_REQUEST)
         .json({ success: false, message: "Invalid OTP. Please try again.99" });
     }
   } catch (error) {
     console.error("Error in verifyForgotPasswordOtp:", error);
-    res.status(500).json({ success: false, message: "An error occurred." });
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: "An error occurred." });
   }
 };
 
@@ -491,7 +515,9 @@ const loadForgotPassword = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in verfyOtp :", error);
-    res.status(500).send("Server error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
   }
 };
 
@@ -501,14 +527,14 @@ const changePassword = async (req, res) => {
 
     if (password !== confirmPassword) {
       return res
-        .status(400)
+        .status(httpStatus.BAD_REQUEST)
         .json({ success: false, message: "Passwords do not match." });
     }
 
     const user = req.session.userData;
 
     if (!user || !user.email) {
-      return res.status(401).json({
+      return res.status(httpStatus.UNAUTHORIZED).json({
         success: false,
         message: "User session expired. Please log in again.",
       });
@@ -524,7 +550,7 @@ const changePassword = async (req, res) => {
     if (passwordChange.modifiedCount > 0) {
       req.session.save(() => {
         console.log("Session saved.");
-        res.status(200).json({
+        res.status(httpStatus.OK).json({
           success: true,
           message: "Password changed successfully.",
           redirectUrl: "/login",
@@ -535,14 +561,14 @@ const changePassword = async (req, res) => {
       console.log(
         "Password not updated. It might be the same as the current one."
       );
-      res.status(400).json({
+      res.status(httpStatus.BAD_REQUEST).json({
         success: false,
         message: "Password not updated. Try a new password.",
       });
     }
   } catch (error) {
     console.error("Error in changing the password:", error);
-    res.status(500).json({
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: "An error occurred. Please try again later.",
     });
@@ -552,7 +578,7 @@ const changePassword = async (req, res) => {
 const resendPswrdOtp = async (req, res) => {
   try {
     if (!req.session.userData) {
-      return res.status(400).json({
+      return res.status(httpStatus.BAD_REQUEST).json({
         success: false,
         message: "Session expired. Please login again.",
       });
@@ -562,7 +588,7 @@ const resendPswrdOtp = async (req, res) => {
 
     if (!email) {
       return res
-        .status(400)
+        .status(httpStatus.BAD_REQUEST)
         .json({ success: false, message: "Email not found in session" });
     }
 
@@ -576,17 +602,17 @@ const resendPswrdOtp = async (req, res) => {
       console.log("Resend Otp:", otp);
       // req.session.touch(); // Refresh session
       res
-        .status(200)
+        .status(httpStatus.OK)
         .json({ success: true, message: "OTP resent successfully" });
     } else {
-      res.status(500).json({
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to resend OTP. Please try again.",
       });
     }
   } catch (error) {
     console.error("Error resending OTP", error.message);
-    res.status(500).json({
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: "Internal server error. Please try later.",
     });
@@ -596,15 +622,19 @@ const resendPswrdOtp = async (req, res) => {
 const productDetails = async (req, res) => {
   try {
     const productId = req.query.id;
+    const productDoc = await Product.findById(productId).lean();
 
-    const products = await Product.findById(productId).lean();
+    if (!productDoc) {
+      return res
+        .status(httpStatus.NOT_FOUND)
+        .render("user/page-404", { title: "Product Not Found" });
+    }
 
-    // Add firstImage property to the main product
     const product = {
-      ...products,
+      ...productDoc,
       firstImage:
-        products.productImages && products.productImages.length > 0
-          ? products.productImages[0]
+        productDoc.productImages && productDoc.productImages.length > 0
+          ? productDoc.productImages[0]
           : "default.jpg",
     };
 
@@ -630,12 +660,14 @@ const productDetails = async (req, res) => {
       title: "Product details",
       adminHeader: true,
       hideFooter: true,
-      product: product,
+      product,
       products: productData,
     });
   } catch (error) {
     console.error("Error in rendering home page:", error);
-    res.status(500).send("Server error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
   }
 };
 
@@ -661,6 +693,7 @@ const mensCategory = async (req, res) => {
     const totalPages = Math.ceil(totalProducts / limit);
 
     let productData = await Product.find({
+      isDeleted:false,
       isBlocked: false,
       category: { $in: categoryIds },
       quantity: { $gt: 0 },
@@ -688,7 +721,9 @@ const mensCategory = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in rendering mens category:", error);
-    res.status(500).send("Server error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
   }
 };
 
@@ -741,7 +776,9 @@ const womensCategory = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in rendering mens category:", error);
-    res.status(500).send("Server error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
   }
 };
 
@@ -794,7 +831,9 @@ const beautyCategory = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in rendering mens category:", error);
-    res.status(500).send("Server error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
   }
 };
 
@@ -852,7 +891,9 @@ const filter = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server Error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
   }
 };
 

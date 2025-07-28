@@ -1,4 +1,8 @@
 const userSchema = require("../models/userSchema");
+const { MESSAGES } = require("../util/constants");
+const httpStatus = require("../util/statusCodes");
+
+
 
 const customerInfo = async (req, res) => {
   try {
@@ -47,9 +51,10 @@ const customerInfo = async (req, res) => {
       currentPage: page,
       search: search,
     });
+    
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error");
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).send(MESSAGES.INTERNAL_SERVER_ERROR|| "Internal Server Error");
   }
 };
 
@@ -57,10 +62,10 @@ const customerBlocked = async (req, res) => {
   try {
     const id = req.params.id;
     await userSchema.updateOne({ _id: id }, { $set: { isBlocked: true } });
-    res.status(200).json({ success: true });
+    res.status(httpStatus.OK).json({ success: true });
   } catch (error) {
     console.error("Block error:", error);
-    res.status(500).json({ success: false });
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false });
   }
 };
 
@@ -68,10 +73,10 @@ const customerUnBlocked = async (req, res) => {
   try {
     const id = req.params.id;
     await userSchema.updateOne({ _id: id }, { $set: { isBlocked: false } });
-    res.status(200).json({ success: true });
+    res.status(httpStatus.OK).json({ success: true });
   } catch (error) {
     console.error("Unblock error:", error);
-    res.status(500).json({ success: false });
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false });
   }
 };
 

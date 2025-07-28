@@ -10,7 +10,12 @@ const MESSAGES = {
   PRODUCT_NOT_FOUND:"Product not found",
   PRODUCT_UPDATED_SUCCESS:"Product updated successfully!",
   PRODUCT_DELETED:"Product deleted successfully!",
+
+  ALREADY_EXISTS:"Email or phone number already in use. Please use a different one.",
+  INVALID_OTP:"Invalid OTP, please try again",
+  EXPIRED_SESSION:"Session expired. Please login again.",
   
+
 };
 
 module.exports = { MESSAGES };

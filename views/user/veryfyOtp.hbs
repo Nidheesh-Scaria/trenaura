@@ -14,18 +14,19 @@
       <h2>Confirm with OTP</h2>
       <div class="otp-label">Please check your mail address for OTP</div>
       <form id="otpForm" action="/verifyOtp" method="post" onsubmit="return validateOtpForm(event)">
-      <div class="otp-inputs">
-      <input type="text" maxlength="1" />
-      <input type="text" maxlength="1" />
-      <input type="text" maxlength="1" />
-      <input type="text" maxlength="1" />
-      <input type="text" maxlength="1" />
-      <input type="text" maxlength="1" />
+      <div class="otp-inputs" >
+      <input class="sample" type="text" maxlength="1" />
+      <input class="sample" type="text" maxlength="1" />
+      <input class="sample" type="text" maxlength="1" />
+      <input class="sample"  type="text" maxlength="1" />
+      <input class="sample" type="text" maxlength="1" />
+      <input class="sample" type="text" maxlength="1" />
     </div>
     <div id="timer">02:00</div>
     <button id="confirm">Confirm</button>
     <button id="resend" onclick="resendOtp()">Resend OTP</button>
     </form>
+    
     
     
     <div id="message" class="error"></div>
@@ -69,13 +70,16 @@
 
   function getOTP() {
     const otp = Array.from(inputs).map(input => input.value.trim()).join('');
-    return otp.length === 6 ? otp : null; // return string, not number
+    return otp.length === 6 ? otp : null; 
   }
+
+
 
   function clearInputs() {
     inputs.forEach(input => input.value = '');
-    inputs[0].focus();
+    inputs[0].focus(); 
   }
+
 
   inputs.forEach((input, idx) => {
     input.addEventListener('input', () => {
@@ -93,7 +97,7 @@
   });
 //resenting otp message
   resendBtn.addEventListener('click', (e) => {
-    e.preventDefault(); // Important to prevent form submission
+    e.preventDefault(); 
     clearInputs();
     message.textContent = "";
     startTimer();
@@ -125,8 +129,17 @@
     confirmBtn.disabled = !allFilled;
   }
 
+
+  {{!-- function clearOtp(){
+    const hasValue=Array.from(inputs).some(input=>input.value.trim()!=="")
+    if(hasValue){
+      clearInputs()
+      message.textContent='';
+    }
+  } --}}
+
   function validateOtpForm(e) {
-    e.preventDefault(); // block form submit
+    e.preventDefault(); 
     const enteredOTP = getOTP();
     console.log("Entered OTP:", enteredOTP);
 
@@ -172,11 +185,13 @@
     return false; // prevent default
   }
 
-  
+
+
+
 
   // Start everything
   startTimer();
-  checkOTPInputs(); // initial state
+  checkOTPInputs(); 
 </script>
 
     

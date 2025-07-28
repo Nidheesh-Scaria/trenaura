@@ -696,8 +696,8 @@
             
            
             const quantity = parseInt(document.getElementsByName('quantity')[0].value);
-            if (isNaN(quantity) || quantity < 0) {
-                displayErrorMessage('quantity-error', 'Valid quantity is required');
+            if (isNaN(quantity) || quantity < 5) {
+                displayErrorMessage('quantity-error', 'Quantity should be more than five');
                 isValid = false;
             }
             

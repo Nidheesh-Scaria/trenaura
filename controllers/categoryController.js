@@ -1,5 +1,7 @@
 const categorySchema = require("../models/categorySchema");
 const productSchema = require("../models/productSchema");
+const httpStatus = require("../util/statusCodes");
+const { MESSAGES } = require("../util/constants");
 
 const categoryInfo = async (req, res) => {
   try {
@@ -36,6 +38,7 @@ const categoryInfo = async (req, res) => {
         active: i === page,
       });
     }
+    
     //For serial number
     const categoryData = rawCategoryData.map((category, index) => ({
       ...category,
@@ -68,7 +71,7 @@ const addCategory = async (req, res) => {
   const { name, description } = req.body;
 
   if (!name || !description) {
-    return res.status(400).json({
+    return res.status(httpStatus.BAD_REQUEST).json({
       success: false,
       error: "Name and description are required",
     });
@@ -83,7 +86,7 @@ const addCategory = async (req, res) => {
     });
 
     if (existingCategory) {
-      return res.status(400).json({
+      return res.status(httpStatus.BAD_REQUEST).json({
         success: false,
         error: "Category already exists",
       });
@@ -99,7 +102,7 @@ const addCategory = async (req, res) => {
 
     await newCategory.save();
 
-    return res.status(201).json({
+    return res.status(httpStatus.OK).json({
       success: true,
       message: "Category added successfully",
       category: {
@@ -109,7 +112,7 @@ const addCategory = async (req, res) => {
     });
   } catch (error) {
     console.error("Error adding category:", error);
-    return res.status(500).json({
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: "Internal server error",
       details:
@@ -126,7 +129,7 @@ const listCategory = async (req, res) => {
     res.redirect("/admin/category");
   } catch (error) {
     console.error("list error:", error);
-    res.status(500).send("Internal server error");
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).send(MESSAGES.INTERNAL_SERVER_ERROR||"Internal server error");
   }
 };
 
@@ -138,22 +141,20 @@ const unlistCategory = async (req, res) => {
     res.redirect("/admin/category");
   } catch (error) {
     console.error("unlist error:", error);
-    res.status(500).send("Internal server error");
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).send(MESSAGES.INTERNAL_SERVER_ERROR||"Internal server error");
   }
 };
 
 const editCategory = async (req, res) => {
   try {
-    console.log("Request received at editCategory");
-    console.log("Params:", req.params);
-    console.log("Body:", req.body);
     const id = req.params.id;
     const { name, description } = req.body;
 
-    const sameName = await categorySchema.find({ name });
-    if (sameName) {
+    const sameName = await categorySchema.find({ name, _id: { $ne: id } });
+    
+    if (sameName.length>0) {
       res
-        .status(500)
+        .status(httpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: "Category already exists" });
     }
 
@@ -164,7 +165,7 @@ const editCategory = async (req, res) => {
       .json({ success: true, message: "Category updated successfully!" });
   } catch (error) {
     console.error("Edit error:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -173,13 +174,13 @@ const deleteCategory = async (req, res) => {
     const id = req.params.id;
     console.log("Deleting Category ID:", id);
 
-    await categorySchema.findByIdAndDelete(id)
+    await categorySchema.findByIdAndDelete(id);
     res
-      .status(200)
+      .status(httpStatus.OK)
       .json({ success: true, message: "Category deleted successfully!" });
   } catch (error) {
     console.error("Delete error:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR ||"Internal server error" });
   }
 };
 

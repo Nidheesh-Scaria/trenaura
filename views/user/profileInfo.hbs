@@ -1,0 +1,213 @@
+<head>
+  <style>
+    .main-content {
+      flex: 1;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      background: #f5f7fa;
+    }
+
+    .form-container {
+      background: #ffffff;
+      padding: 30px 35px;
+      border-radius: 5px;
+      max-width: 100%;
+      width: 100%;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 25px;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 10px;
+      color: #333;
+    }
+
+    form label {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 5px;
+      display: block;
+      margin-top: 20px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"] {
+      width: 100%;
+      padding: 12px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background-color: #fafafa;
+      transition: all 0.2s;
+    }
+
+    input:focus {
+      border-color: #007bff;
+      outline: none;
+      background-color: #fff;
+    }
+
+    .gender-group {
+      display: flex;
+      gap: 30px;
+      margin-top: 10px;
+    }
+
+    .gender-group label {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      color: #444;
+    }
+
+    .gender-group input[type="radio"] {
+      margin-right: 6px;
+      accent-color: #007bff;
+    }
+   
+
+    .buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    #submit {
+      background-color: rgb(14, 14, 169) ;
+      color: white;
+    }
+
+    #submit:hover {
+      background-color: rgb(0, 55, 254) ;;
+    }
+
+ `  #cancel  {
+      background: #203acd  !important ;
+      color: #fff;
+    }
+
+    #cancel:hover {
+      background-color: #dc1414;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .form-container {
+        padding: 20px;
+      }
+
+      .gender-group {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+
+  </style>
+</head>
+
+<div class="container">
+  {{> user/sidebar }}
+
+  <main class="main-content">
+    <div class="form-container">
+      <h2>Personal Information</h2>
+      <form onsubmit="editPersonalInfo(event, '{{userId}}')" >
+        
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" value="{{name}}" />
+
+        <label>Gender</label>
+        <div class="gender-group">
+          <label><input type="radio" name="gender" value="Male"   {{#if (eq gender "Male")}}checked{{/if}} /> Male</label>
+          <label><input type="radio" name="gender" value="Female" {{#if (eq gender "Female")}}checked{{/if}} /> Female</label>
+          <label><input type="radio" name="gender" value="Other"  {{#if (eq gender "Other")}}checked{{/if}}  /> Other</label>
+        </div>
+
+        <label for="email">Email address</label>
+        <input type="email" id="email" name="email" value="{{email}}" />
+
+        <label for="phone">Mobile Number</label>
+        <input type="tel" id="phone" name="phone" value="{{phone}}" />
+
+        <div class="buttons">
+          <button type="submit" id="submit">Save</button>
+          <button type="button" id="cancel">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script>
+
+  async function editPersonalInfo(event,id){
+    event.preventDefault();
+    console.log('Function called with ID:', id);
+    
+    const name=document.getElementById('name').value
+    const email=document.getElementById('email').value
+    const phone=document.getElementById('phone').value
+    const genderInput = document.querySelector('input[name="gender"]:checked');
+    const gender=genderInput? genderInput.value : null;
+    
+    console.log('Form data:', { name, email, phone, gender });
+    console.log('Making request to:', `/profileInfo/${id}`);
+
+    const res=await fetch(`/profileInfo/${id}`,{
+      method:'PUT',
+      headers:{"Content-type":"application/json"},
+      body:JSON.stringify({name,email,phone,gender})
+    })
+    
+    
+    const data=await res.json()
+    let timerInterval;
+    await Swal.fire({
+        title: "Alert!",
+        html: data.message,
+        timer: 1500,
+
+        willClose: () => {
+          clearInterval(timerInterval);
+        },
+        }).then((result) => {
+          if (result.dismiss === Swal.DismissReason.timer) {
+            console.log("I was closed by the timer");
+          }
+    });
+
+    if(res.ok){
+      window.location.reload()
+    }
+  }
+
+
+
+
+</script>

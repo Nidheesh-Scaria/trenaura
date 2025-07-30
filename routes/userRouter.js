@@ -19,10 +19,12 @@ router.get("/login", userAuth.isLoggedIn, userController.loadLogin);
 router.get("/signup", userAuth.isLoggedIn, userController.loadSignup);
 router.get("/verifyOtp", userAuth.isLoggedIn, userController.verifyOtp);
 router.get("/pageNotFound", userController.pageNotFound);
-router.get("/myAccount",userAuth.userBlocked,userAuth.checkSession, userController.loadmyAccount);
 router.get("/logout", userAuth.isLoggedIn, userController.loadLogout);
 router.get('/productDetails',userAuth.userBlocked, userController.productDetails)
 
+//profile info
+router.get("/myAccount",userAuth.userBlocked,userAuth.checkSession, userController.loadmyAccount);
+router.put('/profileInfo/:id',userAuth.checkSession,userController.editProfileInfo)
 
 
 router.get('/forgotPassword',userAuth.isLoggedIn,userController.forgotPassword);
@@ -37,6 +39,33 @@ router.get('/mensCategory',userAuth.userBlocked,userController.mensCategory);
 router.get('/womensCategory',userAuth.userBlocked,userController.womensCategory);
 router.get('/beautyCategory',userAuth.userBlocked,userController.beautyCategory);
 router.get('/filter',userAuth.userBlocked,userController.filter);
+
+
+// adreess mangement
+router.get('/manageAddress',userAuth.userBlocked,userAuth.checkSession, userController.loadmyAddress)
+router.post('/addAddress/:id',userAuth.checkSession,userController.addAddress)
+router.get('/editAddress/:id',userAuth.userBlocked,userAuth.checkSession, userController.loadEditAddress)
+router.put('/submitEditAddress/:id',userAuth.userBlocked,userAuth.checkSession, userController.editAddress)
+router.delete('/deleteAddress/:id',userAuth.userBlocked,userAuth.checkSession, userController.deleteAddress)
+
+
+//changePassword
+router.get('/changePassword',userAuth.userBlocked,userAuth.checkSession, userController.loadChangePassword)
+router.post('/handleChangePassword',userAuth.userBlocked,userAuth.checkSession, userController.handleChangePassword)
+router.get('/forgotPassword-changePswrd',userAuth.userBlocked,userAuth.checkSession, userController.renderForgotPasswordPage )
+router.post('/renderForgotPasswordOtpPage',userAuth.userBlocked,userAuth.checkSession, userController.handleForgotPasswordOtpRequest )
+router.post('/changePasswordVerifyOTP',userAuth.userBlocked,userAuth.checkSession,userController.changePasswordVerifyOTP)
+router.get('/renderChange-password',userAuth.userBlocked,userAuth.checkSession, userController.renderChangePassword)
+router.post('/submitChangedPassword',userAuth.userBlocked,userAuth.checkSession,userController.submitChangedPassword)
+router.get('/verify-otp-page',userAuth.userBlocked,userAuth.checkSession,userController.renderVerifyOtpPage)
+
+
+
+
+
+
+
+
 
 
 

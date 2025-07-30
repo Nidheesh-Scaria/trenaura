@@ -1,0 +1,771 @@
+
+  <head>
+    
+    <link rel="stylesheet" href="/css/myAccount.css" type="text/css" />
+    <style>
+      .address-section {
+        flex: 1;
+        padding: 20px;
+      }
+
+      .address-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .address-header h2 {
+        font-size: 22px;
+        margin-bottom: 10px;
+      }
+
+      .address-list {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .address-card {
+        background: #fff;
+        padding: 15px 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        border-left: 4px solid #203acd;
+      }
+
+      .address-card p {
+        margin: 5px 0;
+        font-size: 14px;
+      }
+
+      .address-actions {
+        margin-top: 10px;
+      }
+
+      .address-actions .editButton {
+        padding: 6px 10px;
+        margin-right: 10px;
+        background: #0a14d7;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-size: 12px;
+        cursor: pointer;
+      }
+      .address-actions .deleteButton {
+        padding: 6px 10px;
+        margin-right: 10px;
+        background: #f10346;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-size: 12px;
+        cursor: pointer;
+      }
+
+
+      .add-address-btn {
+        padding: 8px 14px;
+        background: #28a745;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      .addressType{
+        font-weight: bolder;
+      }
+
+      /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0; top: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(2px);
+        transition: opacity 0.3s ease;
+    }
+
+    .modal-content {
+        {{!-- max-height: 100%;
+        overflow-y: auto; --}}
+        background-color: #ffffff;
+        margin: 0% auto;
+        padding: 30px 35px;
+        border-radius: 16px;
+        width: 520px;
+        max-width: 95%;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        animation: fadeIn 0.3s ease, slideUp 0.3s ease;
+        position: relative;
+    }
+
+    .close {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 24px;
+        font-weight: bold;
+        color: #888;
+        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+
+    .close:hover {
+        color: #000;
+    }
+
+    .modal-content h3 {
+        margin-bottom: 20px;
+        font-size: 20px;
+        color: #000000;
+        text-align: center;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .row input, .row select, textarea {
+        flex: 1;
+        padding: 12px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        background: #fafafa;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        
+    }
+
+    .row input:focus,
+    .row select:focus,
+    textarea:focus {
+        border-color: #203acd;
+        box-shadow: 0 0 0 2px rgba(32, 58, 205, 0.1);
+        outline: none;
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 70px;
+    }
+
+    .radio-group {
+        display: flex;
+        justify-content: start;
+        gap: 20px;
+        margin-top: 5px;
+        font-size: 14px;
+        position: sticky;
+        bottom: 0;
+    }
+
+    .actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        background: #fff;
+        padding-top: 15px;
+        position: sticky;
+        bottom: 0;
+    
+    }
+
+    button.save {
+        background: #110ae9;
+        color: white;
+        border: none;
+        padding: 10px 22px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+        transition: background 0.2s ease;
+    }
+
+    button.save:hover {
+        background: #1a2fb1;
+    }
+
+    button.cancel {
+        background: #e0e0e0;
+        color: #333;
+        padding: 10px 22px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.2s ease;
+    }
+
+    button.cancel:hover {
+        background: #cfcfcf;
+        color: #ff0000;;
+    }
+
+    #error {
+        margin-top: -10px;
+    }
+
+    /* Delete Modal Styling */
+#deleteModal .modal-content {
+  max-height: 100%;
+  overflow-y: auto;
+  background-color: #ffffff;
+  margin: 10% auto;
+  padding: 30px 35px;
+  border-radius: 16px;
+  width: 400px;
+  max-width: 95%;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.3s ease, slideUp 0.3s ease;
+  position: relative;
+  text-align: center;
+}
+
+#deleteModal .modal-content h3 {
+  font-size: 18px;
+  color: #d1001f;
+  margin-bottom: 10px;
+}
+
+#deleteModal .modal-content p {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+#deleteModal .actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+#deleteModal .save {
+  background: #d1001f;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+#deleteModal .save:hover {
+  background: #a0001a;
+}
+
+#deleteModal .cancel {
+  background: #e0e0e0;
+  color: #333;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+#deleteModal .cancel:hover {
+  background: #cfcfcf;
+  color: #ff0000;
+}
+/* Warning icon in delete modal */
+#deleteModal .warning-icon {
+  font-size: 40px;
+  color: #d1001f;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+
+    @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+    from { transform: translateY(20px); }
+    to { transform: translateY(0); }
+    }
+
+    </style>
+    
+  </head>
+ 
+    <div class="container">
+      {{> user/sidebar }} 
+
+      <div class="address-section">
+        <div class="address-header">
+          <h2>Manage Addresses</h2>
+          <button class="add-address-btn" onclick=openAddModal(event,'{{userId}}')>+ Add New Address</button>
+        </div>
+
+       {{#if addresses.length}}
+          <div class="address-list">
+            {{#each addresses}}
+              <div class="address-card">
+                <p><strong>{{this.name}}</strong></p>
+                <p>{{this.address}}</p>
+                {{#if this.landMark}}
+                <p>{{this.landMark}},</p>
+                {{/if}}
+                <p>{{this.city}},{{this.state}} - {{this.pincode}}</p>
+                <p>Phone: {{this.phone}}</p>
+                {{#if this.altPhone}}
+                <p>Alternative Phone: {{this.altPhone}}</p>
+                {{/if}}
+                <div class="address-actions">
+                    <p class="addressType" style="color:{{#if (eq this.addressType 'home')}}#26b708{{else}}red{{/if}} ">{{#if (eq this.addressType 'home') }}HOME{{else}}WORK{{/if}}</p>
+                    <button class="editButton" onclick="openEditModal(event,'{{this._id}}')">Edit</button>
+                    <button class="deleteButton" onclick=deleteAddress('{{this._id}}')>Delete</button>
+                </div>
+              </div>
+            {{/each}}
+          </div>
+        {{else}}
+          <p>No addresses found. Please add one.</p>
+        {{/if}}
+      </div>
+    </div>
+
+
+    
+<!-- Add New Address Modal -->
+<div id="addressModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h3>Add a new address</h3>
+     <form onsubmit="submitAddress(event)">
+      <div class="row">
+        <input type="text" placeholder="Enter your name" id="name" name="name">
+        <input type="text" placeholder="Enter your Mobile number" id="phone" name="phone">
+      </div>
+      <div class="row">
+        <input type="text" placeholder="Enter your pincode" name="pincode" id="pincode">
+        <input type="text" placeholder="Enter your locality" name="locality" id="locality" >
+      </div>
+      <textarea placeholder="Address (Area, City,Post)" rows="3" name="address" id="address" ></textarea>
+       <div class="row">
+        <input type="text" placeholder="City/District/Town" name="cityOrTown" id="cityOrTown">
+        <input type="text" placeholder="Enter your State" name="state" id="state" >
+        {{!-- <select name="state" id="states">
+          <option value="">Select State</option>
+          <option value="Kerala">Kerala</option>
+          <option value="Karnataka">Karnataka</option>
+          <option value="Tamilnadu">Tamilnadu</option>
+        </select> --}}
+      </div>
+
+
+      <div class="row">
+        <input type="text" placeholder="Landmark (optional)" name="landmark" id="landmark">
+        <input type="text" placeholder="Alternate Mobile number (optional)" name="altPhone" id="altPhone">
+      </div>
+      <div id="error">
+        <p id="addressError" style="color: red;"></p>
+      </div>
+      <div class="row radio-group">
+        <label><input type="radio" name="addressType" value="home"> Home</label>
+        <label><input type="radio" name="addressType" value="work"> Work</label>
+      </div>
+      <div class="actions">
+        <button type="submit" class="save">Save</button>
+        <button type="button" class="cancel" onclick="closeModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- Edit Address Modal -->
+<div id="editModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeEditModal()">&times;</span>
+    <h3>Add a new address</h3>
+     <form onsubmit="submitEditAddress(event)">
+      <div class="row">
+        <input type="hidden" id="editAddressId" />
+        <input type="text" id="edit-name" name="name" placeholder="Enter your name">
+        <input type="text" id="edit-phone" name="phone" placeholder="Enter your Mobile number">
+      </div>
+      <div class="row">
+        <input type="text" name="pincode" id="edit-pincode" placeholder="Enter your pincode">
+        <input type="text" name="locality" id="edit-locality" placeholder="Enter your locality">
+      </div>
+      <textarea rows="3" name="address" id="edit-address" placeholder="Address (Area, City,Post)"></textarea>
+       <div class="row">
+        <input type="text"  name="cityOrTown" id="edit-cityOrTown"  placeholder="City/District/Town">
+        <input type="text" name="state" id="edit-state" placeholder="Enter your State">
+
+      </div>
+
+
+      <div class="row">
+        <input type="text" placeholder="Landmark (optional)" name="landmark" id="edit-landmark">
+        <input type="text" placeholder="Alternate Mobile number (optional)" name="altPhone" id="edit-altPhone">
+      </div>
+      <div id="error">
+        <p id="editAddressError" style="color: red;"></p>
+      </div>
+      <div class="row radio-group">
+        <label><input type="radio" name="editAddressType" value="home"> Home</label>
+        <label><input type="radio" name="editAddressType" value="work"> Work</label>
+      </div>
+      <div class="actions">
+        <button type="submit" class="save">Save</button>
+        <button type="button" class="cancel" onclick="closeEditModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal">
+  <div class="modal-content">
+
+    <span class="close" onclick="closeDeleteModal()">&times;</span>
+    
+    <div class="warning-icon">
+      ⚠️
+    </div>
+  
+    <h3>Are you sure you want to delete this address?</h3>
+    <p>This action cannot be undone.</p>
+    <input type="hidden" id="deleteAddress" />
+
+    <div class="actions">
+      <button class="save" onclick="confirmDeleteAddress()">Yes, Delete</button>
+      <button class="cancel" onclick="closeDeleteModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+<script>
+
+    //delete Modal
+function deleteAddress(id) {
+  document.getElementById("deleteModal").style.display = "block";
+  document.getElementById("deleteAddress").value = id;
+}
+
+async function confirmDeleteAddress() {
+  const id = document.getElementById("deleteAddress").value;
+  const res = await fetch(`/deleteAddress/${id}`, {
+    method: "DELETE",
+    headers: { "Content-type": "application/json" },
+  });
+
+  const data = await res.json();
+  let timerInterval;
+  await Swal.fire({
+    title: "Done!",
+    html: data.message,
+    timer: 1500,
+
+    willClose: () => {
+      clearInterval(timerInterval);
+    },
+  }).then((result) => {
+    if (result.dismiss === Swal.DismissReason.timer) {
+      console.log("I was closed by the timer");
+    }
+  });
+
+  if (res.ok) {
+    closeDeleteModal();
+    window.location.reload();
+  }
+}
+
+//add modal
+function openAddModal(event, id) {
+  document.getElementById("addressModal").style.display = "block";
+  document.getElementById("addressModal").dataset.userId = id;
+  const errorElement = document.getElementById("addressError");
+  errorElement.textContent = "";
+}
+
+async function submitAddress(event) {
+  event.preventDefault();
+  const id = document.getElementById("addressModal").dataset.userId;
+
+  const name = document.getElementById("name").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const pincode = document.getElementById("pincode").value.trim();
+  const locality = document.getElementById("locality").value.trim();
+  const address = document.getElementById("address").value.trim();
+  const cityOrTown = document.getElementById("cityOrTown").value.trim();
+  const selectedState = document.getElementById("state").value.trim();
+  const addressTypeInput = document.querySelector(
+    "input[name=addressType]:checked"
+  );
+  const addressType = addressTypeInput ? addressTypeInput.value : null;
+
+  const landmark = document.getElementById("landmark").value.trim();
+  const altPhone = document.getElementById("altPhone").value.trim();
+
+  const errorElement = document.getElementById("addressError");
+  errorElement.textContent = "";
+
+  if (
+    !name ||
+    !phone ||
+    !pincode ||
+    !address ||
+    !selectedState ||
+    !addressType ||
+    !locality ||
+    !cityOrTown
+  ) {
+    errorElement.textContent = "Please fill all the fields";
+    return;
+  } else {
+    errorElement.textContent = "";
+  }
+  if (!/^\d{6}$/.test(pincode)) {
+    errorElement.textContent = "Enter a valid 6-digit pincode";
+    return;
+  }
+  if (!/^\d{10}$/.test(phone)) {
+    errorElement.textContent = "Enter a valid 10-digit phone number";
+    return;
+  }
+  if (address.length < 10) {
+    errorElement.textContent = "Enter atleast 10 charecters in address";
+    return;
+  }
+  if (altPhone) {
+    if (!/^\d{10}$/.test(altPhone)) {
+      errorElement.textContent = "Enter a valid 10-digit phone number";
+      return;
+    }
+  }
+
+  const res = await fetch(`/addAddress/${id}`, {
+    method: "POST",
+    headers: { "Content-type": "application/json" },
+    body: JSON.stringify({
+      name,
+      phone,
+      pincode,
+      locality,
+      address,
+      cityOrTown,
+      state: selectedState,
+      addressType,
+      landmark,
+      altPhone,
+    }),
+  });
+  const data = await res.json();
+  let timerInterval;
+  await Swal.fire({
+    title: "Alert!",
+    html: data.message,
+    timer: 1500,
+
+    willClose: () => {
+      clearInterval(timerInterval);
+    },
+  }).then((result) => {
+    if (result.dismiss === Swal.DismissReason.timer) {
+      console.log("I was closed by the timer");
+    }
+  });
+
+  if (res.ok) {
+    closeModal();
+    window.location.reload();
+  }
+}
+
+//edit modal
+async function openEditModal(event, id) {
+  document.getElementById("editModal").style.display = "block";
+  document.getElementById("editModal").dataset.address = id;
+  const errorElement = document.getElementById("editAddressError");
+  errorElement.textContent = "";
+
+  const res = await fetch(`/editAddress/${id}`);
+
+  const data = await res.json();
+  console.log(data);
+  document.getElementById("edit-name").value = data.name || "";
+  document.getElementById("edit-phone").value = data.phone || "";
+  document.getElementById("edit-pincode").value = data.pincode || "";
+  document.getElementById("edit-locality").value = data.locality || "";
+  document.getElementById("edit-address").value = data.address || "";
+  document.getElementById("edit-cityOrTown").value = data.city || "";
+  document.getElementById("edit-state").value = data.state || "";
+  const addressTypeRadio = document.querySelector(
+    `input[name=editAddressType][value="${data.addressType}"]`
+  );
+  if (addressTypeRadio) {
+    addressTypeRadio.checked = true;
+  }
+
+  document.getElementById("edit-landmark").value = data.landMark || "";
+  document.getElementById("edit-altPhone").value = data.altPhone || "";
+}
+
+async function submitEditAddress(event) {
+  event.preventDefault();
+  const id = document.getElementById("editModal").dataset.address;
+
+  const name = document.getElementById("edit-name").value.trim();
+  const phone = document.getElementById("edit-phone").value.trim();
+  const pincode = document.getElementById("edit-pincode").value.trim();
+  const locality = document.getElementById("edit-locality").value.trim();
+  const address = document.getElementById("edit-address").value.trim();
+  const city = document.getElementById("edit-cityOrTown").value.trim();
+  const state = document.getElementById("edit-state").value.trim();
+  const addressTypeInput = document.querySelector(
+    "input[name=editAddressType]:checked"
+  );
+  const addressType = addressTypeInput ? addressTypeInput.value : null;
+
+  const landMark = document.getElementById("edit-landmark").value.trim();
+  const altPhone = document.getElementById("edit-altPhone").value.trim();
+
+  const errorElement = document.getElementById("editAddressError");
+  errorElement.textContent = "";
+  console.log(name);
+  if (
+    !name ||
+    !phone ||
+    !pincode ||
+    !address ||
+    !state ||
+    !addressType ||
+    !locality ||
+    !city
+  ) {
+    errorElement.textContent = "Please fill all the fields";
+    return;
+  } else {
+    errorElement.textContent = "";
+  }
+
+  if (!/^\d{6}$/.test(pincode)) {
+    errorElement.textContent = "Enter a valid 6-digit pincode";
+    return;
+  }
+  if (!/^\d{10}$/.test(phone)) {
+    errorElement.textContent = "Enter a valid 10-digit phone number";
+    return;
+  }
+  if (address.length < 10) {
+    errorElement.textContent = "Enter atleast 10 charecters in address";
+    return;
+  }
+  if (altPhone) {
+    if (!/^\d{10}$/.test(altPhone)) {
+      errorElement.textContent = "Enter a valid 10-digit phone number";
+      return;
+    }
+  }
+
+  const res = await fetch(`/submitEditAddress/${id}`, {
+    method: "PUT",
+    headers: { "Content-type": "application/json" },
+    body: JSON.stringify({
+      name,
+      phone,
+      pincode,
+      locality,
+      address,
+      city,
+      state,
+      addressType,
+      landMark,
+      altPhone,
+    }),
+  });
+
+  const data = await res.json();
+  let timerInterval;
+  await Swal.fire({
+    title: "Alert!",
+    html: data.message,
+    timer: 1500,
+
+    willClose: () => {
+      clearInterval(timerInterval);
+    },
+  }).then((result) => {
+    if (result.dismiss === Swal.DismissReason.timer) {
+      console.log("I was closed by the timer");
+    }
+  });
+
+  if (res.ok) {
+    closeEditModal();
+    window.location.reload();
+  }
+}
+
+//closing modals
+
+function closeEditModal() {
+  const modal = document.getElementById("editModal");
+  modal.style.display = "none";
+}
+
+function closeModal() {
+  const modal = document.getElementById("addressModal");
+  modal.style.display = "none";
+  modal.dataset.userId = "";
+
+  document
+    .querySelectorAll("#addressModal input, #addressModal textarea")
+    .forEach((el) => (el.value = ""));
+  document
+    .querySelectorAll('input[name="addressType"]')
+    .forEach((el) => (el.checked = false));
+  document.getElementById("addressError").textContent = "";
+}
+
+function closeDeleteModal() {
+  const modal = document.getElementById("deleteModal");
+  modal.style.display = "none";
+}
+
+window.onclick = function (event) {
+  const addressModal = document.getElementById("addressModal");
+  const editModal = document.getElementById("editModal");
+  const deleteModal = document.getElementById("deleteModal");
+
+  {{!-- if (event.target === addressModal) closeModal();
+  if (event.target === editModal) closeEditModal(); --}}
+  if (event.target === deleteModal) closeDeleteModal();
+};
+
+
+
+</script>
+
+

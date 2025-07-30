@@ -58,6 +58,7 @@ const login = async (req, res) => {
   }
 };
 
+
 const loadDashboard = async (req, res) => {
   if (req.session.admin) {
     try {
@@ -75,6 +76,7 @@ const loadDashboard = async (req, res) => {
     return res.redirect("/admin/login");
   }
 };
+
 
 const logout = async (req, res) => {
   try {

@@ -10,6 +10,7 @@ const { isLoggedIn } = require("../middleware/userAuth");
 const env = require("dotenv").config();
 const httpStatus = require("../util/statusCodes");
 const { MESSAGES } = require("../util/constants");
+const { default: mongoose } = require("mongoose");
 
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -109,7 +110,9 @@ const verifySignupOtp = async (req, res) => {
       // res.redirect("/");
       res.status(httpStatus.OK).json({ success: true, redirectUrl: "/" });
     } else {
-      res.status(httpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.INVALID_OTP });
+      res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ success: false, message: MESSAGES.INVALID_OTP });
     }
   } catch (error) {
     console.error("Error in verifying the OTP", error);
@@ -243,7 +246,7 @@ const loadHomepage = async (req, res) => {
 
     let productData = await Product.find({
       isBlocked: false,
-      isDeleted:false,
+      isDeleted: false,
       category: { $in: categories.map((category) => category._id) },
       quantity: { $gt: 0 },
     });
@@ -354,30 +357,6 @@ const verifyOtp = async (req, res) => {
     res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
-  }
-};
-
-const loadmyAccount = async (req, res) => {
-  try {
-    const userId = req.session.user || req.user;
-
-    if (!userId) {
-      return res.redirect("/login");
-    }
-
-    const user = await userSchema.findById(userId);
-    if (!user) {
-      return res.redirect("/login");
-    }
-
-    res.render("user/myAccount", {
-      title: "My Account",
-      name: user.name,
-      adminHeader: true,
-    });
-  } catch (error) {
-    console.error("Error in rendering My account:", error);
-    res.redirect("/pageNotFound");
   }
 };
 
@@ -495,7 +474,7 @@ const verifyForgotPasswordOtp = async (req, res) => {
     } else {
       return res
         .status(httpStatus.BAD_REQUEST)
-        .json({ success: false, message: "Invalid OTP. Please try again.99" });
+        .json({ success: false, message: "Invalid OTP. Please try again." });
     }
   } catch (error) {
     console.error("Error in verifyForgotPasswordOtp:", error);
@@ -693,7 +672,7 @@ const mensCategory = async (req, res) => {
     const totalPages = Math.ceil(totalProducts / limit);
 
     let productData = await Product.find({
-      isDeleted:false,
+      isDeleted: false,
       isBlocked: false,
       category: { $in: categoryIds },
       quantity: { $gt: 0 },
@@ -897,6 +876,604 @@ const filter = async (req, res) => {
   }
 };
 
+//user inof management
+
+const loadmyAccount = async (req, res) => {
+  try {
+    const userId = req.session.user || req.user;
+
+    if (!userId) {
+      return res.redirect("/login");
+    }
+
+    const user = await userSchema.findById(userId);
+    if (!user) {
+      return res.redirect("/login");
+    }
+
+    res.render("user/profileInfo", {
+      title: "Profile Information",
+      adminHeader: true,
+      name: user.name,
+      email: user.email,
+      gender: user.gender,
+      phone: user.phone,
+      user,
+      userId: user._id,
+    });
+  } catch (error) {
+    console.error("Error in rendering My account:", error);
+    res.redirect("/pageNotFound");
+  }
+};
+
+const editProfileInfo = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const name = req.body.name?.trim();
+    const phone = req.body.phone?.trim();
+    const email = req.body.email?.trim();
+    const gender = req.body.gender?.trim();
+
+    const data = await userSchema.find({
+      $or: [{ name }, { phone }, { email }],
+      _id: { $ne: id },
+    });
+    const isMatched = await userSchema.findById(id);
+
+    if (data.length > 0) {
+      return res.status(httpStatus.BAD_REQUEST).json({
+        message: MESSAGES.ALREADY_EXISTS || "Email or phone already exists",
+      });
+    }
+
+    // Check if the new values are different from current values
+    if (
+      isMatched.name === name &&
+      isMatched.phone === phone &&
+      isMatched.email === email &&
+      isMatched.gender === gender
+    ) {
+      return res.status(httpStatus.BAD_REQUEST).json({
+        message:
+          MESSAGES.USERINFO.EDIT_WITH_NEW_VALUE || "Edit with new values",
+      });
+    }
+
+    await userSchema.findByIdAndUpdate(
+      id,
+      { $set: { name, email, phone, gender } },
+      { new: true }
+    );
+
+    return res
+      .status(httpStatus.OK)
+      .json({ message: MESSAGES.USERINFO.EDIT_SUCCESS || "Updated" });
+  } catch (error) {
+    console.error("Error in rendering product info:", error);
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
+  }
+};
+
+//address management
+const loadmyAddress = async (req, res) => {
+  try {
+    const userId = req.session.user || req.user;
+
+    if (!userId) {
+      return res.redirect("/login");
+    }
+
+    const user = await userSchema.findById(userId);
+    if (!user) {
+      return res.redirect("/login");
+    }
+
+    const userAddresses = await Address.findOne({ userId });
+
+    const addresses = userAddresses ? userAddresses.address : [];
+    // Converting Mongoose documents to plain objects
+    const plainAddresses = addresses.map((address) =>
+      address.toObject ? address.toObject() : address
+    );
+    res.render("user/addressManage", {
+      title: "Address management",
+      adminHeader: true,
+      name: user.name,
+      user,
+      addresses: plainAddresses,
+      userId: user._id,
+    });
+  } catch (error) {
+    console.error("Error in rendering address management:", error);
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
+  }
+};
+
+const addAddress = async (req, res) => {
+  try {
+    const userId = req.session.user || req.user;
+    const {
+      addressType,
+      name,
+      locality,
+      address,
+      cityOrTown,
+      state: selectedState,
+      pincode,
+      phone,
+      altPhone,
+      landmark,
+    } = req.body;
+
+    if (
+      !name ||
+      !phone ||
+      !pincode ||
+      !address ||
+      !selectedState ||
+      !addressType ||
+      !locality ||
+      !cityOrTown
+    ) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ message: MESSAGES.ADD_ADDRESS.MISSING_FIELDS });
+    }
+
+    const newAddress = {
+      addressType,
+      name,
+      locality,
+      address,
+      city: cityOrTown,
+      landMark: landmark,
+      state: selectedState,
+      pincode: Number(pincode),
+      phone: Number(phone),
+      altPhone: altPhone ? Number(altPhone) : undefined,
+    };
+
+    const userAddress = await Address.findOne({ userId });
+
+    if (userAddress) {
+      userAddress.address.push(newAddress);
+      await userAddress.save();
+    } else {
+      await Address.create({ userId, address: [newAddress] });
+    }
+
+    return res
+      .status(httpStatus.OK)
+      .json({ message: MESSAGES.ADD_ADDRESS.SUCCESS || "Address added" });
+  } catch (error) {
+    console.error("Error in rendering product info:", error);
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
+  }
+};
+
+const loadEditAddress = async (req, res) => {
+  try {
+    const addressId = req.params.id;
+    const userId = req.session.user || req.user;
+
+    const userAddresses = await Address.findOne({ userId });
+
+    if (!userAddresses) {
+      return res.status(httpStatus.NOT_FOUND).json({
+        message: "No addresses found",
+      });
+    }
+
+    const address = userAddresses.address.find(
+      (addr) => addr._id.toString() === addressId
+    );
+
+    if (!address) {
+      return res.status(httpStatus.NOT_FOUND).json({
+        message: "Address not found",
+      });
+    }
+
+    res.status(httpStatus.OK).json(address);
+  } catch (error) {
+    console.error("Error in loading edit address:", error);
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
+  }
+};
+
+const editAddress = async (req, res) => {
+  try {
+    console.log("Edit address rwached");
+    const addressId = req.params.id;
+    const userId = req.session.user || req.user;
+    console.log(`userid:${userId}`);
+    console.log(`addressid:${addressId}`);
+    const {
+      addressType,
+      name,
+      locality,
+      address,
+      city,
+      state,
+      pincode,
+      phone,
+      altPhone,
+      landMark,
+    } = req.body;
+
+    // Validation
+    if (
+      !name ||
+      !phone ||
+      !pincode ||
+      !address ||
+      !state ||
+      !addressType ||
+      !locality ||
+      !city
+    ) {
+      return res.status(httpStatus.BAD_REQUEST).json({
+        message: "Please fill all required fields",
+      });
+    }
+
+    // Find the user's address document
+    const userAddresses = await Address.findOne({ userId });
+
+    if (!userAddresses) {
+      return res.status(httpStatus.NOT_FOUND).json({
+        message: "No addresses found",
+      });
+    }
+
+    const isAddress = await Address.findOne({ "address._id": addressId });
+    const result = isAddress.address.find(
+      (addr) => addr._id.toString() === addressId
+    );
+    // Find and update the specific address
+    const addressIndex = userAddresses.address.findIndex(
+      (addr) => addr._id.toString() === addressId
+    );
+
+    if (addressIndex === -1) {
+      return res.status(httpStatus.NOT_FOUND).json({
+        message: "Address not found",
+      });
+    }
+
+    // Update the address
+    userAddresses.address[addressIndex] = {
+      ...userAddresses.address[addressIndex],
+      addressType,
+      name,
+      locality,
+      address,
+      city,
+      landMark,
+      state,
+      pincode: Number(pincode),
+      phone: Number(phone),
+      altPhone: altPhone ? Number(altPhone) : null,
+    };
+
+    await userAddresses.save();
+
+    return res.status(httpStatus.OK).json({
+      message: MESSAGES.EDIT_ADDRESS.SUCCESS || "Edited Successfully",
+    });
+  } catch (error) {
+    console.error("Error in updating address:", error);
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
+  }
+};
+
+const deleteAddress = async (req, res) => {
+  try {
+    const id = req.params.id;
+    await Address.updateOne(
+      { "address._id": id },
+      { $pull: { address: { _id: id } } }
+    );
+    res
+      .status(httpStatus.OK)
+      .json({ message: MESSAGES.EDIT_ADDRESS.DELETE_ADDRESS || "Deleted" });
+  } catch (error) {
+    console.error("Error in deleting address:", error);
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
+  }
+};
+
+//change password management
+const loadChangePassword = async (req, res) => {
+  try {
+    const errorMessage = req.query.error;
+
+    res.render("user/changePassword", {
+      title: "Change password",
+      adminHeader: true,
+      errorMessage,
+    });
+  } catch (error) {
+    console.error("Error in Change password rendering:", error);
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
+  }
+};
+
+const handleChangePassword = async (req, res) => {
+  try {
+    const userId = req.session.user;
+
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    //validating values
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ message: MESSAGES.MISSING_FIELDS || "Fill all the fields" });
+    }
+    if (confirmPassword !== newPassword) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({
+          message:
+            MESSAGES.CHANGE_PASSWORD.MISMATCH ||
+            "New password and confirm password do not match",
+        });
+    }
+
+    const user = await userSchema.findById(userId).select("+password");
+
+    if (!user) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ message: MESSAGES.USER_NOT_FOUND || "User not found" });
+    }
+    if (!user || !user.password) {
+      return res.status(httpStatus.BAD_REQUEST).json({
+        message:
+          MESSAGES.USER_NOT_FOUND || "User not found or password missing",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    const isSame = await bcrypt.compare(newPassword, user.password);
+
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    if (!isMatch) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({
+          message:
+            MESSAGES.CHANGE_PASSWORD.INVALID_CURRENT_PASSWORD ||
+            "current password mismatch",
+        });
+    }
+    if (isSame) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({
+          message:
+            MESSAGES.CHANGE_PASSWORD.SAME_PASSWORD ||
+            "new password and current password are same ",
+        });
+    }
+
+    await userSchema.findByIdAndUpdate(userId, { password: hashedPassword });
+
+    return res
+      .status(httpStatus.OK)
+      .json({
+        message: MESSAGES.CHANGE_PASSWORD.SUCCESS || "Password changed",
+      });
+  } catch (error) {
+    console.error("Error in Changing password :", error);
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({ message: MESSAGES.INTERNAL_SERVER_ERROR || "Server error" });
+  }
+};
+
+const renderForgotPasswordPage = async (req, res) => {
+  try {
+    return res.render("user/changePswrd-forgotPasswordEmail", {
+      title: "Forgot password",
+      hideHeader: true,
+      hideFooter: true,
+      adminHeader: true,
+      messages: req.flash("error"),
+    });
+  } catch (error) {
+    console.error("Error in rendering login page:", error);
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
+  }
+};
+
+const handleForgotPasswordOtpRequest = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const userId = req.session.user;
+
+    const user = await userSchema.findById(userId);
+
+    if (user.email !== email) {
+      return res
+        .status(httpStatus.NOT_FOUND)
+        .json({ message: "Invalid mail id for the user" });
+    }
+
+    const otp = generateOtp();
+
+    const emailSent = await sendVerificationEmail(email, otp);
+    if (!emailSent) {
+      return res
+        .status(httpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: "Failed to send email" });
+    }
+
+    req.session.userOtp = otp;
+    req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000; // 5 mins
+    req.session.userData = { email };
+
+    console.log("OTP sent:", otp);
+    if (req.session.userOtp) {
+      return res
+        .status(httpStatus.OK)
+        .json({ message: "Otp sent Successfully" });
+    }
+  } catch (error) {
+    console.error("Error in forgotPasswordOtp:", error);
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
+  }
+};
+
+const renderVerifyOtpPage = async (req, res) => {
+  try {
+    res.render("user/changePasswored-verifyOTP", {
+      title: "Trenaura Verify OTP",
+      hideHeader: true,
+      hideFooter: true,
+      adminHeader: true,
+    });
+  } catch (error) {
+    console.error("Error in forgotPasswordOtp:", error);
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
+  }
+};
+
+const changePasswordVerifyOTP = async (req, res) => {
+  try {
+    const { otp } = req.body;
+    const sessionOtp = req.session.userOtp;
+    const otpExpiresAt = req.session.otpExpiresAt;
+
+    if (!sessionOtp || !otpExpiresAt) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ success: false, message: "OTP session expired or invalid." });
+    }
+
+    if (Date.now() > otpExpiresAt) {
+      delete req.session.userOtp;
+      delete req.session.otpExpiresAt;
+      return res.status(httpStatus.BAD_REQUEST).json({
+        success: false,
+        message: "OTP expired. Please request a new one.",
+      });
+    }
+
+    if (String(otp) === String(sessionOtp)) {
+      req.session.userData = { email: req.session.userData.email };
+
+      return res
+        .status(httpStatus.OK)
+        .json({ success: true, redirectUrl: "/renderChange-password" });
+    } else {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ success: false, message: "Invalid OTP. Please try again." });
+    }
+  } catch (error) {
+    console.error("Error in forgotPasswordOtp:", error);
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
+  }
+};
+
+const renderChangePassword = async (req, res) => {
+  try {
+    return res.render("user/changePassword-forgotPassword-page", {
+      title: "Forgot password",
+      hideHeader: true,
+      hideFooter: true,
+      adminHeader: true,
+    });
+  } catch (error) {
+    console.error("Error in verfyOtp :", error);
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
+  }
+};
+
+const submitChangedPassword = async (req, res) => {
+  try {
+    const { password, confirmPassword } = req.body;
+    const userId = req.session.user;
+
+    if (password !== confirmPassword) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ success: false, message: "Passwords do not match." });
+    }
+
+    const user = req.session.userData;
+
+    if (!user || !user.email) {
+      return res.status(httpStatus.UNAUTHORIZED).json({
+        success: false,
+        message: "User session expired. Please log in again.",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    const passwordChange = await userSchema.updateOne(
+      { _id: userId },
+      { $set: { password: hashedPassword } }
+    );
+
+    if (passwordChange.modifiedCount > 0) {
+      req.session.save(() => {
+        console.log("Session saved.");
+        res.status(httpStatus.OK).json({
+          success: true,
+          message: "Password changed successfully.",
+          redirectUrl: "/login",
+        });
+        console.log("Password changed successfully.");
+      });
+    } else {
+      console.log(
+        "Password not updated. It might be the same as the current one."
+      );
+      res.status(httpStatus.BAD_REQUEST).json({
+        success: false,
+        message: "Password not updated. Try a new password.",
+      });
+    }
+  } catch (error) {
+    console.error("Error in changing the password:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "An error occurred. Please try again later.",
+    });
+  }
+};
+
 module.exports = {
   loadTrenauraHomepage,
   loadHomepage,
@@ -922,4 +1499,18 @@ module.exports = {
   womensCategory,
   beautyCategory,
   filter,
+  editProfileInfo,
+  loadmyAddress,
+  addAddress,
+  loadEditAddress,
+  editAddress,
+  deleteAddress,
+  loadChangePassword,
+  handleChangePassword,
+  renderForgotPasswordPage,
+  handleForgotPasswordOtpRequest,
+  changePasswordVerifyOTP,
+  renderChangePassword,
+  submitChangedPassword,
+  renderVerifyOtpPage,
 };

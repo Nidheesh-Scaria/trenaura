@@ -11,30 +11,18 @@
         <button>My orders</button>
         <h4>Account Settings</h4>
         
-        <button><a href="">Profile Information  </a></button>
-        <button>Manage Addresses</button>
-        <button>Change Password</button>
+        <button onclick="window.location.href='/myAccount'">Profile Information</a></button>
+        <button onclick="window.location.href='/manageAddress'">Manage Addresses</button>
+        <button onclick="window.location.href='/changePassword'">Change Password</button>
 
         <h4>My Stuffs</h4>
         <button>My Coupons</button>
         <button>My reviews & ratings</button>
         <button>My Wallet</button>
         <form action="/logout" method="post">
-        <button type="submit"  class="logout">Log out</button>
+        <button type="submit"  id="logout">Log out</button>
         </form>
       </nav>
     </aside>
 
-    <main class="main-content">
-      <div class="tabs">
-        <button class="active-tab">My Orders</button>
-        <button>Customer Support</button>
-      </div>
-
-      <div class="orders-header">
-        <h2>My Orders</h2>
-        <input type="search" placeholder="Search orders">
-      </div>
-
-    </main>
   </div>

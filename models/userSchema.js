@@ -37,6 +37,11 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  gender:{
+    type:String,
+    enum:["Male","Female","Other"],
+    required:false,
+  },
   cart: [
     {
       type: Schema.Types.ObjectId,

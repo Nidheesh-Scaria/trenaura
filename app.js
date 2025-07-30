@@ -60,6 +60,7 @@ const hbs = exphbs.create({
       }
       return arr;
     },
+    eq: (a, b) => a === b,
   },
 });
 
@@ -126,6 +127,7 @@ app.get('/images/:filename', async (req, res) => {
   }
 });
 
+//route
 app.use("/", userRouter);
 app.use("/admin", adminRouter);
 

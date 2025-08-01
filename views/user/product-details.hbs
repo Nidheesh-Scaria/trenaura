@@ -208,7 +208,7 @@
             </select>
         </div>
         {{#if product.quantity}}
-        <button class="add-to-cart">Add to Cart</button>
+        <button class="add-to-cart" onclick="addToCart(event,'{{product._id}}')">Add to Cart</button>
         {{else}}
         <p style="color: red;">Out of Stock</p>
         {{/if}}
@@ -249,7 +249,7 @@
                         </a>
                         <div class="product__item__text">
                             <h6>{{this.productName}}</h6>
-                            <a href="#" class="add-cart">+ Add To Cart</a>
+                            <a href="#" onclick="addToCarts(event,'{{this._id}}')"  class="add-cart">+ Add To Cart</a>
                             <div class="rating">
                                 <i class="fa fa-star-o"></i>
                                 <i class="fa fa-star-o"></i>
@@ -273,7 +273,9 @@
 
 <script src="/js/jquery-3.3.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/easyzoom@2.5.0/dist/easyzoom.js"></script>
+
 <script>
+const selectedSize = document.getElementById("size")
   $(document).ready(function () {
     $('.set-bg').each(function () {
       const bg = $(this).data('setbg');
@@ -281,7 +283,7 @@
         $(this).css('background-image', 'url(' + bg + ')');
       }
     });
-    // Only initialize EasyZoom if the plugin is loaded
+    // Only initialize EasyZoom if the plugin loaded
     var easyzoomApi = null;
     if ($.fn.easyZoom) {
       easyzoomApi = $('#main-easyzoom').easyZoom().data('easyZoom');
@@ -299,4 +301,81 @@
       }
     });
   });
+
+async function addToCart(event, id) {
+
+const size=selectedSize.value
+
+  const res = await fetch(`/addToCart/${id}`, {
+    method:"POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body:JSON.stringify({size})
+  });
+
+  
+  const data = await res.json();
+
+  if (res.ok) {
+    Toastify({
+        text: data.message,
+        duration: 3000,
+        close: true,          
+        gravity: "top",       
+        position: "center",    
+        style: {
+            background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)", 
+        },
+        className: "custom-toast", 
+        
+        }).showToast();
+
+
+        
+    
+  } else {
+    console.error("Failed to add item:", data.message || "Unknown error");
+  }
+}
+//linear-gradient(to right,  #1e3c72, #6dd5ed)
+
+
+
+async function addToCarts(event, id) {
+
+const size=selectedSize.value
+
+  const res = await fetch(`/addToCart/${id}`, {
+    method:"POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body:JSON.stringify({size})
+  });
+
+  
+  const data = await res.json();
+
+  if (res.ok) {
+    Toastify({
+        text: data.message,
+        duration: 3000,
+        close: true,          
+        gravity: "top",       
+        position: "center",    
+        style: {
+            background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)", 
+        },
+        className: "custom-toast", 
+        
+        }).showToast();
+
+
+        
+    
+  } else {
+    console.error("Failed to add item:", data.message || "Unknown error");
+  }
+}
 </script>

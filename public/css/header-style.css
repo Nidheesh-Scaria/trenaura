@@ -134,3 +134,31 @@
     font-size:smaller ;
     color: #727272;
   }
+
+
+  .cart-icon-link {
+  position: relative;
+  font-size: 22px;
+  color: #1a1a1a;
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.cart-icon-link:hover {
+  color: orange;
+  transform: scale(1.1);
+}
+
+.cart-icon-link .cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  background: #ff6f00;
+  color: #fff;
+  font-size: 11px;
+  padding: 3px 6px;
+  border-radius: 50%;
+  font-weight: bold;
+  line-height: 1;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}

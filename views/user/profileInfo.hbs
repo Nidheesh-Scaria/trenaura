@@ -74,7 +74,7 @@
    
 
     .buttons {
-      display: flex;
+      display: none;
       gap: 15px;
       margin-top: 30px;
     }
@@ -87,6 +87,17 @@
       cursor: pointer;
       transition: background-color 0.2s;
     }
+    .edit-buttton{
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+      
+    }
+    .edit-buttton button{
+      background-color: rgb(14, 14, 169) ;
+      color: white;
+      height: 2rem;
+     }
 
     #submit {
       background-color: rgb(14, 14, 169) ;
@@ -137,25 +148,28 @@
   <main class="main-content">
     <div class="form-container">
       <h2>Personal Information</h2>
+      
       <form onsubmit="editPersonalInfo(event, '{{userId}}')" >
         
         <label for="name">Name</label>
-        <input type="text" id="name" name="name" value="{{name}}" />
+        <input type="text" id="name" name="name" value="{{name}}" disabled />
 
         <label>Gender</label>
         <div class="gender-group">
-          <label><input type="radio" name="gender" value="Male"   {{#if (eq gender "Male")}}checked{{/if}} /> Male</label>
-          <label><input type="radio" name="gender" value="Female" {{#if (eq gender "Female")}}checked{{/if}} /> Female</label>
-          <label><input type="radio" name="gender" value="Other"  {{#if (eq gender "Other")}}checked{{/if}}  /> Other</label>
+          <label><input type="radio" name="gender" value="Male"   {{#if (eq gender "Male")}}checked{{/if}} disabled/> Male</label>
+          <label><input type="radio" name="gender" value="Female" {{#if (eq gender "Female")}}checked{{/if}} disabled/> Female</label>
+          <label><input type="radio" name="gender" value="Other"  {{#if (eq gender "Other")}}checked{{/if}}  disabled/> Other</label>
         </div>
 
         <label for="email">Email address</label>
-        <input type="email" id="email" name="email" value="{{email}}" />
+        <input type="email" id="email" name="email" value="{{email}}" disabled/>
 
         <label for="phone">Mobile Number</label>
-        <input type="tel" id="phone" name="phone" value="{{phone}}" />
-
-        <div class="buttons">
+        <input type="tel" id="phone" name="phone" value="{{phone}}" disabled/>
+        <div class="edit-buttton" id="editButtton">
+            <button id="editBtn" type="button">Edit</button>
+        </div>
+        <div class="buttons" id="saveButtons">
           <button type="submit" id="submit">Save</button>
           <button type="button" id="cancel">Cancel</button>
         </div>
@@ -164,48 +178,104 @@
   </main>
 </div>
 
-<script>
+<script>  
+  const editButton = document.getElementById("editButtton");
+  const cancelButton = document.getElementById("cancel");
+  const saveButtonDiv = document.getElementById("saveButtons");
+  const inputs = document.getElementsByTagName("input");
+  editButton.addEventListener("click", function () {
+    editButton.style.display = "none";
+    saveButtonDiv.style.display = "flex";
+    document.getElementById("saveButtons").focus();
 
-  async function editPersonalInfo(event,id){
+    for (let i = 0; i < inputs.length; i++) {
+      inputs[i].disabled = false;
+    }
+  });
+
+  cancelButton.addEventListener("click", function () {
+    editButton.style.display = "flex";
+    saveButtonDiv.style.display = "none";
+    for (let i = 0; i < inputs.length; i++) {
+      inputs[i].disabled = true;
+    }
+  });
+
+  async function editPersonalInfo(event, id) {
     event.preventDefault();
-    console.log('Function called with ID:', id);
-    
-    const name=document.getElementById('name').value
-    const email=document.getElementById('email').value
-    const phone=document.getElementById('phone').value
+    console.log("Function called with ID:", id);
+
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const phone = document.getElementById("phone").value;
     const genderInput = document.querySelector('input[name="gender"]:checked');
-    const gender=genderInput? genderInput.value : null;
-    
-    console.log('Form data:', { name, email, phone, gender });
-    console.log('Making request to:', `/profileInfo/${id}`);
+    const gender = genderInput ? genderInput.value : null;
 
-    const res=await fetch(`/profileInfo/${id}`,{
-      method:'PUT',
-      headers:{"Content-type":"application/json"},
-      body:JSON.stringify({name,email,phone,gender})
-    })
-    
-    
-    const data=await res.json()
-    let timerInterval;
-    await Swal.fire({
-        title: "Alert!",
-        html: data.message,
-        timer: 1500,
+    console.log("Form data:", { name, email, phone, gender });
+    console.log("Making request to:", `/profileInfo/${id}`);
 
-        willClose: () => {
-          clearInterval(timerInterval);
-        },
-        }).then((result) => {
-          if (result.dismiss === Swal.DismissReason.timer) {
-            console.log("I was closed by the timer");
-          }
+    const res = await fetch(`/profileInfo/${id}`, {
+      method: "PUT",
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify({ name, email, phone, gender }),
     });
 
-    if(res.ok){
-      window.location.reload()
+    const data = await res.json();
+    if (res.ok) {
+      Toastify({
+        text: data.message || "Success!",
+        duration: 3000,
+        gravity: "top",
+        position: "center",
+        stopOnFocus: true,
+        style: {
+          background: "linear-gradient(to right, #1904ffe7, #0a67f3f7)",
+        },
+        close: true,
+      }).showToast();
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } else {
+      Toastify({
+        text: data.message || "Something went wrong",
+        duration: 3000,
+        gravity: "top",
+        position: "center",
+        stopOnFocus: true,
+        style: {
+          background: "linear-gradient(to right, #ff4d4d, #ff0000)",
+        },
+        close: true,
+      }).showToast();
     }
+
+    // sweet alert
+
+    //     let timerInterval;
+    //     await Swal.fire({
+    //         title: "Alert!",
+    //         html: data.message,
+    //         timer: 1500,
+
+    //         willClose: () => {
+    //           clearInterval(timerInterval);
+    //         },
+    //         }).then((result) => {
+    //           if (result.dismiss === Swal.DismissReason.timer) {
+    //             console.log("I was closed by the timer");
+    //           }
+    //     });
+
+    //     if(res.ok){
+
+    //       window.location.reload()
+    //     }
   }
+
+
+
 
 
 

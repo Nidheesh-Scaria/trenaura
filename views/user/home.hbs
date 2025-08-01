@@ -144,7 +144,7 @@
                         </a>
                         <div class="product__item__text">
                             <h6>{{this.productName}}</h6>
-                            <a href="#" class="add-cart">+ Add To Cart</a>
+                            <a href="#" onclick="addToCarts(event,'{{this._id}}')" class="add-cart">+ Add To Cart</a>
                             <div class="rating">
                                 <i class="fa fa-star-o"></i>
                                 <i class="fa fa-star-o"></i>
@@ -186,6 +186,38 @@
       }
     });
   });
+
+  
+async function addToCarts(event,id){
+  const res=await fetch(`/addToCarts/${id}`,{
+    method:"POST",
+    headers:{"Content-type":"application/json"},
+  })
+  const data = await res.json();
+
+  console.log("res.ok", res.ok);
+  console.log("data", data);
+
+  if(res.ok){
+  
+   Toastify({
+        text: data.message,
+        duration: 3000,
+        close: true,          
+        gravity: "top",       
+        position: "center",    
+        style: {
+            background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)", 
+        },
+        className: "custom-toast", 
+        onClick: () => {     
+            alert("Toast clicked!");
+        }
+        }).showToast();
+
+
+  }
+}
 </script>
 
 

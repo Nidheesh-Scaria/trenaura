@@ -34,7 +34,18 @@ const MESSAGES = {
     INVALID_CURRENT_PASSWORD: "Current password is incorrect",
     SUCCESS: "Password changed successfully",
     SAME_PASSWORD: "New password cannot be the same as current password",
-    
+    INVALID_EMAIL: "Invalid email for the current user",
+    EMAIL_REQUIRED: "Email is required"
+  },
+  CART:{
+    CART_EMPTY:"Cart is empty",
+    QUANTITY_INCREASE:"Quantity incresed by one",
+    QUANTITY_DECREASE:"Quantity decresed by one",
+    ITEM_DELETED:"Item removed from your shopping bag",
+  },
+  WISHLIST:{
+    WISHLIST_EMPTY:"Wishlist is empty",
+    ITEM_DELETED:"Item removed from your wishlist",
   },
 };
 

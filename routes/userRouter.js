@@ -6,6 +6,7 @@ const passport = require("passport");
 
 
 
+
 router.post("/signup", userController.signup);
 router.post("/login", userController.login);
 router.post("/verifyOtp", userController.verifySignupOtp);
@@ -58,6 +59,19 @@ router.post('/changePasswordVerifyOTP',userAuth.userBlocked,userAuth.checkSessio
 router.get('/renderChange-password',userAuth.userBlocked,userAuth.checkSession, userController.renderChangePassword)
 router.post('/submitChangedPassword',userAuth.userBlocked,userAuth.checkSession,userController.submitChangedPassword)
 router.get('/verify-otp-page',userAuth.userBlocked,userAuth.checkSession,userController.renderVerifyOtpPage)
+
+
+// add to cart
+router.post('/addToCart/:id',userAuth.userBlocked,userAuth.checkSession, userController.addToCart)
+router.post('/addToCarts/:id',userAuth.userBlocked,userAuth.checkSession, userController.addToCart)
+router.get('/loadcartPage',userAuth.userBlocked,userAuth.checkSession, userController.loadmyCart)
+router.patch('/increaseQuantity/:id',userAuth.userBlocked,userAuth.checkSession, userController.increaseQuantity)
+router.patch('/decreaseQuantity/:id',userAuth.userBlocked,userAuth.checkSession, userController.decreaseQuantity)
+router.delete("/removefromCart/:id",userAuth.userBlocked,userAuth.checkSession, userController.removefromCart)
+
+//wishlist management
+
+router.get('/loadWishlist',userAuth.userBlocked,userAuth.checkSession, userController.loadWishlist)
 
 
 

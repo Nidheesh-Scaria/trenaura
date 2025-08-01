@@ -2,6 +2,8 @@ const userSchema = require("../models/userSchema");
 const Product = require("../models/productSchema");
 const Category = require("../models/categorySchema");
 const Address = require("../models/addressSchema");
+const Cart = require("../models/cartSchema");
+const Wishlist = require("../models/wishlistSchema");
 
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
@@ -915,6 +917,12 @@ const editProfileInfo = async (req, res) => {
     const email = req.body.email?.trim();
     const gender = req.body.gender?.trim();
 
+    if (!name || !phone || !email || !gender) {
+      return res
+        .status(httpStatus.OK)
+        .json({ message: MESSAGES.MISSING_FIELDS || "Missing fields" });
+    }
+
     const data = await userSchema.find({
       $or: [{ name }, { phone }, { email }],
       _id: { $ne: id },
@@ -1092,11 +1100,9 @@ const loadEditAddress = async (req, res) => {
 
 const editAddress = async (req, res) => {
   try {
-    console.log("Edit address rwached");
     const addressId = req.params.id;
     const userId = req.session.user || req.user;
-    console.log(`userid:${userId}`);
-    console.log(`addressid:${addressId}`);
+
     const {
       addressType,
       name,
@@ -1228,22 +1234,15 @@ const handleChangePassword = async (req, res) => {
         .json({ message: MESSAGES.MISSING_FIELDS || "Fill all the fields" });
     }
     if (confirmPassword !== newPassword) {
-      return res
-        .status(httpStatus.BAD_REQUEST)
-        .json({
-          message:
-            MESSAGES.CHANGE_PASSWORD.MISMATCH ||
-            "New password and confirm password do not match",
-        });
+      return res.status(httpStatus.BAD_REQUEST).json({
+        message:
+          MESSAGES.CHANGE_PASSWORD.MISMATCH ||
+          "New password and confirm password do not match",
+      });
     }
 
     const user = await userSchema.findById(userId).select("+password");
 
-    if (!user) {
-      return res
-        .status(httpStatus.BAD_REQUEST)
-        .json({ message: MESSAGES.USER_NOT_FOUND || "User not found" });
-    }
     if (!user || !user.password) {
       return res.status(httpStatus.BAD_REQUEST).json({
         message:
@@ -1257,31 +1256,25 @@ const handleChangePassword = async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
 
     if (!isMatch) {
-      return res
-        .status(httpStatus.BAD_REQUEST)
-        .json({
-          message:
-            MESSAGES.CHANGE_PASSWORD.INVALID_CURRENT_PASSWORD ||
-            "current password mismatch",
-        });
+      return res.status(httpStatus.BAD_REQUEST).json({
+        message:
+          MESSAGES.CHANGE_PASSWORD.INVALID_CURRENT_PASSWORD ||
+          "current password mismatch",
+      });
     }
     if (isSame) {
-      return res
-        .status(httpStatus.BAD_REQUEST)
-        .json({
-          message:
-            MESSAGES.CHANGE_PASSWORD.SAME_PASSWORD ||
-            "new password and current password are same ",
-        });
+      return res.status(httpStatus.BAD_REQUEST).json({
+        message:
+          MESSAGES.CHANGE_PASSWORD.SAME_PASSWORD ||
+          "new password and current password are same ",
+      });
     }
 
     await userSchema.findByIdAndUpdate(userId, { password: hashedPassword });
 
-    return res
-      .status(httpStatus.OK)
-      .json({
-        message: MESSAGES.CHANGE_PASSWORD.SUCCESS || "Password changed",
-      });
+    return res.status(httpStatus.OK).json({
+      message: MESSAGES.CHANGE_PASSWORD.SUCCESS || "Password changed",
+    });
   } catch (error) {
     console.error("Error in Changing password :", error);
     res
@@ -1312,12 +1305,25 @@ const handleForgotPasswordOtpRequest = async (req, res) => {
     const { email } = req.body;
     const userId = req.session.user;
 
-    const user = await userSchema.findById(userId);
+    if (!email) {
+      return res.status(httpStatus.BAD_REQUEST).json({
+        message: MESSAGES.CHANGE_PASSWORD.EMAIL_REQUIRED || "Email is required",
+      });
+    }
 
-    if (user.email !== email) {
+    const user = await userSchema.findById(userId);
+    if (!user) {
       return res
         .status(httpStatus.NOT_FOUND)
-        .json({ message: "Invalid mail id for the user" });
+        .json({ message: "User not found" });
+    }
+
+    if (user.email !== email) {
+      return res.status(httpStatus.BAD_REQUEST).json({
+        message:
+          MESSAGES.CHANGE_PASSWORD.INVALID_EMAIL ||
+          "Invalid email for the current user",
+      });
     }
 
     const otp = generateOtp();
@@ -1326,7 +1332,7 @@ const handleForgotPasswordOtpRequest = async (req, res) => {
     if (!emailSent) {
       return res
         .status(httpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: "Failed to send email" });
+        .json({ message: "Failed to send email. Please try again." });
     }
 
     req.session.userOtp = otp;
@@ -1334,16 +1340,16 @@ const handleForgotPasswordOtpRequest = async (req, res) => {
     req.session.userData = { email };
 
     console.log("OTP sent:", otp);
-    if (req.session.userOtp) {
-      return res
-        .status(httpStatus.OK)
-        .json({ message: "Otp sent Successfully" });
-    }
+
+    return res.status(httpStatus.OK).json({
+      message: "OTP sent successfully",
+      success: true,
+    });
   } catch (error) {
-    console.error("Error in forgotPasswordOtp:", error);
+    console.error("Error in handleForgotPasswordOtpRequest:", error);
     res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
-      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
+      .json({ message: MESSAGES.INTERNAL_SERVER_ERROR || "Server error" });
   }
 };
 
@@ -1474,6 +1480,281 @@ const submitChangedPassword = async (req, res) => {
   }
 };
 
+// cart management
+
+const addToCart = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const productId = req.params.id;
+    const { size = "S" } = req.body || "S";
+    const quantity = 1;
+
+    const product = await Product.findById(productId);
+
+    if (!product || product.isDeleted || product.isBlocked) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ message: "Product not available" });
+    }
+
+    const price = product.salePrice;
+    const totalPrice = price * quantity;
+
+    let cart = await Cart.findOne({ userId });
+
+    if (!cart) {
+      cart = await Cart.create({
+        userId,
+        items: [
+          {
+            productId,
+            quantity,
+            price,
+            totalPrice,
+            size,
+          },
+        ],
+      });
+    } else {
+      const itemIndex = cart.items.findIndex(
+        (item) => item.productId.toString() === productId
+      );
+
+      if (itemIndex > -1) {
+        cart.items[itemIndex].quantity += quantity;
+        cart.items[itemIndex].totalPrice =
+          cart.items[itemIndex].quantity * price;
+      } else {
+        cart.items.push({ productId, quantity, price, totalPrice, size });
+      }
+    }
+
+    await cart.save();
+    return res.status(httpStatus.OK).json({ message: "Added to cart" });
+  } catch (error) {
+    console.error("Error in addToCart:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "An error occurred. Please try again later.",
+    });
+  }
+};
+
+const loadmyCart = async (req, res) => {
+  try {
+    const userId = req.session.user || req.user;
+    const products = await Product.find().limit(8).lean();
+
+    const cart = await Cart.findOne({ userId })
+      .populate({
+        path: "items.productId",
+        match: { isBlocked: false, isDeleted: false },
+      })
+      .lean();
+
+    //sorting items with a valid productId .
+    if (cart?.items?.length) {
+      cart.items = cart.items.filter((item) => item.productId !== null);
+    }
+
+    //total price of the cart items
+    let totalPrice = 0;
+
+    if (cart.items.length > 0 && cart.items) {
+      totalPrice = cart.items.reduce((total, item) => {
+        return total + item.totalPrice;
+      }, 0);
+    }
+
+    if (!cart || cart.items.length === 0) {
+      return res.render("user/shopping-cart", {
+        title: "Shopping Bag",
+        adminHeader: true,
+        hideFooter: false,
+        isCartEmpty: true,
+        cartItems: [],
+        products,
+      });
+    }
+
+    return res.render("user/shopping-cart", {
+      title: "Shopping Bag",
+      adminHeader: true,
+      hideFooter: false,
+      cartItems: cart.items,
+      isCartEmpty: cart.items.length === 0,
+      products,
+      totalPrice,
+    });
+  } catch (error) {
+    console.error("Error in loadmyCart:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "An error occurred. Please try again later.",
+    });
+  }
+};
+
+const increaseQuantity = async (req, res) => {
+  try {
+    const itemId = req.params.id;
+    const userId = req.session.user;
+
+    const result = await Cart.updateOne(
+      { userId, "items._id": itemId },
+      {
+        $inc: {
+          "items.$.quantity": 1,
+        },
+      }
+    );
+
+    const cart = await Cart.findOne({ userId })
+      .populate({
+        path: "items.productId",
+        match: { isBlocked: false, isDeleted: false },
+      })
+      .lean();
+
+    if (cart?.items?.length) {
+      cart.items = cart.items.filter((item) => item.productId !== null);
+    }
+
+    const item = cart.items.find((i) => i._id.toString() === itemId);
+
+    const totalPrizeOfProduct = item.quantity * item.price;
+
+    await Cart.updateOne(
+      { userId, "items._id": itemId },
+      {
+        $set: {
+          "items.$.totalPrice": totalPrizeOfProduct,
+        },
+      }
+    );
+
+    return res
+      .status(httpStatus.OK)
+      .json({ message: MESSAGES.CART.QUANTITY_INCREASE || "Increased by One" });
+  } catch (error) {
+    console.error("Error in increasing the quantity:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "An error occurred. Please try again later.",
+    });
+  }
+};
+
+const decreaseQuantity = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const itemId = req.params.id;
+
+    await Cart.updateOne(
+      { userId, "items._id": itemId },
+      {
+        $inc: { "items.$.quantity": -1 },
+      }
+    );
+
+    const cart = await Cart.findOne({ userId })
+      .populate({
+        path: "items.productId",
+        match: { isBlocked: false, isDeleted: false },
+      })
+      .lean();
+
+    if (cart?.items?.length) {
+      cart.items = cart.items.filter((item) => item.productId !== null);
+    }
+
+    const item = cart.items.find((i) => i._id.toString() === itemId);
+
+    const totalPrizeOfProduct = item.quantity * item.price;
+
+    await Cart.updateOne(
+      { userId, "items._id": itemId },
+      {
+        $set: { "items.$.totalPrice": totalPrizeOfProduct },
+      }
+    );
+
+    return res.status(httpStatus.OK).json({
+      message: MESSAGES.CART.QUANTITY_DECREASE || "Quantity decreased",
+    });
+  } catch (error) {
+    console.error("Error in decreasing the quantity:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "An error occurred. Please try again later.",
+    });
+  }
+};
+
+const removefromCart = async (req, res) => {
+  try {
+    const itemId = req.params.id;
+    const userId = req.session.user;
+
+    await Cart.updateOne({ userId }, { $pull: { items: { _id: itemId } } });
+
+    return res
+      .status(httpStatus.OK)
+      .json({ message: MESSAGES.CART.ITEM_DELETED || "item deleted" });
+  } catch (error) {
+    console.error("Error in removing item from cart:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "An error occurred. Please try again later.",
+    });
+  }
+};
+
+
+
+//wishlist mangement
+
+const loadWishlist = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const wishlist = await Wishlist.findOne({ userId })
+      .populate({
+        path: "products.productsId",
+        match: { isBlocked: false, isDeleted: false },
+      })
+      .lean();
+    //sorting items with a valid productId .
+    if (wishlist?.products?.length) {
+      wishlist.products = wishlist.products.filter(
+        (product) => product.productsId !== null
+      );
+    }
+
+    if (!wishlist || wishlist.products.length === 0) {
+      return res.render("user/wishlist", {
+        title: "Wishlist",
+        adminHeader: true,
+        isWishListEmpty: true,
+        wishlistItems: [],
+      });
+    }
+
+    return res.render("user/wishlist", {
+      title: "Wishlist",
+      adminHeader: true,
+      wishlistItems: wishlist.products,
+    });
+  } catch (error) {
+    console.error("Error in rendering wishlist:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "An error occurred. Please try again later.",
+    });
+  }
+};
+
+
+
 module.exports = {
   loadTrenauraHomepage,
   loadHomepage,
@@ -1513,4 +1794,10 @@ module.exports = {
   renderChangePassword,
   submitChangedPassword,
   renderVerifyOtpPage,
+  addToCart,
+  loadmyCart,
+  increaseQuantity,
+  decreaseQuantity,
+  removefromCart,
+  loadWishlist,
 };

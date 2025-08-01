@@ -26,6 +26,10 @@ const cartSchema = new Schema({
         type: Number,
         required: true,
       },
+      size: {
+        type: String,
+        required: true,
+      },
       status: {
         type: String,
         default: "Placed",
@@ -35,6 +39,7 @@ const cartSchema = new Schema({
         default: "None",
       },
     },
+    { timestamps: true },
   ],
 });
 

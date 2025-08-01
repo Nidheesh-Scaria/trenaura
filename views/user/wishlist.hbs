@@ -1,0 +1,164 @@
+
+
+<style>
+  .wishlist-container {
+    padding: 40px 10%;
+    background-color: #fff;
+  }
+
+  .wishlist-heading {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .wishlist-subtext {
+    text-align: center;
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 30px;
+  }
+
+  .wishlist-item {
+    display: flex;
+    gap: 20px;
+    background-color: #f5f5f5;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .wishlist-item img {
+    width: 100px;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .wishlist-details {
+    flex-grow: 1;
+  }
+
+  .wishlist-details h3 {
+    font-size: 16px;
+    font-weight: bold;
+    color: #111;
+    margin-bottom: 8px;
+  }
+
+  .wishlist-price {
+    font-size: 16px;
+    font-weight: 600;
+    color: #000;
+  }
+
+  .wishlist-price del {
+    font-size: 14px;
+    color: #999;
+    margin-left: 10px;
+  }
+
+  .wishlist-delete {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+
+  .wishlist-delete:hover {
+    color: red;
+  }
+
+
+  .wishlist-empty-container {
+  text-align: center;
+  padding: 40px 20px;
+  color: #555;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.wishlist-empty-icon {
+  font-size: 60px;
+  margin-bottom: 10px;
+}
+
+.wishlist-empty-title {
+  margin: 0 0 10px;
+  font-weight: bold;
+  font-size: 24px;
+}
+
+.wishlist-empty-text {
+  margin: 0 0 20px;
+  font-size: 16px;
+  color: #777;
+}
+
+.wishlist-empty-button {
+  display: inline-block;
+  padding: 10px 20px;
+  background: linear-gradient(to right, #2193b0, #6dd5ed);
+  color: white;
+  text-decoration: none;
+  border-radius: 25px;
+  font-weight: bold;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s ease;
+}
+
+.wishlist-empty-button:hover {
+  
+   background: linear-gradient(to right, #f12711, #f5af19);
+   
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+</style>
+<div class="wishlist-container">
+  <div class="wishlist-heading">WISHLIST</div>
+  <div class="wishlist-subtext">ONE CLICK CLOSER TO YOUR WISH</div>
+
+  {{#if isWishListEmpty}}
+    <div class="wishlist-empty-container">
+      <div class="wishlist-empty-icon">💔</div>
+      <h2 class="wishlist-empty-title">Your Wishlist is Empty</h2>
+      <p class="wishlist-empty-text">Looks like you haven't added anything yet.</p>
+      <a href="/products" class="wishlist-empty-button">Start Shopping</a>
+    </div>
+  {{/if}}
+
+    {{#each wishlistItems}}
+    <div class="wishlist-item">
+      <img src="/images/{{this.productsId.image}}" alt="{{this.productsId.name}}">
+      <div class="wishlist-details">
+        <h3>{{this.productsId.name}}</h3>
+        <div class="wishlist-price">
+          ₹{{this.productsId.price}} 
+          {{#if this.productsId.originalPrice}}<del>₹{{this.productsId.originalPrice}}</del>{{/if}}
+        </div>
+      </div>
+      <form action="/removeFromWishlist/{{this.productsId._id}}" method="POST">
+        <button type="submit" class="wishlist-delete"><i class="fa-solid fa-trash-can"></i></button>
+      </form>
+    </div>
+    {{/each}}
+ 
+    
+
+
+</div>
+
+

@@ -11,25 +11,21 @@ const passport = require("./config/passport");
 const { GridFSBucket } = require("mongodb");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
-
-
+const Cart = require("./models/cartSchema");
 
 const app = express();
-
-
 
 const port = process.env.PORT || 3000;
 
 db();
 
-mongoose.connection.once('open',()=>{
-  const db=mongoose.connection.db;
-  const bucket=new GridFSBucket(db,{bucketName:'uploads'})
-  app.locals.bucket=bucket
+mongoose.connection.once("open", () => {
+  const db = mongoose.connection.db;
+  const bucket = new GridFSBucket(db, { bucketName: "uploads" });
+  app.locals.bucket = bucket;
 
-  console.log('Grid fs set in app.locals')
-})
-
+  console.log("Grid fs set in app.locals");
+});
 
 const hbs = exphbs.create({
   extname: "hbs",
@@ -63,7 +59,6 @@ const hbs = exphbs.create({
     eq: (a, b) => a === b,
   },
 });
-
 
 app.engine("hbs", hbs.engine);
 app.set("view engine", "hbs");
@@ -99,32 +94,46 @@ app.use((req, res, next) => {
 });
 
 app.use(express.static(path.join(__dirname, "public")));
-app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Route to serve GridFS images
-app.get('/images/:filename', async (req, res) => {
+app.get("/images/:filename", async (req, res) => {
   try {
     const filename = req.params.filename;
     const bucket = req.app.locals.bucket;
-    
+
     if (!bucket) {
-      return res.status(500).send('GridFS not initialized');
+      return res.status(500).send("GridFS not initialized");
     }
 
     const downloadStream = bucket.openDownloadStreamByName(filename);
-    
-    downloadStream.on('error', (error) => {
-      console.error('Error downloading file:', error);
-      res.status(404).send('Image not found');
+
+    downloadStream.on("error", (error) => {
+      console.error("Error downloading file:", error);
+      res.status(404).send("Image not found");
     });
 
     downloadStream.pipe(res);
   } catch (error) {
-    console.error('Error serving image:', error);
-    res.status(500).send('Internal server error');
+    console.error("Error serving image:", error);
+    res.status(500).send("Internal server error");
   }
+});
+
+
+//passing cart length
+app.use(async (req, res, next) => {
+  if (req.session.user) {
+    const userId = req.session.user;
+    const cart = await Cart.findOne({ userId }).lean();
+    const cartLength = cart?.items?.length || 0;
+    res.locals.cartLength = cartLength;
+  } else {
+    res.locals.cartLength = 0;
+  }
+  next();
 });
 
 //route
@@ -133,20 +142,22 @@ app.use("/admin", adminRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(500).json({ 
-    success: false, 
-    message: 'Internal server error',
-    error: err.message 
+  console.error("Error:", err);
+  res.status(500).json({
+    success: false,
+    message: "Internal server error",
+    error: err.message,
   });
 });
 
+
+
 // 404 handler
 app.use((req, res) => {
-  console.log('404 - Route not found:', req.method, req.url);
-  res.status(404).json({ 
-    success: false, 
-    message: 'Route not found' 
+  console.log("404 - Route not found:", req.method, req.url);
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
   });
 });
 

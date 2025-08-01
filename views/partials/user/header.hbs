@@ -1,41 +1,41 @@
-<head>
-    <link rel="stylesheet" href="css/header-style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <head>
+      <link rel="stylesheet" href="css/header-style.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-</head>
+  </head>
 
-<header>
+  <header>
 
-    <div class="header-top">
-      <div class="logo"><img src="img/logo.png" alt="logo of trenaura" style="height: 2rem; width:10rem"></div>
-      <div class="header-icons">
-          {{#if isLoggedIn}}
-            <a href="#"><i class="fas fa-search"></i></a>
-            <a href="/myAccount"><i class="fas fa-user"></i></a>
-            <a href="#"><i class="fas fa-shopping-bag"></i>
-              <span class="cart-badge">4</span>
-            </a>
-            <a href="#"><i class="fas fa-heart"></i></a>
-          {{else}}
-            <a href="/login" style="color: #0d0d0d; font-size: 15px; font-weight:600; ">Login</a>
-            <a href="/signup" style="color: #0d0d0d; font-size: 15px;font-weight:600;">Signup</i></a>
-          {{/if}}
+      <div class="header-top">
+        <div class="logo"><img src="img/logo.png" alt="logo of trenaura" style="height: 2rem; width:10rem"></div>
+        <div class="header-icons">
+            {{#if isLoggedIn}}
+              {{!-- <a href="#" ><i class="fas fa-search"></i></a> --}}
+              <a href="/myAccount" class="cart-icon-link"><i class="fas fa-user"></i></a>
+              <a href="/loadcartPage" class="cart-icon-link"><i class="fas fa-shopping-bag"></i>
+                <span class="cart-badge">{{cartLength}}</span>
+              </a>
+              <a href="/loadWishlist" class="cart-icon-link" ><i class="fas fa-heart"></i></a>
+            {{else}}
+              <a href="/login" style="color: #0d0d0d; font-size: 15px; font-weight:600; ">Login</a>
+              <a href="/signup" style="color: #0d0d0d; font-size: 15px;font-weight:600;">Signup</i></a>
+            {{/if}}
+        </div>
       </div>
-    </div>
-    <nav>
-      <ul>
-        <li><a href="/">HOME</a></li>
-        <li><a href="/mensCategory">MEN</a></li>
-        <li><a href="/womensCategory">WOMEN</a></li>
-        <li><a href="/beautyCategory">BEAUTY</a></li>
-        <li><a href="#">NEW ARRIVALS</a></li>
-        <li><a href="#">ABOUT US</a></li>
-        <li><a href="#">CONTACT US</a></li>
-      </ul>
-    </nav>
-    <div class="top-bar">
-        <div class="info">🚚 FREE SHIPPING</div>
-        <div class="info">💰 100% MONEY BACK</div>
-        <div class="info">🎧 SUPPORT 24/7</div>
-    </div>
-  </header>
+      <nav>
+        <ul>
+          <li><a href="/">HOME</a></li>
+          <li><a href="/mensCategory">MEN</a></li>
+          <li><a href="/womensCategory">WOMEN</a></li>
+          <li><a href="/beautyCategory">BEAUTY</a></li>
+          <li><a href="#">NEW ARRIVALS</a></li>
+          <li><a href="#">ABOUT US</a></li>
+          <li><a href="#">CONTACT US</a></li>
+        </ul>
+      </nav>
+      <div class="top-bar">
+          <div class="info">🚚 FREE SHIPPING</div>
+          <div class="info">💰 100% MONEY BACK</div>
+          <div class="info">🎧 SUPPORT 24/7</div>
+      </div>
+    </header>

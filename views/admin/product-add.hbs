@@ -3,7 +3,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.css">
     <!-- SweetAlert CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <style>
+    {{!-- <style>
         /* General Styles */
         .content-main {
             padding: 20px;
@@ -177,6 +177,212 @@
                 width: 100%;
             }
         }
+    </style> --}}
+    <style>
+        /* Layout Content Area */
+.content-main {
+  padding: 30px 20px;
+  width: 100%;
+}
+
+/* Add Product Page Wrapper (centers the card) */
+.add-product-page {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Card/Form Container */
+.add-product-wrapper {
+  background-color: #ffffff;
+  padding: 35px;
+  border-radius: 15px;
+  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 800px;
+}
+
+/* Page Title */
+.content-title {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 30px;
+  text-align: center;
+  color: #1c1c1c;
+}
+
+/* Form Labels */
+.form-label {
+  font-weight: 500;
+  margin-bottom: 6px;
+  display: block;
+  color: #333;
+}
+
+/* Inputs and Selects */
+.form-control,
+.form-select {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fdfdfd;
+  margin-bottom: 20px;
+  transition: border 0.3s;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #4a90e2;
+  outline: none;
+}
+
+/* Textarea */
+textarea.form-control {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Submit Button */
+.btn {
+  padding: 12px 20px;
+  font-size: 15px;
+  border-radius: 6px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background-color: #132043;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #1e3555;
+}
+
+/* Error Message */
+.error-message {
+  color: #e74c3c;
+  font-size: 0.85rem;
+  margin-top: -14px;
+  margin-bottom: 15px;
+}
+
+/* Thumbnail Container */
+.thumbnails-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.thumbnail {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fafafa;
+}
+
+.thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbnail-actions {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.thumbnail:hover .thumbnail-actions {
+  opacity: 1;
+}
+
+.thumbnail-actions button {
+  font-size: 11px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+.thumbnail-actions .btn-danger {
+  background-color: #e74c3c;
+}
+
+/* Crop Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1050;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.85);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 600px;
+}
+
+.modal-image-container {
+  text-align: center;
+  max-height: 60vh;
+  overflow: hidden;
+}
+
+.modal-image-container img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .add-product-wrapper {
+    padding: 25px 20px;
+  }
+
+  .thumbnail {
+    width: 90px;
+    height: 90px;
+  }
+
+  .content-title {
+    font-size: 22px;
+  }
+}
+
     </style>
 </head>
 <body>
@@ -206,12 +412,12 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Regular price</label>
-                                    <input name="regularPrice" type="number" step="0.01" class="form-control border" >
+                                    <input name="regularPrice" type="number"  class="form-control border" >
                                     <div id="regularPrice-error" class="error-message"></div>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Sale price</label>
-                                    <input name="salePrice" type="number" step="0.01" class="form-control border" >
+                                    <input name="salePrice" type="number"  class="form-control border" >
                                     <div id="salePrice-error" class="error-message"></div>
                                 </div>
                             </div>

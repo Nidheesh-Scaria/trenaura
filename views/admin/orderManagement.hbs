@@ -1,0 +1,514 @@
+<head>
+    <style>
+            .order-details-container {
+            display: flex;
+            gap: 20px;
+            }
+
+            .order-card {
+            background: white;
+            padding: 20px;
+            flex: 2;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+
+            .order-left {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            }
+
+            .product-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 10px;
+            object-fit: cover;
+            }
+
+            .order-info h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+            }
+
+            .order-info h2 {
+            color: #000;
+            margin-top: 8px;
+            }
+
+            .status-section {
+            margin-top: 20px;
+            }
+
+            .status-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            }
+
+            .btn {
+            padding: 5px 15px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            }
+
+            .btn-outfordelivery {
+            background: #fff4ec;
+            color: #ff6600;
+            border: 1px solid #ff6600;
+            }
+
+            .btn-delivered {
+            background: #e6f9ec;
+            color: #2ecc71;
+            border: 1px solid #2ecc71;
+            }
+
+            .btn-returned {
+            background: #f5f5f5;
+            color: #797777;;
+            border: 1px solid #aaa;
+            }
+             .btn-pending {
+            background: #f5e1a176;
+            color:#8d6b03;;
+            border: 1px solid #aaa;
+            }
+             .btn-processing {
+            background: #8fbff39d;
+            color: #044b97;
+            border: 1px solid #aaa;
+            }
+            .btn-shipped {
+            background: #8ce3f26d;
+            color: #077487;
+            border: 1px solid #aaa;
+            }
+           
+
+            .btn-outfordelivery:hover {
+            background: #f9dcc7bb;
+            color: #333;
+            border: 1px solid #ff6600;
+            }
+
+            .btn-delivered:hover {
+            background: #c8f7d7;
+            color: #370202;
+            border: 1px solid #2ecc71;
+            }
+
+            .btn-returned:hover {
+            background: #f8e0e0;
+            color: #333;
+            border: 1px solid #aaa;
+            }
+             .btn-pending:hover {
+            background: #f3cb4676;
+            color: #333;
+            border: 1px solid #aaa;
+            }
+             .btn-processing:hover {
+            background: #70b0f49d;
+            color: #333;
+            border: 1px solid #aaa;
+            }
+            .btn-shipped:hover {
+            background: #4ed6ee6d;
+            color: #333;
+            border: 1px solid #aaa;
+            }
+
+
+            .side-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            }
+
+            .shipping-card, .price-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+
+            .price-card p {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            }
+
+            .free {
+            color: green;
+            font-weight: bold;
+            }
+            .shipping-card {
+            max-width: 400px;         
+            background-color: #fff;     
+            border-radius: 10px;        
+            padding: 20px;             
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+            margin: 20px auto; 
+            font-family: 'Arial', sans-serif;
+            transition: transform 0.2s, box-shadow 0.2s;
+          }
+
+          .shipping-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+          }
+
+          .shipping-card h4 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.2rem;
+          }
+
+          .shipping-card p {
+            margin: 5px 0;
+            color: #555;
+            line-height: 1.5;
+          }
+
+          .shipping-card strong {
+            color: #222;
+          }
+          .status {
+          font-weight: 600;
+          padding: 5px 12px;
+          border-radius: 20px;
+          font-size: 0.9rem;
+          display: inline-block;
+        }
+
+
+        /* Different colors per status */
+        .status.pending {
+          background-color: #f1cc54;
+          color: #5e4703;
+        }
+
+        .status.processing {
+          background-color: #8fbff3;
+          color: #004085;
+        }
+
+        .status.shipped {
+          background-color: #18d4f5;
+          color:  #035766;
+        }
+
+        .status.out-for-delivery {
+          background-color: #f27516ef;
+          color: #7c3404;
+        }
+
+        .status.delivered {
+          background-color: #00ff22;
+          color: #155724;
+        }
+
+        .status.cancelled {
+          background-color: #f7220a;
+          color: #721c24;
+        }
+
+        .status.returned {
+          background-color: #b8b9ba;
+          color: #383d41;
+        }
+        /* Table container */
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 20px;
+          background: #ffffff;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+          font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Table header */
+        thead {
+          background: linear-gradient(135deg, #2c5364, #203a43, #0f2027);
+          color: #ffffff;
+        }
+
+        thead th {
+          padding: 14px 16px;
+          text-align: left;
+          font-weight: 600;
+          font-size: 15px;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
+        }
+
+        /* Table rows */
+        tbody tr {
+          border-bottom: 1px solid #e5e7eb;
+          transition: background 0.2s ease;
+        }
+
+        tbody tr:hover {
+          background: #f9fafb;
+        }
+
+        /* Table cells */
+        td {
+          padding: 14px 16px;
+          font-size: 14px;
+          color: #374151;
+        }
+
+        /* Button styling */
+        button {
+          padding: 8px 14px;
+          background: linear-gradient(135deg, #3eca02, #043406);
+          color: #ffffff;
+          font-size: 14px;
+          font-weight: 500;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        button:hover {
+          background: linear-gradient(135deg, #3eca02, #043406);
+          transform: scale(1.05);
+          
+        }
+
+        /* Payment status colors */
+        td:nth-child(2) {
+          font-weight: 600;
+        }
+
+        td:nth-child(2).paid {
+          color: #059669; /* green */
+        }
+
+        td:nth-child(2).pending {
+          color: #d97706; /* amber */
+        }
+
+        td:nth-child(2).failed {
+          color: #dc2626; /* red */
+        }
+
+
+
+    </style>
+</head>
+
+
+<main class="main-content">
+  <div class="order-details-container">
+
+    <div class="order-card">
+      
+      {{#each orders.orderedItems}}
+      <div class="order-left">
+        <img src="/images/{{this.productId.productImages.[1]}}" alt="Product Image" class="product-img">
+        <div class="order-info">
+          <h3>{{this.productId.productName}}</h3>
+          <p>Quantity : {{this.quantity}}</p>
+      {{/each}} 
+          
+          <h2>₹{{orders.totalPrice}}</h2>
+        </div>
+       
+      </div>
+
+      <div class="status-section">
+        <p>Current Status:
+            <span 
+              id="order-status" 
+              class="status 
+                {{#if (eq status "Pending")}}pending
+                {{else if (eq status "Processing")}}processing
+                {{else if (eq status "Shipped")}}shipped
+                {{else if (eq status "OutForDelivery")}}out-for-delivery
+                {{else if (eq status "Delivered")}}delivered
+                {{else if (eq status "Cancelled")}}cancelled
+                {{else if (eq status "Returned")}}returned
+                {{/if}}">
+              {{status}}
+            </span>
+          </p><br><br>
+        <h2 style="color: #03b609; display:none" id="show-deliverd"></h2>
+        {{#if (eq status "Delivered")}}
+        <div>
+          <h2 style="color: #03b609;">Item delivered on {{date}}</h2>
+        </div>
+        {{else if (eq status "Cancelled")}}
+        <div>
+          <h2 style="color: #f7220a;">Item Cancelled on {{date}}</h2>
+        </div>
+       
+        {{else}}
+        <div id="statusChangeButtons">
+        <p>Change Status :</p>
+        <div class="status-buttons">
+          
+          <button class="btn btn-pending" onclick="changeStatus(event, '{{orders._id}}', 'Pending')">Pending</button>
+          <button class="btn btn-processing" onclick="changeStatus(event, '{{orders._id}}', 'Processing')">Processing</button>
+          <button class="btn btn-shipped" onclick="changeStatus(event, '{{orders._id}}', 'Shipped')">Shipped</button>
+          <button class="btn btn-outfordelivery" onclick="changeStatus(event, '{{orders._id}}', 'OutForDelivery')">Out For Delivery</button>
+          <button class="btn btn-delivered" onclick="changeStatus(event, '{{orders._id}}', 'Delivered')">Delivered</button>
+          <button class="btn btn-returned" onclick="changeStatus(event, '{{orders._id}}', 'Returned')">Returned</button>
+          
+        </div>
+        </div>
+        {{/if}}
+        <div>
+         {{!-- payment management --}}
+          <table>
+           
+              <thead>
+              <tr>
+              <th>Payment Method</th>
+              <th>Payment Status</th>
+              <th>Action</th>
+              </tr>
+              </thead>
+
+            <tbody>
+              <tr>
+              <td style="font-weight: 600;">{{orders.paymentMethod}}</td>
+              <td><span id="paymentStatus-{{orders._id}}">{{orders.paymentStatus}}</span></td>
+              <td>
+                <button onclick="changePaymentstatus(event,'{{orders._id}}')">Change</button>
+              </td>
+              
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-details">
+      <div class="shipping-card">
+        <h4>Shipping Address</h4>
+        <p><strong>{{address.name}}</strong></p>
+        <p>{{address.address}}, {{address.city}}, {{address.state}} - {{address.pincode}}</p>
+
+      </div>
+
+      <div class="price-card">
+        <h4>Price Details</h4>
+        <p>Price ({{orders.quantity}} item) <span>₹ {{orders.totalPrice}}</span></p>
+        <p>Delivery Charges <span class="free">FREE</span></p>
+        <p>Platform Fee <span>₹ 0</span></p>
+        <p>Delivery Tip <span>₹ 0</span></p>
+      </div>
+   
+    </div>
+
+  </div>
+</main>
+
+<script>
+
+ async function changeStatus(event, id, status) {
+  try {
+    event.preventDefault();
+
+    const res = await fetch(`/admin/changeOrderStatus/${id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      
+      Toastify({
+        text: data.message,
+        duration: 3000,
+        close: true,
+        gravity: "top",
+        position: "center",
+        style: {
+          background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+
+        },
+        className: "custom-toast"
+      }).showToast();
+
+      
+      const statusElement = document.getElementById("order-status");
+      const statsuDiv = document.getElementById("statusChangeButtons");
+      const deliveredStatus = document.getElementById("show-deliverd");
+      const cancelledStatus = document.getElementById("show-cancelled");
+
+      if (statusElement) {
+        //resetting to base cls
+        statusElement.className = "status";
+        const formatted = data.status.replace(/\s+/g, "-").toLowerCase();
+        //setting classes
+        statusElement.classList.add(formatted);
+        statusElement.innerText = data.status;
+        
+      }
+      
+      if(data.status==="Delivered"){
+        statsuDiv.style.display="none"
+        deliveredStatus.style.display="block"
+        deliveredStatus.innerHTML=`Item delivered on  ${data.date}`
+      }
+    } else {
+      console.error("Failed to update:", data);
+    }
+  } catch (err) {
+    console.log("Error in changeStatus:", err);
+  }
+}
+
+
+async function changePaymentstatus(event, id) {
+  try {
+    event.preventDefault();
+
+    let paymentStatusElement = document.getElementById(`paymentStatus-${id}`);
+    const payment = paymentStatusElement.innerText.trim();
+
+    const res = await fetch(`/admin/changePyamentStatus/${id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ payment })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      Toastify({
+        text: data.message,
+        duration: 3000,
+        close: true,
+        gravity: "top",
+        position: "center",
+        style: {
+          background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+        },
+        className: "custom-toast"
+      }).showToast();
+
+      paymentStatusElement.innerText = data.status;
+     
+    } else {
+      console.error("Failed to update:", data);
+    }
+  } catch (err) {
+    console.log("Error in changePaymentstatus:", err);
+  }
+}
+
+</script>

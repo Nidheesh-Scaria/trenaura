@@ -46,6 +46,7 @@ const MESSAGES = {
   WISHLIST:{
     WISHLIST_EMPTY:"Wishlist is empty",
     ITEM_DELETED:"Item removed from your wishlist",
+    WISHLISTED:"Product added to wishlist"
   },
 };
 

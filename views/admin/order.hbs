@@ -1,0 +1,121 @@
+  
+  <head>
+    <link rel="stylesheet" href="/css/OrderMngmnt-Admin.css">
+    <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+</head>
+  
+  
+  <main class="main-content">
+    <div class="orders-header">
+      <h2>Orders</h2>
+      {{!-- <div class="actions">
+        <input type="text" placeholder="🔍 Search here">
+        <button class="btn export"><i class="fas fa-download"></i> Export</button>
+        <button class="btn"><i class="fas fa-sort"></i> Sort By</button>
+        <button class="btn"><i class="fas fa-filter"></i> Filters</button>
+      </div> --}}
+    </div>
+
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>Orders</th>
+          <th>Customer</th>
+          <th>Date</th>
+          <th>Delivery Status</th>
+          <th>Price</th>
+          <th>Paid Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        {{#each orders}}
+        <tr>
+          <td>
+            <div class="order-items order-now">
+                {{#each this.orderedItems}}
+                <div class="order-item">
+                    <img src="/images/{{this.productId.productImages.[1]}}" alt="Product" class="order-img">
+                    <span>{{this.productId.productName}}</span>
+                    <span class="qty">(x{{this.quantity}})</span>
+                </div>
+                {{/each}}
+            </div>
+            </td>
+            <td>{{this.userId.name}}</td>
+            <td>{{this.foramttedDate}}</td>
+            
+            <td>
+                {{#if (eq this.statusHistory "Pending")}}
+                    <span class="status status-pending">{{this.statusHistory}}</span>
+                {{else if (eq this.statusHistory "Shipped")}}
+                    <span class="status status-shipped">{{this.statusHistory}}</span>
+                {{else if (eq this.statusHistory "Delivered")}}
+                    <span class="status status-delivered">{{this.statusHistory}}</span>
+                {{else if (eq this.statusHistory "Cancelled")}}
+                    <span class="status status-cancelled">{{this.statusHistory}}</span>
+                {{else if (eq this.statusHistory "Returned")}}
+                    <span class="status status-returned">{{this.statusHistory}}</span>
+                {{else if (eq this.statusHistory "OutForDelivery")}}
+                    <span class="status status-OutForDelivery">{{this.statusHistory}}</span>
+                {{else if (eq this.statusHistory "Processing")}}
+                    <span class="status status-processing">{{this.statusHistory}}</span>
+                {{else}}
+                    <span class="status">{{this.statusHistory}}</span>
+                {{/if}}
+            </td>
+            
+
+          <td>₹{{this.totalPrice}}</td>
+          <td>
+            <span class="status {{this.paymentStatus}}">
+              {{this.paymentStatus}}
+            </span>
+          </td>
+          <td>
+            <button  class="btn-edit" onclick="orderManagement(event,'{{this._id}}')"> Edit</button>
+          </td>
+        </tr>
+        {{/each}}
+       
+      </tbody>
+      
+    </table>
+
+    {{!-- <div class="pagination">
+      <span>Show result:</span>
+      <select>
+        <option>2</option>
+        <option>5</option>
+        <option>10</option>
+      </select>
+      <div class="pages">
+        <button>&lt;</button>
+        <button class="active">1</button>
+        <button>2</button>
+        <button>3</button>
+        <button>&gt;</button>
+      </div>
+    </div> --}}
+  </main>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="/js/jquery-3.3.1.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+
+<script>
+
+ function orderManagement(event,id){
+      event.preventDefault();
+      try {
+            window.location.href = `/admin/orderMangement/${id}`;
+        } catch (error) {
+            console.error("Error navigating to order management:", error);
+        }
+
+   }
+</script>
+
+

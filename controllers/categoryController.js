@@ -38,7 +38,7 @@ const categoryInfo = async (req, res) => {
         active: i === page,
       });
     }
-    
+
     //For serial number
     const categoryData = rawCategoryData.map((category, index) => ({
       ...category,
@@ -129,7 +129,9 @@ const listCategory = async (req, res) => {
     res.redirect("/admin/category");
   } catch (error) {
     console.error("list error:", error);
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).send(MESSAGES.INTERNAL_SERVER_ERROR||"Internal server error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error");
   }
 };
 
@@ -141,7 +143,9 @@ const unlistCategory = async (req, res) => {
     res.redirect("/admin/category");
   } catch (error) {
     console.error("unlist error:", error);
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).send(MESSAGES.INTERNAL_SERVER_ERROR||"Internal server error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error");
   }
 };
 
@@ -151,8 +155,8 @@ const editCategory = async (req, res) => {
     const { name, description } = req.body;
 
     const sameName = await categorySchema.find({ name, _id: { $ne: id } });
-    
-    if (sameName.length>0) {
+
+    if (sameName.length > 0) {
       res
         .status(httpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: "Category already exists" });
@@ -165,24 +169,32 @@ const editCategory = async (req, res) => {
       .json({ success: true, message: "Category updated successfully!" });
   } catch (error) {
     console.error("Edit error:", error);
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal server error" });
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: "Internal server error" });
   }
 };
 
 const deleteCategory = async (req, res) => {
   try {
     const id = req.params.id;
-    console.log("Deleting Category ID:", id);
 
     await categorySchema.findByIdAndDelete(id);
+
     res
       .status(httpStatus.OK)
       .json({ success: true, message: "Category deleted successfully!" });
   } catch (error) {
     console.error("Delete error:", error);
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR ||"Internal server error" });
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({
+        success: false,
+        message: MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error",
+      });
   }
 };
+
 
 module.exports = {
   addCategory,

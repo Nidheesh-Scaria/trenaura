@@ -74,6 +74,7 @@ const userBlocked = async (req, res, next) => {
   }
 };
 
+
 module.exports = {
   checkSession,
   isLoggedIn,

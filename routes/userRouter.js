@@ -35,7 +35,7 @@ router.get('/change-password',userAuth.isLoggedIn,userController.loadForgotPassw
 router.post('/changePassword',userController.changePassword)
 router.post('/resendPswrdOtp',userController.resendPswrdOtp)
 
-
+router.get('/shop',userAuth.userBlocked,userController.loadShop)
 router.get('/mensCategory',userAuth.userBlocked,userController.mensCategory);
 router.get('/womensCategory',userAuth.userBlocked,userController.womensCategory);
 router.get('/beautyCategory',userAuth.userBlocked,userController.beautyCategory);
@@ -72,6 +72,19 @@ router.delete("/removefromCart/:id",userAuth.userBlocked,userAuth.checkSession, 
 //wishlist management
 
 router.get('/loadWishlist',userAuth.userBlocked,userAuth.checkSession, userController.loadWishlist)
+router.post('/addWishlist/:id',userAuth.userBlocked,userAuth.checkSession, userController.addWishlist)
+router.delete('/removeFromWishlist/:id',userAuth.userBlocked,userAuth.checkSession, userController.removeFromWishlist)
+
+//order management
+
+router.get('/loadMyOrder',userAuth.userBlocked,userAuth.checkSession, userController.loadMyOrder)
+router.get('/loadAddressForOrder/:id',userAuth.userBlocked,userAuth.checkSession, userController.loadAddressForOrder)
+router.post('/submit-address',userAuth.userBlocked,userAuth.checkSession, userController.submitAddress)
+router.get('/loadPaymentMode',userAuth.userBlocked,userAuth.checkSession, userController.loadPaymentMethod)
+router.post('/orderSuccess',userAuth.userBlocked,userAuth.checkSession, userController.orderSuccess)
+router.get('/order-placed',userAuth.userBlocked,userAuth.checkSession, userController.orderPlaced)
+router.post('/cancelOrder/:id',userAuth.userBlocked,userAuth.checkSession, userController.cancelOrder);
+router.get('/orderDetails/:id',userController.orderDetails)
 
 
 

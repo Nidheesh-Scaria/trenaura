@@ -9,16 +9,19 @@ const orderSchema = new Schema({
     default: () => uuidv4(),
     unique: true,
   },
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
   orderedItems: [
     {
-      product: {
+      productId: {
         type: Schema.Types.ObjectId,
         ref: "Product",
         required: true,
       },
       quantity: {
-        type: Number,
-        required: true,
         type: Number,
         required: true,
       },
@@ -48,26 +51,46 @@ const orderSchema = new Schema({
   invoiceDate: {
     type: Date,
   },
-  status: {
-    type: String,
-    required: true,
-    enum: [
-      "Pending",
-      "Processing",
-      "Shipped",
-      "Delivered",
-      "Cancelled",
-      "Returned",
-    ],
-  },
+  statusHistory: [
+    {
+      status: {
+        type: String,
+        enum: [
+          "Pending",
+          "Processing",
+          "Shipped",
+          "OutForDelivery",
+          "Delivered",
+          "Cancelled",
+          "Returned",
+        ],
+        default: "Pending",
+      },
+      changedAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
+
   createdAt: {
     type: Date,
     default: Date.now,
     required: true,
   },
-  coupponApplied: {
+  couponApplied: {
     type: Boolean,
     default: false,
+  },
+  paymentMethod: {
+    type: String,
+    enum: ["COD", "Razorpay", "PayPal"],
+    default: "COD",
+  },
+  paymentStatus: {
+    type: String,
+    enum: ["Paid", "Unpaid", "Failed"],
+    default: "Unpaid",
   },
 });
 

@@ -10,6 +10,7 @@ const multer = require("multer");
 const upload = require("../helpers/multer");
 const productController = require("../controllers/productController");
 const brandController = require("../controllers/brandController");
+const orderController=require('../controllers/orderController')
 
 
 
@@ -40,7 +41,7 @@ router.get("/editProducts/:id", adminAuth.adminAuth, productController.getEditPr
 router.post("/editProducts/:id",upload.array('images'),adminAuth.adminAuth,productController.editProducts );
 router.delete("/deleteProducts/:id", adminAuth.adminAuth, productController.deleteProducts);
 
-
+//brand
 router.get("/brand", adminAuth.adminAuth,brandController.getBrandPage);
 router.post("/addBrand", adminAuth.adminAuth,brandController.addBrandPage);
 router.put("/editBrand/:id",adminAuth.adminAuth,brandController.editBrand );
@@ -48,6 +49,14 @@ router.delete("/deleteBrand/:id",adminAuth.adminAuth,brandController.deleteBrand
 router.post("/unblockBrand/:id", adminAuth.adminAuth,brandController.unblockBrand);
 router.post("/blockBrand/:id", adminAuth.adminAuth,brandController.blockBrand);
 
+//order
+
+router.get('/order',orderController.loadOrder)
+// router.get('/orderMangement/:id',adminAuth.adminAuth,orderController.orderMangement)
+
+ router.get('/orderMangement/:id',orderController.orderMangement)
+ router.post('/changeOrderStatus/:id',orderController.changeOrderStatus)
+ router.post('/changePyamentStatus/:id',orderController.changePyamentStatus)
 
 
 

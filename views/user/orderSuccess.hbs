@@ -1,0 +1,71 @@
+<style>
+  body {
+    background-color: #f5f7fa;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .success-container {
+    max-width: 600px;
+    margin: 80px auto;
+    background: #ffffff;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    animation: fadeIn 0.8s ease-in-out;
+  }
+
+  .text-success {
+    color: #2ecc71;
+    font-weight: 700;
+    font-size: 1.8rem;
+  }
+
+  .btn {
+    border-radius: 30px;
+    font-weight: 600;
+    padding: 10px 24px;
+    font-size: 0.95rem;
+  }
+
+  .btn-danger {
+    background-color: #e74c3c;
+    border: none;
+  }
+
+  .btn-danger:hover {
+    background-color: #c0392b;
+  }
+
+  .btn-outline-secondary {
+    border: 2px solid #34495e;
+    color: #34495e;
+    background-color: transparent;
+  }
+
+  .btn-outline-secondary:hover {
+    background-color: #34495e;
+    color: #ffffff;
+  }
+
+  .brand-logo {
+    margin-top: 30px;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<div class="success-container">
+  <h3 class="text-success">CONGRATULATIONS..!</h3>
+  <p class="mt-3">YOUR ORDER IS PLACED</p>
+  <p>ITEM WILL BE DELIVERED SOON {{deliveryDate}}</p>
+</div>

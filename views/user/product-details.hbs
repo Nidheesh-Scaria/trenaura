@@ -168,6 +168,7 @@
         background: #fff;
         }
 
+     
         
     </style>
 </head>
@@ -208,7 +209,13 @@
             </select>
         </div>
         {{#if product.quantity}}
-        <button class="add-to-cart" onclick="addToCart(event,'{{product._id}}')">Add to Cart</button>
+      
+        <div>
+            <button class="add-to-cart" onclick="addToCart(event,'{{product._id}}')">Add to Cart</button>
+            <button class="add-to-cart" onclick="buyItNow(event,'{{product._id}}')">Buy it Now</button>
+        
+        </div>
+        
         {{else}}
         <p style="color: red;">Out of Stock</p>
         {{/if}}
@@ -241,7 +248,7 @@
                             <div class="product__item__pic set-bg" data-setbg="/images/{{this.productImages.[0]}}">
                                 {{!-- <span class="label">New</span> --}}
                                 <ul class="product__hover">
-                                    <li><img src="img/icon/heart.png" alt=""></li>
+                                    <li><button  onclick="addWishlist(event,'{{this._id}}')"><img src="img/icon/heart.png" alt=""></button></li>
                                     <li><img src="img/icon/compare.png" alt=""> <span>Compare</span></li>
                                     <li><img src="img/icon/search.png" alt=""></li>
                                 </ul>
@@ -276,6 +283,7 @@
 
 <script>
 const selectedSize = document.getElementById("size")
+
   $(document).ready(function () {
     $('.set-bg').each(function () {
       const bg = $(this).data('setbg');
@@ -301,7 +309,8 @@ const selectedSize = document.getElementById("size")
       }
     });
   });
-
+  
+//if cart is empty
 async function addToCart(event, id) {
 
 const size=selectedSize.value
@@ -370,12 +379,53 @@ const size=selectedSize.value
         className: "custom-toast", 
         
         }).showToast();
-
-
-        
-    
+        document.getElementById("cart-count").textContent = data.cartCount;
+  
   } else {
-    console.error("Failed to add item:", data.message || "Unknown error");
+    console.error("Failed to add item in cart:", data.message || "Unknown error");
   }
 }
+
+async function addWishlist(event,id){
+    event.preventDefault();
+    console.log('addWishlist loaded with id   :::::::',id)
+    const res=await fetch(`/addWishlist/${id}`,{
+        method:"POST",
+        headers:{"Content-type":"application/json"}
+    })
+
+    const data=await res.json()
+
+
+    if(res.ok){
+        Toastify({
+            text: "Added to wishlist",
+            duration: 3000,
+            close: true,          
+            gravity: "top",
+            position: "center",    
+            style: {
+                background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)", 
+            },
+            className: "custom-toast", 
+            onClick: () => {     
+                alert("Toast clicked!");
+        }
+        }).showToast();
+
+    }
+}
+
+     
+async function buyItNow(event,id){
+    event.preventDefault()
+    const size=selectedSize.value
+    {{!-- const quantity=parseInt(document.getElementById("qty-display").innerText,10)
+     --}}
+    
+    window.location.href = `/loadAddressForOrder/${id}?size=${size}`;
+}
+
+
+
 </script>

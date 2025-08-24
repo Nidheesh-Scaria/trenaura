@@ -125,6 +125,26 @@
     transform: translateY(0);
   }
 }
+.stylish-delete-btn {
+  background: linear-gradient(to right, #ff0000, #ff4b2b); /* Red-pink gradient */
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 1.1rem;
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.stylish-delete-btn:hover {
+  transform: scale(1.1);
+  color: white;
+  background: linear-gradient(to right, #e60023, #ff4b2b);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+
 
 </style>
 <div class="wishlist-container">
@@ -141,17 +161,20 @@
   {{/if}}
 
     {{#each wishlistItems}}
-    <div class="wishlist-item">
-      <img src="/images/{{this.productsId.image}}" alt="{{this.productsId.name}}">
+    <div class="wishlist-item" id="wishlist-item-{{this.productsId._id}}">
+      <img src="/images/{{this.productsId.productImages.[0]}}" alt="{{this.productsId.productName}}">
       <div class="wishlist-details">
-        <h3>{{this.productsId.name}}</h3>
+        <h3>{{this.productsId.productName}}</h3>
+        <p class="product-description">{{this.productsId.description}}</p>
         <div class="wishlist-price">
-          ₹{{this.productsId.price}} 
-          {{#if this.productsId.originalPrice}}<del>₹{{this.productsId.originalPrice}}</del>{{/if}}
+          ₹{{this.productsId.salePrice}} 
+          {{#if this.productsId.regularPrice}}<del>₹{{this.productsId.regularPrice}}</del>{{/if}}
         </div>
       </div>
-      <form action="/removeFromWishlist/{{this.productsId._id}}" method="POST">
-        <button type="submit" class="wishlist-delete"><i class="fa-solid fa-trash-can"></i></button>
+      <form onclick="removeFromWishlist(event,'{{this.productsId._id}}');" >
+       <button type="submit" class="wishlist-delete stylish-delete-btn">
+        <i class="fa-solid fa-trash-can"></i>
+      </button>
       </form>
     </div>
     {{/each}}
@@ -161,4 +184,42 @@
 
 </div>
 
+
+<script>
+  async function removeFromWishlist(event,id){
+    event.preventDefault();
+
+
+      const res = await fetch(`/removeFromWishlist/${id}`, {
+                    method: "DELETE",
+                    headers: {
+                      "Content-Type": "application/json"
+                    }
+                  });
+
+    const data=await res.json();
+
+    if(res.ok){
+      
+    Toastify({
+        text: data.message,
+        duration: 3000,
+        close: true,          
+        gravity: "top",       
+        position: "center",    
+        style: {
+            background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)", 
+        },
+        className: "custom-toast", 
+        onClick: () => {     
+            alert("Toast clicked!");
+        }
+        }).showToast();
+        document.getElementById(`wishlist-item-${id}`)?.remove();
+    }else{
+      console.log("error deleting wishlist")
+    }
+
+  }
+</script>
 

@@ -7,7 +7,6 @@ const getBrandPage = async (req, res) => {
     const limit = 3;
 
     const query = {
-     
       brandName: { $regex: search, $options: "i" },
     };
 
@@ -18,12 +17,12 @@ const getBrandPage = async (req, res) => {
       .skip((page - 1) * limit)
       .lean();
 
-    const brands = brandData.map((brand,index) => ({
+    const brands = brandData.map((brand, index) => ({
       _id: brand._id,
       brandName: brand.brandName,
       status: brand.isBlocked,
       createdAt: brand.createdAt.toISOString().split("T")[0],
-      serialNumber: (page - 1) * limit + index + 1 //
+      serialNumber: (page - 1) * limit + index + 1, //
     }));
 
     const count = await Brand.countDocuments(query);
@@ -135,12 +134,13 @@ const blockBrand = async (req, res) => {
   try {
     const id = req.params.id;
     await Brand.findByIdAndUpdate({ _id: id }, { $set: { isBlocked: true } });
-    res.status(200).json({ success: true});
+    res.status(200).json({ success: true });
   } catch (error) {
     console.error("Delete error:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
 
 module.exports = {
   getBrandPage,

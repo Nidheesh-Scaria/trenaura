@@ -1,0 +1,208 @@
+<head>
+<style>
+   .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 2rem 1rem;
+      background-color: #fff;
+    }
+
+    .address-header {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #1a237e;
+      margin-bottom: 1.5rem;
+      border-left: 5px solid #1a237e;
+      padding-left: 10px;
+    }
+
+    .card {
+      border: 1px solid #eee;
+      border-radius: 10px;
+      transition: box-shadow 0.2s ease;
+      background-color: #fafafa;
+    }
+
+    .card:hover {
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-body {
+      padding: 1rem;
+    }
+
+    .form-check-input {
+      margin-top: 0.4rem;
+      transform: scale(1.2);
+    }
+
+    .card-body p {
+      margin-bottom: 4px;
+      color: #333;
+      font-size: 0.95rem;
+    }
+
+    .fw-bold {
+      color: #000;
+      font-size: 1rem;
+    }
+
+    .fa-edit {
+      font-size: 1rem;
+      color: #444;
+      transition: color 0.2s ease;
+    }
+
+    .fa-edit:hover {
+      color: #1a237e;
+    }
+
+    .add-address-btn {
+      background: linear-gradient(to right, #007bff, #00c6ff);
+      border: none;
+      color: white;
+      font-weight: 500;
+      padding: 10px 20px;
+      border-radius: 30px;
+      transition: all 0.3s ease-in-out;
+      box-shadow: 0 4px 6px rgba(0, 123, 255, 0.3);
+      text-decoration: none;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .add-address-btn:hover {
+      background: linear-gradient(to right, #0056b3, #0088cc);
+      color: #fff;
+      transform: scale(1.03);
+      text-decoration: none;
+    }
+
+    .no-address-card {
+      background: linear-gradient(to right, #f0f4ff, #e9f3ff);
+      border-radius: 12px;
+      max-width: 500px;
+      margin: 0 auto;
+      transition: all 0.3s ease;
+    }
+
+    .no-address-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .no-address-card i {
+      color: #007bff;
+    }
+    .add-address-btn i{
+      color:#f0f4ff
+    }
+
+    @media (max-width: 576px) {
+      .address-header {
+        font-size: 1.25rem;
+      }
+
+      .card-body {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .form-check {
+        margin-bottom: 10px;
+      }
+    }
+
+    .continue-btn-wrapper {
+      max-width: 900px;
+      margin: auto;
+      display: flex;
+      justify-content: flex-end;
+      padding: 1rem;
+    }
+
+    .continue-btn {
+      background: linear-gradient(to right, #28a745, #218838);
+      color: white;
+      border: none;
+      padding: 10px 25px;
+      border-radius: 30px;
+      font-weight: 500;
+      font-size: 1rem;
+      transition: all 0.3s ease-in-out;
+      box-shadow: 0 4px 6px rgba(40, 167, 69, 0.3);
+    }
+
+    .continue-btn:hover {
+      background: linear-gradient(to right, #218838, #1e7e34);
+      transform: scale(1.03);
+    }
+
+</style>
+</head>
+<body>
+  
+ <div class="container my-5">
+    <h4 class="address-header">Select Delivery Address</h4>
+
+    {{#unless addresses.length}}
+      <div class="no-address-card card text-center border-0 shadow-sm p-4 mt-4">
+        <div class="card-body">
+          <i class="fas fa-map-marker-alt fa-2x text-primary mb-3"></i>
+          <h5 class="card-title text-muted">No addresses found</h5>
+          <p class="card-text">You haven’t added any delivery addresses yet. Add one to proceed with your order.</p>
+          <a href="/add-address" class="add-address-btn mt-3">
+            <i class="fas fa-plus-circle me-2"></i> Add Address
+          </a>
+        </div>
+      </div>
+    {{/unless}}
+
+    {{#if addresses.length}}
+      <div class="text-end mb-4">
+        <a href="/add-address" class="add-address-btn">
+          <i class="fas fa-plus-circle me-2"></i> Add New Address
+        </a>
+      </div>
+    <form action="/submit-address" method="POST">
+      <input type="hidden" name="productId" value="{{productId}}">
+      <input type="hidden" name="size" value="{{size}}">
+      <input type="hidden" name="quantity" value="{{quantity}}">
+      {{#each addresses}}
+        <div class="card mb-3 shadow-sm">
+          <div class="card-body d-flex justify-content-between align-items-start">
+            
+            <div class="form-check pt-1">
+              <input class="form-check-input" type="radio" name="selectedAddress" value="{{this._id}}" {{#if this.selected}}checked{{/if}}>
+            </div>
+            <div class="flex-grow-1 ms-3">
+              <p class="fw-bold">{{this.name}}</p>
+              <p>{{this.address}}, {{this.city}}</p>
+              <p>{{this.locality}}, {{this.state}}</p>
+              <p>Pin - {{this.pincode}}</p>
+              <p>Ph: {{this.phone}}</p>
+            </div>
+            <div class="ms-2 pt-1">
+              <a href="/edit-address/{{this._id}}" class="text-dark">
+                <i class="fas fa-edit"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      {{/each}}
+    {{/if}}
+  </div>
+<div class="continue-btn-wrapper">
+  <button type="submit" class="continue-btn" >Continue</button>
+</div>
+</form>
+
+
+</body>
+
+
+
+
+
+ 

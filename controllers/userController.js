@@ -4,6 +4,7 @@ const Category = require("../models/categorySchema");
 const Address = require("../models/addressSchema");
 const Cart = require("../models/cartSchema");
 const Wishlist = require("../models/wishlistSchema");
+const Order = require("../models/orderSchema");
 
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
@@ -251,10 +252,12 @@ const loadHomepage = async (req, res) => {
       isDeleted: false,
       category: { $in: categories.map((category) => category._id) },
       quantity: { $gt: 0 },
+    }).sort({
+      createdOn: -1,
     });
 
     // Get latest 4 products
-    productData = productData.slice(0, 4).map((product) => {
+    productData = productData.slice(0, 8).map((product) => {
       return {
         ...product._doc,
         firstImage:
@@ -287,6 +290,29 @@ const loadHomepage = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in rendering home page:", error);
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
+  }
+};
+
+const loadShop = async (req, res) => {
+  try {
+    const user = req.session.user;
+    const products = await Product.find({
+      isBlocked: false,
+      isDeleted: false,
+      quantity: { $gt: 0 },
+    }).lean();
+
+    return res.render("user/shop", {
+      title: "Trenaura - Shop page",
+      isLoggedIn: !!user,
+      adminHeader: true,
+      products,
+    });
+  } catch (error) {
+    console.error("Error in rendering shop page:", error);
     res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
@@ -640,7 +666,7 @@ const productDetails = async (req, res) => {
     res.render("user/product-details", {
       title: "Product details",
       adminHeader: true,
-      hideFooter: true,
+      hideFooter: false,
       product,
       products: productData,
     });
@@ -667,6 +693,7 @@ const mensCategory = async (req, res) => {
 
     const totalProducts = await Product.countDocuments({
       isBlocked: false,
+      isDeleted: false,
       category: { $in: categoryIds },
       quantity: { $gt: 0 },
     });
@@ -723,6 +750,7 @@ const womensCategory = async (req, res) => {
 
     const totalProducts = await Product.countDocuments({
       isBlocked: false,
+      isDeleted: false,
       category: { $in: categoryIds },
       quantity: { $gt: 0 },
     });
@@ -731,6 +759,7 @@ const womensCategory = async (req, res) => {
 
     let productData = await Product.find({
       isBlocked: false,
+      isDeleted: false,
       category: { $in: categoryIds },
       quantity: { $gt: 0 },
     })
@@ -777,6 +806,7 @@ const beautyCategory = async (req, res) => {
     const categoryIds = categories.map((cat) => cat._id);
 
     const totalProducts = await Product.countDocuments({
+      isDeleted: false,
       isBlocked: false,
       category: { $in: categoryIds },
       quantity: { $gt: 0 },
@@ -786,6 +816,7 @@ const beautyCategory = async (req, res) => {
 
     let productData = await Product.find({
       isBlocked: false,
+      isDeleted: false,
       category: { $in: categoryIds },
       quantity: { $gt: 0 },
     })
@@ -970,14 +1001,7 @@ const loadmyAddress = async (req, res) => {
   try {
     const userId = req.session.user || req.user;
 
-    if (!userId) {
-      return res.redirect("/login");
-    }
-
     const user = await userSchema.findById(userId);
-    if (!user) {
-      return res.redirect("/login");
-    }
 
     const userAddresses = await Address.findOne({ userId });
 
@@ -1530,7 +1554,12 @@ const addToCart = async (req, res) => {
     }
 
     await cart.save();
-    return res.status(httpStatus.OK).json({ message: "Added to cart" });
+    const cartCount = await Cart.findOne({ userId }).lean();
+    const cartLength = cartCount?.items?.length || 0;
+
+    return res
+      .status(httpStatus.OK)
+      .json({ message: "Added to cart", cartCount: cartLength });
   } catch (error) {
     console.error("Error in addToCart:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -1551,21 +1580,18 @@ const loadmyCart = async (req, res) => {
         match: { isBlocked: false, isDeleted: false },
       })
       .lean();
-
+    let totalPrice = 0;
     //sorting items with a valid productId .
     if (cart?.items?.length) {
       cart.items = cart.items.filter((item) => item.productId !== null);
-    }
 
-    //total price of the cart items
-    let totalPrice = 0;
-
-    if (cart.items.length > 0 && cart.items) {
+      //total price of the cart items
       totalPrice = cart.items.reduce((total, item) => {
         return total + item.totalPrice;
       }, 0);
     }
 
+    //if cart is empty
     if (!cart || cart.items.length === 0) {
       return res.render("user/shopping-cart", {
         title: "Shopping Bag",
@@ -1595,47 +1621,157 @@ const loadmyCart = async (req, res) => {
   }
 };
 
+// const increaseQuantity = async (req, res) => {
+//   try {
+//     const itemId = req.params.id;
+//     const userId = req.session.user;
+
+//     const result = await Cart.updateOne(
+//       { userId, "items._id": itemId },
+//       {
+//         $inc: {
+//           "items.$.quantity": 1,
+//         },
+//       }
+//     );
+
+//     const cart = await Cart.findOne({ userId })
+//       .populate({
+//         path: "items.productId",
+//         match: { isBlocked: false, isDeleted: false },
+//       })
+//       .lean();
+
+//     if (cart?.items?.length) {
+//       cart.items = cart.items.filter((item) => item.productId !== null);
+//     }
+
+//     const item = cart.items.find((i) => i._id.toString() === itemId);
+
+//     const totalPrizeOfProduct = item.quantity * item.price;
+
+//     await Cart.updateOne(
+//       { userId, "items._id": itemId },
+//       {
+//         $set: {
+//           "items.$.totalPrice": totalPrizeOfProduct,
+//         },
+//       }
+//     );
+
+//     return res
+//       .status(httpStatus.OK)
+//       .json({ message: MESSAGES.CART.QUANTITY_INCREASE || "Increased by One" });
+//   } catch (error) {
+//     console.error("Error in increasing the quantity:", error);
+//     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+//       success: false,
+//       message: "An error occurred. Please try again later.",
+//     });
+//   }
+// };
+
+// const decreaseQuantity = async (req, res) => {
+//   try {
+//     const userId = req.session.user;
+//     const itemId = req.params.id;
+
+//     await Cart.updateOne(
+//       { userId, "items._id": itemId },
+//       {
+//         $inc: { "items.$.quantity": -1 },
+//       }
+//     );
+
+//     const cart = await Cart.findOne({ userId })
+//       .populate({
+//         path: "items.productId",
+//         match: { isBlocked: false, isDeleted: false },
+//       })
+//       .lean();
+
+//     if (cart?.items?.length) {
+//       cart.items = cart.items.filter((item) => item.productId !== null);
+//     }
+
+//     const item = cart.items.find((i) => i._id.toString() === itemId);
+
+//     const totalPrizeOfProduct = item.quantity * item.price;
+
+//     await Cart.updateOne(
+//       { userId, "items._id": itemId },
+//       {
+//         $set: { "items.$.totalPrice": totalPrizeOfProduct },
+//       }
+//     );
+
+//     return res.status(httpStatus.OK).json({
+//       message: MESSAGES.CART.QUANTITY_DECREASE || "Quantity decreased",
+//     });
+//   } catch (error) {
+//     console.error("Error in decreasing the quantity:", error);
+//     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+//       success: false,
+//       message: "An error occurred. Please try again later.",
+//     });
+//   }
+// };
+
 const increaseQuantity = async (req, res) => {
   try {
-    const itemId = req.params.id;
+    const { id: itemId } = req.params;
     const userId = req.session.user;
+    const {quantity}=req.body
 
-    const result = await Cart.updateOne(
+    const cart = await Cart.findOne(
       { userId, "items._id": itemId },
-      {
-        $inc: {
-          "items.$.quantity": 1,
-        },
-      }
-    );
-
-    const cart = await Cart.findOne({ userId })
-      .populate({
-        path: "items.productId",
-        match: { isBlocked: false, isDeleted: false },
-      })
+      { "items.$": 1 }
+    )
+      .populate("items.productId", "quantity")
       .lean();
 
-    if (cart?.items?.length) {
-      cart.items = cart.items.filter((item) => item.productId !== null);
+    if (!cart || !cart.items.length) {
+      return res.status(404).json({ message: "Item not found" });
     }
 
-    const item = cart.items.find((i) => i._id.toString() === itemId);
+    const item = cart.items[0];
+    const stock = item.productId.quantity;
+    console.log( `stock for the product ${ item.productId._Id} is ${stock}`)
 
-    const totalPrizeOfProduct = item.quantity * item.price;
+    if(quantity>=stock){
+      return res.status(httpStatus.BAD_REQUEST).json({message:"Quantity should be less than the total stock of the product"})
+    }
+    
 
+    // Increase quantity
     await Cart.updateOne(
       { userId, "items._id": itemId },
-      {
-        $set: {
-          "items.$.totalPrice": totalPrizeOfProduct,
-        },
-      }
+      { $inc: { "items.$.quantity": 1 } }
     );
 
-    return res
-      .status(httpStatus.OK)
-      .json({ message: MESSAGES.CART.QUANTITY_INCREASE || "Increased by One" });
+    const updatedCart = await Cart.findOne({ userId })
+      .populate("items.productId")
+      .lean();
+
+    const updatedItem = updatedCart.items.find(
+      (item) => item._id.toString() === itemId
+    );
+    const totalPrice = updatedItem.quantity * updatedItem.price;
+    const grandTotal = updatedCart.items.reduce((total, item) => {
+      return total + item.price * item.quantity;
+    }, 0);
+    //updating with new values
+    await Cart.updateOne(
+      { userId, "items._id": itemId },
+      { $set: { "items.$.totalPrice": totalPrice } }
+    );
+
+    return res.status(httpStatus.OK).json({
+      message: MESSAGES.CART.QUANTITY_INCREASE || "Increased by One",
+      quantity: updatedItem.quantity,
+      totalPrice,
+      grandTotal,
+    });
   } catch (error) {
     console.error("Error in increasing the quantity:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -1647,40 +1783,54 @@ const increaseQuantity = async (req, res) => {
 
 const decreaseQuantity = async (req, res) => {
   try {
+    const { id: itemId } = req.params;
     const userId = req.session.user;
-    const itemId = req.params.id;
 
-    await Cart.updateOne(
+    // Fetch current item first
+    const cart = await Cart.findOne(
       { userId, "items._id": itemId },
-      {
-        $inc: { "items.$.quantity": -1 },
-      }
-    );
+      { "items.$": 1 }
+    ).lean();
 
-    const cart = await Cart.findOne({ userId })
-      .populate({
-        path: "items.productId",
-        match: { isBlocked: false, isDeleted: false },
-      })
-      .lean();
-
-    if (cart?.items?.length) {
-      cart.items = cart.items.filter((item) => item.productId !== null);
+    if (!cart || !cart.items.length) {
+      return res.status(404).json({ message: "Item not found" });
     }
 
-    const item = cart.items.find((i) => i._id.toString() === itemId);
+    const item = cart.items[0];
 
-    const totalPrizeOfProduct = item.quantity * item.price;
-
+    if (item.quantity <= 1) {
+      return res.status(400).json({ message: "Minimum quantity is 1" });
+    }
+    // Decrease quantity
     await Cart.updateOne(
       { userId, "items._id": itemId },
-      {
-        $set: { "items.$.totalPrice": totalPrizeOfProduct },
-      }
+      { $inc: { "items.$.quantity": -1 } }
+    );
+
+    const updatedCart = await Cart.findOne({ userId })
+      .populate("items.productId")
+      .lean();
+
+    const updatedItem = updatedCart.items.find(
+      (item) => item._id.toString() === itemId
+    );
+
+    const totalPrice = updatedItem.quantity * updatedItem.price;
+    const grandTotal = updatedCart.items.reduce((total, item) => {
+      return total + item.quantity * item.price;
+    }, 0);
+
+    //updating with new values
+    await Cart.updateOne(
+      { userId, "items._id": itemId },
+      { $set: { "items.$.totalPrice": totalPrice } }
     );
 
     return res.status(httpStatus.OK).json({
       message: MESSAGES.CART.QUANTITY_DECREASE || "Quantity decreased",
+      quantity: updatedItem.quantity,
+      totalPrice,
+      grandTotal,
     });
   } catch (error) {
     console.error("Error in decreasing the quantity:", error);
@@ -1709,8 +1859,6 @@ const removefromCart = async (req, res) => {
     });
   }
 };
-
-
 
 //wishlist mangement
 
@@ -1748,12 +1896,591 @@ const loadWishlist = async (req, res) => {
     console.error("Error in rendering wishlist:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "An error occurred. Please try again later.",
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
     });
   }
 };
 
+const addWishlist = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const userId = req.session.user;
 
+    let wishlist = await Wishlist.findOne({ userId });
+
+    if (!wishlist) {
+      wishlist = await Wishlist.create({
+        userId,
+        products: [{ productsId: productId }],
+      });
+    } else {
+      let productIndex = wishlist.products.findIndex(
+        (product) => product.productsId.toString() === productId
+      );
+
+      if (productIndex === -1) {
+        wishlist.products.push({ productsId: productId });
+      }
+    }
+    await wishlist.save();
+
+    return res
+      .status(httpStatus.OK)
+      .json({ message: MESSAGES.WISHLIST.WISHLISTED });
+  } catch (error) {
+    console.error("Error in adding wishlist:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
+    });
+  }
+};
+
+const removeFromWishlist = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const productId = req.params.id;
+
+    await Wishlist.updateOne(
+      { userId },
+      { $pull: { products: { productsId: productId } } }
+    );
+
+    return res
+      .status(httpStatus.OK)
+      .json({ message: MESSAGES.WISHLIST.ITEM_DELETED || "Deleted" });
+  } catch (error) {
+    console.error("Error in deleting wishlist item:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
+    });
+  }
+};
+
+//order management
+
+const loadMyOrder = async (req, res) => {
+  try {
+    const userId = req.session.user;
+
+    const myOrders = await Order.find({ userId })
+      .populate({
+        path: "orderedItems.productId",
+        match: { isBlocked: false, isDeleted: false },
+      })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Filter out null products from each order
+
+    const filteredOrders = myOrders
+      .map((order) => {
+        order.orderedItems = order.orderedItems.filter(
+          (item) => item.productId !== null
+        );
+        order.foramttedDate = new Date(order.createdAt).toLocaleDateString();
+        order.statusHistory =
+          order.statusHistory[order.statusHistory.length - 1].status;
+        return order;
+      })
+      .filter((order) => order.orderedItems.length > 0);
+
+    if (filteredOrders.length === 0) {
+      return res.render("user/myOrder", {
+        title: "My order",
+        adminHeader: true,
+        isMyOrderEmpty: true,
+        myOrder: [],
+      });
+    }
+
+    return res.render("user/myOrder", {
+      title: "My order",
+      adminHeader: true,
+      myOrder: filteredOrders,
+    });
+  } catch (error) {
+    console.error("Error in loadMyOrder:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
+    });
+  }
+};
+
+const loadAddressForOrder = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const productId = req.params.id;
+    const { size, quantity } = req.query;
+    console.log(`loadAddressForOrder Your product id is  ${productId}`);
+    console.log(`loadAddressForOrder Your size  ${size}`);
+    console.log(`loadAddressForOrder Your quantity ${quantity}`);
+
+    const user = await userSchema.findById(userId);
+    const userAddresses = await Address.findOne({ userId });
+
+    const addresses = userAddresses ? userAddresses.address : [];
+
+    // Converting Mongoose documents to plain objects
+    const plainAddresses = addresses.map((address) =>
+      address.toObject ? address.toObject() : address
+    );
+
+    return res.render("user/orderAddress", {
+      title: "select address",
+      adminHeader: true,
+      addresses: plainAddresses,
+      productId,
+      size,
+      quantity,
+    });
+  } catch (error) {
+    console.error("Error in loading address for order:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
+    });
+  }
+};
+
+const submitAddress = async (req, res) => {
+  try {
+    const addressId = req.body.selectedAddress;
+    userId = req.session.user;
+    const { productId, size } = req.body;
+
+    console.log(`submitAddress Your product id is ${productId}`);
+
+    //submitting address
+    await Address.updateOne(
+      { userId },
+      { $set: { "address.$[].selected": false } }
+    );
+
+    const result = await Address.updateOne(
+      { userId, "address._id": addressId },
+      { $set: { "address.$.selected": true } }
+    );
+    const product = await Product.findById(productId);
+
+    let quantity = 1;
+    const price = product.salePrice;
+    const totalPrice = price * quantity;
+
+    //saving item to cart
+
+    let cart = await Cart.findOne({ userId });
+    if (!cart) {
+      cart = await Cart.create({
+        userId,
+        items: [
+          {
+            productId,
+            quantity,
+            price,
+            totalPrice,
+            size,
+          },
+        ],
+      });
+    } else {
+      const itemIndex = cart.items.findIndex(
+        (item) => item.productId.toString() === productId
+      );
+      if (itemIndex > -1) {
+        cart.items[itemIndex].quantity += quantity;
+        cart.items[itemIndex].totalPrice =
+          cart.items[itemIndex].quantity * price;
+      } else {
+        cart.items.push({ productId, quantity, price, totalPrice, size });
+      }
+    }
+    //saving cart
+    await cart.save();
+
+    //getting cart items
+    const updatedCart = await Cart.findOne({ userId })
+      .populate({
+        path: "items.productId",
+        match: { isBlocked: false, isDeleted: false },
+      })
+      .lean();
+
+    //fetching the current item
+    const currentItem = updatedCart.items.find(
+      (item) => item.productId && item.productId._id.toString() === productId
+    );
+
+    console.log(`submit address reached`);
+
+    //add to cart then
+    return res.render("user/orderSummary", {
+      title: "Order Summary",
+      adminHeader: true,
+      hideFooter: false,
+      cartItems: currentItem ? [currentItem] : [],
+      totalPrice: currentItem ? currentItem.totalPrice : 0,
+    });
+  } catch (error) {
+    console.error(
+      "Error in selecting address and saving to cart for order:",
+      error
+    );
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
+    });
+  }
+};
+
+const loadPaymentMethod = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const { itemId } = req.query;
+
+    //for all the cart items
+    if (!itemId) {
+      const cart = await Cart.findOne({ userId })
+        .populate("items.productId", "productName productImages salePrice")
+        .lean();
+
+      //cheking ifthe cart is empty
+      if (!cart || !cart.items || cart.items.length === 0) {
+        console.error("Cart is empty for user:", userId);
+        return res.status(400).send("Cart is empty");
+      }
+
+      const grandTotal = cart.items.reduce((total, item) => {
+        return total + item.totalPrice;
+      }, 0);
+
+      return res.render("user/paymentMethod", {
+        title: "Payment method",
+        adminHeader: true,
+        grandTotal,
+      });
+    }
+
+    const cart = await Cart.findOne(
+      { userId, "items._id": itemId },
+      { "items.$": 1 }
+    ).populate("items.productId");
+
+    const item = cart.items[0];
+    const grandTotal = item.totalPrice;
+
+    console.log(`loadPaymentMethod item id is ${itemId}`);
+    console.log("loadPaymentMethod reached");
+
+    return res.render("user/paymentMethod", {
+      title: "Payment method",
+      adminHeader: true,
+      itemId,
+      grandTotal,
+    });
+  } catch (error) {
+    console.error("Error in rendering payment method for order:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
+    });
+  }
+};
+
+const orderSuccess = async (req, res) => {
+  try {
+    console.log("orderSuccess reached");
+    const userId = req.session.user;
+    let { itemId, paymentMethod } = req.body;
+
+    //getting address
+    const userAddress = await Address.findOne({ userId });
+    //cheking address
+    if (
+      !userAddress ||
+      !userAddress.address ||
+      userAddress.address.length === 0
+    ) {
+      console.error("No address found for user:", userId);
+      return res.status(httpStatus.BAD_REQUEST).json({message:"No address found, please add address"})
+    }
+    const selectedAddress = userAddress.address.find(
+      (a) => a.selected === true
+    );
+
+    //getting cart items
+    const cart = await Cart.findOne({ userId })
+      .populate("items.productId", "productName productImages salePrice")
+      .lean();
+
+    if (!cart || cart.items.length === 0) {
+      console.error("Cart not found for user:", userId, " itemId:", itemId);
+    }
+
+    //checking payment methods
+    let paymentStatus;
+    if (paymentMethod === "cod") {
+      paymentStatus = "Unpaid";
+    } else if (paymentMethod === "Razorpay" || paymentMethod === "PayPal") {
+      paymentStatus = "Paid";
+    } else {
+      return res.status(400).send("Invalid payment method");
+    }
+
+    let newOrder;
+    let isWholeCart;
+    let item;
+
+    if (itemId) {
+      item = cart.items.find((i) => i._id.toString() === itemId);
+      if (!item) {
+        console.error("Item not found in cart:", itemId);
+        return res.status(404).send("Item not found in cart");
+      }
+
+      newOrder = new Order({
+        userId: userId,
+        orderedItems: [
+          {
+            productId: item.productId._id,
+            quantity: item.quantity,
+            price: item.price,
+          },
+        ],
+        totalPrice: item.totalPrice,
+        finalAmount: item.totalPrice,
+        address: selectedAddress._id,
+        paymentMethod: "COD",
+        paymentStatus: "Unpaid",
+        statusHistory: [
+          {
+            status: "Pending",
+          },
+        ],
+      });
+      await newOrder.save();
+
+      //increasing quantity
+      const productId = item.productId._id;
+      const quantity = item.quantity;
+      await Product.updateOne(
+        { _id: productId },
+        { $inc: { quantity: -quantity } }
+      );
+
+      isWholeCart = false;
+    }
+    //order for the whole cart
+    else {
+      const orderedItems = cart.items.map((item) => ({
+        productId: item.productId._id,
+        quantity: item.quantity,
+        price: item.price,
+        totalPrice:item.totalPrice
+      }));
+
+      //saving order for each item in the cart
+      for (const item of orderedItems) {
+        const totalPrice = item.totalPrice;
+        const discount = 0;
+        const finalAmount = totalPrice - discount;
+
+        newOrder = new Order({
+          userId,
+          orderedItems: [item],
+          totalPrice,
+          discount,
+          finalAmount,
+          address: selectedAddress._id,
+          statusHistory: [
+            {
+              status: "Pending",
+            },
+          ],
+          paymentMethod: "COD",
+          paymentStatus: "Unpaid",
+        });
+        const isSaved = await newOrder.save();
+        //increasing quantity
+        const productId = item.productId._id;
+        const quantity = item.quantity;
+        await Product.updateOne(
+          { _id: productId },
+          { $inc: { quantity: -quantity } }
+        );
+      }
+
+      isWholeCart = true;
+    }
+
+    return res.redirect(
+      isWholeCart
+        ? `/order-placed?isWholeCart=${isWholeCart}`
+        : `/order-placed?itemId=${itemId}&isWholeCart=${isWholeCart}`
+    );
+
+    // return res.status(httpStatus.OK).json({ message: itemId });
+  } catch (error) {
+    console.error("Error in rendering orderSuccess :", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
+    });
+  }
+};
+
+const orderPlaced = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const itemId = req.query.itemId;
+    const isWholeCart = req.query.isWholeCart === "true";
+
+    if (isWholeCart) {
+      //remove item from cart
+      await Cart.deleteOne({ userId });
+    } else if (itemId) {
+      //remove item from cart
+      await Cart.updateOne(
+        { userId, "items._id": itemId },
+        { $pull: { items: { _id: itemId } } }
+      );
+      // check  cart is empty
+      const updatedCart = await Cart.findOne({ userId });
+      //if the cart empty deletes all the cart
+      if (updatedCart && updatedCart.items.length === 0) {
+        await Cart.deleteOne({ userId });
+      }
+    }
+
+    return res.render("user/orderSuccess", {
+      title: "Order placed",
+      adminHeader: true,
+    });
+  } catch (error) {
+    console.error("Error in rendering orderPlaced :", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
+    });
+  }
+};
+
+const cancelOrder = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const { status } = req.body;
+
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      {
+        $push: { statusHistory: { status, changedAt: new Date() } },
+      },
+      { new: true }
+    );
+    const updatedStatus =
+      updatedOrder.statusHistory[updatedOrder.statusHistory.length - 1].status;
+
+    const productIds = updatedOrder.orderedItems.map(item =>({
+      productId: item.productId,
+      quantity: item.quantity,
+
+    }));
+
+
+      const { productId, quantity } = productIds[0];
+
+      await Product.updateOne(
+        { _id: productId },
+        { $inc: { quantity: quantity } }
+      );
+
+
+    return res.json({
+      success: true,
+      message: "Order cancelled",
+      status: updatedStatus,
+    });
+  } catch (error) {
+    console.error("Error in cancelOrder :", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
+    });
+  }
+};
+
+const orderDetails = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+
+    const orders = await Order.findById(orderId)
+      .populate("userId", "name")
+      .populate(
+        "orderedItems.productId",
+        "productName productImages description"
+      )
+      .lean();
+
+    orders.orderedItems = orders.orderedItems.filter((item) => item.productId);
+    const updatedDate =
+      orders.statusHistory[orders.statusHistory.length - 1].changedAt;
+    const date = new Date(updatedDate).toLocaleString();
+    const status = orders.statusHistory[orders.statusHistory.length - 1].status;
+    const orderedDate = new Date(orders.createdAt).toLocaleDateString();
+    const fullStatusHistory = orders.statusHistory.map((history) => ({
+      status: history.status,
+      changedAt: new Date(history.changedAt).toLocaleString(),
+    }));
+
+    console.log(orderId);
+
+    const address = await Address.findOne(
+      { "address._id": orders.address },
+      { "address.$": 1 }
+    ).lean();
+
+    return res.render("user/orderDetails", {
+      title: "Order details",
+      adminHeader: true,
+      orders,
+      date,
+      address: address.address[0],
+      status,
+      orderedDate,
+      fullStatusHistory,
+    });
+  } catch (error) {
+    console.error("Error in orderDetails :", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
+    });
+  }
+};
 
 module.exports = {
   loadTrenauraHomepage,
@@ -1776,6 +2503,7 @@ module.exports = {
   changePassword,
   resendPswrdOtp,
   productDetails,
+  loadShop,
   mensCategory,
   womensCategory,
   beautyCategory,
@@ -1800,4 +2528,14 @@ module.exports = {
   decreaseQuantity,
   removefromCart,
   loadWishlist,
+  addWishlist,
+  removeFromWishlist,
+  loadMyOrder,
+  loadAddressForOrder,
+  submitAddress,
+  loadPaymentMethod,
+  orderSuccess,
+  orderPlaced,
+  cancelOrder,
+  orderDetails,
 };

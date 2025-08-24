@@ -1,5 +1,5 @@
-    const mongoose = require("mongoose");
-    const { Schema } = mongoose;
+const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
 const addressSchema = new Schema({
   userId: {
@@ -7,6 +7,7 @@ const addressSchema = new Schema({
     ref: "User",
     required: true,
   },
+
   address: [
     {
       addressType: {
@@ -21,12 +22,12 @@ const addressSchema = new Schema({
         type: String,
         required: true,
       },
-      
+
       state: {
         type: String,
         required: true,
       },
-      address:{
+      address: {
         type: String,
         required: true,
       },
@@ -34,11 +35,11 @@ const addressSchema = new Schema({
         type: Number,
         required: true,
       },
-      locality:{
-        type:String,
-        required:true
+      locality: {
+        type: String,
+        required: true,
       },
-      
+
       phone: {
         type: Number,
         required: true,
@@ -50,6 +51,10 @@ const addressSchema = new Schema({
       landMark: {
         type: String,
         required: false,
+      },
+      selected: {
+        type: Boolean,
+        default: false,
       },
     },
   ],

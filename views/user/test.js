@@ -1,133 +1,53 @@
-async function increaseQuantity(event, id) {
-  try {
-    event.preventDefault();
-
-    const res = await fetch(`/increaseQuantity/${id}`, {
-      method: "PATCH",
-      headers: { "Content-type": "application/json" },
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      Toastify({
-        text: data.message,
-        duration: 3000,
-        close: true,
-        gravity: "bottom",
-        position: "center",
-        style: {
-          background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
-        },
-        className: "custom-toast",
-      }).showToast();
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-    } else {
-      Toastify({
-        text: "Failed to increase quantity",
-        duration: 3000,
-        close: true,
-        gravity: "bottom",
-        position: "center",
-        style: {
-          background: "linear-gradient(to right, #8B0000, #B22222, #DC143C)",
-        },
-        className: "custom-toast",
-      }).showToast();
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-    }
-  } catch (err) {
-    console.error("Error increasing quantity:", err);
-  }
+let currentCancelButton = null;
+function openCancelModal(id, btn) {
+  currentCancelButton = btn;
+  $("#cancelOrderId").val(id);
+  $("#cancelOrderModal").modal("show");
 }
 
-async function removefromCart(event, id) {
-  try {
-    event.preventDefault();
+$("#cancelOrderForm").on("submit", function (e) {
+  e.preventDefault();
+  const id = $("#cancelOrderId").val();
+  if (currentCancelButton) currentCancelButton.disabled = true;
 
-    const res = await fetch(`/removefromCart/${id}`, {
-      method: "DELETE",
-      headers: { "Content-type": "application/json" },
-    });
+  fetch(`cancelOrder/${id}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status: "Cancelled" }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        $("#cancelOrderModal").modal("hide");
 
-    const data = await res.fetch();
+        const statusEl = document.getElementById(`statusHistory-${id}`);
+        if (statusEl) {
+          statusEl.innerText = "Cancelled";
+          statusEl.style.color = "#dc3545";
+        }
 
-    if (res.ok) {
-      const itemElememt = document.getElementById(`cart-item-${id}`);
-      if (itemElememt) {
-        itemElememt.remove();
+        // Disable the cancel button
+        const btn = document.getElementById(`cancelBtn-${id}`);
+
+        if (btn) {
+          btn.disabled = true;
+          btn.classList.remove("btn-secondary");
+          btn.classList.add("diabledButton");
+        }
+
+        Swal.fire("Cancelled!", data.message, "success");
+      } else {
+        Swal.fire("Error", data.message, "error");
+        if (currentCancelButton) currentCancelButton.disabled = false;
       }
-
-      Toastify({
-        text: data.message || "item deleted",
-        duration: 3000,
-        close: true,
-        gravity: "bottom",
-        position: "center",
-        style: {
-          background: "linear-gradient(to right, #8B0000, #B22222, #DC143C)",
-        },
-        className: "custom-toast",
-      }).showToast();
-    } else {
-      console.error("failed in deleteing item");
-    }
-  } catch (err) {
-    console.error("Error removing item:", err);
-  }
-}
-
-async function decreaseQuantity(event, id) {
-  try {
-    event.preventDefault();
-
-    const res = await fetch(`/decreaseQuantity/${id}`, {
-      method: "PATCH",
-      headers: { "Content-type": "application/json" },
+    })
+    .catch(() => {
+      Swal.fire("Error", "Something went wrong", "error");
+      if (currentCancelButton) currentCancelButton.disabled = false;
     });
+});
 
-    const data = await res.json();
-
-    if (res.ok) {
-      Toastify({
-        text: data.message,
-        duration: 3000,
-        close: true,
-        gravity: "bottom",
-        position: "center",
-        style: {
-          background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
-        },
-        className: "custom-toast",
-      }).showToast();
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-    } else {
-      Toastify({
-        text: "Failed to increase quantity",
-        duration: 3000,
-        close: true,
-        gravity: "bottom",
-        position: "center",
-        style: {
-          background: "linear-gradient(to right, #8B0000, #B22222, #DC143C)",
-        },
-        className: "custom-toast",
-      }).showToast();
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-    }
-  } catch {
-    console.error("Error removing item:", err);
-  }
+async function orderDetails(event, id) {
+  event.preventDefault();
+  window.location.href = `/orderDetails/${id}`;
 }

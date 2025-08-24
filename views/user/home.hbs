@@ -13,9 +13,10 @@
     <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">
     <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
     <link rel="stylesheet" href="css/home.css" type="text/css">
-    
-</head>
+    {{!-- toastify --}}
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
+</head>
 
 
 
@@ -23,6 +24,7 @@
     <div id="preloder">
         <div class="loader"></div>
     </div>
+   
 
 
 
@@ -136,9 +138,9 @@
                             <div class="product__item__pic set-bg" data-setbg="/images/{{this.productImages.[0]}}">
                                 <span class="label">New</span>
                                 <ul class="product__hover">
-                                    <li><img src="img/icon/heart.png" alt=""></li>
+                                    <li><button  onclick="addWishlist(event,'{{this._id}}')"><img src="img/icon/heart.png" alt=""></button></li>
                                     <li><img src="img/icon/compare.png" alt=""> <span>Compare</span></li>
-                                    <li><img src="img/icon/search.png" alt=""></li>
+                                    {{!-- <li><img src="img/icon/search.png" alt=""></li> --}}
                                 </ul>
                             </div>
                         </a>
@@ -177,6 +179,7 @@
 
 
 <script src="js/jquery-3.3.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script>
   $(document).ready(function () {
     $('.set-bg').each(function () {
@@ -189,15 +192,12 @@
 
   
 async function addToCarts(event,id){
+    event.preventDefault();
   const res=await fetch(`/addToCarts/${id}`,{
     method:"POST",
     headers:{"Content-type":"application/json"},
   })
   const data = await res.json();
-
-  console.log("res.ok", res.ok);
-  console.log("data", data);
-
   if(res.ok){
   
    Toastify({
@@ -215,9 +215,45 @@ async function addToCarts(event,id){
         }
         }).showToast();
 
+        document.getElementById("cart-count").textContent = data.cartCount;
+
 
   }
 }
+
+
+async function addWishlist(event,id){
+    event.preventDefault();
+    console.log('addWishlist loaded with id   :::::::',id)
+    const res=await fetch(`/addWishlist/${id}`,{
+        method:"POST",
+        headers:{"Content-type":"application/json"}
+    })
+
+    const data=await res.json()
+
+
+    if(res.ok){
+        Toastify({
+            text: "Added to wishlist",
+            duration: 3000,
+            close: true,          
+            gravity: "top",
+            position: "center",    
+            style: {
+                background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)", 
+            },
+            className: "custom-toast", 
+            onClick: () => {     
+                alert("Toast clicked!");
+        }
+        }).showToast();
+    }
+}
+
+
+
+
 </script>
 
 

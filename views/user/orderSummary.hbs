@@ -1,6 +1,4 @@
 
-
-
 <head>
 
   <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
@@ -167,11 +165,10 @@
           text-align: center;
           margin-top: 12px;
           background: linear-gradient(to right, #1c6ae0, #050d36);
-          
           color: #fff;
           padding: 12px;
           border-radius: 8px;
-          text-decoration: none;
+          width: 100%;
           font-weight: bold;
           transition: background 0.3s;
         }
@@ -256,8 +253,8 @@
 </head>
 
 <main class="cart-container">
-  <h2 class="cart-heading">SHOPPING BAG</h2>
-  <p class="cart-subheading">Your cart is more than just a list – it’s the beginning of something amazing</p>
+  <h2 class="cart-heading">ORDER SUMMARY</h2>
+  {{!-- <p class="cart-subheading">Your cart is more than just a list – it’s the beginning of something amazing</p> --}}
 
   <div class="cart-wrapper">
     <!-- Left: Cart Items -->
@@ -274,29 +271,27 @@
      {{!-- displaying cart items --}}
 
       {{#each cartItems}}
-      <div class="cart-item" id="cart-item-{{this._id}}">
+      <div class="cart-item" id="'cart-item-{{this._id}}">
+        <input type="hidden" id="cartId" value="{{this._id}}">
         <img src="/images/{{this.productId.productImages.[0]}}" alt="{{this.productId.productName}}" class="cart-item-image" />
         <div class="cart-item-details">
           <h5>{{this.productId.productName}}</h5>
           <p>Color: {{this.productId.color}}</p>
-          <p>Size: {{this.size}}</p>
+          <p> Size: {{this.size}}</p>
           <div class="quantity-selector">
              {{!-- decrease quantity --}}
-            <button class="qty-btn" onclick="decreaseQuantity(event,'{{this._id}}')">&#8722;</button>
+            <button type="button" class="qty-btn" onclick="decreaseQuantity(event,'{{this._id}}')">&#8722;</button>
             <span class="qty-display" id="quantity-display-{{this._id}}">{{this.quantity}}</span>
             {{!-- increase quantity --}}
-            <button class="qty-btn" onclick="increaseQuantity(event,'{{this._id}}')">&#43;</button> 
+            <button type="button" class="qty-btn" onclick="increaseQuantity(event,'{{this._id}}')">&#43;</button> 
           </div>
         </div>
         <div class="cart-item-price">
-          <span id="totalPrice-{{this._id}}">₹{{this.totalPrice}}</span>
+          <p style="color:black" id="totalPrice-{{this._id}}">₹{{this.totalPrice}}</p>
           
-          {{!-- removing an item --}}
-          <a href="" data-itemid="{{this._id}}"  class="remove-item" id="removefromCart" onclick="removefromCart(event,'{{this._id}}')">✕</a>
-
         </div>
       </div>
-      {{/each}}
+      {{/each }}
     </div>
 
     <!-- Right: Price Details -->
@@ -305,8 +300,9 @@
       <h5 id="price_details">PRICE DETAILS</h5>
       <hr />
       <div class="summary-line">
-        <span>Price ({{cartItems.length}} items)</span>
-        <span id="grandTotal">₹{{totalPrice}}</span>
+      
+        <span>Price </span>
+        <p style="color:black" id="totalPrice-rightside">₹{{totalPrice}}</p>
       </div>
       <div class="summary-line discount">
         <span>Discount</span>
@@ -324,65 +320,18 @@
       <hr />
       <div class="summary-line total">
         <span>Total</span>
-        <span>₹{{totalPrice}}</span>
+        <span id="cart-total">₹{{totalPrice}}</span>
       </div>
-      <a href="/loadPaymentMode" id="checkout-btn">CONTINUE TO CHECKOUT</a>
+      <button type="submit" id="checkout-btn" onclick="chekout(event)" >CONTINUE TO CHECKOUT</button>
+      
     </div>
   </div>
 
 
- 
-  <section class="product spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    
-                    <ul class="filter__controls">
-
-                        <li data-filter=".new-arrivals">Your Choices</li>
-                        
-                    </ul>
-                </div>
-            </div>
-            <div class="row product__filter">
-             {{#each products}}
-                <div class="col-lg-3 col-md-6 col-sm-6 mix new-arrivals">
-                    <div class="product__item">
-                        <a href="/productDetails?id={{this._id}}">
-                            <div class="product__item__pic set-bg" data-setbg="/images/{{this.productImages.[0]}}">
-                                {{!-- <span class="label">New</span> --}}
-                                <ul class="product__hover">
-                                    <li><img src="img/icon/heart.png" alt=""></li>
-                                    <li><img src="img/icon/compare.png" alt=""> <span>Compare</span></li>
-                                    <li><img src="img/icon/search.png" alt=""></li>
-                                </ul>
-                            </div>
-                        </a>
-                        <div class="product__item__text">
-                            <h6>{{this.productName}}</h6>
-                            <a href="#" onclick="addToCarts(event,'{{this._id}}')" class="add-cart">+ Add To Cart</a>
-                            <div class="rating">
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                            </div>
-                            <h5>&#x20b9;{{this.salePrice}} <span style="text-decoration: line-through; color: #888;">&#x20b9;{{this.regularPrice}}</span> </h5>
-                        </div>
-                    </div>
-                </div>
-                {{/each}}
-
-
-            </div>
-        </div> 
-</section>
 </main>
 
 
 <script>
-
 
 
 async function increaseQuantity(event, id) {
@@ -391,12 +340,20 @@ async function increaseQuantity(event, id) {
 
     let quantityElem = document.getElementById(`quantity-display-${id}`);
     let quantity = parseInt(quantityElem.textContent);
-    let totalPriceOfItem=document.getElementById(`totalPrice-${id}`);
-    let grandTotal=document.getElementById("grandTotal")
+    let totalPriceElem = document.getElementById(`totalPrice-${id}`);
+   
 
-    if(quantity>=5){
-      return Toastify({
-        text: "Quantity should not be greater than Five",
+
+    const res = await fetch(`/increaseQuantity/${id}`, {
+      method: "PATCH",
+      headers: { "Content-type": "application/json" },
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      Toastify({
+        text: data.message,
         duration: 3000,
         close: true,
         gravity: "bottom",
@@ -406,42 +363,16 @@ async function increaseQuantity(event, id) {
         },
         className: "custom-toast",
       }).showToast();
-    }
 
-    const res = await fetch(`/increaseQuantity/${id}`, {
-      method: "PATCH",
-      headers: { "Content-type": "application/json" },
-      body:JSON.stringify({quantity})
-    });
-
-  
-    let data
-    if (res.ok) {
-       data = await res.json();
-      Toastify({
-        text: data.message,
-        duration: 3500,
-        close: true,
-        gravity: "bottom",
-        position: "center",
-        style: {
-          background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
-        },
-        className: "custom-toast",
-      }).showToast();
-
-       quantityElem.textContent = data.quantity;
-       totalPriceOfItem.innerText=data.totalPrice;
-       grandTotal.innerText=data.grandTotal
+       quantityElem.textContent = quantity + 1;
+       totalPriceElem.innerText = `₹${data.totalPrice}`;
+       document.getElementById("cart-total").innerText = `₹${data.totalPrice}`;
+       document.getElementById("totalPrice-rightside").innerText = `₹${data.totalPrice}`;
 
      
     } else {
-      if(res.status===400){
-          data = await res.json();
-      
-       }
       Toastify({
-        text: data.message||"Failed to increase quantity",
+        text: "Failed to increase quantity",
         duration: 3000,
         close: true,
         gravity: "bottom",
@@ -452,7 +383,9 @@ async function increaseQuantity(event, id) {
         className: "custom-toast",
       }).showToast();
 
-     
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     }
   } catch (err) {
     console.error("Error increasing quantity:", err);
@@ -465,17 +398,24 @@ async function decreaseQuantity(event, id) {
 
     let quantityElem = document.getElementById(`quantity-display-${id}`);
     let quantity = parseInt(quantityElem.textContent);
-    let totalPriceOfItem=document.getElementById(`totalPrice-${id}`);
-    let grandTotal=document.getElementById("grandTotal")
-
-    if(quantity<=1){
-      return removefromCart(event, id)
+    let totalPriceElem = document.getElementById(`totalPrice-${id}`);
+    if(quantity===1){
+      return Toastify({
+        text: "Quantity should be greater than zero",
+        duration: 3000,
+        close: true,
+        gravity: "bottom",
+        position: "center",
+        style: {
+          background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+        },
+        className: "custom-toast",
+      }).showToast();
     }
 
     const res = await fetch(`/decreaseQuantity/${id}`, {
       method: "PATCH",
       headers: { "Content-type": "application/json" },
-      
     });
 
     const data = await res.json();
@@ -494,10 +434,10 @@ async function decreaseQuantity(event, id) {
       }).showToast();
 
       quantityElem.textContent = quantity - 1;
-      totalPriceOfItem.innerText=data.totalPrice
-      grandTotal.innerText=data.grandTotal
+      totalPriceElem.innerText = `₹${data.totalPrice}`;
+      document.getElementById("cart-total").innerText = `₹${data.totalPrice}`;
+      document.getElementById("totalPrice-rightside").innerText = `₹${data.totalPrice}`;
 
-     
     } else {
       Toastify({
         text: "Failed to increase quantity",
@@ -519,84 +459,15 @@ async function decreaseQuantity(event, id) {
 }
 
 
+async function chekout(event){
+  event.preventDefault();
 
+  const cartIdInput = document.getElementById("cartId")
+  const itemId = cartIdInput ? cartIdInput.value : null;
+  const grandTotal = document.getElementById("cart-total").innerText.replace(/[^\d]/g, "");
+  window.location.href = `/loadPaymentMode?itemId=${itemId}`;
 
-async function removefromCart(event, id) {
-  try {
-    event.preventDefault();
-
-    const res = await fetch(`/removefromCart/${id}`, {
-      method: "DELETE",
-      headers: { "Content-type": "application/json" },
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      
-
-      Toastify({
-        text: data.message || "item deleted",
-        duration: 3000,
-        close: true,
-        gravity: "bottom",
-        position: "center",
-        style: {
-          background: "linear-gradient(to right, #8B0000, #B22222, #DC143C)",
-        },
-        className: "custom-toast",
-      }).showToast();
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-
-
-      {{!-- const itemElememt = document.getElementById(`cart-item-${id}`);
-      if (itemElememt) {
-        itemElememt.remove(); 
-      }--}}
-    } else {
-      console.error("failed in deleteing item");
-    }
-  } catch (err) {
-    console.error("Error removing item:", err);
-  }
 }
-
-async function addToCarts(event,id){
-  const res=await fetch(`/addToCarts/${id}`,{
-    method:"POST",
-    headers:{"Content-type":"application/json"},
-  })
-  const data = await res.json();
-
-  console.log("res.ok", res.ok);
-  console.log("data", data);
-
-  if(res.ok){
-  
-   Toastify({
-        text: data.message,
-        duration: 3000,
-        close: true,          
-        gravity: "top",       
-        position: "center",    
-        style: {
-            background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)", 
-        },
-        className: "custom-toast", 
-        onClick: () => {     
-            alert("Toast clicked!");
-        }
-        }).showToast();
-
-  }
-}
-
-
-
-
 
 </script>
 

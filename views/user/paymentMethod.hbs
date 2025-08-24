@@ -1,0 +1,488 @@
+
+<head>
+ 
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --card-shadow-hover: 0 15px 40px rgba(0, 0, 0, 0.15);
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+          
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+           
+            
+        }
+
+        .payment-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+           
+        }
+
+        .payment-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2.5rem;
+            transition: var(--transition);
+        }
+
+        .payment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .payment-title {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            letter-spacing: 1px;
+        }
+
+        .payment-option {
+            background: #ffffff !important;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            padding: 1.5rem !important;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .payment-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: var(--transition);
+        }
+
+        .payment-option:hover::before {
+            left: 100%;
+        }
+
+        .payment-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+            border-color: #667eea;
+        }
+
+        .payment-option input[type="radio"]:checked + .payment-label {
+            color: #667eea;
+        }
+
+        .payment-option input[type="radio"]:checked {
+            transform: scale(1.2);
+        }
+
+        .payment-option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)) !important;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .form-check-input {
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 2px solid #dee2e6;
+            transition: var(--transition);
+        }
+
+        .form-check-input:checked {
+            background: var(--primary-gradient);
+            border-color: #667eea;
+        }
+
+        .payment-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .payment-info h6 {
+            margin: 0;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 1rem;
+        }
+
+        .payment-info small {
+            color: #718096;
+            font-size: 0.85rem;
+        }
+
+        .continue-btn {
+            background: var(--primary-gradient);
+            border: none;
+            padding: 1rem 3rem;
+            border-radius: 50px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .continue-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+            background: var(--secondary-gradient);
+        }
+
+        .continue-btn:active {
+            transform: translateY(0);
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1.5rem;
+            color: #718096;
+            font-size: 0.85rem;
+        }
+
+        .security-badge i {
+            margin-right: 0.5rem;
+            color: #48bb78;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .payment-option {
+            animation: slideIn 0.6s ease-out forwards;
+        }
+
+        .payment-option:nth-child(1) { animation-delay: 0.1s; }
+        .payment-option:nth-child(2) { animation-delay: 0.2s; }
+        .payment-option:nth-child(3) { animation-delay: 0.3s; }
+        .payment-option:nth-child(4) { animation-delay: 0.4s; }
+        .payment-option:nth-child(5) { animation-delay: 0.5s; }
+
+        @media (max-width: 768px) {
+            .payment-card {
+                padding: 1.5rem;
+            }
+            
+            .payment-option {
+                padding: 1rem !important;
+            }
+            
+            .payment-icon {
+                width: 35px;
+                height: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <div class="payment-card">
+            <h5 class="payment-title">SELECT PAYMENT METHOD</h5>
+            
+            <form id="paymentForm">
+                <div class="payment-options">
+                    <input type="hidden" name="itemId" id="itemId" value="{{itemId}}">
+                    <!-- Razorpay -->
+                    {{!-- <div class="form-check payment-option d-flex align-items-center selected" data-method="razorpay">
+                        <input class="form-check-input me-3" type="radio" name="paymentMethod" id="razorpay" value="razorpay" checked>
+                        <div class="payment-icon">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <label class="payment-label form-check-label d-flex flex-column flex-grow-1" for="razorpay">
+                            <div class="payment-info">
+                                <h6>RAZORPAY</h6>
+                                <small>Secure online payment gateway</small>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Google Pay / UPI -->
+                    <div class="form-check payment-option d-flex align-items-center" data-method="upi">
+                        <input class="form-check-input me-3" type="radio" name="paymentMethod" id="upi" value="upi">
+                        <div class="payment-icon">
+                            <i class="fab fa-google-pay"></i>
+                        </div>
+                        <label class="payment-label form-check-label d-flex flex-column flex-grow-1" for="upi">
+                            <div class="payment-info">
+                                <h6>UPI PAYMENT</h6>
+                                <small>Pay with any UPI app</small>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Credit/Debit -->
+                    <div class="form-check payment-option d-flex align-items-center" data-method="card">
+                        <input class="form-check-input me-3" type="radio" name="paymentMethod" id="card" value="card">
+                        <div class="payment-icon">
+                            <i class="far fa-credit-card"></i>
+                        </div>
+                        <label class="payment-label form-check-label d-flex flex-column flex-grow-1" for="card">
+                            <div class="payment-info">
+                                <h6>CREDIT/DEBIT CARD</h6>
+                                <small>Add any secure card by RBI guidelines</small>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Wallet -->
+                    <div class="form-check payment-option d-flex align-items-center" data-method="wallet">
+                        <input class="form-check-input me-3" type="radio" name="paymentMethod" id="wallet" value="wallet">
+                        <div class="payment-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <label class="payment-label form-check-label d-flex flex-column flex-grow-1" for="wallet">
+                            <div class="payment-info">
+                                <h6>WALLETS</h6>
+                                <small>Use your Trenaura wallet</small>
+                            </div>
+                        </label>
+                    </div> --}}
+
+                    <!-- Cash on Delivery -->
+                    <div class="form-check payment-option d-flex align-items-center" data-method="cod">
+                        <input class="form-check-input me-3" type="radio" name="paymentMethod" id="cod" value="cod">
+                        <div class="payment-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <label class="payment-label form-check-label d-flex flex-column flex-grow-1" for="cod">
+                            <div class="payment-info">
+                                <h6>CASH ON DELIVERY</h6>
+                                <small>Pay <span id="grandTotal">₹{{grandTotal}}</span> when you receive your order</small>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="security-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Your payment information is secure and encrypted</span>
+                </div>
+                <div>
+                    <p id="paymentError" style="color: red; display: none; font-size: 14px;"></p>
+
+                </div>
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary continue-btn">
+                        <i class="fas fa-arrow-right me-2"></i>
+                        Continue to Payment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+   <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const paymentOptions = document.querySelectorAll(".payment-option");
+            const errorMsg = document.getElementById("paymentError");
+            const form = document.getElementById("paymentForm");
+            const submitBtn = document.querySelector(".continue-btn");
+
+            // Payment option selection
+            paymentOptions.forEach((option) => {
+                option.addEventListener("click", function () {
+                    paymentOptions.forEach((opt) => opt.classList.remove("selected"));
+                    this.classList.add("selected");
+                    // Check the radio button
+                    this.querySelector('input[type="radio"]').checked = true;
+                    errorMsg.style.display = "none";
+                });
+            });
+{{!--             
+            // Handle payment option selection
+            paymentOptions.forEach((option) => {
+                option.addEventListener("click", function () {
+                // Remove selected class from all options
+                paymentOptions.forEach((opt) => opt.classList.remove("selected"));
+
+                // Add selected class to clicked option
+                this.classList.add("selected");
+
+                // Check the radio button
+                const radio = this.querySelector('input[type="radio"]');
+                radio.checked = true;
+
+                // Add subtle animation
+                this.style.transform = "scale(0.98)";
+                setTimeout(() => {
+                    this.style.transform = "";
+                }, 150);
+                errorMsg.style.display = "none";
+                });
+            });
+
+            // Handle radio button change
+            radioInputs.forEach((radio) => {
+                radio.addEventListener("change", function () {
+                paymentOptions.forEach((opt) => opt.classList.remove("selected"));
+                this.closest(".payment-option").classList.add("selected");
+                errorMsg.style.display = "none";
+                });
+            });
+
+            // Add hover sound effect simulation
+            paymentOptions.forEach((option) => {
+                option.addEventListener("mouseenter", function () {
+                this.style.transform = "translateY(-2px)";
+                });
+
+                option.addEventListener("mouseleave", function () {
+                if (!this.classList.contains("selected")) {
+                    this.style.transform = "";
+                }
+                });
+            }); --}}
+
+            // Handle form submit
+            form.addEventListener("submit", async function (e) {
+                e.preventDefault();
+
+                const itemId = document.getElementById("itemId").value;
+                const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+                const grandTotal = document.getElementById("grandTotal").innerText.replace("₹", "");
+
+                if (!paymentMethod) {
+                    errorMsg.innerText = "Please select a payment method to continue.";
+                    errorMsg.style.display = "block";
+                    return;
+                }
+
+                //for all the products in cart(bulk order)
+                if(!itemId){
+                    try{
+                        const res=await fetch('/orderSuccess',{
+                            method:"POST",
+                            headers:{"Content-Type":"application/json"},
+                            body:JSON.stringify({paymentMethod})
+                        })
+                       
+                        let data;
+                        if (res.ok) {
+                            data = await response.json();
+                            setTimeout(() => {
+                                submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Success!';
+                                setTimeout(() => {
+                                    let isWholeCart=true
+                                    window.location.href = `/order-placed?isWholeCart=${isWholeCart}`;
+                                }, 1000);
+                            }, 2000);
+                        } else {
+                            if(res.status===400){
+                                data = await res.json();
+                            }
+                             Toastify({
+                                text: data.message || "Order failed",
+                                duration: 3500,
+                                close: true,
+                                gravity: "top",
+                                position: "center",
+                                style: {
+                                    background: "linear-gradient(to right,#730202f2, #ba0d0d, #e00808e8)",
+                                },
+                                className: "custom-toast"
+                            }).showToast();
+
+                            //redircting to address management
+                            {{!-- setTimeout(() => {
+                                window.location.href = `/manageAddress`;
+                            }, 1500); --}}
+                        
+                        }
+
+                    }catch(err){
+                        submitBtn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Error!';
+                        submitBtn.disabled = false;
+                        errorMsg.innerText = "Something went wrong. Please try again..";
+                        errorMsg.style.display = "block";
+                    }
+                    return
+                }
+
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+                submitBtn.disabled = true;
+
+                try {
+                    const response = await fetch("/orderSuccess", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ itemId, paymentMethod }),
+                    });
+
+                   let data;
+                    try {
+                    data = await response.json();
+                    } catch (err) {
+                    data = { message: "Something went wrong" };
+                    }
+
+                    if (response.ok) {
+                        setTimeout(() => {
+                            submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Success!';
+                            setTimeout(() => {
+                                window.location.href = `/order-placed?itemId=${itemId}`;
+                            }, 1000);
+                        }, 2000);
+                    } else {
+                        Toastify({
+                            text: data.message,
+                            duration: 3000,
+                            close: true,
+                            gravity: "top",
+                            position: "center",
+                            style: {
+                            background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+                            },
+                            className: "custom-toast"
+                        }).showToast();
+                    }
+                } catch (err) {
+                    submitBtn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Error!';
+                    submitBtn.disabled = false;
+                    errorMsg.innerText = "Something went wrong. Please try again";
+                    errorMsg.style.display = "block";
+                }
+            });
+        });
+    </script>
+</body>

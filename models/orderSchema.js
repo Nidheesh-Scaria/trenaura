@@ -72,7 +72,10 @@ const orderSchema = new Schema({
       },
     },
   ],
-
+  currentStatus: {
+    type: String,
+    default: "Pending"
+  },
   createdAt: {
     type: Date,
     default: Date.now,

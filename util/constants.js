@@ -23,6 +23,7 @@ const MESSAGES = {
   ADD_ADDRESS:{
     SUCCESS:"Address added successfully",
     MISSING_FIELDS: "Missing required fields",
+    ADDRESS_NOT_FOUND:"No address found, please add address",
   },
   EDIT_ADDRESS:{
     SUCCESS:"Address edited successfully",
@@ -42,12 +43,19 @@ const MESSAGES = {
     QUANTITY_INCREASE:"Quantity incresed by one",
     QUANTITY_DECREASE:"Quantity decresed by one",
     ITEM_DELETED:"Item removed from your shopping bag",
+    IREM_NOT_FOUND:"Item not found in cart",
+    CART_NOT_FOUND:"Cart not found"
   },
   WISHLIST:{
     WISHLIST_EMPTY:"Wishlist is empty",
     ITEM_DELETED:"Item removed from your wishlist",
     WISHLISTED:"Product added to wishlist"
   },
+  PAYMENT:{
+    PAYMENT_METHOD_INVALID:"Invalid payment method",
+
+  },
+
 };
 
 module.exports = { MESSAGES };

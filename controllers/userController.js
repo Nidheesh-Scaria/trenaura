@@ -1721,7 +1721,7 @@ const increaseQuantity = async (req, res) => {
   try {
     const { id: itemId } = req.params;
     const userId = req.session.user;
-    const {quantity}=req.body
+    const { quantity } = req.body;
 
     const cart = await Cart.findOne(
       { userId, "items._id": itemId },
@@ -1736,12 +1736,13 @@ const increaseQuantity = async (req, res) => {
 
     const item = cart.items[0];
     const stock = item.productId.quantity;
-    console.log( `stock for the product ${ item.productId._Id} is ${stock}`)
+    console.log(`stock for the product ${item.productId._Id} is ${stock}`);
 
-    if(quantity>=stock){
-      return res.status(httpStatus.BAD_REQUEST).json({message:"Quantity should be less than the total stock of the product"})
+    if (quantity >= stock) {
+      return res.status(httpStatus.BAD_REQUEST).json({
+        message: "Quantity should be less than the total stock of the product",
+      });
     }
-    
 
     // Increase quantity
     await Cart.updateOne(
@@ -1969,6 +1970,9 @@ const removeFromWishlist = async (req, res) => {
 const loadMyOrder = async (req, res) => {
   try {
     const userId = req.session.user;
+    const raw = parseInt(req.query.page, 10);
+    const page = Math.max(1, Number.isFinite(raw) ? raw : 1);
+    const limit = 2;
 
     const myOrders = await Order.find({ userId })
       .populate({
@@ -1976,9 +1980,10 @@ const loadMyOrder = async (req, res) => {
         match: { isBlocked: false, isDeleted: false },
       })
       .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
       .lean();
 
-    // Filter out null products from each order
 
     const filteredOrders = myOrders
       .map((order) => {
@@ -1991,6 +1996,8 @@ const loadMyOrder = async (req, res) => {
         return order;
       })
       .filter((order) => order.orderedItems.length > 0);
+
+    const count = await Order.countDocuments({ userId });
 
     if (filteredOrders.length === 0) {
       return res.render("user/myOrder", {
@@ -2005,6 +2012,9 @@ const loadMyOrder = async (req, res) => {
       title: "My order",
       adminHeader: true,
       myOrder: filteredOrders,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page,
+      isMyOrderEmpty: filteredOrders.length === 0,
     });
   } catch (error) {
     console.error("Error in loadMyOrder:", error);
@@ -2022,10 +2032,6 @@ const loadAddressForOrder = async (req, res) => {
     const userId = req.session.user;
     const productId = req.params.id;
     const { size, quantity } = req.query;
-    console.log(`loadAddressForOrder Your product id is  ${productId}`);
-    console.log(`loadAddressForOrder Your size  ${size}`);
-    console.log(`loadAddressForOrder Your quantity ${quantity}`);
-
     const user = await userSchema.findById(userId);
     const userAddresses = await Address.findOne({ userId });
 
@@ -2060,8 +2066,6 @@ const submitAddress = async (req, res) => {
     const addressId = req.body.selectedAddress;
     userId = req.session.user;
     const { productId, size } = req.body;
-
-    console.log(`submitAddress Your product id is ${productId}`);
 
     //submitting address
     await Address.updateOne(
@@ -2123,8 +2127,6 @@ const submitAddress = async (req, res) => {
       (item) => item.productId && item.productId._id.toString() === productId
     );
 
-    console.log(`submit address reached`);
-
     //add to cart then
     return res.render("user/orderSummary", {
       title: "Order Summary",
@@ -2160,8 +2162,9 @@ const loadPaymentMethod = async (req, res) => {
 
       //cheking ifthe cart is empty
       if (!cart || !cart.items || cart.items.length === 0) {
-        console.error("Cart is empty for user:", userId);
-        return res.status(400).send("Cart is empty");
+        return res
+          .status(httpStatus.BAD_REQUEST)
+          .json({ message: MESSAGES.CART.CART_EMPTY || "Cart is empty" });
       }
 
       const grandTotal = cart.items.reduce((total, item) => {
@@ -2182,9 +2185,6 @@ const loadPaymentMethod = async (req, res) => {
 
     const item = cart.items[0];
     const grandTotal = item.totalPrice;
-
-    console.log(`loadPaymentMethod item id is ${itemId}`);
-    console.log("loadPaymentMethod reached");
 
     return res.render("user/paymentMethod", {
       title: "Payment method",
@@ -2218,7 +2218,9 @@ const orderSuccess = async (req, res) => {
       userAddress.address.length === 0
     ) {
       console.error("No address found for user:", userId);
-      return res.status(httpStatus.BAD_REQUEST).json({message:"No address found, please add address"})
+      return res.status(httpStatus.BAD_REQUEST).json({
+        message: MESSAGES.ADD_ADDRESS.ADDRESS_NOT_FOUND || "Please add address",
+      });
     }
     const selectedAddress = userAddress.address.find(
       (a) => a.selected === true
@@ -2231,6 +2233,9 @@ const orderSuccess = async (req, res) => {
 
     if (!cart || cart.items.length === 0) {
       console.error("Cart not found for user:", userId, " itemId:", itemId);
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ message: MESSAGES.CART.CART_NOT_FOUND || "Cart not found" });
     }
 
     //checking payment methods
@@ -2240,7 +2245,10 @@ const orderSuccess = async (req, res) => {
     } else if (paymentMethod === "Razorpay" || paymentMethod === "PayPal") {
       paymentStatus = "Paid";
     } else {
-      return res.status(400).send("Invalid payment method");
+      return res.status(httpStatus.BAD_REQUEST).json({
+        message:
+          MESSAGES.PAYMENT.PAYMENT_METHOD_INVALID || "Invalid payment method",
+      });
     }
 
     let newOrder;
@@ -2251,7 +2259,9 @@ const orderSuccess = async (req, res) => {
       item = cart.items.find((i) => i._id.toString() === itemId);
       if (!item) {
         console.error("Item not found in cart:", itemId);
-        return res.status(404).send("Item not found in cart");
+        return res.status(httpStatus.BAD_REQUEST).send({
+          message: MESSAGES.CART.IREM_NOT_FOUND || "Item not found in cart",
+        });
       }
 
       newOrder = new Order({
@@ -2292,7 +2302,7 @@ const orderSuccess = async (req, res) => {
         productId: item.productId._id,
         quantity: item.quantity,
         price: item.price,
-        totalPrice:item.totalPrice
+        totalPrice: item.totalPrice,
       }));
 
       //saving order for each item in the cart
@@ -2329,13 +2339,18 @@ const orderSuccess = async (req, res) => {
       isWholeCart = true;
     }
 
-    return res.redirect(
-      isWholeCart
+    // return res.redirect(
+    //   isWholeCart
+    //     ? `/order-placed?isWholeCart=${isWholeCart}`
+    //     : `/order-placed?itemId=${itemId}&isWholeCart=${isWholeCart}`
+    // );
+
+    return res.status(httpStatus.OK).json({
+      redirectUrl: isWholeCart
         ? `/order-placed?isWholeCart=${isWholeCart}`
         : `/order-placed?itemId=${itemId}&isWholeCart=${isWholeCart}`
-    );
+    });
 
-    // return res.status(httpStatus.OK).json({ message: itemId });
   } catch (error) {
     console.error("Error in rendering orderSuccess :", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -2364,7 +2379,7 @@ const orderPlaced = async (req, res) => {
       );
       // check  cart is empty
       const updatedCart = await Cart.findOne({ userId });
-      //if the cart empty deletes all the cart
+      //if the cart empty delete the whole cart
       if (updatedCart && updatedCart.items.length === 0) {
         await Cart.deleteOne({ userId });
       }
@@ -2394,26 +2409,24 @@ const cancelOrder = async (req, res) => {
       orderId,
       {
         $push: { statusHistory: { status, changedAt: new Date() } },
+        $set:{currentStatus:status}
       },
       { new: true }
     );
     const updatedStatus =
       updatedOrder.statusHistory[updatedOrder.statusHistory.length - 1].status;
 
-    const productIds = updatedOrder.orderedItems.map(item =>({
+    const productIds = updatedOrder.orderedItems.map((item) => ({
       productId: item.productId,
       quantity: item.quantity,
-
     }));
 
-
-      const { productId, quantity } = productIds[0];
-
-      await Product.updateOne(
-        { _id: productId },
-        { $inc: { quantity: quantity } }
-      );
-
+    const { productId, quantity } = productIds[0];
+    //increasing the quantity after cancel order
+    await Product.updateOne(
+      { _id: productId },
+      { $inc: { quantity: quantity } }
+    );
 
     return res.json({
       success: true,

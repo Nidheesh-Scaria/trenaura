@@ -391,24 +391,23 @@
                 //for all the products in cart(bulk order)
                 if(!itemId){
                     try{
-                        const res=await fetch('/orderSuccess',{
+                        const response=await fetch('/orderSuccess',{
                             method:"POST",
                             headers:{"Content-Type":"application/json"},
                             body:JSON.stringify({paymentMethod})
                         })
                        
                         let data;
-                        if (res.ok) {
+                        if (response.ok) {
                             data = await response.json();
                             setTimeout(() => {
                                 submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Success!';
                                 setTimeout(() => {
-                                    let isWholeCart=true
-                                    window.location.href = `/order-placed?isWholeCart=${isWholeCart}`;
+                                    window.location.href = data.redirectUrl;
                                 }, 1000);
                             }, 2000);
                         } else {
-                            if(res.status===400){
+                            if(response.status===400){
                                 data = await res.json();
                             }
                              Toastify({
@@ -424,13 +423,14 @@
                             }).showToast();
 
                             //redircting to address management
-                            {{!-- setTimeout(() => {
+                            setTimeout(() => {
                                 window.location.href = `/manageAddress`;
-                            }, 1500); --}}
+                            }, 1500);
                         
                         }
 
                     }catch(err){
+                        console.log("error is ",err)
                         submitBtn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Error!';
                         submitBtn.disabled = false;
                         errorMsg.innerText = "Something went wrong. Please try again..";

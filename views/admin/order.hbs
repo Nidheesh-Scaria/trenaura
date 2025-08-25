@@ -8,12 +8,14 @@
   <main class="main-content">
     <div class="orders-header">
       <h2>Orders</h2>
-      {{!-- <div class="actions">
-        <input type="text" placeholder="🔍 Search here">
-        <button class="btn export"><i class="fas fa-download"></i> Export</button>
+      <div class="actions">
+        <form action="/admin/order"method="GET">
+          <input type="text" name="search" placeholder="🔍 Search here" value="{{search}}">
+        </form>
+        {{!-- <button class="btn export"><i class="fas fa-download"></i> Export</button>
         <button class="btn"><i class="fas fa-sort"></i> Sort By</button>
-        <button class="btn"><i class="fas fa-filter"></i> Filters</button>
-      </div> --}}
+        <button class="btn"><i class="fas fa-filter"></i> Filters</button> --}}
+      </div>
     </div>
 
     <table class="orders-table">
@@ -83,22 +85,36 @@
       
     </table>
 
-    {{!-- <div class="pagination">
-      <span>Show result:</span>
-      <select>
-        <option>2</option>
-        <option>5</option>
-        <option>10</option>
-      </select>
-      <div class="pages">
-        <button>&lt;</button>
-        <button class="active">1</button>
-        <button>2</button>
-        <button>3</button>
-        <button>&gt;</button>
-      </div>
-    </div> --}}
+    {{!-- Pagination --}}
+    
+    <div class="pagination">
+      {{!-- Previous --}}
+      {{#ifCond currentPage ">" 1}}
+        <a href="?page={{decrement currentPage}}" class="page-btn">&lt;</a>
+      {{else}}
+        <button class="page-btn" disabled>&lt;</button>
+      {{/ifCond}}
+
+      {{!-- Page Numbers --}}
+      {{#each (range 1 totalPage)}}
+        {{#ifCond this "===" ../currentPage}}
+          <span class="page-number current">{{this}}</span>
+        {{else}}
+          <a href="?page={{this}}" class="page-number">{{this}}</a>
+        {{/ifCond}}
+      {{/each}}
+
+      {{!-- Next --}}
+      {{#ifCond currentPage "<" totalPage}}
+        <a href="?page={{increment currentPage}}" class="page-btn">&gt; </a>
+      {{else}}
+        <button class="page-btn" disabled>&gt;</button>
+      {{/ifCond}}
+    </div>
+
+
   </main>
+
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

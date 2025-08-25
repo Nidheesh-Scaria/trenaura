@@ -27,17 +27,67 @@ mongoose.connection.once("open", () => {
   console.log("Grid fs set in app.locals");
 });
 
+// const hbs = exphbs.create({
+//   extname: "hbs",
+//   defaultLayout: "layout",
+//   layoutsDir: path.join(__dirname, "views"),
+//   partialsDir: path.join(__dirname, "views/partials"),
+//   helpers: {
+//     increment: (index, offset=1) => parseInt(index) + parseInt(offset || 0) + 1,
+//     decrement: (value,offset=1) => parseInt(value) - parseInt(offset),
+//     multiply: (a, b) => parseInt(a) * parseInt(b),
+
+//     ifCond: function (v1, operator, v2, options) {
+//       switch (operator) {
+//         case "===":
+//           return v1 === v2 ? options.fn(this) : options.inverse(this);
+//         case ">":
+//           return v1 > v2 ? options.fn(this) : options.inverse(this);
+//         case "<":
+//           return v1 < v2 ? options.fn(this) : options.inverse(this);
+//         default:
+//           return options.inverse(this);
+//       }
+//     },
+//     range: function (start, end) {
+//       const arr = [];
+//       for (let i = start; i <= end; i++) {
+//         arr.push(i);
+//       }
+//       return arr;
+//     },
+//     eq: (a, b) => a === b,
+//   },
+// });
+
 const hbs = exphbs.create({
   extname: "hbs",
   defaultLayout: "layout",
   layoutsDir: path.join(__dirname, "views"),
   partialsDir: path.join(__dirname, "views/partials"),
   helpers: {
-    increment: (index, offset) => parseInt(index) + parseInt(offset || 0) + 1,
-    decrement: (value) => parseInt(value) - 1,
-    multiply: (a, b) => parseInt(a) * parseInt(b),
+    increment(value, step) {
+     
+      if (typeof step === "object" || step === undefined) step = 1;
+      const v = Number(value);
+      const s = Number(step);
+      return (isNaN(v) ? 0 : v) + (isNaN(s) ? 1 : s);
+    },
 
-    ifCond: function (v1, operator, v2, options) {
+    decrement(value, step) {
+      if (typeof step === "object" || step === undefined) step = 1;
+      const v = Number(value);
+      const s = Number(step);
+      return (isNaN(v) ? 0 : v) - (isNaN(s) ? 1 : s);
+    },
+
+    multiply(a, b) {
+      const x = Number(a),
+        y = Number(b);
+      return isNaN(x) || isNaN(y) ? 0 : x * y;
+    },
+
+    ifCond(v1, operator, v2, options) {
       switch (operator) {
         case "===":
           return v1 === v2 ? options.fn(this) : options.inverse(this);
@@ -45,17 +95,23 @@ const hbs = exphbs.create({
           return v1 > v2 ? options.fn(this) : options.inverse(this);
         case "<":
           return v1 < v2 ? options.fn(this) : options.inverse(this);
+        case ">=":
+          return v1 >= v2 ? options.fn(this) : options.inverse(this);
+        case "<=":
+          return v1 <= v2 ? options.fn(this) : options.inverse(this);
         default:
           return options.inverse(this);
       }
     },
-    range: function (start, end) {
+
+    range(start, end) {
+      const s = Number(start),
+        e = Number(end);
       const arr = [];
-      for (let i = start; i <= end; i++) {
-        arr.push(i);
-      }
+      for (let i = s; i <= e; i++) arr.push(i);
       return arr;
     },
+
     eq: (a, b) => a === b,
   },
 });
@@ -122,7 +178,6 @@ app.get("/images/:filename", async (req, res) => {
   }
 });
 
-
 //passing cart length
 app.use(async (req, res, next) => {
   if (req.session.user) {
@@ -149,8 +204,6 @@ app.use((err, req, res, next) => {
     error: err.message,
   });
 });
-
-
 
 // 404 handler
 app.use((req, res) => {

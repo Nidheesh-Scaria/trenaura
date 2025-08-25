@@ -324,7 +324,7 @@
       <hr />
       <div class="summary-line total">
         <span>Total</span>
-        <span>₹{{totalPrice}}</span>
+        <span id="finalAmount">₹{{totalPrice}}</span>
       </div>
       <a href="/loadPaymentMode" id="checkout-btn">CONTINUE TO CHECKOUT</a>
     </div>
@@ -393,6 +393,7 @@ async function increaseQuantity(event, id) {
     let quantity = parseInt(quantityElem.textContent);
     let totalPriceOfItem=document.getElementById(`totalPrice-${id}`);
     let grandTotal=document.getElementById("grandTotal")
+    let finalAmount=document.getElementById('finalAmount')
 
     if(quantity>=5){
       return Toastify({
@@ -432,7 +433,8 @@ async function increaseQuantity(event, id) {
 
        quantityElem.textContent = data.quantity;
        totalPriceOfItem.innerText=data.totalPrice;
-       grandTotal.innerText=data.grandTotal
+       grandTotal.innerText=data.grandTotal;
+       finalAmount.innerText=data.grandTotal;
 
      
     } else {
@@ -467,6 +469,7 @@ async function decreaseQuantity(event, id) {
     let quantity = parseInt(quantityElem.textContent);
     let totalPriceOfItem=document.getElementById(`totalPrice-${id}`);
     let grandTotal=document.getElementById("grandTotal")
+    let finalAmount=document.getElementById('finalAmount')
 
     if(quantity<=1){
       return removefromCart(event, id)
@@ -496,6 +499,7 @@ async function decreaseQuantity(event, id) {
       quantityElem.textContent = quantity - 1;
       totalPriceOfItem.innerText=data.totalPrice
       grandTotal.innerText=data.grandTotal
+      finalAmount.innerText=data.grandTotal;
 
      
     } else {
@@ -524,6 +528,8 @@ async function decreaseQuantity(event, id) {
 async function removefromCart(event, id) {
   try {
     event.preventDefault();
+    const cartItem=document.getElementById(`cart-item-${id}`)
+   
 
     const res = await fetch(`/removefromCart/${id}`, {
       method: "DELETE",
@@ -547,9 +553,10 @@ async function removefromCart(event, id) {
         className: "custom-toast",
       }).showToast();
 
-      setTimeout(() => {
+      cartItem.style.display="none"
+      {{!-- setTimeout(() => {
         window.location.reload();
-      }, 2000);
+      }, 2000); --}}
 
 
       {{!-- const itemElememt = document.getElementById(`cart-item-${id}`);

@@ -1,6 +1,7 @@
 const OrderSchema = require("../models/orderSchema");
 const AddressSchema = require("../models/addressSchema");
 const UserSchema = require("../models/userSchema");
+const ProductSchema = require("../models/productSchema");
 
 const httpStatus = require("../util/statusCodes");
 const { MESSAGES } = require("../util/constants");
@@ -9,10 +10,31 @@ const { MESSAGES } = require("../util/constants");
 
 const loadOrder = async (req, res) => {
   try {
-    const orders = await OrderSchema.find()
+    const raw = parseInt(req.query.page, 10);
+    const page = Math.max(1, Number.isFinite(raw) ? raw : 1);
+    const limit = 2;
+    const search = req.query.search || "";
+
+    let searchFilter = {};
+
+    if (search) {
+      searchFilter = {
+        $or: [
+          { paymentMethod: { $regex: search, $options: "i" } },
+          { orderId: { $regex: search, $options: "i" } },
+          {currentStatus:{$regex:search,$options:"i"}}
+
+        ],
+      };
+      
+    }
+
+    const orders = await OrderSchema.find(searchFilter)
       .populate("userId", "name email")
       .populate("orderedItems.productId", "productName productImages")
       .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
       .lean();
 
     const filteredOrders = orders
@@ -27,10 +49,16 @@ const loadOrder = async (req, res) => {
       })
       .filter((order) => order.orderedItems.length > 0);
 
+    const count = await OrderSchema.countDocuments(searchFilter);
+
     return res.render("admin/order", {
       hideHeader: true,
       hideFooter: true,
       orders: filteredOrders,
+      totalPage: Math.ceil(count / limit),
+      currentPage: page,
+      isMyOrderEmpty: filteredOrders.length === 0,
+      search,
     });
   } catch (error) {
     console.error(error);
@@ -50,7 +78,8 @@ const orderMangement = async (req, res) => {
     orders.orderedItems = orders.orderedItems.filter((item) => item.productId);
     orders.formattedDate = new Date(orders.createdAt).toLocaleDateString();
     const status = orders.statusHistory[orders.statusHistory.length - 1].status;
-    const statusDate = orders.statusHistory[orders.statusHistory.length - 1].changedAt;
+    const statusDate =
+      orders.statusHistory[orders.statusHistory.length - 1].changedAt;
     const date = new Date(statusDate).toLocaleString();
 
     const address = await AddressSchema.findOne(
@@ -81,6 +110,7 @@ const changeOrderStatus = async (req, res) => {
       orderId,
       {
         $push: { statusHistory: { status, changedAt: new Date() } },
+        $set:{currentStatus:status}
       },
       { new: true }
     );
@@ -126,11 +156,9 @@ const changePyamentStatus = async (req, res) => {
       );
       status = updatedPaymentStatus.paymentStatus;
     } else {
-      return res
-        .status(httpStatus.BAD_REQUEST)
-        .json({
-          message: "Something wrong in payment change (payment keyword)",
-        });
+      return res.status(httpStatus.BAD_REQUEST).json({
+        message: "Something wrong in payment change (payment keyword)",
+      });
     }
 
     return res

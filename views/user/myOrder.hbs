@@ -208,6 +208,43 @@
     .diabledButton{
         display: none;
     }
+    /* pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 20px;
+    }
+
+    .page-btn,
+    .page-number {
+      display: inline-block;
+      padding: 6px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      color: #333;
+      text-decoration: none;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .page-btn:hover,
+    .page-number:hover {
+      background: #f0f0f0;
+    }
+
+    .page-number.current {
+      background: #007bff;
+      color: white;
+      border-color: #007bff;
+      font-weight: bold;
+    }
+
+    .page-btn[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
   </style>
 
   <!-- Bootstrap + SweetAlert + Lottie -->
@@ -253,39 +290,74 @@
           {{/each}}
           <div class="order-status">
             <div class="status-indicator">
-                {{#if (eq this.statusHistory "Cancelled")}}
-                    <span style="color: #dc3545;" id="statusHistory-{{this._id}}">{{this.statusHistory}}</span>
-                {{else if (eq this.statusHistory "Delivered") }} 
-                    <span class="status-text green" id="statusHistory-{{this._id}}">{{this.statusHistory}}</span>
-                {{else}}
-                    <span class="status-text green" id="statusHistory-{{this._id}}">Will be delivered soon</span>
-                {{/if}}
+              {{#if (eq this.statusHistory "Cancelled")}}
+              <span style="color: #dc3545;" id="statusHistory-{{this._id}}">{{this.statusHistory}}</span>
+              {{else if (eq this.statusHistory "Delivered") }}
+              <span class="status-text green" id="statusHistory-{{this._id}}">{{this.statusHistory}}</span>
+              {{else}}
+              <span class="status-text green" id="statusHistory-{{this._id}}">Will be delivered soon</span>
+              {{/if}}
             </div>
 
             <div class="status-detail">Know updates</div>
 
             <div class="buttons">
-                {{#if (eq this.statusHistory "Cancelled")}}
-                <button class="diabledButton">Cancel Order</button>
-                {{else if (eq this.statusHistory "Delivered")}}
-                    <button class="diabledButton" disabled></button>
-                {{else}}
-                    <button 
-                    id="cancelBtn-{{this._id}}" 
-                    class="btn-secondary" 
-                    onclick="openCancelModal('{{this._id}}')" 
-                     {{#if (eq this.statusHistory "Cancelled")}}style="display:none;"{{/if}}>
-                    Cancel Order
-                </button>
-                {{/if}}
-                <button class="btn-primary" onclick="orderDetails(event,'{{this._id}}')">Details</button>
+              {{#if (eq this.statusHistory "Cancelled")}}
+              <button class="diabledButton">Cancel Order</button>
+              {{else if (eq this.statusHistory "Delivered")}}
+              <button class="diabledButton" disabled></button>
+              {{else}}
+              <button id="cancelBtn-{{this._id}}" class="btn-secondary" onclick="openCancelModal('{{this._id}}')" {{#if
+                (eq this.statusHistory "Cancelled" )}}style="display:none;" {{/if}}>
+                Cancel Order
+              </button>
+              {{/if}}
+              <button class="btn-primary" onclick="orderDetails(event,'{{this._id}}')">Details</button>
             </div>
           </div>
-        </div> 
+        </div>
         {{/each}}
       </div>
     </main>
+    
+   {{!-- Pagination --}}
+    <div class="pagination">
+      {{!-- Previous Button --}}
+      {{#ifCond currentPage ">" 1}}
+        <a href="?page={{decrement currentPage}}&search={{search}}" class="page-btn">
+          <i class="fas fa-chevron-left"></i>
+        </a>
+      {{else}}
+        <button class="page-btn" disabled>
+          <i class="fas fa-chevron-left"></i>
+        </button>
+      {{/ifCond}}
+
+      {{!-- Numbered Pages --}}
+      {{#each (range 1 totalPages)}}
+        {{#ifCond this "===" ../currentPage}}
+          <span class="page-number current">{{this}}</span>
+        {{else}}
+          <a href="?page={{this}}&search={{../search}}" class="page-number">{{this}}</a>
+        {{/ifCond}}
+      {{/each}}
+
+      {{!-- Next Button --}}
+      {{#ifCond currentPage "<" totalPages}}
+        <a href="?page={{increment currentPage}}&search={{search}}" class="page-btn">
+          <i class="fas fa-chevron-right"></i>
+        </a>
+      {{else}}
+        <button class="page-btn" disabled>
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      {{/ifCond}}
+    </div>
+
   </div>
+
+
+
 
   <!-- Cancel Order Modal -->
   <div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-hidden="true">

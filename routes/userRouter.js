@@ -84,7 +84,7 @@ router.get('/loadPaymentMode',userAuth.userBlocked,userAuth.checkSession, userCo
 router.post('/orderSuccess',userAuth.userBlocked,userAuth.checkSession, userController.orderSuccess)
 router.get('/order-placed',userAuth.userBlocked,userAuth.checkSession, userController.orderPlaced)
 router.post('/cancelOrder/:id',userAuth.userBlocked,userAuth.checkSession, userController.cancelOrder);
-router.get('/orderDetails/:id',userController.orderDetails)
+router.get('/orderDetails/:id',userAuth.userBlocked,userAuth.checkSession,userController.orderDetails)
 
 
 

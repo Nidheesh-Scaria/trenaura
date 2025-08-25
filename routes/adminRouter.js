@@ -32,7 +32,7 @@ router.get("/users", adminAuth.adminAuth, customerController.customerInfo);
 router.patch("/customerBlock/:id",adminAuth.adminAuth,customerController.customerBlocked);
 router.patch("/customerUnblock/:id",adminAuth.adminAuth,customerController.customerUnBlocked);
 
-
+//products
 router.get("/products", adminAuth.adminAuth, productController.getProductPage);
 router.get("/addProducts",adminAuth.adminAuth,productController.getAddProducts);
 router.post("/addProducts",adminAuth.adminAuth,upload.array("images", 4),productController.addProducts);
@@ -49,14 +49,13 @@ router.delete("/deleteBrand/:id",adminAuth.adminAuth,brandController.deleteBrand
 router.post("/unblockBrand/:id", adminAuth.adminAuth,brandController.unblockBrand);
 router.post("/blockBrand/:id", adminAuth.adminAuth,brandController.blockBrand);
 
-//order
 
-router.get('/order',orderController.loadOrder)
-// router.get('/orderMangement/:id',adminAuth.adminAuth,orderController.orderMangement)
+//order management
 
- router.get('/orderMangement/:id',orderController.orderMangement)
- router.post('/changeOrderStatus/:id',orderController.changeOrderStatus)
- router.post('/changePyamentStatus/:id',orderController.changePyamentStatus)
+router.get('/order',adminAuth.adminAuth,orderController.loadOrder)
+router.get('/orderMangement/:id',adminAuth.adminAuth,orderController.orderMangement) 
+router.post('/changeOrderStatus/:id',adminAuth.adminAuth,orderController.changeOrderStatus)
+router.post('/changePyamentStatus/:id',adminAuth.adminAuth,orderController.changePyamentStatus)
 
 
 

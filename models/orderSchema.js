@@ -13,6 +13,7 @@ const orderSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "User",
     required: true,
+    index: true,
   },
   orderedItems: [
     {
@@ -28,6 +29,78 @@ const orderSchema = new Schema({
       price: {
         type: Number,
         default: 0,
+      },
+      totalPrice: {
+        type: Number,
+        default: 0,
+      },
+      statusHistory: [
+        {
+          status: {
+            type: String,
+            enum: [
+              "Pending",
+              "Processing",
+              "Shipped",
+              "OutForDelivery",
+              "Delivered",
+              "Cancelled",
+              "Returned",
+            ],
+            default: "Pending",
+          },
+          changedAt: {
+            type: Date,
+            default: Date.now,
+          },
+          cancellationReason: {
+            type: String,
+          },
+          isAdminCancelled: {
+            type: Boolean,
+            default: false,
+          },
+        },
+      ],
+      returnRequest: {
+        isUserRequested: {
+          type: Boolean,
+          default: false,
+        },
+        isReturnInitiated: {
+          type: Boolean,
+          default: false,
+        },
+        reason: {
+          type: String,
+        },
+        comment: {
+          type: String,
+        },
+        requestDate: {
+          type: Date,
+          default: null,
+        },
+        isAdminApproved: {
+          type: Boolean,
+          default: null, //null for pending true for approved and false for rejected
+        },
+        rejectReason: {
+          type: String,
+        },
+
+        decisionDate: {
+          type: Date,
+          default: null,
+        },
+        refundStatus: {
+          type: Boolean,
+          default: null, //null for pending true for success and false for fail
+        },
+        refundDate: {
+          type: Date,
+          default: null,
+        },
       },
     },
   ],
@@ -50,31 +123,11 @@ const orderSchema = new Schema({
   },
   invoiceDate: {
     type: Date,
+    default: null,
   },
-  statusHistory: [
-    {
-      status: {
-        type: String,
-        enum: [
-          "Pending",
-          "Processing",
-          "Shipped",
-          "OutForDelivery",
-          "Delivered",
-          "Cancelled",
-          "Returned",
-        ],
-        default: "Pending",
-      },
-      changedAt: {
-        type: Date,
-        default: Date.now,
-      },
-    },
-  ],
   currentStatus: {
     type: String,
-    default: "Pending"
+    default: "Pending",
   },
   createdAt: {
     type: Date,
@@ -87,13 +140,26 @@ const orderSchema = new Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ["COD", "Razorpay", "PayPal"],
+    enum: ["COD", "RAZORPAY"],
     default: "COD",
   },
   paymentStatus: {
     type: String,
-    enum: ["Paid", "Unpaid", "Failed"],
+    enum: ["Paid", "Unpaid", "Failed", "Pending"],
     default: "Unpaid",
+  },
+  razorpayOrderId: {
+    type: String,
+  },
+  razorpayPaymentId: {
+    type: String,
+  },
+  razorpaySignature: {
+    type: String,
+  },
+  paymentDate: {
+    type: Date,
+    default: null,
   },
 });
 

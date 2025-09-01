@@ -62,10 +62,49 @@
       transform: translateY(0);
     }
   }
+  .success-container a {
+  display: inline-block;
+  margin: 12px 10px 0;
+  padding: 10px 22px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 30px;
+  transition: all 0.3s ease;
+}
+
+/* Primary link (My Orders) */
+.success-container a:first-of-type {
+  border: 2px solid #03960fae;
+  background: transparent;
+  color: #03960fae;
+  box-shadow: 0 4px 12px rgba(0, 239, 99, 0.3);
+}
+.success-container a:first-of-type:hover {
+  background-color: #27ae60;
+  color: #f5f7fa;
+  box-shadow: 0 6px 15px rgba(39, 174, 96, 0.4);
+}
+
+/* Secondary link (Continue Shopping) */
+.success-container a:last-of-type {
+  border: 2px solid #34495e;
+  background: #34495e;
+  color: #34495e;
+  background: transparent;
+  box-shadow: 0 2px 10px #34495e;
+}
+.success-container a:last-of-type:hover {
+  background: #34495e;
+  color: #fff;
+}
+
 </style>
 
 <div class="success-container">
-  <h3 class="text-success">CONGRATULATIONS..!</h3>
+  <h3 class="text-success">CONGRATULATIONS..!</h3><br>
   <p class="mt-3">YOUR ORDER IS PLACED</p>
-  <p>ITEM WILL BE DELIVERED SOON {{deliveryDate}}</p>
+  <p>ITEM WILL BE DELIVERED SOON {{deliveryDate}}</p><br>
+  <a href="/loadMyOrder">My Orders</a>
+  <a href="/shop">Continue shopping</a>
 </div>

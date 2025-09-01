@@ -50,12 +50,18 @@ router.post("/unblockBrand/:id", adminAuth.adminAuth,brandController.unblockBran
 router.post("/blockBrand/:id", adminAuth.adminAuth,brandController.blockBrand);
 
 
+
+
 //order management
 
 router.get('/order',adminAuth.adminAuth,orderController.loadOrder)
 router.get('/orderMangement/:id',adminAuth.adminAuth,orderController.orderMangement) 
 router.post('/changeOrderStatus/:id',adminAuth.adminAuth,orderController.changeOrderStatus)
 router.post('/changePyamentStatus/:id',adminAuth.adminAuth,orderController.changePyamentStatus)
+router.get("/reviewReturn/:id",adminAuth.adminAuth,orderController.loadReviewReturn)
+router.post("/changeReturnStatus/:id",adminAuth.adminAuth,orderController.changeReturnStatus)
+router.get("/return-or-refund",adminAuth.adminAuth,orderController.loadReturnOrRefund)
+router.post("/initiateRefund/:id",adminAuth.adminAuth,orderController.initiateRefund)
 
 
 

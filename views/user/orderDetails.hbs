@@ -81,36 +81,64 @@
       margin-bottom: 12px;
       color: #111827;
     }
+   
+        .timeline {
+        list-style: none;
+        padding-left: 0;
+        margin: 0;
+        border-left: 3px solid #4CAF50; 
+        padding-left: 20px;
+        position: relative;
+      }
 
-    .timeline {
-      list-style: none;
-      padding-left: 0;
-      margin: 0;
-      border-left: 3px solid #1aff06;
-      padding-left: 12px;
-    }
+      .timeline li {
+        margin-bottom: 15px;
+        font-size: 15px;
+        line-height: 1.4;
+        position: relative;
+        color: #777; /* Softer text color for past statuses */
+      }
 
-    .timeline li {
-      margin-bottom: 8px;
-      font-size: 14px;
-      position: relative;
-    }
+      .timeline li:last-child {
+        margin-bottom: 0;
+      }
 
-    .timeline li::before {
-      content: "";
-      width: 10px;
-      height: 10px;
-      background: #06cc20;
-      border-radius: 50%;
-      position: absolute;
-      left: -20px;
-      top: 4px;
-    }
+      .timeline li::before {
+        content: "";
+        width: 12px;
+        height: 12px;
+        background: #4CAF50; /* Light gray for past status dots */
+        border-radius: 50%;
+        position: absolute;
+        left: -27px;
+        top: 5px;
+        border: 2px solid #fff;
+        box-shadow: 0 0 0 2px #4CAF50;
+      }
 
-    .timeline li:first-child::before {
-      background:#06cc20;
-    }
+      /* This is the key change: targeting the *last* item to make it prominent. */
+      .timeline li:last-child {
+        color: #333; /* Darker text for the current status */
+        font-weight: 600; /* Bold the text */
+      }
 
+      .timeline li:last-child::before {
+        background: #0c8001; /* A vibrant color to indicate the current status */
+        box-shadow: 0 0 0 2px #016904;
+      }
+
+      .timeline li strong {
+        font-weight: 600;
+        color: inherit; /* Inherit the color from the parent li */
+      }
+
+      .timeline li span.date {
+        display: block;
+        font-size: 13px;
+        color: #999; /* A lighter gray for all dates */
+        margin-top: 2px;
+      }
+              
     .order-img img {
       width: 100px;
       height: auto;
@@ -239,6 +267,33 @@
       background: #d1fae5;
       color: #059669;
     }
+    .status.pending {
+      background: #f9f6a3;
+      color: #7a7402;
+    }
+    .btn-return {
+    background: linear-gradient(135deg, #ff4b2b, #ff416c);
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  .btn-return:hover {
+    background: linear-gradient(135deg, #ff6a3d, #ff416c);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.25);
+  }
+
+  .btn-return:active {
+    transform: scale(0.96);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
 
   </style>
 </head>
@@ -249,17 +304,35 @@
     <h2>My Orders details</h2>
       <div class="order-details">
         <div class="order-info">
+          <input type="hidden" name="itemId" id="itemId" value="{{itemId}}">
           <h3>{{orders.orderedItems.[0].productId.productName}}</h3>
           <p class="price">Price: ₹{{orders.orderedItems.[0].price}}</p>
-          <p class="price">Order id: {{orders.orderId}}</p>
+          <p class="price">Order id:{{orders.orderId}}</p>
           <br>
          
-          <h4>Order Status:</h4><br>
+          <h4>Status History:</h4><br>
           <ul class="timeline">
             {{#each fullStatusHistory}}
-            <li>{{this.status}} on {{this.changedAt}}</li>
-            {{/each}}
-          </ul>
+            <li><strong>{{this.status}}</strong> <span class="date">on {{this.changedAt}}</span></li>
+             {{/each}}
+          </ul><br>
+          {{#each fullStatusHistory}}
+          {{#if (eq this.status "Cancelled")}}
+          {{#if this.isAdminCancelled}}
+            <p style="color:#d00505; font-size:large">Cancelled by Admin please contact support</p>
+          {{/if}}
+            <p style="color:#8f0404ea; font-size:large">Reason for cancellation: <span style="color: #f30909; font-size:x-large; font-weight:500">{{this.cancellationReason}}</span> </p><br>
+          {{else if (eq this.status "Delivered")}}
+          <h3 style="color: #209f00;"><strong>{{this.status}}</strong> <span >on {{this.changedAt}}</span></h3>
+            {{#if ../isUserRequested}}
+            <h3 style="color: red;">Return initiated</h3>
+            {{else}}
+            <button class="btn-return" onclick="returnOrder(event)">Return</button>
+            {{/if}}
+          {{/if}}
+
+          {{/each}}
+         
           
         </div>
         <div class="order-img">
@@ -309,7 +382,16 @@
         </div>
 
         <hr>
-
+       
+        
+        
+        {{#if isCancelled}}
+        <div class="payment-info">
+          <p style="color:#c00303; font-size:large">Item cancelled</span> </p><br>
+        </div>
+        
+        
+        {{else}}
         <div class="payment-info">
           <p>Payment Method: 
             <span class="highlight">{{orders.paymentMethod}}</span>
@@ -317,17 +399,32 @@
           <p>Payment Status:
             {{#if (eq orders.paymentStatus "Unpaid")}}
               <span class="status unpaid">{{orders.paymentStatus}}</span>
+            {{else if (eq orders.paymentStatus "Pending")}}
+              <span class="status pending">{{orders.paymentStatus}}</span>
             {{else if (eq orders.paymentStatus "Paid")}}
               <span class="status paid">{{orders.paymentStatus}}</span>
             {{/if}}
           </p>
         </div>
+        {{/if}}
+        
       </div>
-
       </div>
     </div>
     
   </div>
+
+  <script>
+   async function returnOrder(event){
+    event.preventDefault();
+    const id=document.getElementById("itemId").value
+    
+    window.location.href = `/loadReturnOrder/${id}`;
+    
+   }
+  </script>
+
+
 </body>
 
 

@@ -1,9 +1,9 @@
-
 .content {
   padding: 20px;
   flex: 1;
   background-color: #f5f6fa;
 }
+
 * {
   margin: 0;
   padding: 0;
@@ -27,7 +27,7 @@ body {
   align-items: center;
   padding: 15px 30px;
   background-color: white;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .header h1 {
@@ -101,34 +101,34 @@ body {
 
 @media (max-width: 768px) {
   .sidebar {
-      width: 70px;
-      overflow: hidden;
+    width: 70px;
+    overflow: hidden;
   }
-  
+
   .logo span, .menu li a span {
-      display: none;
+    display: none;
   }
-  
+
   .menu li {
-      text-align: center;
+    text-align: center;
   }
-  
+
   .menu li i {
-      margin-right: 0;
-      font-size: 1.2rem;
+    margin-right: 0;
+    font-size: 1.2rem;
   }
-  
+
   .search-container {
-      flex-direction: column;
-      gap: 10px;
+    flex-direction: column;
+    gap: 10px;
   }
-  
+
   .search-box {
-      width: 100%;
+    width: 100%;
   }
-  
+
   .refresh-btn {
-      width: 100%;
-      justify-content: center;
+    width: 100%;
+    justify-content: center;
   }
 }

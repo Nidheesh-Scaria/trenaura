@@ -1,0 +1,428 @@
+<head>
+    <style>
+        .account-container {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+}
+
+.wallet-container {
+  flex: 1;
+  padding: 40px;
+  background: #fafafa;
+  border-radius: 10px;
+}
+
+.wallet-container h2 {
+  margin-bottom: 2px;
+}
+.wallet-container h5 {
+  margin-bottom: 25px;
+}
+
+.wallet-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.balance-box {
+  flex: 1;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.balance-box h3 {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.balance-box .total {
+  font-size: 22px;
+  font-weight: bold;
+  color: #1a237e;
+}
+
+.balance-breakup {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #444;
+}
+
+.balance-breakup p {
+  display: flex;
+  justify-content: space-between;
+}
+
+.wallet-options {
+  flex: 1;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.wallet-options h4 {
+  margin-bottom: 10px;
+}
+
+.wallet-options ul {
+  list-style: none;
+  margin-bottom: 15px;
+}
+
+.wallet-options li {
+  margin-bottom: 8px;
+}
+
+.wallet-options a {
+  text-decoration: none;
+  color: #1a1a1a;
+  cursor: pointer;
+}
+.wallet-options a:hover {
+  color: #ef0000;
+}
+
+.account-settings {
+  font-size: 14px;
+  margin-top: 10px;
+  color: #333;
+}
+
+.wallet-actions {
+  margin-top: 30px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.wallet-actions h4 {
+  margin-bottom: 15px;
+}
+
+.money-input {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  padding: 8px 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.money-input span {
+  font-weight: bold;
+}
+
+.money-input input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 16px;
+  margin-left: 5px;
+}
+
+.quick-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.quick-buttons button {
+  border: 1px solid #ccc;
+  background: #f7f7f7;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.quick-buttons button:hover {
+  background: #ddd;
+}
+
+.add-btn {
+  width: 100%;
+  padding: 10px;
+  background: #111;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.add-btn:hover {
+  background: #333;
+}
+
+.cashback-box {
+  margin-top: 20px;
+  background: #000;
+  color: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+/*modal*/
+.modal {
+  display: none; 
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.6);
+  transition: opacity 0.3s ease;
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 25px 30px;
+  width: 90%;
+  max-width: 450px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  position: relative;
+  text-align: left;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  color: #333;
+  font-size: 22px;
+  text-align: center;
+}
+
+.modal-content p {
+  margin: 10px 0;
+  line-height: 1.5;
+  color: #555;
+}
+
+.close {
+  position: absolute;
+  right: 20px;
+  top: 15px;
+  font-size: 28px;
+  font-weight: bold;
+  color: #aaa;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close:hover {
+  color: #333;
+}
+
+.modal-btn {
+  display: block;
+  margin: 20px auto 0 auto;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.modal-btn:hover {
+  background-color: #0056b3;
+}
+
+
+
+
+    </style>
+</head>
+
+<body>
+  
+<div class="account-container">
+    {{> user/sidebar }} 
+
+
+  <main class="wallet-container">
+    <h1>Trenaura Wallet</h1>
+    <h5 class="tagline">Keep it simple. Keep it safe. Keep it in your wallet.</h5>
+
+    <div class="wallet-summary">
+      <div class="balance-box">
+        <h3>Total Balance</h3>
+        <p class="total" id="totalBalance">₹ {{wallet.balance}}</p>
+        <div class="balance-breakup">
+          {{!-- <p>Wallet <span>₹ {{wallet.balance}}</span></p>
+          <p>Gift cards <span>₹ {{wallet.giftcards}}</span></p> --}}
+        </div>
+      </div>
+
+      <div class="wallet-options">
+        <h4>Do more with Trenaura Wallet</h4>
+        <ul>
+          <li><a href="#">Add gift cards to wallet</a></li>
+          <li><a onclick="openInfoModal()">How to add cash to balance</a></li>
+
+          <li><a href="/walletTransactionHistory">Check Wallet transaction history</a></li>
+        </ul>
+        {{!-- <div class="account-settings">
+          <i class="fa fa-user-gear"></i> Account Settings
+        </div> --}}
+      </div>
+    </div>
+
+    <div class="wallet-actions">
+      <h3>Add money to wallet</h3>
+      <div class="money-input">
+        <span>₹</span>
+        <input type="number" name="amount" id="amount" value="1000" min="1" />
+      </div>
+      <div class="quick-buttons">
+        <button onclick="incrementAmount(500)">+ ₹ 500</button>
+        <button onclick="incrementAmount(1000)">+ ₹ 1000</button>
+        <button onclick="incrementAmount(1500)">+ ₹ 1500</button>
+      </div>
+      <button class="add-btn" onclick="addMoneyToWallet()">Add money to wallet</button>
+    </div>
+
+   
+  </main>
+</div>
+
+{{!--info modal --}}
+
+<div id="walletModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h3>Add Money to Your Wallet</h3>
+    <p><strong>Step 1:</strong> Enter the amount you want to add in the input box above.</p>
+    <p><strong>Step 2:</strong> Click <strong>"Add money to wallet"</strong>.</p>
+    <p><strong>Step 3:</strong> You will be redirected to a secure Razorpay payment page.</p>
+    <p><strong>Step 4:</strong> Once payment is successful, your wallet balance will update immediately.</p>
+    <button class="modal-btn" onclick="closeModal()">Got it!</button>
+  </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  const amountInput = document.getElementById("amount");
+
+  function getInputValue() {
+    const amount = Number(amountInput.value);
+    if (isNaN(amount) || amount <= 0) {
+      alert("Please enter a valid amount");
+      return null;
+    }
+    return amount;
+  }
+
+  function incrementAmount(value) {
+    const current = Number(amountInput.value) || 0;
+    amountInput.value = current + value;
+  }
+
+
+async function addMoneyToWallet() {
+
+  const amount = getInputValue();
+  if (amount === null) return; 
+
+  console.log("addMoneyToWallet",amount)
+  //creating razorpay order
+  const res = await fetch("/create-razorpay-order-wallet", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ amount }),
+  });
+
+  const razorData = await res.json();
+  console.log("key",razorData.key)
+
+  const options = {
+    key: razorData.key,
+    amount: razorData.amount * 100,
+    currency: razorData.currency,
+    order_id: razorData.orderId,
+    name: "Trenaura",
+    description: "The Aura of Trend",
+    handler: async function (response) {
+      //payment verification in backend
+      const verifyRes = await fetch("/verify-payment-wallet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(response),
+      });
+
+      const verifyData = await verifyRes.json();
+
+      if (verifyData.success) {
+       
+
+
+       Toastify({
+          text: verifyData.message || "Wallet added ",
+          duration: 3000,
+          close: true,
+          gravity: "top",
+          position: "center",
+          style: {
+            background:
+              "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+          },
+          className: "custom-toast",
+        }).showToast();
+
+        document.getElementById("totalBalance").innerText=`₹ ${verifyData.balance}`
+        
+
+      } else {
+        Toastify({
+          text: verifyData.message || "Payment verification failed",
+          duration: 3000,
+          close: true,
+          gravity: "top",
+          position: "center",
+          style: {
+            background:
+              "linear-gradient(to right,#730202f2, #ba0d0d, #e00808e8)",
+          },
+          className: "custom-toast",
+        }).showToast();
+        
+      }
+    },
+    theme: {
+      color: "#3399cc",
+    },
+  };
+
+  // Step 5: Open Razorpay
+  const rzp1 = new window.Razorpay(options);
+  rzp1.open();
+}  
+
+
+//modal management
+
+function openInfoModal(){
+  document.getElementById("walletModal").style.display="block"
+}
+
+function closeModal(){
+  document.getElementById("walletModal").style.display="none"
+}
+
+</script>
+
+
+</body>
+
+
+

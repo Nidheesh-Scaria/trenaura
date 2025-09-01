@@ -71,6 +71,11 @@
             color: #797777;;
             border: 1px solid #aaa;
             }
+            .btn-cancel {
+            background: #ff00008b;
+            color: #760707;
+            border: 1px solid #760707;
+            }
              .btn-pending {
             background: #f5e1a176;
             color:#8d6b03;;
@@ -104,6 +109,12 @@
             background: #f8e0e0;
             color: #333;
             border: 1px solid #aaa;
+            }
+   
+            .btn-cancel:hover {
+            background: #ff0000a9;
+            color: #000000;;
+            border: 1px solid #ff00007c;
             }
              .btn-pending:hover {
             background: #f3cb4676;
@@ -266,7 +277,7 @@
         }
 
         /* Button styling */
-        button {
+        .payment-status {
           padding: 8px 14px;
           background: linear-gradient(135deg, #3eca02, #043406);
           color: #ffffff;
@@ -278,10 +289,26 @@
           transition: all 0.2s ease;
         }
 
-        button:hover {
+        .payment-status:hover {
           background: linear-gradient(135deg, #3eca02, #043406);
           transform: scale(1.05);
           
+        }
+         .payment-status.cancel {
+          padding: 8px 14px;
+          background: linear-gradient(135deg, #a40303, #043406);
+          color: #ffffff;
+          font-size: 14px;
+          font-weight: 500;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .payment-status.cancel:hover {
+         background: linear-gradient(135deg, #8d2a02, #043406);
+
         }
 
         /* Payment status colors */
@@ -301,7 +328,219 @@
           color: #dc2626; /* red */
         }
 
+       
+        .cancel-reason {
+          display: none; 
+          margin: 20px 0;
+          padding: 15px;
+          border: 1px solid #ddd;
+          border-radius: 12px;
+          background: #fafafa;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
 
+        .cancel-reason .form-group {
+          margin-bottom: 12px;
+        }
+
+        .cancel-label {
+          display: block;
+          font-weight: 600;
+          margin-bottom: 10px;
+          font-size: 16px;
+          color: #333;
+        }
+
+        .cancel-options label {
+          display: block;
+          margin-bottom: 8px;
+          font-size: 14px;
+          color: #444;
+          cursor: pointer;
+        }
+
+        .cancel-options input[type="radio"] {
+          margin-right: 8px;
+          accent-color: #e63946; /* modern browsers */
+        }
+
+        #otherReasonContainer {
+          margin-top: 10px;
+        }
+
+        #otherReasonContainer textarea {
+          width: 100%;
+          padding: 8px;
+          border-radius: 8px;
+          border: 1px solid #ccc;
+          font-size: 14px;
+          resize: vertical;
+        }
+
+        #error-modal {
+          font-size: 13px;
+          margin-top: 6px;
+        }
+
+
+        .cancelButtonConfirm {
+          display: flex;
+          gap: 12px;
+          margin-top: 15px;
+        }
+
+        .cancelButtonConfirm button{
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          padding: 10px 16px;
+          border-radius: 8px;
+          border: none;
+          transition: all 0.3s ease;
+        }
+
+        .cancelButtonConfirm .keep-product {
+          background-color: #454b45; 
+          color: #eae6e6;
+          cursor: pointer;
+        }
+
+        .cancelButtonConfirm .keep-product:hover {
+          background-color: #242a25;
+          color: #e4e1e1;
+        }
+
+        .cancelButtonConfirm .cancel-product {
+          background-color: #e82434; 
+          color:  #eae6e6;
+          cursor: pointer;
+        }
+
+        .cancelButtonConfirm .cancel-product:hover {
+          background-color: #ca1a1a;
+          color: #ffffff;
+        }
+
+        .timeline {
+        list-style: none;
+        padding-left: 0;
+        margin: 0;
+        border-left: 3px solid #4CAF50; 
+        padding-left: 20px;
+        position: relative;
+        
+      }
+
+      .timeline li {
+        
+        margin-bottom: 15px;
+        font-size: 15px;
+        line-height: 1.4;
+        position: relative;
+        color: #777; /* Softer text color for past statuses */
+      }
+
+      .timeline li:last-child {
+        margin-bottom: 0;
+      }
+
+      .timeline li::before {
+        content: "";
+        width: 12px;
+        height: 12px;
+        background: #4CAF50; /* Light gray for past status dots */
+        border-radius: 50%;
+        position: absolute;
+        left: -27px;
+        top: 5px;
+        border: 2px solid #fff;
+        box-shadow: 0 0 0 2px #4CAF50;
+      }
+
+      /* This is the key change: targeting the *last* item to make it prominent. */
+      .timeline li:last-child {
+        color: #333; /* Darker text for the current status */
+        font-weight: 600; /* Bold the text */
+      }
+
+      .timeline li:last-child::before {
+        background: #0c8001; /* A vibrant color to indicate the current status */
+        box-shadow: 0 0 0 2px #016904;
+      }
+
+      .timeline li strong {
+        font-weight: 600;
+        color: inherit; /* Inherit the color from the parent li */
+      }
+
+      .timeline li span.date {
+        display: block;
+        font-size: 13px;
+        color: #999; /* A lighter gray for all dates */
+        margin-top: 2px;
+      }
+
+      /* delivery Container Card */
+      .delivery-card {
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 15px 0;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        gap: 15px; /* space between heading and row */
+      }
+
+      /* Delivery Heading */
+      .delivery-card h2 {
+        color: #08a500;
+        font-size: 18px;
+        margin: 0;
+      }
+
+      /* Row for status + button */
+      .action-row {
+        display: flex;
+        align-items: center;
+        gap: 12px; /* space between badge and button */
+      }
+
+      /* Status Badge */
+      .review-status {
+        display: inline-block;
+        background: #ffe6e6;         
+        color: #b60303;               
+        font-weight: 600;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 14px;
+        border: 1px solid #b60303;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 0.6s ease-in-out;
+      }
+
+      /* Button */
+      .review-btn {
+        background: linear-gradient(90deg, #015a04, #00a64e);
+        color: #ffffff;
+        border: none;
+        padding: 6px 18px;
+        font-size: 14px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: 0.3s;
+        height: 1.8rem;
+      }
+
+      /* Hover effect */
+      .review-btn:hover {
+        transform: scale(1.05);
+        
+      }
+
+     
 
     </style>
 </head>
@@ -325,48 +564,124 @@
        
       </div>
 
+
       <div class="status-section">
-        <p>Current Status:
+        <input type="hidden" name="itemId" id="itemId" value="{{orders.itemId}}">
+        <h4>Ordered On:{{orders.formattedDate}}</h4><br>
+        <h4>Order ID:{{orders.orderId}}</h4>
+
+        
+      <div>
+        <h4>Status History:</h4><br>
+        <ul class="timeline">
+          {{#each orders.fullStatusHistory}}
+          <li><strong >{{this.status}}</strong> <span  class="date ">on {{this.date}}</span></li>
+          {{/each}}
+        </ul><br>
+      </div>
+        <br><p>Current Status:
             <span 
               id="order-status" 
               class="status 
-                {{#if (eq status "Pending")}}pending
-                {{else if (eq status "Processing")}}processing
-                {{else if (eq status "Shipped")}}shipped
-                {{else if (eq status "OutForDelivery")}}out-for-delivery
-                {{else if (eq status "Delivered")}}delivered
-                {{else if (eq status "Cancelled")}}cancelled
-                {{else if (eq status "Returned")}}returned
+                {{#if (eq orders.status "Pending")}}pending
+                {{else if (eq orders.status "Processing")}}processing
+                {{else if (eq orders.status "Shipped")}}shipped
+                {{else if (eq orders.status "OutForDelivery")}}out-for-delivery
+                {{else if (eq orders.status "Delivered")}}delivered
+                {{else if (eq orders.status "Cancelled")}}cancelled
+                {{else if (eq orders.status "Returned")}}returned
                 {{/if}}">
-              {{status}}
+              {{orders.status}}
             </span>
           </p><br><br>
         <h2 style="color: #03b609; display:none" id="show-deliverd"></h2>
-        {{#if (eq status "Delivered")}}
-        <div>
-          <h2 style="color: #03b609;">Item delivered on {{date}}</h2>
-        </div>
-        {{else if (eq status "Cancelled")}}
-        <div>
-          <h2 style="color: #f7220a;">Item Cancelled on {{date}}</h2>
-        </div>
+        <h1 style="color: #f7220a;" id="show-cancelled"></h1><br>
+        <p style="color:#510707ea; font-size:large" id="cancelled-reason"></span> </p><br>
        
+        
+        {{#if (eq orders.status "Delivered")}}
+
+        <div class="delivery-card">
+          <h2>Item delivered on {{orders.date}}</h2>
+
+          {{#if orders.isUserRequested}}
+            <div class="action-row">
+              {{#if (eq orders.isAdminApproved false)}}
+              <p class="review-status">Return request rejected</p>
+              {{else}}
+              <p class="review-status">Return Initiated</p>
+              
+              <button class="review-btn" onclick="reviewReturn(event)">Review return</button>
+              {{/if}}
+            </div>
+          {{/if}}
+        </div>
+
+        {{else if (eq orders.status "Cancelled")}}
+        <div>
+          <h1 style="color: #f7220a;">Item Cancelled on {{orders.date}}</h1><br>
+          <p style="color:#510707ea; font-size:large">Reason for cancellation: <span style="color: #f30909; font-size:x-large; font-weight:500">{{orders.cancellationReason}}</span> </p><br>
+
+          {{#if orders.isAdminCancelled}}
+          <p>Cancelled by Admin</p>
+          {{else}}
+          <p>Cancelled by User</p>
+          {{/if}}
+        
+        </div>
+        {{else if (eq orders.status "Returned")}}
+        <p><h1 style="color: #f7220a;">Item Returned on {{orders.date}}</h1><br></p>
         {{else}}
-        <div id="statusChangeButtons">
+        <div id="statusChangeButtons"   >
         <p>Change Status :</p>
-        <div class="status-buttons">
-          
-          <button class="btn btn-pending" onclick="changeStatus(event, '{{orders._id}}', 'Pending')">Pending</button>
-          <button class="btn btn-processing" onclick="changeStatus(event, '{{orders._id}}', 'Processing')">Processing</button>
-          <button class="btn btn-shipped" onclick="changeStatus(event, '{{orders._id}}', 'Shipped')">Shipped</button>
-          <button class="btn btn-outfordelivery" onclick="changeStatus(event, '{{orders._id}}', 'OutForDelivery')">Out For Delivery</button>
-          <button class="btn btn-delivered" onclick="changeStatus(event, '{{orders._id}}', 'Delivered')">Delivered</button>
-          <button class="btn btn-returned" onclick="changeStatus(event, '{{orders._id}}', 'Returned')">Returned</button>
+        <div class="status-buttons ">
+          <button class="btn btn-pending" onclick="changeStatus(event, '{{orders.itemId}}', 'Pending')">Pending</button>
+          <button class="btn btn-processing" onclick="changeStatus(event, '{{orders.itemId}}', 'Processing')">Processing</button>
+          <button class="btn btn-shipped" onclick="changeStatus(event, '{{orders.itemId}}', 'Shipped')">Shipped</button>
+          <button class="btn btn-outfordelivery" onclick="changeStatus(event, '{{orders.itemId}}', 'OutForDelivery')">Out For Delivery</button>
+          <button class="btn btn-delivered" onclick="changeStatus(event, '{{orders.itemId}}', 'Delivered')">Delivered</button>
+          <button class="btn btn-returned" onclick="changeStatus(event, '{{orders.iteitemId}}', 'Returned')">Returned</button>
+          <button class="btn btn-cancel" onclick="cancelOrder(event, '{{orders.itemId}}', 'Cancelled',changeStatus)">Cancel</button>
           
         </div>
+        {{!-- cancel reason --}}
+              <div id="cancelReason" class="cancel-reason">
+                <div class="form-group">
+                  <label class="cancel-label">Reason for cancellation</label>
+
+                  <div class="cancel-options">
+                    <label><input type="radio" name="cancelReason" value="out_of_stock" onchange="toggleOtherReason(this)"> Out of Stock</label>
+                    <label><input type="radio" name="cancelReason" value="fraudulent_order" onchange="toggleOtherReason(this)">  Fraudulent Order</label>
+                    <label><input type="radio" name="cancelReason" value="supplier_issue" onchange="toggleOtherReason(this)">  Supplier Issue</label>
+                    <label><input type="radio" name="cancelReason" value="logistics_constraint" onchange="toggleOtherReason(this)"> Logistics Constraint</label>
+                    <label><input type="radio" name="cancelReason" value="payment_issue" onchange="toggleOtherReason(this)"> Payment Issue</label>
+                    <label><input type="radio" name="cancelReason" value="legal_restriction" onchange="toggleOtherReason(this)"> Regulatory/Legal Restriction</label>
+                    <label><input type="radio" name="cancelReason" value="customer_request_via_support" onchange="toggleOtherReason(this)"> Customer Request via Support</label>
+                    <label>
+                      <input type="radio" name="cancelReason" value="Other" onchange="toggleOtherReason(this)"> Other(Specify)
+                    </label>
+                  </div>
+                  <p id="error-modal" style="color: #ff041d; "></p>
+                </div>
+               
+
+                <!-- Hidden text area for "Other" -->
+                <div id="otherReasonContainer" style="display:none;">
+                  <label for="otherReason"><span style="font-size: small;">Please specify:</span></label>
+                  <textarea id="otherReason" name="otherReason" rows="3"></textarea>
+                  
+                </div>
+                <div class="cancelButtonConfirm">
+                  <button class="keep-product" id="keepProduct" onclick="closeCancelReason()">Keep the product</button>
+                  <button class="cancel-product" id="cancelProduct">Cancel product</button>
+                </div>
+                </div>
+
         </div>
         {{/if}}
         <div>
+
+        {{#if (ne orders.status "Returned")}}
          {{!-- payment management --}}
           <table>
            
@@ -381,14 +696,20 @@
             <tbody>
               <tr>
               <td style="font-weight: 600;">{{orders.paymentMethod}}</td>
-              <td><span id="paymentStatus-{{orders._id}}">{{orders.paymentStatus}}</span></td>
+              <td><span id="paymentStatus-{{orders.itemId}}">{{orders.paymentStatus}}</span></td>
               <td>
-                <button onclick="changePaymentstatus(event,'{{orders._id}}')">Change</button>
+                {{#if (eq orders.status "Cancelled")}}
+                <button class="payment-status cancel"   >Change</button>
+                {{else}}
+                <button class="payment-status"  onclick="changePaymentstatus(event,'{{orders.itemId}}')"  >Change</button>
+                 {{/if}}
+
               </td>
               
               </tr>
             </tbody>
           </table>
+        {{/if}}
         </div>
       </div>
     </div>
@@ -405,8 +726,10 @@
         <h4>Price Details</h4>
         <p>Price ({{orders.quantity}} item) <span>₹ {{orders.totalPrice}}</span></p>
         <p>Delivery Charges <span class="free">FREE</span></p>
-        <p>Platform Fee <span>₹ 0</span></p>
-        <p>Delivery Tip <span>₹ 0</span></p>
+        {{!-- <p>Platform Fee <span>₹ 0</span></p>
+        <p>Delivery Tip <span>₹ 0</span></p> --}}
+        <p>Discount <span>₹ {{orders.discount}}</span></p>
+        <p>Final amount <span>₹ {{orders.finalAmount}}</span></p>
       </div>
    
     </div>
@@ -416,14 +739,14 @@
 
 <script>
 
- async function changeStatus(event, id, status) {
+ async function changeStatus(event, id, status,reason) {
   try {
     event.preventDefault();
 
     const res = await fetch(`/admin/changeOrderStatus/${id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status })
+      body: JSON.stringify({ status ,reason})
     });
 
     const data = await res.json();
@@ -447,8 +770,12 @@
       const statusElement = document.getElementById("order-status");
       const statsuDiv = document.getElementById("statusChangeButtons");
       const deliveredStatus = document.getElementById("show-deliverd");
-      const cancelledStatus = document.getElementById("show-cancelled");
+      const cancelStatus=document.getElementById("show-cancelled")
+      const cancelReason=document.getElementById("cancelled-reason")
+      const timeline=document.querySelector(".timeline")
+      const li=document.createElement("li")
 
+      
       if (statusElement) {
         //resetting to base cls
         statusElement.className = "status";
@@ -456,6 +783,8 @@
         //setting classes
         statusElement.classList.add(formatted);
         statusElement.innerText = data.status;
+        li.innerHTML=`<strong >${data.status}</strong> <span  class="date ">on ${data.date}</span>`
+        timeline.appendChild(li)
         
       }
       
@@ -463,6 +792,11 @@
         statsuDiv.style.display="none"
         deliveredStatus.style.display="block"
         deliveredStatus.innerHTML=`Item delivered on  ${data.date}`
+      }else if(data.status==="Cancelled"){
+        statsuDiv.style.display="none"
+        cancelStatus.innerHTML=` Item Cancelled on ${data.date}`
+        cancelReason.innerHTML=`Reason for cancellation: <span style="color: #f30909; font-size:x-large; font-weight:500">${data.reason}`
+       
       }
     } else {
       console.error("Failed to update:", data);
@@ -472,6 +806,61 @@
   }
 }
 
+
+function cancelOrder(event,id,status,callback){
+
+  document.getElementById("error-modal").innerText = "";  
+  const cancelReasonDiv=document.getElementById("cancelReason")
+  cancelReasonDiv.style.display="block"
+
+  const cancelBtn=document.getElementById("cancelProduct");
+  const newCancelBtn = cancelBtn.cloneNode(true);
+  cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+  
+
+  newCancelBtn.addEventListener("click", function(event){
+    event.preventDefault();
+
+    const selectedReason=document.querySelector('input[name="cancelReason"]:checked')?.value
+    let reason=selectedReason;
+
+    if(!selectedReason){
+    
+      document.getElementById("error-modal").innerText="Please specify your reason.";
+      return
+    }
+    
+    if(selectedReason==="Other"){
+      const otherReason=document.getElementById("otherReason").value.trim()
+      if(!otherReason){
+        document.getElementById("error-modal").innerText="Please specify your reason.";
+        return
+      }
+      reason=otherReason
+    }
+
+    callback(event,id,status,reason)
+    document.getElementById("cancelReason").style.display = "none";
+    document.getElementById("error-modal").innerText = "";
+  })  
+
+}
+
+
+function closeCancelReason(){
+  document.getElementById("error-modal").innerText = "";
+  document.getElementById("cancelReason").style.display = "none";
+}
+
+function toggleOtherReason(radio) {
+    document.getElementById("error-modal").innerText = "";
+    const otherContainer = document.getElementById("otherReasonContainer");
+    if (radio.value === "Other") {
+      otherContainer.style.display = "block";
+    } else {
+      otherContainer.style.display = "none";
+    }
+  }
 
 async function changePaymentstatus(event, id) {
   try {
@@ -510,5 +899,17 @@ async function changePaymentstatus(event, id) {
     console.log("Error in changePaymentstatus:", err);
   }
 }
+
+
+function reviewReturn(event) {
+  event.preventDefault();
+  id = document.getElementById("itemId").value;
+  try {
+    window.location.href = `/admin/reviewReturn/${id}`;
+  } catch (error) {
+    console.error("Error navigating to order management:", error);
+  }
+}
+
 
 </script>

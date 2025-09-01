@@ -1,0 +1,100 @@
+<head>
+    <style>
+        .wallet-summary {
+        margin-bottom: 1.5rem;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #1a237e;
+        }
+
+        .wallet-summary span {
+        color: #ff6f00;
+        }
+
+        .transaction-table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .transaction-table th, .transaction-table td {
+        padding: 12px 15px;
+        text-align: left;
+        }
+
+        .transaction-table thead {
+        background-color: #070d48;
+        color: #fff;
+        }
+
+        .transaction-table tbody tr:nth-child(even) {
+        background-color: #f2f2f2;
+        }
+
+        .transaction-table tbody tr.credit td {
+        color: #1a237e;
+        font-weight: bold;
+        }
+
+        .transaction-table tbody tr.debit td {
+        color: #ff0000;
+        font-weight: bold;
+        }
+
+        .transaction-table tbody tr:hover {
+        background-color: #e8f0fe;
+        transition: 0.2s;
+        }
+
+    </style>
+</head>
+
+
+
+<main style="padding: 2rem 5%; background-color: #f9f9f9; min-height: 80vh;">
+  <h1 style="font-size: 2rem; margin-bottom: 1rem; color: #1a237e;">Wallet Transaction History</h1>
+
+  <div class="wallet-summary">
+    <p>Total Balance: <span>₹{{wallet.balance}}</span></p>
+  </div>
+
+  {{#if transactionHistory.length}}
+    <table class="transaction-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Description</th>
+          <th>Transaction ID</th>
+          <th>Type</th>
+          <th>Amount</th>
+          
+          
+        </tr>
+      </thead>
+      <tbody>
+        {{#each transactionHistory}}
+          <tr class="{{#if (eq type 'credit')}}credit{{else}}debit{{/if}}">
+            <td>{{date}}</td>
+            <td>{{description}}</td>
+            <td>{{transactionId}}</td>
+            <td>{{type}}</td>
+            {{#if (eq type 'debit')}}
+            <td>₹-{{amount}}</td>
+            {{else}}
+            <td>₹ {{amount}}</td>
+            {{/if}}
+            
+            
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{else}}
+    <p style="text-align:center; font-size:1rem; color:#555;">No transactions found.</p>
+  {{/if}}
+</main>
+
+

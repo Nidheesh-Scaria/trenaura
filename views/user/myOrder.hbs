@@ -12,6 +12,31 @@
       background: #f8f8f8;
     }
 
+    
+    /* empty order */
+    .order-empty {
+      text-align: center;
+      padding: 50px 20px;
+      background: #f9f9f9;
+      border-radius: 12px;
+      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+      margin: 50px auto;
+    }
+
+    .order-empty-title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #444;
+      margin-bottom: 10px;
+    }
+
+    .order-empty-text {
+      font-size: 16px;
+      color: #777;
+    }
+
+
     /* Container */
     .container {
       margin: 20px;
@@ -34,8 +59,8 @@
     }
 
     .orders-header h2 {
-      font-size: 24px;
-      font-weight: 500;
+      font-size: 30px;
+      font-weight: 700;
     }
 
     .search-container {
@@ -191,23 +216,76 @@
       color: #fff;
     }
 
-    /* Cancel Order Modal Custom */
+   /* Cancel Order Modal Custom */
     #cancelOrderModal .modal-title {
-      font-weight: 600;
-      color: #dc3545;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+        font-weight: 600;
+        font-size: x-large;
+        color: #ed0017; 
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     #cancelOrderModal .modal-title::before {
-      content: "⚠";
-      font-size: 1.3em;
+        content: "⚠";
+        font-size: 1.5em;
     }
+    
+    /* Modal footer buttons */
+    #cancelOrderModal .modal-footer .btn {
+        min-width: 120px;
+    }
+
+    #cancelOrderModal .btn-danger {
+        font-weight: 500;
+        border-radius: 6px;
+    }
+
+    #cancelOrderModal .btn-secondary {
+        border-radius: 6px;
+        background-color: #6c757d;
+    }
+
+    .cancel-label {
+      font-weight: 600;
+      font-size: larger;
+      color: #e20b0b;
+      margin-bottom: 10px;
+      display: block;
+      
+    }
+
+    .cancel-options {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .cancel-options label {
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .cancel-reason{
+      padding-left:4% ;
+    }
+
+    #otherReason {
+      width: 100%;
+      padding: 8px;
+      margin-top: 6px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      outline: none;
+      resize: none;
+    }
+
+ 
 
     .diabledButton{
         display: none;
     }
+
     /* pagination */
     .pagination {
       display: flex;
@@ -269,7 +347,7 @@
       <div class="orders-list">
         <!-- If no orders -->
         {{#if isMyOrderEmpty}}
-        <div>
+        <div class="order-empty">
           <h2 class="order-empty-title">No Orders Yet</h2>
           <p class="order-empty-text">Looks like you haven't placed any orders yet.</p>
         </div>
@@ -279,23 +357,27 @@
         {{#each myOrder}}
         {{#each orderedItems}}
         <div class="order-card">
-          <img src="/images/{{this.productId.productImages.[0]}}" alt="{{this.productId.productName}}">
+          <img src="/images/{{this.productImages.[0]}}" alt="{{this.productName}}">
           <div class="order-info">
-            <h3>{{this.productId.productName}}</h3>
+            <h3>{{this.productName}}</h3>
             <div class="price-info">
-              <span class="current-price">₹ {{this.productId.salePrice}}</span>
-              <span class="original-price">₹ {{this.productId.regularPrice}}</span>
+              <span class="current-price">₹ {{this.price}}</span>
+              <span class="original-price">₹ {{this.regularPrice}}</span>
             </div>
           </div>
-          {{/each}}
+
+          {{!--order status --}}  
           <div class="order-status">
             <div class="status-indicator">
               {{#if (eq this.statusHistory "Cancelled")}}
-              <span style="color: #dc3545;" id="statusHistory-{{this._id}}">{{this.statusHistory}}</span>
+              <span style="color: #dc3545;" id="statusHistory-{{this.id}}">{{this.statusHistory}}</span>
+                  {{#if this.isAdminCancelled}}
+                  <p>Cancelled by admin</p>
+                  {{/if}}
               {{else if (eq this.statusHistory "Delivered") }}
-              <span class="status-text green" id="statusHistory-{{this._id}}">{{this.statusHistory}}</span>
+              <span style="font-weight: 900;" class="status-text green" id="statusHistory-{{this.id}}">{{this.statusHistory}}</span>
               {{else}}
-              <span class="status-text green" id="statusHistory-{{this._id}}">Will be delivered soon</span>
+              <span class="status-text green" id="statusHistory-{{this.id}}">Will be delivered soon</span>
               {{/if}}
             </div>
 
@@ -307,21 +389,23 @@
               {{else if (eq this.statusHistory "Delivered")}}
               <button class="diabledButton" disabled></button>
               {{else}}
-              <button id="cancelBtn-{{this._id}}" class="btn-secondary" onclick="openCancelModal('{{this._id}}')" {{#if
+              <button id="cancelBtn-{{this.id}}" class="btn-secondary" onclick="openCancelModal('{{this.id}}')" {{#if
                 (eq this.statusHistory "Cancelled" )}}style="display:none;" {{/if}}>
                 Cancel Order
               </button>
               {{/if}}
-              <button class="btn-primary" onclick="orderDetails(event,'{{this._id}}')">Details</button>
+              <button class="btn-primary" onclick="orderDetails(event,'{{this.id}}')">Details</button>
             </div>
           </div>
         </div>
+        
+        {{/each}}
         {{/each}}
       </div>
     </main>
     
    {{!-- Pagination --}}
-    <div class="pagination">
+   <div class="pagination" {{#if isMyOrderEmpty}}style="display:none;"{{/if}}>
       {{!-- Previous Button --}}
       {{#ifCond currentPage ">" 1}}
         <a href="?page={{decrement currentPage}}&search={{search}}" class="page-btn">
@@ -362,82 +446,157 @@
   <!-- Cancel Order Modal -->
   <div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <form id="cancelOrderForm">
-          <div class="modal-header">
-            <h5 class="modal-title">Cancel Order?</h5>
-            <input type="hidden" id="cancelOrderId" />
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body text-center">
-            <p>Are you sure you want to cancel this order? This action cannot be undone.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Keep Order</button>
-            <button type="submit" class="btn btn-danger">Yes, Cancel</button>
-          </div>
-        </form>
-      </div>
+        <div class="modal-content">
+            <form id="cancelOrderForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cancel Order?</h5>
+                    <input type="hidden" id="cancelOrderId" />
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p>Are you sure you want to cancel this order? This action cannot be undone.</p>
+                </div>
+                <div class="cancel-reason">
+                <div class="form-group">
+                  <label class="cancel-label">Reason for cancellation</label>
+
+                  <div class="cancel-options">
+                    <label><input type="radio" name="cancelReason" value="ordered_by_mistake" onchange="toggleOtherReason(this)"> Ordered by mistake</label>
+                    <label><input type="radio" name="cancelReason" value="found_better_price" onchange="toggleOtherReason(this)"> Found a better price</label>
+                    <label><input type="radio" name="cancelReason" value="item_not_needed" onchange="toggleOtherReason(this)"> Item not needed</label>
+                    <label><input type="radio" name="cancelReason" value="delivery_too_slow" onchange="toggleOtherReason(this)"> Delivery is taking too long</label>
+                    <label><input type="radio" name="cancelReason" value="wrong_item_ordered" onchange="toggleOtherReason(this)"> Wrong item ordered</label>
+                    <label>
+                      <input type="radio" name="cancelReason" value="Other" onchange="toggleOtherReason(this)"> Other(Specify)
+                    </label>
+                  </div>
+                  <p id="error-modal" style="color: #ff041d; "></p>
+                </div>
+                </div>
+
+                <!-- Hidden text area for "Other" -->
+                <div id="otherReasonContainer" style="display:none;">
+                  <label for="otherReason"><span style="font-size: small;">Please specify:</span></label>
+                  <textarea id="otherReason" name="otherReason" rows="3"></textarea>
+                  
+                </div>
+               
+
+                
+
+                <div class="modal-footer">
+                    
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Keep Order</button>
+                    <button type="submit" class="btn btn-danger">Yes, Cancel</button>
+                </div>
+            </form>
+        </div>
     </div>
-  </div>
+</div>
+
+
+
 
 <script>
-        
-    let currentCancelButton = null;
-    function openCancelModal(id, btn) {
-        currentCancelButton = btn;
-        $("#cancelOrderId").val(id);
-        $("#cancelOrderModal").modal("show");
-    }
 
-    $("#cancelOrderForm").on("submit", function (e) {
-        e.preventDefault();
-        const id = $("#cancelOrderId").val();
-        if (currentCancelButton) currentCancelButton.disabled = true;
+  let currentCancelButton = null;
+  function openCancelModal(id, btn) {
+    currentCancelButton = btn;
+    $("#cancelOrderId").val(id);
+    $("#cancelOrderModal").modal("show");
 
-        fetch(`cancelOrder/${id}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ status: "Cancelled" }),
-        })
-        .then((res) => res.json())
-        .then((data) => {
-        if (data.success) {
-            $("#cancelOrderModal").modal("hide");
-
-            const statusEl = document.getElementById(`statusHistory-${id}`);
-            if (statusEl) {
-                statusEl.innerText = "Cancelled";
-                statusEl.style.color = "#dc3545";
-            }
-
-            // Disable the cancel button
-            const btn = document.getElementById(`cancelBtn-${id}`);
-
-            if (btn) {
-                btn.disabled = true;
-                btn.classList.remove("btn-secondary");
-                btn.classList.add("diabledButton");
-            }
-
-            Swal.fire("Cancelled!", data.message, "success");
-        } else {
-            Swal.fire("Error", data.message, "error");
-            if (currentCancelButton) currentCancelButton.disabled = false;
-        }
-        })
-        .catch(() => {
-            Swal.fire("Error", "Something went wrong", "error");
-            if (currentCancelButton) currentCancelButton.disabled = false;
-        });
+    //cancell section
+    document.querySelectorAll('input[name="cancelReason"]').forEach(radio => {
+        radio.checked = false;
     });
-
-    async function orderDetails(event, id) {
-      
-        event.preventDefault();
         
-        window.location.href = `/orderDetails/${id}`;
+    document.getElementById("otherReasonContainer").style.display = "none";
+    document.getElementById("otherReason").value = "";
+    document.getElementById("error-modal").innerText = "";;
+  }
+
+
+  $("#cancelOrderForm").on("submit", function (e) {
+    e.preventDefault();
+    const id = $("#cancelOrderId").val();
+    document.getElementById("error-modal").innerText = "";
+    if (currentCancelButton) currentCancelButton.disabled = true;
+
+    const selectedReason=document.querySelector('input[name="cancelReason"]:checked')?.value
+    
+    //error display if no value selected
+
+    if(!selectedReason){
+      document.getElementById("error-modal").innerText="Please specify your reason.";
+      return
     }
+    //checking for other reason
+    let reason=selectedReason
+    if(selectedReason==="Other"){
+      const otherText=document.getElementById("otherReason").value.trim()
+      if(!otherText){
+        document.getElementById("error-modal").innerText="Please specify your reason.";
+        return
+      }
+      reason=otherText;
+    }
+
+    document.getElementById("error-modal").innerText = "";
+
+
+    fetch(`cancelOrder/${id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "Cancelled" ,reason:reason}),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          $("#cancelOrderModal").modal("hide");
+
+          const statusEl = document.getElementById(`statusHistory-${id}`);
+          if (statusEl) {
+            statusEl.innerText = "Cancelled";
+            statusEl.style.color = "#dc3545";
+          }
+
+          // Disable the cancel button
+          const btn = document.getElementById(`cancelBtn-${id}`);
+
+          if (btn) {
+            btn.disabled = true;
+            btn.classList.remove("btn-secondary");
+            btn.classList.add("diabledButton");
+          }
+
+          Swal.fire("Cancelled!", data.message, "success");
+        } else {
+          Swal.fire("Error", data.message, "error");
+          if (currentCancelButton) currentCancelButton.disabled = false;
+        }
+      })
+      .catch(() => {
+        Swal.fire("Error", "Something went wrong", "error");
+        if (currentCancelButton) currentCancelButton.disabled = false;
+      });
+  });
+
+  async function orderDetails(event, id) {
+    event.preventDefault();
+    window.location.href = `/orderDetails/${id}`;
+  }
+
+
+  function toggleOtherReason(radio) {
+    const otherContainer = document.getElementById("otherReasonContainer");
+    if (radio.value === "Other") {
+      otherContainer.style.display = "block";
+    } else {
+      otherContainer.style.display = "none";
+    }
+  }
+  
+  
 
 </script>
 </body>

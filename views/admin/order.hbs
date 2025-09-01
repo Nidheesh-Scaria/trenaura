@@ -30,26 +30,81 @@
           <th>Action</th>
         </tr>
       </thead>
-      <tbody>
+
+      {{!-- <tbody>
         
         {{#each orders}}
         <tr>
           <td>
             <div class="order-items order-now">
-                {{#each this.orderedItems}}
+                {{#each orderedItems}}
                 <div class="order-item">
-                    <img src="/images/{{this.productId.productImages.[1]}}" alt="Product" class="order-img">
-                    <span>{{this.productId.productName}}</span>
+                    <img src="/images/{{this.productImages.[1]}}" alt="Product" class="order-img">
+                    <span>{{this.productName}}</span>
                     <span class="qty">(x{{this.quantity}})</span>
                 </div>
                 {{/each}}
+                
             </div>
             </td>
-            <td>{{this.userId.name}}</td>
-            <td>{{this.foramttedDate}}</td>
+            <td>{{this.user.name}}</td>
+            <td>{{this.formattedDate}}</td>
             
             <td>
                 {{#if (eq this.statusHistory "Pending")}}
+                    <span class="status status-pending">{{this.statusHistory}}</span>
+                {{else if (eq this.latestStatus "Shipped")}}
+                    <span class="status status-shipped">{{this.latestStatus}}</span>
+                {{else if (eq this.latestStatus "Delivered")}}
+                    <span class="status status-delivered">{{this.latestStatus}}</span>
+                {{else if (eq this.latestStatus "Cancelled")}}
+                    <span class="status status-cancelled">{{this.latestStatus}}</span>
+                {{else if (eq this.latestStatus "Returned")}}
+                    <span class="status status-returned">{{this.latestStatus}}</span>
+                {{else if (eq this.latestStatus "OutForDelivery")}}
+                    <span class="status status-OutForDelivery">{{this.latestStatus}}</span>
+                {{else if (eq this.latestStatus "Processing")}}
+                    <span class="status status-processing">{{this.latestStatus}}</span>
+                {{else}}
+                    <span class="status">{{this.latestStatus}}</span>
+                {{/if}}
+            </td>
+           
+          <td>₹{{this.totalPrice}}</td>
+          <td>
+            {{#if (eq this.status "Cancelled")}}
+            <span class="status cancelled">
+              N/A
+            </span>
+            {{else}}
+            <span class="status {{this.paymentStatus}}">
+              {{this.paymentStatus}}
+            </span>
+            {{/if}}
+          </td>
+          <td>
+            <button  class="btn-edit" onclick="orderManagement(event,'{{this.itemId}}')"> Edit</button>
+          </td>
+        </tr>
+        
+        {{/each}}
+       
+      </tbody> --}}
+      
+        <tbody>
+      {{#each orders}}
+        {{#each this.orderedItems}}
+          <tr>
+            <td>
+              <img src="/images/{{this.productImages.[1]}}" alt="Product" class="order-img">
+              <span>{{this.productName}}</span>
+              <span class="qty">(x{{this.quantity}})</span>
+            </td>
+            <td>{{../user.name}}</td>
+            <td>{{../formattedDate}}</td>
+            <td>
+              {{!-- status --}}
+              {{#if (eq this.statusHistory "Pending")}}
                     <span class="status status-pending">{{this.statusHistory}}</span>
                 {{else if (eq this.statusHistory "Shipped")}}
                     <span class="status status-shipped">{{this.statusHistory}}</span>
@@ -59,6 +114,9 @@
                     <span class="status status-cancelled">{{this.statusHistory}}</span>
                 {{else if (eq this.statusHistory "Returned")}}
                     <span class="status status-returned">{{this.statusHistory}}</span>
+                    {{#unless this.refundStatus}}
+                      <p class="return-initiated" >Refund pending </p>
+                    {{/unless}}
                 {{else if (eq this.statusHistory "OutForDelivery")}}
                     <span class="status status-OutForDelivery">{{this.statusHistory}}</span>
                 {{else if (eq this.statusHistory "Processing")}}
@@ -66,22 +124,35 @@
                 {{else}}
                     <span class="status">{{this.statusHistory}}</span>
                 {{/if}}
+                {{#if (eq this.isReturnInitiated true)}}
+                <p class="return-initiated" >Return initiated</p>
+                {{/if}}
             </td>
-            
-
-          <td>₹{{this.totalPrice}}</td>
-          <td>
-            <span class="status {{this.paymentStatus}}">
-              {{this.paymentStatus}}
-            </span>
-          </td>
-          <td>
-            <button  class="btn-edit" onclick="orderManagement(event,'{{this._id}}')"> Edit</button>
-          </td>
-        </tr>
+            {{!-- <td>₹{{../finalAmount}}</td> --}}
+            <td>₹{{this.totalPrice}}</td>
+            <td>
+              {{#if (eq this.statusHistory "Cancelled")}}
+              <span class="status cancelled">
+                N/A
+              </span>
+              {{else}}
+              <span class="status {{../paymentStatus}}">
+                {{../paymentStatus}}
+              </span>
+              {{/if}}
+            </td>
+            <td>
+              <button class="btn-edit" 
+                      onclick="orderManagement(event,'{{this.id}}')">
+                Edit
+              </button>
+            </td>
+          </tr>
         {{/each}}
-       
-      </tbody>
+      {{/each}}
+    </tbody>
+
+
       
     </table>
 
@@ -125,6 +196,7 @@
 
  function orderManagement(event,id){
       event.preventDefault();
+      console.log("id",id)
       try {
             window.location.href = `/admin/orderMangement/${id}`;
         } catch (error) {

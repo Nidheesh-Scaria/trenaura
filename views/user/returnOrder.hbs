@@ -1,0 +1,184 @@
+
+<head>
+ 
+  <style>
+    .return-container {
+      flex: 1;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin: 20px;
+    }
+
+    .return-header {
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+    }
+
+    .return-header h2 {
+      font-size: 20px;
+      color: #333;
+    }
+
+    .return-details {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .return-details img {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .return-info {
+      flex: 1;
+    }
+
+    .return-form {
+      margin-top: 20px;
+    }
+
+    .return-form label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .return-form select, .return-form textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .return-form button {
+      background: #203acd;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .return-form button:hover {
+      background: #162a8a;
+    }
+  </style>
+</head>
+
+<body>
+
+  
+
+  <div class="container">
+   
+
+    <main class="return-container">
+      <div class="return-header">
+        <h1>Return Order</h1>
+      </div>
+
+      <div class="return-details">
+       <img src="/images/{{orders.orderedItems.[0].productId.productImages.[0]}}" alt="{{orders.orderedItems.[0].productId.productName}}">
+        <div class="return-info">
+          <h3>{{orders.orderedItems.[0].productId.productName}}</h3>
+          <p>Qty: {{orders.orderedItems.[0].quantity}}</p>
+          <p>Price: ₹{{orders.orderedItems.[0].price}}</p>
+          <p>OrderID: {{orders.orderId}}</p>
+        </div>
+      </div>
+
+      <form class="return-form" onsubmit="returnOrder(event,'{{itemId}}')">
+        <label for="reason">Reason for Return:</label>
+        <select id="reason" name="reason">
+          <option value="">-- Select a reason --</option>
+          <option value="Damaged Product">Damaged Product</option>
+          <option value="Wrong Item Delivered">Wrong Item Delivered</option>
+          <option value="Quality not as Expected">Quality not as Expected</option>
+          <option value="Size/fit Issue">Size/fit Issue</option>
+          <option value="Other">Other</option>
+        </select>
+        
+
+        <label for="comments">Additional Comments (optional):</label>
+        <textarea id="comments" name="comments" rows="4" placeholder="Write here..."></textarea>
+        <p id="error" style="color: red;"></p><br>
+        <button type="submit">Submit Return Request</button>
+      </form>
+    </main>
+  </div>
+
+</body>
+
+<script>
+    async function returnOrder(event,id){
+        try{
+            event.preventDefault();
+            const reason=document.getElementById("reason").value;
+            const comment=document.getElementById("comments").value.trim();
+            const error=document.getElementById("error")
+            error.innerText=""
+            console.log("reason-",reason)
+            if(!reason){
+                return error.innerText="Please select a reason"
+            }
+
+            const res=await fetch(`/returnOrder/${id}`,{
+                method:"POST",
+                headers:{"Content-type":"application/json"},
+                body:JSON.stringify({reason,comment})
+            })
+
+            const data=await res.json()
+
+            if(res.ok){
+                Toastify({
+                    text: data.message||"return submitted",
+                    duration: 3000,
+                    close: true,          
+                    gravity: "top",
+                    position: "center",    
+                    style: {
+                        background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)", 
+                    },
+                    className: "custom-toast", 
+                    onClick: () => {     
+                        alert("Toast clicked!");
+                }
+                }).showToast();
+
+                setTimeout(()=>{
+                  window.location.href = `/loadMyOrder`;
+                },2000)
+                
+            }else{
+                Toastify({
+                    text: "Error on return submitt",
+                    duration: 3000,
+                    close: true,          
+                    gravity: "top",
+                    position: "center",    
+                    style: {
+                        background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)", 
+                    },
+                    className: "custom-toast", 
+                    onClick: () => {     
+                        alert("Toast clicked!");
+                }
+                }).showToast();
+            }
+
+        }catch(err){
+            console.log("error in returnOrder at return Order page")
+        }
+    }
+</script>
+

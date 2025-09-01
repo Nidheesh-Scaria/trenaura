@@ -35,10 +35,6 @@ const cartSchema = new Schema(
           type: String,
           default: "Placed",
         },
-        cancellationReason: {
-          type: String,
-          default: "None",
-        },
       },
     ],
   },

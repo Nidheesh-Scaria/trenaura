@@ -5,6 +5,8 @@ const Address = require("../models/addressSchema");
 const Cart = require("../models/cartSchema");
 const Wishlist = require("../models/wishlistSchema");
 const Order = require("../models/orderSchema");
+const Wallet = require("../models/walletSchema");
+const WalletTopupOrder = require("../models/walletTopupOrderSchema ");
 
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
@@ -14,6 +16,9 @@ const env = require("dotenv").config();
 const httpStatus = require("../util/statusCodes");
 const { MESSAGES } = require("../util/constants");
 const { default: mongoose } = require("mongoose");
+const razorpay = require("../config/razorpay");
+const razorpayInstance = require("../config/razorpay");
+const crypto = require("crypto");
 
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -1621,102 +1626,6 @@ const loadmyCart = async (req, res) => {
   }
 };
 
-// const increaseQuantity = async (req, res) => {
-//   try {
-//     const itemId = req.params.id;
-//     const userId = req.session.user;
-
-//     const result = await Cart.updateOne(
-//       { userId, "items._id": itemId },
-//       {
-//         $inc: {
-//           "items.$.quantity": 1,
-//         },
-//       }
-//     );
-
-//     const cart = await Cart.findOne({ userId })
-//       .populate({
-//         path: "items.productId",
-//         match: { isBlocked: false, isDeleted: false },
-//       })
-//       .lean();
-
-//     if (cart?.items?.length) {
-//       cart.items = cart.items.filter((item) => item.productId !== null);
-//     }
-
-//     const item = cart.items.find((i) => i._id.toString() === itemId);
-
-//     const totalPrizeOfProduct = item.quantity * item.price;
-
-//     await Cart.updateOne(
-//       { userId, "items._id": itemId },
-//       {
-//         $set: {
-//           "items.$.totalPrice": totalPrizeOfProduct,
-//         },
-//       }
-//     );
-
-//     return res
-//       .status(httpStatus.OK)
-//       .json({ message: MESSAGES.CART.QUANTITY_INCREASE || "Increased by One" });
-//   } catch (error) {
-//     console.error("Error in increasing the quantity:", error);
-//     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-//       success: false,
-//       message: "An error occurred. Please try again later.",
-//     });
-//   }
-// };
-
-// const decreaseQuantity = async (req, res) => {
-//   try {
-//     const userId = req.session.user;
-//     const itemId = req.params.id;
-
-//     await Cart.updateOne(
-//       { userId, "items._id": itemId },
-//       {
-//         $inc: { "items.$.quantity": -1 },
-//       }
-//     );
-
-//     const cart = await Cart.findOne({ userId })
-//       .populate({
-//         path: "items.productId",
-//         match: { isBlocked: false, isDeleted: false },
-//       })
-//       .lean();
-
-//     if (cart?.items?.length) {
-//       cart.items = cart.items.filter((item) => item.productId !== null);
-//     }
-
-//     const item = cart.items.find((i) => i._id.toString() === itemId);
-
-//     const totalPrizeOfProduct = item.quantity * item.price;
-
-//     await Cart.updateOne(
-//       { userId, "items._id": itemId },
-//       {
-//         $set: { "items.$.totalPrice": totalPrizeOfProduct },
-//       }
-//     );
-
-//     return res.status(httpStatus.OK).json({
-//       message: MESSAGES.CART.QUANTITY_DECREASE || "Quantity decreased",
-//     });
-//   } catch (error) {
-//     console.error("Error in decreasing the quantity:", error);
-//     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-//       success: false,
-//       message: "An error occurred. Please try again later.",
-//     });
-//   }
-// };
-
 const increaseQuantity = async (req, res) => {
   try {
     const { id: itemId } = req.params;
@@ -1972,7 +1881,7 @@ const loadMyOrder = async (req, res) => {
     const userId = req.session.user;
     const raw = parseInt(req.query.page, 10);
     const page = Math.max(1, Number.isFinite(raw) ? raw : 1);
-    const limit = 2;
+    const limit = 5;
 
     const myOrders = await Order.find({ userId })
       .populate({
@@ -1984,15 +1893,26 @@ const loadMyOrder = async (req, res) => {
       .limit(limit)
       .lean();
 
-
     const filteredOrders = myOrders
       .map((order) => {
-        order.orderedItems = order.orderedItems.filter(
-          (item) => item.productId !== null
-        );
-        order.foramttedDate = new Date(order.createdAt).toLocaleDateString();
-        order.statusHistory =
-          order.statusHistory[order.statusHistory.length - 1].status;
+        order.orderedItems = order.orderedItems
+          .filter((item) => item.productId !== null)
+          .map((item) => ({
+            id: item._id,
+            productId: item.productId._id,
+            productName: item.productId.productName,
+            productImages: item.productId.productImages,
+            quantity: item.quantity,
+            regularPrice: item.productId.regularPrice,
+            price: item.price,
+            totalPrice: item.totalPrice,
+            statusHistory:
+              item.statusHistory[item.statusHistory.length - 1].status,
+            isAdminCancelled:
+              item.statusHistory[item.statusHistory.length - 1]
+                .isAdminCancelled,
+          }));
+        order.formattedDate = new Date(order.createdAt).toLocaleDateString();
         return order;
       })
       .filter((order) => order.orderedItems.length > 0);
@@ -2018,6 +1938,82 @@ const loadMyOrder = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in loadMyOrder:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
+    });
+  }
+};
+
+const orderDetails = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const itemId = req.params.id;
+
+    const orders = await Order.findOne(
+      { userId, "orderedItems._id": itemId },
+      {
+        orderedItems: { $elemMatch: { _id: itemId } },
+        totalPrice: 1,
+        discount: 1,
+        finalAmount: 1,
+        address: 1,
+        createdAt: 1,
+        paymentMethod: 1,
+        paymentDate: 1,
+        paymentStatus: 1,
+        orderId: 1,
+      }
+    )
+      .populate("userId", "name")
+      .populate(
+        "orderedItems.productId",
+        "productName productImages description"
+      )
+      .lean();
+
+    const item = orders.orderedItems[0];
+
+    let latestStatus = item.statusHistory[item.statusHistory.length - 1];
+    let updatedDate = latestStatus.changedAt;
+    let latestOrderStatus = latestStatus.status;
+    const date = new Date(updatedDate).toLocaleString();
+    const orderedDate = new Date(orders.createdAt).toLocaleDateString();
+
+    const fullStatusHistory = item.statusHistory.map((history) => ({
+      status: history.status,
+      changedAt: new Date(history.changedAt).toLocaleString(),
+      cancellationReason: history.cancellationReason,
+      isAdminCancelled: history.isAdminCancelled,
+    }));
+
+    const isUserRequested = item.returnRequest.isUserRequested;
+    console.log("orderDetails isUserRequested:", isUserRequested);
+
+    const isCancelled = fullStatusHistory.some((h) => h.status === "Cancelled");
+
+    const address = await Address.findOne(
+      { "address._id": orders.address },
+      { "address.$": 1 }
+    ).lean();
+
+    return res.render("user/orderDetails", {
+      title: "Order details",
+      adminHeader: true,
+      orders,
+      date,
+      address: address.address[0],
+      latestOrderStatus,
+      orderedDate,
+      fullStatusHistory,
+      isCancelled,
+      itemId,
+      isUserRequested,
+    });
+  } catch (error) {
+    console.error("Error in orderDetails :", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message:
@@ -2175,6 +2171,7 @@ const loadPaymentMethod = async (req, res) => {
         title: "Payment method",
         adminHeader: true,
         grandTotal,
+        itemId,
       });
     }
 
@@ -2239,22 +2236,26 @@ const orderSuccess = async (req, res) => {
     }
 
     //checking payment methods
-    let paymentStatus;
-    if (paymentMethod === "cod") {
-      paymentStatus = "Unpaid";
-    } else if (paymentMethod === "Razorpay" || paymentMethod === "PayPal") {
-      paymentStatus = "Paid";
-    } else {
+
+    if (
+      paymentMethod !== "cod" &&
+      paymentMethod !== "razorpay" &&
+      paymentMethod !== "wallet"
+    ) {
       return res.status(httpStatus.BAD_REQUEST).json({
         message:
           MESSAGES.PAYMENT.PAYMENT_METHOD_INVALID || "Invalid payment method",
       });
     }
 
+    paymentMethod = paymentMethod.toUpperCase();
+
     let newOrder;
     let isWholeCart;
     let item;
+    let savedOrder;
 
+    //for single item
     if (itemId) {
       item = cart.items.find((i) => i._id.toString() === itemId);
       if (!item) {
@@ -2263,6 +2264,8 @@ const orderSuccess = async (req, res) => {
           message: MESSAGES.CART.IREM_NOT_FOUND || "Item not found in cart",
         });
       }
+      const discount = 0;
+      const finalAmount = item.totalPrice - discount;
 
       newOrder = new Order({
         userId: userId,
@@ -2271,22 +2274,24 @@ const orderSuccess = async (req, res) => {
             productId: item.productId._id,
             quantity: item.quantity,
             price: item.price,
+            totalPrice: item.totalPrice,
+            statusHistory: [
+              {
+                status: "Pending",
+              },
+            ],
           },
         ],
         totalPrice: item.totalPrice,
-        finalAmount: item.totalPrice,
+        discount,
+        finalAmount,
         address: selectedAddress._id,
-        paymentMethod: "COD",
+        paymentMethod,
         paymentStatus: "Unpaid",
-        statusHistory: [
-          {
-            status: "Pending",
-          },
-        ],
       });
-      await newOrder.save();
+      savedOrder = await newOrder.save();
 
-      //increasing quantity
+      //decreaseing stock
       const productId = item.productId._id;
       const quantity = item.quantity;
       await Product.updateOne(
@@ -2303,54 +2308,50 @@ const orderSuccess = async (req, res) => {
         quantity: item.quantity,
         price: item.price,
         totalPrice: item.totalPrice,
+        statusHistory: [{ status: "Pending" }],
       }));
 
-      //saving order for each item in the cart
-      for (const item of orderedItems) {
-        const totalPrice = item.totalPrice;
-        const discount = 0;
-        const finalAmount = totalPrice - discount;
+      const totalPrice = orderedItems.reduce(
+        (sum, item) => sum + item.totalPrice,
+        0
+      );
+      const discount = 0;
+      const finalAmount = totalPrice - discount;
 
-        newOrder = new Order({
-          userId,
-          orderedItems: [item],
-          totalPrice,
-          discount,
-          finalAmount,
-          address: selectedAddress._id,
-          statusHistory: [
-            {
-              status: "Pending",
-            },
-          ],
-          paymentMethod: "COD",
-          paymentStatus: "Unpaid",
-        });
-        const isSaved = await newOrder.save();
-        //increasing quantity
-        const productId = item.productId._id;
-        const quantity = item.quantity;
-        await Product.updateOne(
-          { _id: productId },
-          { $inc: { quantity: -quantity } }
-        );
-      }
+      newOrder = new Order({
+        userId,
+        orderedItems,
+        totalPrice,
+        discount,
+        finalAmount,
+        address: selectedAddress._id,
+        paymentMethod,
+        paymentStatus: "Unpaid",
+      });
 
       isWholeCart = true;
+
+      savedOrder = await newOrder.save();
+
+      // decrease stock for each item
+      for (const item of orderedItems) {
+        await Product.updateOne(
+          { _id: item.productId },
+          { $inc: { quantity: -item.quantity } }
+        );
+      }
     }
 
-    // return res.redirect(
-    //   isWholeCart
-    //     ? `/order-placed?isWholeCart=${isWholeCart}`
-    //     : `/order-placed?itemId=${itemId}&isWholeCart=${isWholeCart}`
-    // );
+    const orderId = savedOrder._id;
+    const finalAmount = savedOrder.finalAmount;
 
     return res.status(httpStatus.OK).json({
+      orderId,
+      finalAmount,
       redirectUrl: isWholeCart
         ? `/order-placed?isWholeCart=${isWholeCart}`
-        : `/order-placed?itemId=${itemId}&isWholeCart=${isWholeCart}`
+        : `/order-placed?itemId=${itemId}&isWholeCart=${isWholeCart}`,
     });
-
   } catch (error) {
     console.error("Error in rendering orderSuccess :", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -2402,26 +2403,38 @@ const orderPlaced = async (req, res) => {
 
 const cancelOrder = async (req, res) => {
   try {
-    const orderId = req.params.id;
-    const { status } = req.body;
+    const itemId = req.params.id;
+    const userId = req.session.user;
+    const { status, reason } = req.body;
 
-    const updatedOrder = await Order.findByIdAndUpdate(
-      orderId,
+    let formattedReason = reason.replace(/_/g, " ");
+
+    formattedReason =
+      formattedReason.charAt(0).toUpperCase() + formattedReason.slice(1);
+
+    const updatedOrder = await Order.findOneAndUpdate(
+      { userId, "orderedItems._id": itemId },
       {
-        $push: { statusHistory: { status, changedAt: new Date() } },
-        $set:{currentStatus:status}
+        $push: {
+          "orderedItems.$.statusHistory": {
+            status,
+            changedAt: new Date(),
+            cancellationReason: formattedReason,
+            isAdminCancelled: false,
+          },
+        },
+        $set: { currentStatus: status },
       },
       { new: true }
     );
-    const updatedStatus =
-      updatedOrder.statusHistory[updatedOrder.statusHistory.length - 1].status;
 
     const productIds = updatedOrder.orderedItems.map((item) => ({
       productId: item.productId,
       quantity: item.quantity,
+      updatedStatus: item.statusHistory[item.statusHistory.length - 1].status,
     }));
 
-    const { productId, quantity } = productIds[0];
+    const { productId, quantity, updatedStatus } = productIds[0];
     //increasing the quantity after cancel order
     await Product.updateOne(
       { _id: productId },
@@ -2444,11 +2457,29 @@ const cancelOrder = async (req, res) => {
   }
 };
 
-const orderDetails = async (req, res) => {
+// return management
+const loadReturnOrder = async (req, res) => {
   try {
-    const orderId = req.params.id;
+    console.log("loadReturnOrder reached");
 
-    const orders = await Order.findById(orderId)
+    const userId = req.session.user;
+    const itemId = req.params.id;
+
+    const orders = await Order.findOne(
+      { userId, "orderedItems._id": itemId },
+      {
+        orderedItems: { $elemMatch: { _id: itemId } },
+        totalPrice: 1,
+        discount: 1,
+        finalAmount: 1,
+        address: 1,
+        createdAt: 1,
+        paymentMethod: 1,
+        paymentDate: 1,
+        paymentStatus: 1,
+        orderId: 1,
+      }
+    )
       .populate("userId", "name")
       .populate(
         "orderedItems.productId",
@@ -2456,41 +2487,359 @@ const orderDetails = async (req, res) => {
       )
       .lean();
 
-    orders.orderedItems = orders.orderedItems.filter((item) => item.productId);
-    const updatedDate =
-      orders.statusHistory[orders.statusHistory.length - 1].changedAt;
+    const item = orders.orderedItems[0];
+
+    let latestStatus = item.statusHistory[item.statusHistory.length - 1];
+    let updatedDate = latestStatus.changedAt;
+    let latestOrderStatus = latestStatus.status;
     const date = new Date(updatedDate).toLocaleString();
-    const status = orders.statusHistory[orders.statusHistory.length - 1].status;
     const orderedDate = new Date(orders.createdAt).toLocaleDateString();
-    const fullStatusHistory = orders.statusHistory.map((history) => ({
+
+    const fullStatusHistory = item.statusHistory.map((history) => ({
       status: history.status,
       changedAt: new Date(history.changedAt).toLocaleString(),
+      cancellationReason: history.cancellationReason,
+      isAdminCancelled: history.isAdminCancelled,
     }));
 
-    console.log(orderId);
+    const isCancelled = fullStatusHistory.some((h) => h.status === "Cancelled");
 
     const address = await Address.findOne(
       { "address._id": orders.address },
       { "address.$": 1 }
     ).lean();
 
-    return res.render("user/orderDetails", {
+    return res.render("user/returnOrder", {
       title: "Order details",
       adminHeader: true,
       orders,
       date,
       address: address.address[0],
-      status,
+      latestOrderStatus,
       orderedDate,
       fullStatusHistory,
+      isCancelled,
+      itemId,
     });
   } catch (error) {
-    console.error("Error in orderDetails :", error);
+    console.error("Error in loadReturnOrder :", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message:
         MESSAGES.INTERNAL_SERVER_ERROR ||
         "An error occurred. Please try again later.",
+    });
+  }
+};
+
+const returnOrder = async (req, res) => {
+  try {
+    const userId = req.session.user;
+
+    const itemId = req.params.id;
+
+    const { comment, reason } = req.body;
+
+    const orders = await Order.findOneAndUpdate(
+      { userId, "orderedItems._id": itemId },
+      {
+        $set: {
+          "orderedItems.$.returnRequest.isUserRequested": true,
+          "orderedItems.$.returnRequest.reason": reason,
+          "orderedItems.$.returnRequest.requestDate": new Date(),
+          "orderedItems.$.returnRequest.rejectComment": comment,
+          "orderedItems.$.returnRequest.isReturnInitiated":true,
+        },
+      },
+      { new: true }
+    );
+
+    return res
+      .status(httpStatus.OK)
+      .json({ message: "Return request initiated" });
+  } catch (error) {
+    console.error("Error in returnOrder :", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
+    });
+  }
+};
+
+//razorpayPayments
+const createRazorpayOrder = async (req, res) => {
+  try {
+    console.log("createRazorpayOrder reached");
+    const userId = req.session.user;
+    const { itemId, orderId, finalAmount } = req.body;
+
+    const order = await Order.findOne({ _id: orderId, userId });
+    if (!order) {
+      return res.status(httpStatus.BAD_REQUEST).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+    const amount = order.finalAmount;
+
+    const options = {
+      amount: amount * 100,
+      currency: "INR",
+      receipt: crypto.randomUUID(),
+    };
+
+    const razorpayOrder = await razorpayInstance.orders.create(options);
+
+    order.razorpayOrderId = razorpayOrder.id;
+    order.paymentMethod = "RAZORPAY";
+    order.paymentStatus = "Pending";
+    order.paymentDate = new Date();
+    //saving
+    await order.save();
+
+    res.json({
+      success: true,
+      key: process.env.RAZORPAY_KEY_ID,
+      orderId: razorpayOrder.id,
+      amount,
+      currency: "INR",
+    });
+  } catch (error) {
+    console.error("Error creating Razorpay order:", error);
+    res.status(httpStatus.OK).json({
+      success: false,
+      message: MESSAGES.INTERNAL_SERVER_ERROR || "Something went wrong ",
+    });
+  }
+};
+
+const verifyPayment = async (req, res) => {
+  console.log("verifyPayment reached");
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+      req.body;
+    const body = razorpay_order_id + "|" + razorpay_payment_id;
+
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(body.toString())
+      .digest("hex");
+
+    if (expectedSignature === razorpay_signature) {
+      await Order.findOneAndUpdate(
+        { razorpayOrderId: razorpay_order_id },
+        { paymentStatus: "Paid", razorpayPaymentId: razorpay_payment_id }
+      );
+
+      return res.json({
+        success: true,
+        message: "Payment verified successfully",
+      });
+    } else {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ success: false, message: "Payment verification failed" });
+    }
+  } catch (error) {
+    console.error("Error verifying Razorpay payment:", error);
+    res.status(httpStatus.OK).json({
+      success: false,
+      message: MESSAGES.INTERNAL_SERVER_ERROR || "Something went wrong ",
+    });
+  }
+};
+
+//wallet management
+
+const getMyWallet = async (req, res) => {
+  try {
+    const userId = req.session.user;
+
+    const wallet = await Wallet.findOne({ userId }).lean();
+
+    return res.render("user/myWallet", {
+      title: "Trenaura wallet",
+      adminHeader: true,
+      wallet,
+    });
+  } catch (error) {
+    console.error("Error in cancelOrder :", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
+    });
+  }
+};
+
+const walletTransactionHistory = async (req, res) => {
+  try {
+    console.log("reached walletTransactionHistory");
+    const userId = req.session.user;
+
+    const wallet = await Wallet.findOne({ userId }).lean();
+
+    const transactions = wallet.transactions;
+
+    const sortedTransactionHistory = transactions.sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
+
+    const transactionHistory = sortedTransactionHistory.map((transaction) => ({
+      type: transaction.type,
+      amount: transaction.amount,
+      description: transaction.description,
+      transactionId: transaction.transactionId,
+      date: new Date(transaction.createdAt).toLocaleString(),
+    }));
+
+    console.log("sorted wallet Transaction History", sortedTransactionHistory);
+
+    return res.render("user/walletTranscations", {
+      title: "Trenaura wallet-transactions",
+      adminHeader: true,
+      wallet,
+      transactionHistory,
+    });
+  } catch (error) {
+    console.error("Error in walletTransactionHistory :", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
+    });
+  }
+};
+
+const createRazorpayOrderWallet = async (req, res) => {
+  try {
+    console.log("createRazorpayOrder reached");
+    const userId = req.session.user;
+    const { amount } = req.body;
+
+    const options = {
+      amount: amount * 100,
+      currency: "INR",
+      receipt: crypto.randomUUID(),
+    };
+
+    const razorpayOrder = await razorpayInstance.orders.create(options);
+
+    const razorpayOrderId = razorpayOrder.id;
+
+    const razorOrder = new WalletTopupOrder({
+      userId,
+      razorpayOrderId,
+      amount,
+      status: "created",
+    });
+
+    await razorOrder.save();
+
+    res.json({
+      success: true,
+      key: process.env.RAZORPAY_KEY_ID,
+      orderId: razorpayOrderId,
+      amount,
+      currency: "INR",
+    });
+  } catch (error) {
+    console.error("Error creating Razorpay order-wallet:", error);
+    res.status(httpStatus.OK).json({
+      success: false,
+      message: MESSAGES.INTERNAL_SERVER_ERROR || "Something went wrong ",
+    });
+  }
+};
+
+const verifyPaymentForWallet = async (req, res) => {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+      req.body;
+    const body = razorpay_order_id + "|" + razorpay_payment_id;
+    let updatedWallet;
+
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(body.toString())
+      .digest("hex");
+
+    if (expectedSignature !== razorpay_signature) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ success: false, message: "Invalid payment signature" });
+    }
+
+    const topupOrder = await WalletTopupOrder.findOne({
+      razorpayOrderId: razorpay_order_id,
+    });
+
+    if (!topupOrder) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ success: false, message: "No topup order found" });
+    }
+    if (topupOrder.status === "paid") {
+      return res
+        .status(httpStatus.OK)
+        .json({ success: true, message: "Payment already verified" });
+    }
+
+    const { amount, userId } = topupOrder;
+
+    const wallet = await Wallet.findOne({ userId });
+
+    if (wallet) {
+      updatedWallet = await Wallet.findOneAndUpdate(
+        { userId },
+        {
+          $inc: { balance: amount },
+          $push: {
+            transactions: {
+              orderId: topupOrder._id,
+              type: "credit",
+              amount,
+              description: "Wallet top-up via Razorpay",
+            },
+          },
+        },
+        { new: true }
+      );
+    } else {
+      updatedWallet = new Wallet({
+        userId,
+        balance: amount,
+        transactions: [
+          {
+            orderId: topupOrder._id,
+            type: "credit",
+            amount,
+            description: "Wallet created with Razorpay credit",
+          },
+        ],
+      });
+      await updatedWallet.save();
+    }
+
+    topupOrder.status = "paid";
+    await topupOrder.save();
+
+    const balance = updatedWallet.balance;
+
+    return res.status(httpStatus.OK).json({
+      success: true,
+      message: "Amount added to wallet ",
+      balance,
+    });
+  } catch (error) {
+    console.error("Error verifying Razorpay payment-wallet:", error);
+    res.status(httpStatus.OK).json({
+      success: false,
+      message: MESSAGES.INTERNAL_SERVER_ERROR || "Something went wrong ",
     });
   }
 };
@@ -2551,4 +2900,12 @@ module.exports = {
   orderPlaced,
   cancelOrder,
   orderDetails,
+  loadReturnOrder,
+  returnOrder,
+  createRazorpayOrder,
+  verifyPayment,
+  getMyWallet,
+  createRazorpayOrderWallet,
+  verifyPaymentForWallet,
+  walletTransactionHistory,
 };

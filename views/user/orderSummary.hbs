@@ -347,6 +347,7 @@ async function increaseQuantity(event, id) {
     const res = await fetch(`/increaseQuantity/${id}`, {
       method: "PATCH",
       headers: { "Content-type": "application/json" },
+      body:JSON.stringify({quantity})
     });
 
     const data = await res.json();
@@ -401,7 +402,7 @@ async function decreaseQuantity(event, id) {
     let totalPriceElem = document.getElementById(`totalPrice-${id}`);
     if(quantity===1){
       return Toastify({
-        text: "Quantity should be greater than zero",
+        text: "Quantity should be greater than zero", 
         duration: 3000,
         close: true,
         gravity: "bottom",

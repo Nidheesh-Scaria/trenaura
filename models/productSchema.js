@@ -1,9 +1,4 @@
 
-//     brand: {
-//       type: String,
-//       required: true,
-//     },
-
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 

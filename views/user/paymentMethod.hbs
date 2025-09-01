@@ -221,8 +221,9 @@
             <form id="paymentForm">
                 <div class="payment-options">
                     <input type="hidden" name="itemId" id="itemId" value="{{itemId}}">
+                    <input type="hidden" name="amount" id="amount" value="{{grandTotal}}">
                     <!-- Razorpay -->
-                    {{!-- <div class="form-check payment-option d-flex align-items-center selected" data-method="razorpay">
+                    <div class="form-check payment-option d-flex align-items-center selected" data-method="razorpay">
                         <input class="form-check-input me-3" type="radio" name="paymentMethod" id="razorpay" value="razorpay" checked>
                         <div class="payment-icon">
                             <i class="fas fa-credit-card"></i>
@@ -231,34 +232,7 @@
                             <div class="payment-info">
                                 <h6>RAZORPAY</h6>
                                 <small>Secure online payment gateway</small>
-                            </div>
-                        </label>
-                    </div>
-
-                    <!-- Google Pay / UPI -->
-                    <div class="form-check payment-option d-flex align-items-center" data-method="upi">
-                        <input class="form-check-input me-3" type="radio" name="paymentMethod" id="upi" value="upi">
-                        <div class="payment-icon">
-                            <i class="fab fa-google-pay"></i>
-                        </div>
-                        <label class="payment-label form-check-label d-flex flex-column flex-grow-1" for="upi">
-                            <div class="payment-info">
-                                <h6>UPI PAYMENT</h6>
-                                <small>Pay with any UPI app</small>
-                            </div>
-                        </label>
-                    </div>
-
-                    <!-- Credit/Debit -->
-                    <div class="form-check payment-option d-flex align-items-center" data-method="card">
-                        <input class="form-check-input me-3" type="radio" name="paymentMethod" id="card" value="card">
-                        <div class="payment-icon">
-                            <i class="far fa-credit-card"></i>
-                        </div>
-                        <label class="payment-label form-check-label d-flex flex-column flex-grow-1" for="card">
-                            <div class="payment-info">
-                                <h6>CREDIT/DEBIT CARD</h6>
-                                <small>Add any secure card by RBI guidelines</small>
+                                <small>-Pay ₹{{grandTotal}}</small>
                             </div>
                         </label>
                     </div>
@@ -272,10 +246,10 @@
                         <label class="payment-label form-check-label d-flex flex-column flex-grow-1" for="wallet">
                             <div class="payment-info">
                                 <h6>WALLETS</h6>
-                                <small>Use your Trenaura wallet</small>
+                                <small>Use your Trenaura wallet to pay ₹{{grandTotal}}</small>
                             </div>
                         </label>
-                    </div> --}}
+                    </div>
 
                     <!-- Cash on Delivery -->
                     <div class="form-check payment-option d-flex align-items-center" data-method="cod">
@@ -310,6 +284,7 @@
         </div>
     </div>
 
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     
    <script>
@@ -318,48 +293,33 @@
             const errorMsg = document.getElementById("paymentError");
             const form = document.getElementById("paymentForm");
             const submitBtn = document.querySelector(".continue-btn");
+            
+
 
             // Payment option selection
             paymentOptions.forEach((option) => {
                 option.addEventListener("click", function () {
+                    // Remove selected class from all options
                     paymentOptions.forEach((opt) => opt.classList.remove("selected"));
+                    // Add selected class to clicked option
                     this.classList.add("selected");
+                    {{!-- submitBtn.innerHTML = '<i class="fas fa-arrow-right me-2"></i>Continue to Payment'; --}}
                     // Check the radio button
-                    this.querySelector('input[type="radio"]').checked = true;
+                    const radio = this.querySelector('input[type="radio"]');
+                    radio.checked = true;
                     errorMsg.style.display = "none";
+                   
                 });
             });
-{{!--             
-            // Handle payment option selection
-            paymentOptions.forEach((option) => {
-                option.addEventListener("click", function () {
-                // Remove selected class from all options
-                paymentOptions.forEach((opt) => opt.classList.remove("selected"));
-
-                // Add selected class to clicked option
-                this.classList.add("selected");
-
-                // Check the radio button
-                const radio = this.querySelector('input[type="radio"]');
-                radio.checked = true;
-
-                // Add subtle animation
-                this.style.transform = "scale(0.98)";
-                setTimeout(() => {
-                    this.style.transform = "";
-                }, 150);
-                errorMsg.style.display = "none";
-                });
-            });
-
-            // Handle radio button change
-            radioInputs.forEach((radio) => {
-                radio.addEventListener("change", function () {
-                paymentOptions.forEach((opt) => opt.classList.remove("selected"));
-                this.closest(".payment-option").classList.add("selected");
-                errorMsg.style.display = "none";
-                });
-            });
+            
+                {{!-- // Handle radio button change
+                radioInputs.forEach((radio) => {
+                    radio.addEventListener("change", function () {
+                    paymentOptions.forEach((opt) => opt.classList.remove("selected"));
+                    this.closest(".payment-option").classList.add("selected");
+                    errorMsg.style.display = "none";
+                    });
+                }); --}}
 
             // Add hover sound effect simulation
             paymentOptions.forEach((option) => {
@@ -372,13 +332,18 @@
                     this.style.transform = "";
                 }
                 });
-            }); --}}
+            });
+
 
             // Handle form submit
+
+            let isSubmitting = false;
+            
             form.addEventListener("submit", async function (e) {
                 e.preventDefault();
 
                 const itemId = document.getElementById("itemId").value;
+                const amount=document.getElementById("amount").value
                 const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
                 const grandTotal = document.getElementById("grandTotal").innerText.replace("₹", "");
 
@@ -388,100 +353,267 @@
                     return;
                 }
 
-                //for all the products in cart(bulk order)
-                if(!itemId){
-                    try{
-                        const response=await fetch('/orderSuccess',{
-                            method:"POST",
-                            headers:{"Content-Type":"application/json"},
-                            body:JSON.stringify({paymentMethod})
-                        })
-                       
-                        let data;
+                
+
+                //if COD
+                if(paymentMethod==="cod"){
+                    //preventing from the button double click 
+                    if (isSubmitting) return;
+                    isSubmitting = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+                    submitBtn.disabled = true;
+                    //for all the products in cart(bulk order)
+                    if(!itemId){
+                        try{
+                            const response=await fetch('/orderSuccess',{
+                                method:"POST",
+                                headers:{"Content-Type":"application/json"},
+                                body:JSON.stringify({paymentMethod})
+                            })
+                        
+                            let data;
+                            if (response.ok) {
+                                data = await response.json();
+                                setTimeout(() => {
+                                    submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Success!';
+                                    setTimeout(() => {
+                                        window.location.href = data.redirectUrl;
+                                    }, 1000);
+                                }, 2000);
+                            } else {
+                                if(response.status===400){
+                                    data = await res.json();
+                                }
+                                Toastify({
+                                    text: data.message || "Order failed",
+                                    duration: 3500,
+                                    close: true,
+                                    gravity: "top",
+                                    position: "center",
+                                    style: {
+                                        background: "linear-gradient(to right,#730202f2, #ba0d0d, #e00808e8)",
+                                    },
+                                    className: "custom-toast"
+                                }).showToast();
+
+                                //redircting to address management
+                                setTimeout(() => {
+                                    window.location.href = `/manageAddress`;
+                                }, 1500);
+                            }
+
+                        }catch(err){
+                            console.log("error is ",err)
+                            submitBtn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Error!';
+                            submitBtn.disabled = false;
+                            errorMsg.innerText = "Something went wrong. Please try again..";
+                            errorMsg.style.display = "block";
+                        }
+                        return
+                    }
+
+                    //for single order
+                    try {
+                        const response = await fetch("/orderSuccess", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ itemId, paymentMethod }),
+                        });
+
+                    let data;
+                        try {
+                        data = await response.json();
+                        } catch (err) {
+                        data = { message: "Something went wrong" };
+                        }
+
                         if (response.ok) {
-                            data = await response.json();
                             setTimeout(() => {
                                 submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Success!';
                                 setTimeout(() => {
-                                    window.location.href = data.redirectUrl;
+                                    window.location.href = `/order-placed?itemId=${itemId}`;
                                 }, 1000);
                             }, 2000);
                         } else {
-                            if(response.status===400){
-                                data = await res.json();
-                            }
-                             Toastify({
-                                text: data.message || "Order failed",
-                                duration: 3500,
+                            Toastify({
+                                text: data.message,
+                                duration: 3000,
                                 close: true,
                                 gravity: "top",
                                 position: "center",
                                 style: {
-                                    background: "linear-gradient(to right,#730202f2, #ba0d0d, #e00808e8)",
+                                background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+                                },
+                                className: "custom-toast"
+                            }).showToast();
+                        }
+                    } catch (err) {
+                        submitBtn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Error!';
+                        submitBtn.disabled = false;
+                        errorMsg.innerText = "Something went wrong. Please try again";
+                        errorMsg.style.display = "block";
+                    }
+
+                }
+                //if razorpay
+                else if(paymentMethod==="razorpay"){
+                    if (isSubmitting) return;
+                    isSubmitting = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+                    submitBtn.disabled = true;
+
+                    try{
+                        //saving data in db(order) 
+                        const response = await fetch("/orderSuccess", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ itemId, paymentMethod })
+                        });
+
+                        const dataAfterSavingOrder = await response.json();
+                        if (!response.ok) {
+
+                             Toastify({
+                                text: dataAfterSavingOrder.message ,
+                                duration: 3000,
+                                close: true,
+                                gravity: "top",
+                                position: "center",
+                                style: {
+                                background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
                                 },
                                 className: "custom-toast"
                             }).showToast();
 
-                            //redircting to address management
-                            setTimeout(() => {
-                                window.location.href = `/manageAddress`;
-                            }, 1500);
-                        
+                            throw new Error(dataAfterSavingOrder.message || "Order creation failed");
                         }
 
+                        const { orderId, finalAmount } = dataAfterSavingOrder;
+
+                         //creating razorpay order from backend
+                        const res = await fetch("/create-razorpay-order", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ orderId })
+                        });
+
+                        const razorData = await res.json();
+                        if (!razorData.success) {
+                             Toastify({
+                                text: razorData.message ,
+                                duration: 3000,
+                                close: true,
+                                gravity: "top",
+                                position: "center",
+                                style: {
+                                background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+                                },
+                                className: "custom-toast"
+                            }).showToast();
+
+                            throw new Error(razorData.message || "Failed to create Razorpay order");
+                        }
+
+                        //razorpay options
+                        const options = {
+                            key: razorData.key,
+                            amount: razorData.amount * 100, 
+                            currency: razorData.currency,
+                            order_id: razorData.orderId,
+                            name: "Trenaura",
+                            description: "The Aura of Trend",
+                            handler: async function (response) {
+                                //payment verification in backend
+                                const verifyRes = await fetch("/verify-payment", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify(response),
+                                });
+
+                                const verifyData = await verifyRes.json();
+
+                                if (verifyData.success) {
+                                    submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Success!';
+                                    //redirecting to order-placed
+                                    setTimeout(() => {
+                                        window.location.href = dataAfterSavingOrder.redirectUrl;
+                                    }, 1000);
+                                } else {
+                                    Toastify({
+                                        text: verifyData.message || "Payment verification failed",
+                                        duration: 3000,
+                                        close: true,
+                                        gravity: "top",
+                                        position: "center",
+                                        style: {
+                                            background: "linear-gradient(to right,#730202f2, #ba0d0d, #e00808e8)",
+                                        },
+                                        className: "custom-toast"
+                                    }).showToast();
+                                    submitBtn.innerHTML = "Continue to Payment";
+                                    submitBtn.disabled = false;
+                                    isSubmitting = false;
+                                }
+                            },
+                            theme: {
+                                color: "#3399cc",
+                            },
+                        };
+
+                        // last step: Open Razorpay
+                        const rzp1  = new window.Razorpay(options);
+                        rzp1.open();
+                       
+
                     }catch(err){
-                        console.log("error is ",err)
-                        submitBtn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Error!';
-                        submitBtn.disabled = false;
-                        errorMsg.innerText = "Something went wrong. Please try again..";
-                        errorMsg.style.display = "block";
-                    }
-                    return
-                }
-
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
-                submitBtn.disabled = true;
-
-                try {
-                    const response = await fetch("/orderSuccess", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ itemId, paymentMethod }),
-                    });
-
-                   let data;
-                    try {
-                    data = await response.json();
-                    } catch (err) {
-                    data = { message: "Something went wrong" };
-                    }
-
-                    if (response.ok) {
-                        setTimeout(() => {
-                            submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Success!';
-                            setTimeout(() => {
-                                window.location.href = `/order-placed?itemId=${itemId}`;
-                            }, 1000);
-                        }, 2000);
-                    } else {
-                        Toastify({
-                            text: data.message,
+                        console.error("Error in Razorpay payment:", err);
+                            Toastify({
+                            text: verifyData.message || "Payment verification failed",
                             duration: 3000,
                             close: true,
                             gravity: "top",
                             position: "center",
                             style: {
-                            background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+                                background: "linear-gradient(to right,#730202f2, #ba0d0d, #e00808e8)",
                             },
                             className: "custom-toast"
                         }).showToast();
+                        submitBtn.innerHTML = "Continue to Payment";
+                        submitBtn.disabled = false;
+                        isSubmitting = false;
                     }
-                } catch (err) {
-                    submitBtn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Error!';
-                    submitBtn.disabled = false;
-                    errorMsg.innerText = "Something went wrong. Please try again";
-                    errorMsg.style.display = "block";
+
                 }
+                //if wallet
+                else if(paymentMethod==="wallet"){
+                    Toastify({
+                                text: "Wallet Selected",
+                                duration: 3000,
+                                close: true,
+                                gravity: "top",
+                                position: "center",
+                                style: {
+                                background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+                                },
+                                className: "custom-toast"
+                            }).showToast();
+                }
+                else{
+                    Toastify({
+                                text: "Only razor pay wallet cash on delivery available",
+                                duration: 3000,
+                                close: true,
+                                gravity: "top",
+                                position: "center",
+                                style: {
+                                background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+                                },
+                                className: "custom-toast"
+                            }).showToast();
+                }
+
+
+                
             });
         });
     </script>

@@ -2,13 +2,11 @@ const userSchema = require("../models/userSchema");
 const { MESSAGES } = require("../util/constants");
 const httpStatus = require("../util/statusCodes");
 
-
-
 const customerInfo = async (req, res) => {
   try {
     const search = req.query.search || "";
     const page = parseInt(req.query.page) || 1;
-    const limit = 3;
+    const limit = 10;
 
     const query = {
       isAdmin: false,
@@ -28,7 +26,7 @@ const customerInfo = async (req, res) => {
       .lean()
       .exec();
 
-    const customers = userData.map((user,index) => ({
+    const customers = userData.map((user, index) => ({
       _id: user._id,
       name: user.name,
       email: user.email,
@@ -38,7 +36,7 @@ const customerInfo = async (req, res) => {
         : "N/A",
       status: user.isBlocked ? "blocked" : "active",
       isBlocked: user.isBlocked,
-      serialNumber: (page - 1) * limit + index + 1 
+      serialNumber: (page - 1) * limit + index + 1,
     }));
 
     const count = await userSchema.countDocuments(query);
@@ -51,10 +49,11 @@ const customerInfo = async (req, res) => {
       currentPage: page,
       search: search,
     });
-    
   } catch (error) {
     console.error(error);
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).send(MESSAGES.INTERNAL_SERVER_ERROR|| "Internal Server Error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Internal Server Error");
   }
 };
 

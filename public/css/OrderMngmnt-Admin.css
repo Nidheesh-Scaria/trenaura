@@ -147,6 +147,16 @@
   color: #1fa42f;
   border: 1px solid #1fa42f;
 }
+.status.Pending {
+  background: #ffffe6;
+  color: #a4991f;
+  border: 1px solid #615d0b;
+}
+.status.cancelled {
+  background: #e6eaff;
+  color: #1f6aa4;
+  border: 1px solid #0c1377;
+}
 
 /* ================================
    BUTTONS
@@ -212,5 +222,13 @@
     .page-btn[disabled] {
       opacity: 0.5;
       cursor: not-allowed;
+    }
+
+
+    .return-initiated{
+      color: red;
+      font-weight: 700;
+      font-size: small;
+      display: block;
     }
 

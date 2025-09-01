@@ -67,7 +67,6 @@ const hbs = exphbs.create({
   partialsDir: path.join(__dirname, "views/partials"),
   helpers: {
     increment(value, step) {
-     
       if (typeof step === "object" || step === undefined) step = 1;
       const v = Number(value);
       const s = Number(step);
@@ -113,6 +112,8 @@ const hbs = exphbs.create({
     },
 
     eq: (a, b) => a === b,
+    ne: (a, b) => a !== b,
+    and: (a, b) => a && b,
   },
 });
 

@@ -85,6 +85,22 @@ router.post('/orderSuccess',userAuth.userBlocked,userAuth.checkSession, userCont
 router.get('/order-placed',userAuth.userBlocked,userAuth.checkSession, userController.orderPlaced)
 router.post('/cancelOrder/:id',userAuth.userBlocked,userAuth.checkSession, userController.cancelOrder);
 router.get('/orderDetails/:id',userAuth.userBlocked,userAuth.checkSession,userController.orderDetails)
+router.get('/loadReturnOrder/:id',userAuth.userBlocked,userAuth.checkSession,userController.loadReturnOrder)
+router.post('/returnOrder/:id',userAuth.userBlocked,userAuth.checkSession,userController.returnOrder)
+
+
+//payment mangement
+router.post('/create-razorpay-order',userAuth.userBlocked,userAuth.checkSession,userController.createRazorpayOrder)
+router.post("/verify-payment",userAuth.userBlocked,userAuth.checkSession,userController.verifyPayment)
+
+//wallet management
+router.get('/myWallet',userController.getMyWallet)
+router.get("/walletTransactionHistory",userController.walletTransactionHistory)
+//adding money in wallet
+router.post("/create-razorpay-order-wallet",userController.createRazorpayOrderWallet)
+router.post("/verify-payment-wallet",userController.verifyPaymentForWallet)
+
+
 
 
 

@@ -1,7 +1,7 @@
-const categorySchema = require("../models/categorySchema");
-const productSchema = require("../models/productSchema");
-const httpStatus = require("../util/statusCodes");
-const { MESSAGES } = require("../util/constants");
+const categorySchema = require("../../models/categorySchema");
+const productSchema = require("../../models/productSchema");
+const httpStatus = require("../../util/statusCodes");
+const { MESSAGES } = require("../../util/constants");
 
 const categoryInfo = async (req, res) => {
   try {

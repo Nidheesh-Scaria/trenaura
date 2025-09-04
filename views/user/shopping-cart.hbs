@@ -249,7 +249,63 @@
 
 
 
-        
+        .couponDiv {
+          max-width: 400px; /* Adjust width as needed */
+          margin: 20px auto; /* Center horizontally */
+          padding: 20px;
+          background-color: #fdfdfd;
+          border: 1px solid #ddd;
+          border-radius: 10px;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          font-family: Arial, sans-serif;
+      }
+
+      /* Input styling */
+      .coupon-input {
+          width: calc(100% - 90px); /* leave space for button */
+          padding: 10px 12px;
+          border: 1px solid #ccc;
+          border-radius: 5px 0 0 5px;
+          font-size: 14px;
+          outline: none;
+          transition: border 0.3s;
+      }
+
+      .coupon-input:focus {
+          border-color: #4CAF50; /* green border on focus */
+      }
+
+      /* Button styling */
+      button {
+          padding: 10px 20px;
+          border: none;
+          background-color: #4CAF50;
+          color: #fff;
+          font-size: 14px;
+          cursor: pointer;
+          border-radius: 0 5px 5px 0;
+          transition: background-color 0.3s;
+      }
+
+      button:hover {
+          background-color: #45a049;
+      }
+
+      /* Error message */
+      #coupon-error {
+          margin-top: 8px;
+          font-size: 13px;
+      }
+
+      /* Horizontal line */
+      hr {
+          margin-top: 15px;
+          border: none;
+          border-top: 1px solid #eee;
+      }
+
+
+              
 
 
     </style>
@@ -310,7 +366,7 @@
       </div>
       <div class="summary-line discount">
         <span>Discount</span>
-        <span>-₹{{discount}}</span>
+        <span id="totalDiscount">-₹{{discount}}</span>
       </div>
       <div class="summary-line">
         <span>Delivery Charge</span>
@@ -320,13 +376,22 @@
         <span>Platform Fee</span>
         <span>₹0</span>
       </div>
-      {{!-- <input type="text" placeholder="ADD A DISCOUNT CODE" class="coupon-input" /> --}}
+      <div class="summary-line">
+        <span>Coupon Discount</span>
+        <span id="couponDiscount">₹0</span>
+      </div>
+      <div class="couponDiv">
+      <input type="hidden" id="couponCode">
+      <input type="text" placeholder="APPLY A COUPON CODE -eg:COP101" class="coupon-input" id="coupon-input"/><button onclick="applyCoupon(event)">Apply</button>
+      <p id="coupon-error" style="color: red;"></p>
       <hr />
+      </div>
       <div class="summary-line total">
         <span>Total</span>
-        <span id="finalAmount">₹{{totalPrice}}</span>
+        <span>₹<span id="finalAmount">{{totalPrice}}</span></span>
       </div>
-      <a href="/loadPaymentMode" id="checkout-btn">CONTINUE TO CHECKOUT</a>
+      <button onclick="loadPaymentMode(event)" id="checkout-btn">CONTINUE TO CHECKOUT</button>
+      {{!-- <a href="/loadPaymentMode" id="checkout-btn">CONTINUE TO CHECKOUT</a> --}}
     </div>
   </div>
 
@@ -602,6 +667,69 @@ async function addToCarts(event,id){
 }
 
 
+async function applyCoupon(event){
+  event.preventDefault()
+  document.getElementById("coupon-error").innerHTML=""
+  let couponCode=document.getElementById("coupon-input").value
+  let cartTotal = document.getElementById("finalAmount").innerText
+  cartTotal=parseInt(cartTotal)
+  couponCode=couponCode.toUpperCase()
+  
+
+  if(!couponCode){
+    return document.getElementById("coupon-error").innerHTML="Enter coupon to get discount"
+  }
+  const res=await fetch("/applyCoupon",{
+    method:"POST",
+    headers:{"Content-type":"application/json"},
+    body:JSON.stringify({couponCode,cartTotal})
+  })
+
+  const data=await res.json()
+  if(res.ok){
+    Toastify({
+        text: data.message || "item deleted",
+        duration: 3000,
+        close: true,
+        gravity: "bottom",
+        position: "center",
+        style: {
+          background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)", 
+        },
+        className: "custom-toast",
+      }).showToast();
+
+      document.getElementById("finalAmount").innerText=`${data.finalAmount}`  
+      document.getElementById("totalDiscount").innerText=`₹${data.discountAmount}` 
+      document.getElementById("couponDiscount").innerText=`₹${data.discountAmount}` 
+      document.getElementById("couponCode").value=data.couponCode
+  }else{
+    Toastify({
+        text: data.message || "item deleted",
+        duration: 3000,
+        close: true,
+        gravity: "bottom",
+        position: "center",
+        style: {
+          background: "linear-gradient(to right, #8B0000, #B22222, #DC143C)",
+        },
+        className: "custom-toast",
+      }).showToast();
+  }
+
+}
+
+
+async function loadPaymentMode(event){
+  event.preventDefault()
+  const couponCode=document.getElementById("couponCode").value
+  const finalAmount=document.getElementById("finalAmount").innerText
+  let url = `/loadPaymentMode?amount=${finalAmount}`;
+   if (couponCode) {
+    url += `&couponCode=${couponCode}`;
+  }
+  window.location.href = url;
+}
 
 
 

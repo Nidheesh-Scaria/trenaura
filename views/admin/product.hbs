@@ -424,6 +424,7 @@
               <th>Products</th>
               <th>Price</th>
               <th>Sale Price</th>
+              <th>Stock</th>
               <th>Category</th>
               <th>Status</th>
               <th>Actions</th>
@@ -447,6 +448,7 @@
                   <td>{{this.productName}}</td>
                   <td>{{this.regularPrice}}</td> 
                   <td>{{this.salePrice}}</td>
+                  <td>{{this.quantity}}</td>
                   <td>{{this.category}}</td>
                   <td>{{this.status}}</td>
                   <td class="d-flex gap-2 flex-wrap">
@@ -457,7 +459,7 @@
               {{/each}}
             {{else}}
               <tr>
-                <td colspan="8" style="text-align: center; padding: 20px;">No products found</td>
+                <td colspan="9" style="text-align: center; padding: 20px;">No products found</td>
               </tr>
             {{/if}}
           </tbody>
@@ -517,6 +519,11 @@
                 <label class="form-label">Sale Price</label>
                 <input type="number" id="editSalePrice" name="salePrice" class="form-control" step="0.01"/>
                 <div class="error-message" id="editSalePrice-error"></div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Quantity</label>
+                <input type="number" id="editQuantity" name="quantity" class="form-control" step="0.01"/>
+                <div class="error-message" id="editQuantity-error"></div>
               </div>
               <div class="mb-3">
                 <label class="form-label">Category</label>
@@ -597,35 +604,35 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+
 <script>
 function openEditModal(id, productName, regularPrice, salePrice, category) {
-
   fetch(`/admin/editProducts/${id}`)
-    .then(response => {
-      console.log('Response status:', response.status);
+    .then((response) => {
+      console.log("Response status:", response.status);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       return response.json();
     })
-    .then(data => {
-      console.log('Received data:', data);
-      
+    .then((data) => {
+      console.log("Received data:", data);
+
       if (data.success) {
         const product = data.product;
-        
-        
-        $('#editCategoryId').val(product._id);
-        $('#editProductName').val(product.productName);
-        $('#editRegularPrice').val(product.regularPrice);
-        $('#editSalePrice').val(product.salePrice);
-        $('#editCategory').val(product.category);
-        
+
+        $("#editCategoryId").val(product._id);
+        $("#editProductName").val(product.productName);
+        $("#editRegularPrice").val(product.regularPrice);
+        $("#editSalePrice").val(product.salePrice);
+        $("#editQuantity").val(product.quantity);
+        $("#editCategory").val(product.category);
+
         // Clear previous images and show with current images
-        $('.current-images-container').empty();
-        
+        $(".current-images-container").empty();
+
         if (product.productImages && product.productImages.length > 0) {
-          product.productImages.forEach(function(image) {
+          product.productImages.forEach(function (image) {
             const imageHtml = `
               <div class="text-center">
                 <img src="/images/${image}" width="100" class="mb-1" />
@@ -633,117 +640,131 @@ function openEditModal(id, productName, regularPrice, salePrice, category) {
                 <input type="checkbox" name="deleteImages" value="${image}" /> Delete
               </div>
             `;
-            $('.current-images-container').append(imageHtml);
+            $(".current-images-container").append(imageHtml);
           });
         } else {
-          console.log('No product images found');
+          console.log("No product images found");
         }
-        
+
         // Clear previous error messages
-        $('.error-message').text('');
-        
+        $(".error-message").text("");
+
         // Showing modal
-        $('#editCategoryModal').modal('show');
+        $("#editCategoryModal").modal("show");
       } else {
-        console.error('API returned error:', data.message);
-        Swal.fire('Error', data.message || 'Failed to load product data', 'error');
+        console.error("API returned error:", data.message);
+        Swal.fire(
+          "Error",
+          data.message || "Failed to load product data",
+          "error"
+        );
       }
     })
-    .catch(error => {
-      console.error('Error fetching product:', error);
-      Swal.fire('Error', 'Failed to load product data', 'error');
+    .catch((error) => {
+      console.error("Error fetching product:", error);
+      Swal.fire("Error", "Failed to load product data", "error");
     });
 }
 
-//edit modal eith images
-$('#editCategoryForm').on('submit', function (e) {
+//edit modal 
+$("#editCategoryForm").on("submit", function (e) {
   e.preventDefault();
-  
-  // Clear previous error messages
-  $('.error-message').text('');
-  
-  let isValid = true;
-  
-  const productName = $('#editProductName').val().trim();
-  const regularPrice = parseFloat($('#editRegularPrice').val());
-  const salePrice = parseFloat($('#editSalePrice').val());
-  const category = $('#editCategory').val();
-  const id = $('#editCategoryId').val();
 
+  // Clear previous error messages
+  $(".error-message").text("");
+
+  let isValid = true;
+
+  const productName = $("#editProductName").val().trim();
+  const regularPrice = parseFloat($("#editRegularPrice").val());
+  const salePrice = parseFloat($("#editSalePrice").val());
+  const category = $("#editCategory").val();
+  const quantity=  parseFloat($("#editQuantity").val());
+  const id = $("#editCategoryId").val();
 
   if (!productName) {
-    $('#editProductName-error').text('Product name is required');
+    $("#editProductName-error").text("Product name is required");
     isValid = false;
   }
-  
+
   if (isNaN(regularPrice) || regularPrice <= 0) {
-    $('#editRegularPrice-error').text('Regular price must be valid');
+    $("#editRegularPrice-error").text("Regular price must be valid");
     isValid = false;
   }
 
   if (isNaN(salePrice) || salePrice <= 0) {
-    $('#editSalePrice-error').text('Sale price must be valid');
-   isValid = false;
+    $("#editSalePrice-error").text("Sale price must be valid");
+    isValid = false;
   }
-  
-  
+ 
+  if (isNaN(quantity) || quantity < 0 || !Number.isInteger(Number(quantity)) ) {
+    $("#editQuantity-error").text("Quantity must be a valid whole number");
+    isValid = false;
+  }
+
   if (regularPrice <= salePrice) {
-    $('#editRegularPrice-error').text('Regular price must be greater than sale price');
+    $("#editRegularPrice-error").text(
+      "Regular price must be greater than sale price"
+    );
     isValid = false;
   }
 
   if (!category) {
-    $('#editCategory-error').text('Category is required');  
+    $("#editCategory-error").text("Category is required");
     isValid = false;
   }
-  
+
   if (!isValid) {
-    Swal.fire('Error', 'Please fix the errors in the form.', 'error');
+    Swal.fire("Error", "Please fix the errors in the form.", "error");
     return;
   }
 
-const form = document.getElementById('editCategoryForm');
-const formData = new FormData(form);
+  const form = document.getElementById("editCategoryForm");
+  const formData = new FormData(form);
 
   fetch(`/admin/editProducts/${id}`, {
-    method: 'POST', 
+    method: "POST",
     body: formData,
   })
-    .then(res => res.json())
-    .then(data => {
+    .then((res) => res.json())
+    .then((data) => {
       if (data.success) {
-        Swal.fire('Updated!', data.message, 'success').then(() => location.reload());
+        Swal.fire("Updated!", data.message, "success").then(() =>
+          location.reload()
+        );
       } else {
-        Swal.fire('Error', data.message, 'error');
+        Swal.fire("Error", data.message, "error");
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(err);
-      Swal.fire('Error', 'Something went wrong', 'error');
+      Swal.fire("Error", "Something went wrong", "error");
     });
 });
 
-
 function openDeleteModal(id) {
-  $('#deleteCategoryId').val(id);
-  $('#deleteCategoryModal').modal('show');
+  $("#deleteCategoryId").val(id);
+  $("#deleteCategoryModal").modal("show");
 }
 
-$('#deleteCategoryForm').on('submit', function (e) {
+$("#deleteCategoryForm").on("submit", function (e) {
   e.preventDefault();
-  const id = $('#deleteCategoryId').val();
+  const id = $("#deleteCategoryId").val();
 
   fetch(`/admin/deleteProducts/${id}`, {
-    method: 'DELETE'
+    method: "DELETE",
   })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      Swal.fire('Deleted!', data.message, 'success').then(() => location.reload());
-    } else {
-      Swal.fire('Error', data.message, 'error');
-    }
-  });
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        Swal.fire("Deleted!", data.message, "success").then(() =>
+          location.reload()
+        );
+      } else {
+        Swal.fire("Error", data.message, "error");
+      }
+    });
 });
+
 
 </script>

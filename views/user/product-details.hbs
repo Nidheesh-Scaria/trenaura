@@ -207,7 +207,16 @@
                 <option value="XL">XL</option>
                 <option value="XXL">XXL</option>
             </select>
+            
         </div>
+        {{#if (gt product.quantity 5)}}
+            <p><strong>Stock left:{{product.quantity}}</strong> </p>
+        {{else if (and (lt product.quantity 5)(gt product.quantity 0))}}
+            <p><strong>Stock left:{{product.quantity}}</strong> </p>
+        {{else}}   
+            <p style="color: red;"><strong>Out of stock</strong> </p>
+        {{/if}}
+        
         {{#if product.quantity}}
       
         <div>
@@ -216,8 +225,6 @@
         
         </div>
         
-        {{else}}
-        <p style="color: red;">Out of Stock</p>
         {{/if}}
         <div class="product-info">
             <h3 style="color: black;">About this item</h3>

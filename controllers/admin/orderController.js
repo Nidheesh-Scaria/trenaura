@@ -1,11 +1,11 @@
-const OrderSchema = require("../models/orderSchema");
-const AddressSchema = require("../models/addressSchema");
-const UserSchema = require("../models/userSchema");
-const ProductSchema = require("../models/productSchema");
-const WalletSchema = require("../models/walletSchema");
+const OrderSchema = require("../../models/orderSchema");
+const AddressSchema = require("../../models/addressSchema");
+const UserSchema = require("../../models/userSchema");
+const ProductSchema = require("../../models/productSchema");
+const WalletSchema = require("../../models/walletSchema");
 
-const httpStatus = require("../util/statusCodes");
-const { MESSAGES } = require("../util/constants");
+const httpStatus = require("../../util/statusCodes");
+const { MESSAGES } = require("../../util/constants");
 
 //order management
 
@@ -87,8 +87,7 @@ const loadOrder = async (req, res) => {
 const orderMangement = async (req, res) => {
   try {
     const itemId = req.params.id;
-    console.log("orderMangement", itemId);
-
+  
     const orders = await OrderSchema.findOne(
       { "orderedItems._id": itemId },
       {

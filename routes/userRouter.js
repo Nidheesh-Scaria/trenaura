@@ -1,9 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const userController = require("../controllers/userController");
+const userController = require("../controllers/user/userController");
 const userAuth = require("../middleware/userAuth");
 const passport = require("passport");
-
+const cartController=require("../controllers/user/cartController")
+const wishlistController=require("../controllers/user/wishlistController")
+const orderController=require("../controllers/user/orderController")
+const walletController=require("../controllers/user/walletController")
+const addressController=require("../controllers/user/addressController")
 
 
 
@@ -14,7 +18,6 @@ router.post("/resendOtp", userController.resendSignupOtp);
 router.post("/logout", userController.logout);
 
 
-
 router.get("/",userAuth.userBlocked,userController.loadHomepage);
 router.get("/login", userAuth.isLoggedIn, userController.loadLogin);
 router.get("/signup", userAuth.isLoggedIn, userController.loadSignup);
@@ -22,6 +25,7 @@ router.get("/verifyOtp", userAuth.isLoggedIn, userController.verifyOtp);
 router.get("/pageNotFound", userController.pageNotFound);
 router.get("/logout", userAuth.isLoggedIn, userController.loadLogout);
 router.get('/productDetails',userAuth.userBlocked, userController.productDetails)
+
 
 //profile info
 router.get("/myAccount",userAuth.userBlocked,userAuth.checkSession, userController.loadmyAccount);
@@ -43,11 +47,11 @@ router.get('/filter',userAuth.userBlocked,userController.filter);
 
 
 // adreess mangement
-router.get('/manageAddress',userAuth.userBlocked,userAuth.checkSession, userController.loadmyAddress)
-router.post('/addAddress/:id',userAuth.checkSession,userController.addAddress)
-router.get('/editAddress/:id',userAuth.userBlocked,userAuth.checkSession, userController.loadEditAddress)
-router.put('/submitEditAddress/:id',userAuth.userBlocked,userAuth.checkSession, userController.editAddress)
-router.delete('/deleteAddress/:id',userAuth.userBlocked,userAuth.checkSession, userController.deleteAddress)
+router.get('/manageAddress',userAuth.userBlocked,userAuth.checkSession, addressController.loadmyAddress)
+router.post('/addAddress/:id',userAuth.userBlocked,userAuth.checkSession,addressController.addAddress)
+router.get('/editAddress/:id',userAuth.userBlocked,userAuth.checkSession, addressController.loadEditAddress)
+router.put('/submitEditAddress/:id',userAuth.userBlocked,userAuth.checkSession, addressController.editAddress)
+router.delete('/deleteAddress/:id',userAuth.userBlocked,userAuth.checkSession, addressController.deleteAddress)
 
 
 //changePassword
@@ -62,46 +66,48 @@ router.get('/verify-otp-page',userAuth.userBlocked,userAuth.checkSession,userCon
 
 
 // add to cart
-router.post('/addToCart/:id',userAuth.userBlocked,userAuth.checkSession, userController.addToCart)
-router.post('/addToCarts/:id',userAuth.userBlocked,userAuth.checkSession, userController.addToCart)
-router.get('/loadcartPage',userAuth.userBlocked,userAuth.checkSession, userController.loadmyCart)
-router.patch('/increaseQuantity/:id',userAuth.userBlocked,userAuth.checkSession, userController.increaseQuantity)
-router.patch('/decreaseQuantity/:id',userAuth.userBlocked,userAuth.checkSession, userController.decreaseQuantity)
-router.delete("/removefromCart/:id",userAuth.userBlocked,userAuth.checkSession, userController.removefromCart)
+router.post('/addToCart/:id',userAuth.userBlocked,userAuth.checkSession, cartController.addToCart)
+router.post('/addToCarts/:id',userAuth.userBlocked,userAuth.checkSession, cartController.addToCart)
+router.get('/loadcartPage',userAuth.userBlocked,userAuth.checkSession, cartController.loadmyCart)
+router.patch('/increaseQuantity/:id',userAuth.userBlocked,userAuth.checkSession, cartController.increaseQuantity)
+router.patch('/decreaseQuantity/:id',userAuth.userBlocked,userAuth.checkSession, cartController.decreaseQuantity)
+router.delete("/removefromCart/:id",userAuth.userBlocked,userAuth.checkSession, cartController.removefromCart)
+
 
 //wishlist management
+router.get('/loadWishlist',userAuth.userBlocked,userAuth.checkSession, wishlistController.loadWishlist)
+router.post('/addWishlist/:id',userAuth.userBlocked,userAuth.checkSession, wishlistController.addWishlist)
+router.delete('/removeFromWishlist/:id',userAuth.userBlocked,userAuth.checkSession, wishlistController.removeFromWishlist)
 
-router.get('/loadWishlist',userAuth.userBlocked,userAuth.checkSession, userController.loadWishlist)
-router.post('/addWishlist/:id',userAuth.userBlocked,userAuth.checkSession, userController.addWishlist)
-router.delete('/removeFromWishlist/:id',userAuth.userBlocked,userAuth.checkSession, userController.removeFromWishlist)
 
 //order management
-
-router.get('/loadMyOrder',userAuth.userBlocked,userAuth.checkSession, userController.loadMyOrder)
-router.get('/loadAddressForOrder/:id',userAuth.userBlocked,userAuth.checkSession, userController.loadAddressForOrder)
-router.post('/submit-address',userAuth.userBlocked,userAuth.checkSession, userController.submitAddress)
-router.get('/loadPaymentMode',userAuth.userBlocked,userAuth.checkSession, userController.loadPaymentMethod)
-router.post('/orderSuccess',userAuth.userBlocked,userAuth.checkSession, userController.orderSuccess)
-router.get('/order-placed',userAuth.userBlocked,userAuth.checkSession, userController.orderPlaced)
-router.post('/cancelOrder/:id',userAuth.userBlocked,userAuth.checkSession, userController.cancelOrder);
-router.get('/orderDetails/:id',userAuth.userBlocked,userAuth.checkSession,userController.orderDetails)
-router.get('/loadReturnOrder/:id',userAuth.userBlocked,userAuth.checkSession,userController.loadReturnOrder)
-router.post('/returnOrder/:id',userAuth.userBlocked,userAuth.checkSession,userController.returnOrder)
+router.get('/loadMyOrder',userAuth.userBlocked,userAuth.checkSession, orderController.loadMyOrder)
+router.get('/loadAddressForOrder/:id',userAuth.userBlocked,userAuth.checkSession, orderController.loadAddressForOrder)
+router.post('/submit-address',userAuth.userBlocked,userAuth.checkSession, orderController.submitAddress)
+router.get('/loadPaymentMode',userAuth.userBlocked,userAuth.checkSession, orderController.loadPaymentMethod)
+router.post('/orderSuccess',userAuth.userBlocked,userAuth.checkSession, orderController.orderSuccess)
+router.get('/order-placed',userAuth.userBlocked,userAuth.checkSession, orderController.orderPlaced)
+router.post('/cancelOrder/:id',userAuth.userBlocked,userAuth.checkSession, orderController.cancelOrder);
+router.get('/orderDetails/:id',userAuth.userBlocked,userAuth.checkSession,orderController.orderDetails)
+router.get('/loadReturnOrder/:id',userAuth.userBlocked,userAuth.checkSession,orderController.loadReturnOrder)
+router.post('/returnOrder/:id',userAuth.userBlocked,userAuth.checkSession,orderController.returnOrder)
 
 
 //payment mangement
-router.post('/create-razorpay-order',userAuth.userBlocked,userAuth.checkSession,userController.createRazorpayOrder)
-router.post("/verify-payment",userAuth.userBlocked,userAuth.checkSession,userController.verifyPayment)
+router.post('/create-razorpay-order',userAuth.userBlocked,userAuth.checkSession,orderController.createRazorpayOrder)
+router.post("/verify-payment",userAuth.userBlocked,userAuth.checkSession,orderController.verifyPayment)
 
 //wallet management
-router.get('/myWallet',userController.getMyWallet)
-router.get("/walletTransactionHistory",userController.walletTransactionHistory)
+router.get('/myWallet',userAuth.userBlocked,userAuth.checkSession,walletController.getMyWallet)
+router.get("/walletTransactionHistory",userAuth.userBlocked,userAuth.checkSession,walletController.walletTransactionHistory)
+
 //adding money in wallet
-router.post("/create-razorpay-order-wallet",userController.createRazorpayOrderWallet)
-router.post("/verify-payment-wallet",userController.verifyPaymentForWallet)
+router.post("/create-razorpay-order-wallet",userAuth.userBlocked,userAuth.checkSession,walletController.createRazorpayOrderWallet)
+router.post("/verify-payment-wallet",userAuth.userBlocked,userAuth.checkSession,walletController.verifyPaymentForWallet)
 
 
-
+//coupon management
+router.post("/applyCoupon",userAuth.userBlocked,userAuth.checkSession, cartController.applyCoupon)
 
 
 

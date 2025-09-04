@@ -34,6 +34,14 @@ const orderSchema = new Schema({
         type: Number,
         default: 0,
       },
+      offerDiscount: {
+        type: Number,
+        default: 0,
+      },
+      couponDiscount: {
+        type: Number,
+        default: 0,
+      },
       statusHistory: [
         {
           status: {
@@ -69,7 +77,7 @@ const orderSchema = new Schema({
         },
         isReturnInitiated: {
           type: Boolean,
-          default: false,
+          default: null,
         },
         reason: {
           type: String,
@@ -109,6 +117,14 @@ const orderSchema = new Schema({
     required: true,
   },
   discount: {
+    type: Number,
+    default: 0,
+  },
+  couponDiscount: {
+    type: Number,
+    default: 0,
+  },
+  deliveryCharge: {
     type: Number,
     default: 0,
   },

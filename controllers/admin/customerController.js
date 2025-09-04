@@ -1,6 +1,6 @@
-const userSchema = require("../models/userSchema");
-const { MESSAGES } = require("../util/constants");
-const httpStatus = require("../util/statusCodes");
+const userSchema = require("../../models/userSchema");
+const { MESSAGES } = require("../../util/constants");
+const httpStatus = require("../../util/statusCodes");
 
 const customerInfo = async (req, res) => {
   try {

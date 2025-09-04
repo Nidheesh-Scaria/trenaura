@@ -1,6 +1,7 @@
 
-    <head>
+<head>
   <style>
+    /* Reset */
     * {
       margin: 0;
       padding: 0;
@@ -10,22 +11,22 @@
     body {
       font-family: Arial, sans-serif;
       background: #f8f8f8;
+      color: #333;
     }
 
-    
-    /* empty order */
+    /* Empty Order */
     .order-empty {
       text-align: center;
-      padding: 50px 20px;
-      background: #f9f9f9;
+      padding: 60px 20px;
+      background: #fff;
       border-radius: 12px;
       box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
       max-width: 500px;
-      margin: 50px auto;
+      margin: 80px auto;
     }
 
     .order-empty-title {
-      font-size: 24px;
+      font-size: 26px;
       font-weight: bold;
       color: #444;
       margin-bottom: 10px;
@@ -36,76 +37,62 @@
       color: #777;
     }
 
-
     /* Container */
     .container {
-      margin: 20px;
+      margin: 30px auto;
       max-width: 1200px;
-      margin: 20px auto;
+      padding: 10px;
     }
 
     /* Main Content */
     .main-content {
-      padding: 20px;
+      padding: 25px;
       background: #fff;
-      border-radius: 10px;
+      border-radius: 12px;
+      box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
     }
 
     .orders-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
 
     .orders-header h2 {
-      font-size: 30px;
+      font-size: 28px;
       font-weight: 700;
+      color: #222;
     }
 
-    .search-container {
-      position: relative;
-    }
-
-    .orders-header input {
-      padding: 8px 35px 8px 12px;
-      border: 1px solid #ccc;
-      border-radius: 20px;
-      width: 200px;
-      background: #f5f5f5;
-    }
-
-    .search-icon {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #999;
-      cursor: pointer;
-    }
-
+    /* Orders List */
     .orders-list {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 18px;
     }
 
     .order-card {
       display: flex;
       align-items: center;
       background: #fff;
-      padding: 20px;
+      padding: 18px;
       border-radius: 10px;
-      gap: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      border: 1px solid #f0f0f0;
+      gap: 18px;
+      border: 1px solid #eee;
+      transition: all 0.2s ease;
+    }
+
+    .order-card:hover {
+      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.08);
+      transform: translateY(-2px);
     }
 
     .order-card img {
-      width: 80px;
-      height: 80px;
+      width: 85px;
+      height: 85px;
       object-fit: cover;
-      border-radius: 10px;
+      border-radius: 8px;
       background: #f0f0f0;
     }
 
@@ -117,6 +104,7 @@
       font-size: 16px;
       margin-bottom: 8px;
       color: #333;
+      font-weight: 600;
     }
 
     .price-info {
@@ -128,7 +116,7 @@
     .current-price {
       font-size: 16px;
       font-weight: bold;
-      color: #333;
+      color: #222;
     }
 
     .original-price {
@@ -137,40 +125,16 @@
       font-size: 14px;
     }
 
+    /* Order Status */
     .order-status {
       text-align: right;
-      min-width: 200px;
-    }
-
-    .status-indicator {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      margin-bottom: 5px;
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      margin-right: 8px;
-    }
-
-    .status-dot.green {
-      background: #28a745;
-    }
-
-    .status-dot.red {
-      background: #dc3545;
-    }
-
-    .status-dot.orange {
-      background: #ffc107;
+      min-width: 220px;
     }
 
     .status-text {
       font-size: 14px;
-      margin-bottom: 3px;
+      margin-bottom: 4px;
+      font-weight: 600;
     }
 
     .status-text.green {
@@ -188,9 +152,10 @@
     .status-detail {
       font-size: 12px;
       color: #666;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
+    /* Buttons */
     .buttons {
       display: flex;
       gap: 8px;
@@ -198,12 +163,13 @@
     }
 
     .buttons button {
-      padding: 6px 12px;
+      padding: 6px 14px;
       border: none;
-      border-radius: 5px;
-      font-size: 12px;
+      border-radius: 6px;
+      font-size: 13px;
       cursor: pointer;
       font-weight: 500;
+      transition: 0.2s;
     }
 
     .btn-primary {
@@ -211,62 +177,69 @@
       color: #fff;
     }
 
+    .btn-primary:hover {
+      background: #111;
+    }
+
     .btn-secondary {
       background: #6c757d;
       color: #fff;
     }
 
-   /* Cancel Order Modal Custom */
+    .btn-secondary:hover {
+      background: #555;
+    }
+
+    .diabledButton {
+      display: none;
+    }
+
+    /* Cancel Order Modal */
     #cancelOrderModal .modal-title {
-        font-weight: 600;
-        font-size: x-large;
-        color: #ed0017; 
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+      font-weight: 600;
+      font-size: 20px;
+      color: #ed0017;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
     #cancelOrderModal .modal-title::before {
-        content: "⚠";
-        font-size: 1.5em;
+      content: "⚠";
+      font-size: 1.5em;
     }
-    
-    /* Modal footer buttons */
+
     #cancelOrderModal .modal-footer .btn {
-        min-width: 120px;
+      min-width: 120px;
+      border-radius: 6px;
     }
 
     #cancelOrderModal .btn-danger {
-        font-weight: 500;
-        border-radius: 6px;
-    }
-
-    #cancelOrderModal .btn-secondary {
-        border-radius: 6px;
-        background-color: #6c757d;
+      font-weight: 500;
     }
 
     .cancel-label {
       font-weight: 600;
-      font-size: larger;
+      font-size: 15px;
       color: #e20b0b;
       margin-bottom: 10px;
       display: block;
-      
     }
 
     .cancel-options {
       display: flex;
       flex-direction: column;
       gap: 6px;
+      margin-bottom: 10px;
     }
 
     .cancel-options label {
-      font-size: 13px;
+      font-size: 14px;
       cursor: pointer;
     }
-    .cancel-reason{
-      padding-left:4% ;
+
+    .cancel-reason {
+      padding-left: 5%;
     }
 
     #otherReason {
@@ -280,18 +253,12 @@
       resize: none;
     }
 
- 
-
-    .diabledButton{
-        display: none;
-    }
-
-    /* pagination */
+    /* Pagination */
     .pagination {
       display: flex;
       justify-content: center;
       gap: 6px;
-      margin-top: 20px;
+      margin-top: 25px;
     }
 
     .page-btn,
@@ -322,7 +289,6 @@
       opacity: 0.5;
       cursor: not-allowed;
     }
-
   </style>
 
   <!-- Bootstrap + SweetAlert + Lottie -->
@@ -332,6 +298,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 </head>
+
 
 <body>
   <div class="container">
@@ -376,6 +343,11 @@
                   {{/if}}
               {{else if (eq this.statusHistory "Delivered") }}
               <span style="font-weight: 900;" class="status-text green" id="statusHistory-{{this.id}}">{{this.statusHistory}}</span>
+                {{#if (eq this.isReturnInitiated true)}}
+                <p style="color: red;">Return requested</p>
+                {{else if (eq this.isReturnInitiated false)}}
+                <p style="color: red;">Return rejected</p>
+                {{/if}}
               {{else}}
               <span class="status-text green" id="statusHistory-{{this.id}}">Will be delivered soon</span>
               {{/if}}

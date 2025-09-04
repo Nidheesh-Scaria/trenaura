@@ -1,7 +1,7 @@
-const userSchema = require("../models/userSchema");
+const userSchema = require("../../models/userSchema");
 const bcrypt = require("bcrypt");
-const httpStatus=require('../util/statusCodes')
-const {MESSAGES}=require('../util/constants')
+const httpStatus=require('../../util/statusCodes')
+const {MESSAGES}=require('../../util/constants')
 
 const loadLogin = async (req, res) => {
   try {

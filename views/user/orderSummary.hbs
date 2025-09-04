@@ -316,7 +316,7 @@
         <span>Platform Fee</span>
         <span>₹0</span>
       </div>
-      {{!-- <input type="text" placeholder="ADD A DISCOUNT CODE" class="coupon-input" /> --}}
+      <input type="text" placeholder="ADD A DISCOUNT CODE" class="coupon-input" /><button onclick="applyCoupon(event)">Apply</button>
       <hr />
       <div class="summary-line total">
         <span>Total</span>
@@ -373,7 +373,7 @@ async function increaseQuantity(event, id) {
      
     } else {
       Toastify({
-        text: "Failed to increase quantity",
+        text: data.message || "Failed to increase quantity",
         duration: 3000,
         close: true,
         gravity: "bottom",

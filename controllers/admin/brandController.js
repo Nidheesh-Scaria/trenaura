@@ -1,4 +1,4 @@
-const Brand = require("../models/brandSchema");
+const Brand = require("../../models/brandSchema");
 
 const getBrandPage = async (req, res) => {
   try {

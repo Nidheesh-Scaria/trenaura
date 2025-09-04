@@ -126,6 +126,8 @@
                 {{/if}}
                 {{#if (eq this.isReturnInitiated true)}}
                 <p class="return-initiated" >Return initiated</p>
+                {{else if (eq this.isReturnInitiated false)}}
+                <p class="return-initiated" >Return Rejected</p>
                 {{/if}}
             </td>
             {{!-- <td>₹{{../finalAmount}}</td> --}}

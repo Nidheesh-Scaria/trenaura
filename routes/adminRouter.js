@@ -1,16 +1,17 @@
 const express = require("express");
 const router = express.Router();
-const adminController = require("../controllers/adminController");
+const adminController = require("../controllers/admin/adminController");
 const adminAuth = require("../middleware/userAuth");
-const customerController = require("../controllers/customerController");
-const categoryController = require("../controllers/categoryController");
+const customerController = require("../controllers/admin/customerController");
+const categoryController = require("../controllers/admin/categoryController");
 const multer = require("multer");
 // const storage = require("../helpers/multer");
 // const uploads = multer({ storage: storage }); 
 const upload = require("../helpers/multer");
-const productController = require("../controllers/productController");
-const brandController = require("../controllers/brandController");
-const orderController=require('../controllers/orderController')
+const productController = require("../controllers/admin/productController");
+const brandController = require("../controllers/admin/brandController");
+const orderController=require('../controllers/admin/orderController')
+const couponController=require("../controllers/admin/couponController")
 
 
 
@@ -36,7 +37,6 @@ router.patch("/customerUnblock/:id",adminAuth.adminAuth,customerController.custo
 router.get("/products", adminAuth.adminAuth, productController.getProductPage);
 router.get("/addProducts",adminAuth.adminAuth,productController.getAddProducts);
 router.post("/addProducts",adminAuth.adminAuth,upload.array("images", 4),productController.addProducts);
-
 router.get("/editProducts/:id", adminAuth.adminAuth, productController.getEditProduct);
 router.post("/editProducts/:id",upload.array('images'),adminAuth.adminAuth,productController.editProducts );
 router.delete("/deleteProducts/:id", adminAuth.adminAuth, productController.deleteProducts);
@@ -62,6 +62,13 @@ router.get("/reviewReturn/:id",adminAuth.adminAuth,orderController.loadReviewRet
 router.post("/changeReturnStatus/:id",adminAuth.adminAuth,orderController.changeReturnStatus)
 router.get("/return-or-refund",adminAuth.adminAuth,orderController.loadReturnOrRefund)
 router.post("/initiateRefund/:id",adminAuth.adminAuth,orderController.initiateRefund)
+
+
+// coupon manangement
+router.get('/coupon',adminAuth.adminAuth,couponController.loadCoupon)
+router.post("/createCoupon",adminAuth.adminAuth,couponController.createCoupon)
+router.put("/editCoupon/:id",adminAuth.adminAuth,couponController.editCoupon)
+router.delete("/deleteCoupon/:id",adminAuth.adminAuth,couponController.deleteCoupon)
 
 
 

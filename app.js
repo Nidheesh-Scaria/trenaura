@@ -27,39 +27,6 @@ mongoose.connection.once("open", () => {
   console.log("Grid fs set in app.locals");
 });
 
-// const hbs = exphbs.create({
-//   extname: "hbs",
-//   defaultLayout: "layout",
-//   layoutsDir: path.join(__dirname, "views"),
-//   partialsDir: path.join(__dirname, "views/partials"),
-//   helpers: {
-//     increment: (index, offset=1) => parseInt(index) + parseInt(offset || 0) + 1,
-//     decrement: (value,offset=1) => parseInt(value) - parseInt(offset),
-//     multiply: (a, b) => parseInt(a) * parseInt(b),
-
-//     ifCond: function (v1, operator, v2, options) {
-//       switch (operator) {
-//         case "===":
-//           return v1 === v2 ? options.fn(this) : options.inverse(this);
-//         case ">":
-//           return v1 > v2 ? options.fn(this) : options.inverse(this);
-//         case "<":
-//           return v1 < v2 ? options.fn(this) : options.inverse(this);
-//         default:
-//           return options.inverse(this);
-//       }
-//     },
-//     range: function (start, end) {
-//       const arr = [];
-//       for (let i = start; i <= end; i++) {
-//         arr.push(i);
-//       }
-//       return arr;
-//     },
-//     eq: (a, b) => a === b,
-//   },
-// });
-
 const hbs = exphbs.create({
   extname: "hbs",
   defaultLayout: "layout",
@@ -113,7 +80,23 @@ const hbs = exphbs.create({
 
     eq: (a, b) => a === b,
     ne: (a, b) => a !== b,
-    and: (a, b) => a && b,
+    gt: (a, b) => a > b,
+    lt: (a, b) => a < b,
+    gte: (a, b) => a >= b,
+    lte: (a, b) => a <= b,
+
+    and: function () {
+      return Array.prototype.every.call(arguments, Boolean);
+    },
+    or: function () {
+      return Array.prototype.slice.call(arguments, 0, -1).some(Boolean);
+    },
+
+    formatDate: function (date) {
+      if (!date) return "";
+      const options = { day: "2-digit", month: "short", year: "numeric" };
+      return new Date(date).toLocaleDateString("en-GB", options);
+    },
   },
 });
 

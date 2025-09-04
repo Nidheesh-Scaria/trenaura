@@ -219,9 +219,11 @@
             <h5 class="payment-title">SELECT PAYMENT METHOD</h5>
             
             <form id="paymentForm">
+
                 <div class="payment-options">
                     <input type="hidden" name="itemId" id="itemId" value="{{itemId}}">
                     <input type="hidden" name="amount" id="amount" value="{{grandTotal}}">
+                    <input type="hidden" name="couponCode" id="couponCode" value="{{couponCode}}">
                     <!-- Razorpay -->
                     <div class="form-check payment-option d-flex align-items-center selected" data-method="razorpay">
                         <input class="form-check-input me-3" type="radio" name="paymentMethod" id="razorpay" value="razorpay" checked>
@@ -277,7 +279,7 @@
                 <div class="text-center mt-4">
                     <button type="submit" class="btn btn-primary continue-btn">
                         <i class="fas fa-arrow-right me-2"></i>
-                        Continue to Payment
+                        Continue...
                     </button>
                 </div>
             </form>
@@ -344,6 +346,7 @@
 
                 const itemId = document.getElementById("itemId").value;
                 const amount=document.getElementById("amount").value
+                const couponCode=document.getElementById("couponCode").value
                 const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
                 const grandTotal = document.getElementById("grandTotal").innerText.replace("₹", "");
 
@@ -368,7 +371,7 @@
                             const response=await fetch('/orderSuccess',{
                                 method:"POST",
                                 headers:{"Content-Type":"application/json"},
-                                body:JSON.stringify({paymentMethod})
+                                body:JSON.stringify({paymentMethod,couponCode})
                             })
                         
                             let data;
@@ -417,7 +420,7 @@
                         const response = await fetch("/orderSuccess", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ itemId, paymentMethod }),
+                            body: JSON.stringify({ itemId, paymentMethod ,couponCode}),
                         });
 
                     let data;
@@ -467,7 +470,7 @@
                         const response = await fetch("/orderSuccess", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ itemId, paymentMethod })
+                            body: JSON.stringify({ itemId, paymentMethod ,couponCode})
                         });
 
                         const dataAfterSavingOrder = await response.json();

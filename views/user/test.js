@@ -1,135 +1,203 @@
-function openRefundModal() {
-  document.getElementById("refundModal").style.display = "block";
-}
-function openAcceptModal() {
-  document.getElementById("acceptModal").style.display = "block";
-}
-function openRejectModal() {
-  document.getElementById("rejectModal").style.display = "block";
-}
-function closeModal() {
-  document.getElementById("rejectModal").style.display = "none";
-  document.getElementById("acceptModal").style.display = "none";
-  document.getElementById("refundModal").style.display = "none";
-}
+const mongoose = require("mongoose");
+const { Schema } = mongoose;
+const { v4: uuidv4 } = require("uuid");
 
-function showToast(message, isError = false) {
-  Toastify({
-    text: message,
-    duration: 3000,
-    close: true,
-    gravity: "top",
-    position: "center",
-    style: {
-      background: isError
-        ? "linear-gradient(to right, #b31217, #e52d27)"
-        : "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+const orderSchema = new Schema(
+  {
+    orderId: {
+      type: String,
+      default: () => uuidv4(),
+      unique: true,
     },
-    className: "custom-toast",
-  }).showToast();
-}
-
-async function acceptReturn(event, id) {
-  event.preventDefault();
-
-  try {
-    const isAccepted = true;
-
-    const res = await fetch(`/admin/changeReturnStatus/${id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isAccepted }),
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      showToast(data.message);
-      document.getElementById("refund-div").style.display = "block";
-      document.getElementById("refund-status").style.display = "none";
-      document.getElementById("cancel-accept").style.display = "none";
-      closeModal();
-    } else {
-      showToast(data.message, true);
-    }
-  } catch (error) {
-    console.error("Error accepting return:", error);
-    Swal.fire({
-      icon: "error",
-      title: "Oops!",
-      text: "Server error. Please try again later.",
-    });
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    orderedItems: [
+      {
+        product: {
+          type: Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+        },
+        variant: {
+          size: {
+            type: String,
+            default: null,
+          },
+        },
+        price: {
+          type: Number,
+          default: 0,
+        },
+        regularPrice: {
+          type: Number,
+          default: 0,
+        },
+        salePrice: {
+          type: Number,
+          default: 0,
+        },
+        offerDiscount: {
+          type: Number,
+          default: 0,
+        },
+        couponDiscount: {
+          type: Number,
+          default: 0,
+        },
+        status: {
+          type: String,
+          enum: [
+            "processing",
+            "shipped",
+            "out_for_delivery",
+            "delivered",
+            "cancelled",
+            "return request",
+            "returned",
+            "return approved",
+            "return rejected",
+            "payment_failed",
+          ],
+          default: "processing",
+          lowercase: true,
+        },
+        cancelReason: {
+          type: String,
+          default: "",
+        },
+        returnReason: {
+          type: String,
+          default: "",
+        },
+        deliveredOn: {
+          type: Date,
+        },
+        deliveredOn: {
+          type: Date,
+        },
+      },
+    ],
+    deliveredOn: {
+      type: Date,
+    },
+    totalPrice: {
+      type: Number,
+      default: 0,
+    },
+    deliveryCharge: {
+      type: Number,
+      default: 0,
+    },
+    discount: {
+      type: Number,
+      default: 0,
+    },
+    offerDiscount: {
+      type: Number,
+      default: 0,
+    },
+    couponDiscount: {
+      type: Number,
+      default: 0,
+    },
+    finalAmount: {
+      type: Number,
+      default: 0,
+    },
+    refundAmount: {
+      type: Number,
+      default: 0,
+    },
+    address: {
+      addressType: { type: String, required: true },
+      name: { type: String, required: true },
+      city: { type: String, required: true },
+      landMark: { type: String, required: true },
+      state: { type: String, required: true },
+      pincode: { type: String, required: true },
+      phone: { type: String, required: true },
+      altphone: { type: String },
+    },
+    invoiceDate: {
+      type: Date,
+    },
+    status: {
+      type: String,
+      required: true,
+      enum: [
+        "processing",
+        "placed",
+        "shipped",
+        "delivered",
+        "cancelled",
+        "out_for_delivery",
+        "return request",
+        "returned",
+        "return approved",
+        "return rejected",
+        "payment_failed"
+      ],
+      lowercase: true,
+    },
+    createdOn: {
+      type: Date,
+      default: Date.now,
+      required: true,
+    },
+    coupon: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Coupon",
+    },
+    couponApplied: {
+      type: Boolean,
+      default: false,
+    },
+    cancelReason: {
+      type: String,
+      default: "",
+    },
+    returnReason: {
+      type: String,
+      default: "",
+    },
+    paymentMethod: {
+      type: String,
+      required: true,
+      enum: ["credit_card", "paypal", "razorpay", "cash_on_delivery", "wallet"],
+    },
+    paymentStatus: {
+      type: String,
+      enum: ["Pending", "Paid", "Failed", "Refunded", "Partially Refunded"],
+      default: "Pending",
+    },
+    razorpayOrderId: {
+      type: String,
+    },
+    razorpayPaymentId: {
+      type: String,
+    },
+    paymentFailureReason: {
+      type: String,
+      default: "",
+    },
+    retryAttempts: {
+      type: Number,
+      default: 0,
+    },
+    lastPaymentAttempt: {
+      type: Date,
+    },
+  },
+  {
+    timestamps: true,
   }
-}
+);
 
-async function rejectReturn(event, id) {
-  event.preventDefault();
-  console.log("acceptReturn id:", id);
-
-  try {
-    const isRejected = true;
-    const res = await fetch(`/admin/changeReturnStatus/${id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isRejected }),
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      showToast(data.message);
-      document.getElementById("cancel-accept").style.display = "none";
-      document.getElementById("refund-div").style.display = "none";
-      document.getElementById(
-        "refund-status"
-      ).innerHTML = `<span style="color:#b31217;">Return request rejected</span>`;
-      document.getElementById("refund-status").style.display = "block";
-      closeModal();
-    } else {
-      showToast(data.message, true);
-    }
-  } catch (error) {
-    console.error("Error accepting return:", error);
-    Swal.fire({
-      icon: "error",
-      title: "Oops!",
-      text: "Server error. Please try again later.",
-    });
-  }
-}
-
-async function initiateRefund(event, id, userId) {
-  event.preventDefault();
-
-  try {
-    console.log("User id", userId);
-
-    console.log("initiateRefund item id :", id);
-
-    const res = await fetch(`/admin/initiateRefund/${id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId }),
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      showToast(data.message);
-
-      document.getElementById("cancel-accept").style.display = "none";
-      document.getElementById("refund-div").style.display = "none";
-
-      document.getElementById(
-        "refund-status"
-      ).innerHTML = `Refund completed on ${data.refundDate}`;
-      document.getElementById("refund-status").style.display = "block";
-      closeModal();
-    } else {
-      showToast(data.message, true);
-    }
-    closeModal();
-  } catch (error) {
-    console.error("Error navigating to order management:", error);
-  }
-}
+module.exports = mongoose.model("Order", orderSchema);

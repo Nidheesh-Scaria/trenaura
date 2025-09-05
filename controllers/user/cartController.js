@@ -277,7 +277,7 @@ const removefromCart = async (req, res) => {
 const applyCoupon = async (req, res) => {
   try {
     const userId=req.session.user
-    const { couponCode, cartTotal } = req.body;
+    const { couponCode, cartTotal ,quantity} = req.body;
     
     const coupon = await CouponSchema.findOne({
       code: couponCode,
@@ -292,6 +292,7 @@ const applyCoupon = async (req, res) => {
     if (coupon.expiryDate < new Date()) {
       return res.status(400).json({ message: "Coupon expired" });
     }
+    
     if (cartTotal < coupon.minOrderValue) {
       return res
         .status(400)

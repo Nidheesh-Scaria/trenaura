@@ -427,8 +427,6 @@ async function addWishlist(event,id){
 async function buyItNow(event,id){
     event.preventDefault()
     const size=selectedSize.value
-    {{!-- const quantity=parseInt(document.getElementById("qty-display").innerText,10)
-     --}}
     
     window.location.href = `/loadAddressForOrder/${id}?size=${size}`;
 }

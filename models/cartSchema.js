@@ -35,10 +35,14 @@ const cartSchema = new Schema(
           type: String,
           default: "Placed",
         },
+        createdOn: {
+          type: Date,
+          default: Date.now,
+        },
       },
     ],
   },
-  { timestamps: true } 
+  { timestamps: true }
 );
 
 const Cart = mongoose.model("Cart", cartSchema);

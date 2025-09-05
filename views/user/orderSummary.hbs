@@ -1,8 +1,7 @@
-
 <head>
 
-  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
-    rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
+        rel="stylesheet">
 
     <!-- Css Styles -->
     <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
@@ -11,465 +10,577 @@
     <link rel="stylesheet" href="css/magnific-popup.css" type="text/css">
     <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">
     <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
-    <link rel="stylesheet" href="css/home.css" type="text/css">
-    
+
+
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easyzoom@2.5.0/css/easyzoom.css">
 
     <style>
-
         .cart-container {
-          padding: 30px 5%;
+            padding: 30px 5%;
         }
 
         .cart-heading {
-          font-size: 24px;
-          text-align: center;
-          font-weight: bolder;
-          color: black;
+            font-size: 24px;
+            text-align: center;
+            font-weight: bolder;
+            color: black;
         }
 
         .cart-subheading {
-          text-align: center;
-          color: #888;
-          margin-bottom: 30px;
-          font-size: 14px;
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 14px;
         }
 
-        #price_details{
-          color:#000000
+        #price_details {
+            color: #000000
         }
 
         .cart-wrapper {
-          display: flex;
-          gap: 3rem;
-          flex-wrap: wrap;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 3rem;
+            flex-wrap: wrap;
         }
 
         .cart-items {
-          flex: 2;
+            flex: 2;
         }
 
         .cart-item {
-          display: flex;
-          gap: 1rem;
-          border-bottom: 1px solid #ccc;
-          padding: 15px 0;
+            display: flex;
+            gap: 1rem;
+            border-bottom: 1px solid #ccc;
+            padding: 15px 0;
         }
+
         .cart-item h5 {
-          color: #000000;
+            color: #000000;
         }
 
         .cart-item img {
-          width: 100px;
-          height: auto;
-          border-radius: 10%;
-          object-fit: cover;
+            width: 100px;
+            height: auto;
+            border-radius: 10%;
+            object-fit: cover;
         }
 
         .cart-item-details {
-          flex: 1;
+            flex: 1;
         }
 
-       .quantity-selector {
-          display: inline-flex;
-          align-items: center;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          overflow: hidden;
-          background-color: #fff;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        .quantity-selector {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .qty-btn {
-          padding: 6px 12px;
-          font-size: 12px;
-          font-weight: bold;
-          background-color: #f0f0f0;
-          border: none;
-          cursor: pointer;
-          transition: background-color 0.2s;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: bold;
+            background-color: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
 
         .qty-btn:hover {
-          background-color: #e0e0e0;
+            background-color: #e0e0e0;
         }
 
         .qty-display {
-          padding: 6px 16px;
-          font-size: 12px;
-          background-color: #fff;
-          color: #333;
-          font-weight: 500;
+            padding: 6px 16px;
+            font-size: 12px;
+            background-color: #fff;
+            color: #333;
+            font-weight: 500;
         }
 
 
         .cart-item-price {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
         }
 
         .remove-item {
-          color: red;
-          text-decoration: none;
-          font-size: 20px;
-          margin-top: 10px;
+            color: red;
+            text-decoration: none;
+            font-size: 20px;
+            margin-top: 10px;
         }
+
         .cart-summary {
-          width: 100%;
-          max-width: 360px;
-          background-color: #f9f9f9;
-          padding: 24px;
-          border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-          font-family: 'Segoe UI', sans-serif;
+            width: 100%;
+            max-width: 360px;
+            background-color: #f9f9f9;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            font-family: 'Segoe UI', sans-serif;
+            flex: 1;
+            max-width: 360px;
         }
 
         .cart-summary h4 {
-          margin-bottom: 16px;
-          font-size: 20px;
-          color: #333;
+            margin-bottom: 16px;
+            font-size: 20px;
+            color: #333;
         }
 
         .summary-line {
-          display: flex;
-          justify-content: space-between;
-          margin: 12px 0;
-          font-size: 15px;
-          color: #555;
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            font-size: 15px;
+            color: #555;
         }
 
         .summary-line.total {
-          font-weight: bold;
-          font-size: 17px;
-          color: #111;
+            font-weight: bold;
+            font-size: 17px;
+            color: #111;
         }
 
         .summary-line.discount {
-          color: #28a745;
+            color: #28a745;
         }
 
         .coupon-input {
-          width: 100%;
-          padding: 10px 12px;
-          border: 1px solid #ccc;
-          border-radius: 6px;
-          margin-top: 16px;
-          margin-bottom: 16px;
-          font-size: 14px;
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-top: 16px;
+            margin-bottom: 16px;
+            font-size: 14px;
         }
 
         #checkout-btn {
-          display: block;
-          text-align: center;
-          margin-top: 12px;
-          background: linear-gradient(to right, #1c6ae0, #050d36);
-          color: #fff;
-          padding: 12px;
-          border-radius: 8px;
-          width: 100%;
-          font-weight: bold;
-          transition: background 0.3s;
+            display: block;
+            text-align: center;
+            margin-top: 12px;
+            background: linear-gradient(to right, #1c6ae0, #050d36);
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            width: 100%;
+            font-weight: bold;
+            transition: background 0.3s;
         }
-       
+
         #checkout-btn:hover {
-          background: linear-gradient(to right, #1b2f5e, #1c6ae0) !important;
+            background: linear-gradient(to right, #1b2f5e, #1c6ae0) !important;
         }
 
         hr {
-          border: none;
-          border-top: 1px solid #ddd;
-          margin: 16px 0;
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 16px 0;
         }
 
         .product {
-          margin-top:4rem;
+            margin-top: 4rem;
         }
 
         .recommendations {
-          margin-top: 50px;
+            margin-top: 50px;
         }
 
         .recommendation-cards {
-          display: flex;
-          gap: 20px;
-          overflow-x: auto;
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
         }
 
         .card {
-          min-width: 150px;
-          text-align: center;
-          font-size: 14px;
+            min-width: 150px;
+            text-align: center;
+            font-size: 14px;
         }
+
         .empty-cart-message {
-          text-align: center;
-          padding: 50px 20px;
-          background-color: #f9f9f9;
-          border-radius: 12px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-          margin: 40px auto;
-          max-width: 600px;
+            text-align: center;
+            padding: 50px 20px;
+            background-color: #f9f9f9;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin: 40px auto;
+            max-width: 600px;
         }
 
         .empty-cart-message img {
-          width: 150px;
-          margin-bottom: 20px;
-          opacity: 0.8;
+            width: 150px;
+            margin-bottom: 20px;
+            opacity: 0.8;
         }
 
         .empty-cart-message h2 {
-          color: #333;
-          font-size: 24px;
-          margin-bottom: 10px;
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 10px;
         }
 
         .empty-cart-message p {
-          color: #666;
-          margin-bottom: 20px;
+            color: #666;
+            margin-bottom: 20px;
         }
 
         #shop-now-btn {
-          display: inline-block;
-          padding: 10px 20px;
-          background: linear-gradient(to right, #1f78ff, #050d36);
-          color: white;
-          border-radius: 25px;
-          text-decoration: none;
-          font-weight: bold;
-          transition: background 0.3s;
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(to right, #1f78ff, #050d36);
+            color: white;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s;
         }
 
         #shop-now-btn:hover {
-          background: linear-gradient(to right, #050d36, #1c6ae0);
+            background: linear-gradient(to right, #050d36, #1c6ae0);
         }
 
 
+        .couponDiv {
+            max-width: 400px;
+            /* Adjust width as needed */
+            margin: 20px auto;
+            /* Center horizontally */
+            padding: 20px;
+            background-color: #fdfdfd;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
+        }
 
-        
+        /* Input styling */
+        .coupon-input {
+            width: calc(100% - 90px);
+            /* leave space for button */
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px 0 0 5px;
+            font-size: 14px;
+            outline: none;
+            transition: border 0.3s;
+        }
 
+        .coupon-input:focus {
+            border-color: #4CAF50;
+            /* green border on focus */
+        }
 
+        /* Button styling */
+        button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #4CAF50;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 0 5px 5px 0;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Error message */
+        #coupon-error {
+            margin-top: 8px;
+            font-size: 13px;
+        }
+
+        /* Horizontal line */
+        hr {
+            margin-top: 15px;
+            border: none;
+            border-top: 1px solid #eee;
+        }
     </style>
+
 </head>
 
 <main class="cart-container">
-  <h2 class="cart-heading">ORDER SUMMARY</h2>
-  {{!-- <p class="cart-subheading">Your cart is more than just a list – it’s the beginning of something amazing</p> --}}
+    <h2 class="cart-heading">ORDER SUMMARY</h2>
+    <div class="cart-wrapper">
 
-  <div class="cart-wrapper">
-    <!-- Left: Cart Items -->
-    <div class="cart-items">
-      {{#if isCartEmpty}}
-        <div class="empty-cart-message">
-          <img src="https://cdn-icons-png.flaticon.com/512/2038/2038854.png" alt="Empty Cart" />
-          <h2>Your cart is empty</h2>
-          <p>Looks like you haven't added anything yet.</p>
-          <a href="/" id="shop-now-btn">Shop Now</a>
+        <!-- Left: Cart Items -->
+        <div class="cart-items">
+            <div class="cart-item" id="cart-item-{{item._id}}">
+                <input type="hidden" id="cartId" value="{{item._id}}">
+                <img src="/images/{{item.productId.productImages.[0]}}" alt="{{item.productId.productName}}"
+                    class="cart-item-image" />
+
+                <div class="cart-item-details">
+                    <h5>{{item.productId.productName}}</h5>
+                    <p>Color: {{item.productId.color}}</p>
+                    <p>Size: {{item.size}}</p>
+                    <div class="quantity-selector">
+                        <button type="button" class="qty-btn"
+                            onclick="decreaseQuantity(event,'{{item._id}}')">&#8722;</button>
+                        <span class="qty-display" id="quantity-display-{{item._id}}">{{item.quantity}}</span>
+                        <button type="button" class="qty-btn"
+                            onclick="increaseQuantity(event,'{{item._id}}')">&#43;</button>
+                    </div>
+                </div>
+
+                <div class="cart-item-price">
+                    <p style="color:black" id="totalPrice-{{item._id}}">₹{{item.totalPrice}}</p>
+                </div>
+            </div>
         </div>
-      {{/if}}
 
-     {{!-- displaying cart items --}}
-
-      {{#each cartItems}}
-      <div class="cart-item" id="'cart-item-{{this._id}}">
-        <input type="hidden" id="cartId" value="{{this._id}}">
-        <img src="/images/{{this.productId.productImages.[0]}}" alt="{{this.productId.productName}}" class="cart-item-image" />
-        <div class="cart-item-details">
-          <h5>{{this.productId.productName}}</h5>
-          <p>Color: {{this.productId.color}}</p>
-          <p> Size: {{this.size}}</p>
-          <div class="quantity-selector">
-             {{!-- decrease quantity --}}
-            <button type="button" class="qty-btn" onclick="decreaseQuantity(event,'{{this._id}}')">&#8722;</button>
-            <span class="qty-display" id="quantity-display-{{this._id}}">{{this.quantity}}</span>
-            {{!-- increase quantity --}}
-            <button type="button" class="qty-btn" onclick="increaseQuantity(event,'{{this._id}}')">&#43;</button> 
-          </div>
+        <!-- Right: Price Details -->
+        <div class="cart-summary">
+            <h5 id="price_details">PRICE DETAILS</h5>
+            <hr />
+            <div class="summary-line">
+                <span>Price</span>
+                <p style="color:black" id="totalPrice-rightside">₹{{totalPrice}}</p>
+            </div>
+            <div class="summary-line discount">
+                <span>Discount</span>
+                <span id="totalDiscount">-₹{{discount}}</span>
+            </div>
+            <div class="summary-line">
+                <span>Delivery Charge</span>
+                <span>₹0</span>
+            </div>
+            <div class="summary-line">
+                <span>Platform Fee</span>
+                <span>₹0</span>
+            </div>
+            <div class="summary-line">
+                <span>Coupon Discount</span>
+                <span id="couponDiscount">₹0</span>
+            </div>
+            <div class="couponDiv">
+                <input type="hidden" id="couponCode">
+                <input type="text" placeholder="APPLY A COUPON" class="coupon-input" id="coupon-input" />
+                <button onclick="applyCoupon(event)">Apply</button>
+                <p id="coupon-error" style="color: red;"></p>
+                <hr />
+            </div>
+            <div class="summary-line total">
+                <span>Total</span>
+                <span id="finalAmount">₹{{totalPrice}}</span>
+            </div>
+            <button type="button" id="checkout-btn" onclick="chekout(event)">CONTINUE TO CHECKOUT</button>
         </div>
-        <div class="cart-item-price">
-          <p style="color:black" id="totalPrice-{{this._id}}">₹{{this.totalPrice}}</p>
-          
-        </div>
-      </div>
-      {{/each }}
-    </div>
 
-    <!-- Right: Price Details -->
-
-    <div class="cart-summary">
-      <h5 id="price_details">PRICE DETAILS</h5>
-      <hr />
-      <div class="summary-line">
-      
-        <span>Price </span>
-        <p style="color:black" id="totalPrice-rightside">₹{{totalPrice}}</p>
-      </div>
-      <div class="summary-line discount">
-        <span>Discount</span>
-        <span>-₹{{discount}}</span>
-      </div>
-      <div class="summary-line">
-        <span>Delivery Charge</span>
-        <span>₹0</span>
-      </div>
-      <div class="summary-line">
-        <span>Platform Fee</span>
-        <span>₹0</span>
-      </div>
-      <input type="text" placeholder="ADD A DISCOUNT CODE" class="coupon-input" /><button onclick="applyCoupon(event)">Apply</button>
-      <hr />
-      <div class="summary-line total">
-        <span>Total</span>
-        <span id="cart-total">₹{{totalPrice}}</span>
-      </div>
-      <button type="submit" id="checkout-btn" onclick="chekout(event)" >CONTINUE TO CHECKOUT</button>
-      
-    </div>
-  </div>
-
-
+    </div> <!-- END cart-wrapper -->
 </main>
+
 
 
 <script>
 
 
-async function increaseQuantity(event, id) {
-  try {
-    event.preventDefault();
+    async function increaseQuantity(event, id) {
+        try {
+            event.preventDefault();
 
-    let quantityElem = document.getElementById(`quantity-display-${id}`);
-    let quantity = parseInt(quantityElem.textContent);
-    let totalPriceElem = document.getElementById(`totalPrice-${id}`);
-   
+            let quantityElem = document.getElementById(`quantity-display-${id}`);
+            let quantity = parseInt(quantityElem.textContent);
+            let totalPriceElem = document.getElementById(`totalPrice-${id}`);
 
 
-    const res = await fetch(`/increaseQuantity/${id}`, {
-      method: "PATCH",
-      headers: { "Content-type": "application/json" },
-      body:JSON.stringify({quantity})
-    });
 
-    const data = await res.json();
+            const res = await fetch(`/increaseQuantity/${id}`, {
+                method: "PATCH",
+                headers: { "Content-type": "application/json" },
+                body: JSON.stringify({ quantity })
+            });
 
-    if (res.ok) {
-      Toastify({
-        text: data.message,
-        duration: 3000,
-        close: true,
-        gravity: "bottom",
-        position: "center",
-        style: {
-          background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
-        },
-        className: "custom-toast",
-      }).showToast();
+            const data = await res.json();
 
-       quantityElem.textContent = quantity + 1;
-       totalPriceElem.innerText = `₹${data.totalPrice}`;
-       document.getElementById("cart-total").innerText = `₹${data.totalPrice}`;
-       document.getElementById("totalPrice-rightside").innerText = `₹${data.totalPrice}`;
+            if (res.ok) {
+                Toastify({
+                    text: data.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "bottom",
+                    position: "center",
+                    style: {
+                        background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+                    },
+                    className: "custom-toast",
+                }).showToast();
 
-     
-    } else {
-      Toastify({
-        text: data.message || "Failed to increase quantity",
-        duration: 3000,
-        close: true,
-        gravity: "bottom",
-        position: "center",
-        style: {
-          background: "linear-gradient(to right, #8B0000, #B22222, #DC143C)",
-        },
-        className: "custom-toast",
-      }).showToast();
+                quantityElem.textContent = quantity + 1;
+                totalPriceElem.innerText = `₹${data.totalPrice}`;
+                document.getElementById("finalAmount").innerText = `${data.totalPrice}`;
 
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-    }
-  } catch (err) {
-    console.error("Error increasing quantity:", err);
-  }
-}
+                document.getElementById("totalPrice-rightside").innerText = `₹${data.totalPrice}`;
 
-async function decreaseQuantity(event, id) {
-  try {
-    event.preventDefault();
 
-    let quantityElem = document.getElementById(`quantity-display-${id}`);
-    let quantity = parseInt(quantityElem.textContent);
-    let totalPriceElem = document.getElementById(`totalPrice-${id}`);
-    if(quantity===1){
-      return Toastify({
-        text: "Quantity should be greater than zero", 
-        duration: 3000,
-        close: true,
-        gravity: "bottom",
-        position: "center",
-        style: {
-          background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
-        },
-        className: "custom-toast",
-      }).showToast();
+            } else {
+                Toastify({
+                    text: data.message || "Failed to increase quantity",
+                    duration: 3000,
+                    close: true,
+                    gravity: "bottom",
+                    position: "center",
+                    style: {
+                        background: "linear-gradient(to right, #8B0000, #B22222, #DC143C)",
+                    },
+                    className: "custom-toast",
+                }).showToast();
+            }
+        } catch (err) {
+            console.error("Error increasing quantity:", err);
+        }
     }
 
-    const res = await fetch(`/decreaseQuantity/${id}`, {
-      method: "PATCH",
-      headers: { "Content-type": "application/json" },
-    });
+    async function decreaseQuantity(event, id) {
+        try {
+            event.preventDefault();
 
-    const data = await res.json();
+            let quantityElem = document.getElementById(`quantity-display-${id}`);
+            let quantity = parseInt(quantityElem.textContent);
+            let totalPriceElem = document.getElementById(`totalPrice-${id}`);
+            if (quantity === 1) {
+                return Toastify({
+                    text: "Quantity should be greater than zero",
+                    duration: 3000,
+                    close: true,
+                    gravity: "bottom",
+                    position: "center",
+                    style: {
+                        background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+                    },
+                    className: "custom-toast",
+                }).showToast();
+            }
 
-    if (res.ok) {
-      Toastify({
-        text: data.message,
-        duration: 3000,
-        close: true,
-        gravity: "bottom",
-        position: "center",
-        style: {
-          background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
-        },
-        className: "custom-toast",
-      }).showToast();
+            const res = await fetch(`/decreaseQuantity/${id}`, {
+                method: "PATCH",
+                headers: { "Content-type": "application/json" },
+            });
 
-      quantityElem.textContent = quantity - 1;
-      totalPriceElem.innerText = `₹${data.totalPrice}`;
-      document.getElementById("cart-total").innerText = `₹${data.totalPrice}`;
-      document.getElementById("totalPrice-rightside").innerText = `₹${data.totalPrice}`;
+            const data = await res.json();
 
-    } else {
-      Toastify({
-        text: "Failed to increase quantity",
-        duration: 3000,
-        close: true,
-        gravity: "bottom",
-        position: "center",
-        style: {
-          background: "linear-gradient(to right, #8B0000, #B22222, #DC143C)",
-        },
-        className: "custom-toast",
-      }).showToast();
+            if (res.ok) {
+                Toastify({
+                    text: data.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "bottom",
+                    position: "center",
+                    style: {
+                        background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+                    },
+                    className: "custom-toast",
+                }).showToast();
 
-     
+                quantityElem.textContent = quantity - 1;
+                totalPriceElem.innerText = `₹${data.totalPrice}`;
+                document.getElementById("finalAmount").innerText = `${data.totalPrice}`;
+
+                document.getElementById("totalPrice-rightside").innerText = `₹${data.totalPrice}`;
+
+            } else {
+                Toastify({
+                    text: "Failed to increase quantity",
+                    duration: 3000,
+                    close: true,
+                    gravity: "bottom",
+                    position: "center",
+                    style: {
+                        background: "linear-gradient(to right, #8B0000, #B22222, #DC143C)",
+                    },
+                    className: "custom-toast",
+                }).showToast();
+
+
+            }
+        } catch (err) {
+            console.error("Error removing item:", err);
+        }
     }
-  } catch(err) {
-    console.error("Error removing item:", err);
-  }
-}
 
 
-async function chekout(event){
-  event.preventDefault();
+    async function applyCoupon(event) {
+        event.preventDefault()
+        document.getElementById("coupon-error").innerHTML = ""
+        let couponCode = document.getElementById("coupon-input").value
+        let cartTotal = document.getElementById("finalAmount").innerText
+        const quantityElement = document.getElementsByClassName("qty-display")[0];
+        const quantity = parseInt(quantityElement.innerText, 10);
 
-  const cartIdInput = document.getElementById("cartId")
-  const itemId = cartIdInput ? cartIdInput.value : null;
-  const grandTotal = document.getElementById("cart-total").innerText.replace(/[^\d]/g, "");
-  window.location.href = `/loadPaymentMode?itemId=${itemId}`;
+        cartTotal = parseInt(cartTotal)
+        couponCode = couponCode.toUpperCase()
 
-}
+        console.log("Quantity:", quantity);
+
+        if (!couponCode) {
+            return document.getElementById("coupon-error").innerHTML = "Enter coupon to get discount"
+        }
+        const res = await fetch("/applyCoupon", {
+            method: "POST",
+            headers: { "Content-type": "application/json" },
+            body: JSON.stringify({ couponCode, cartTotal, quantity })
+        })
+
+        const data = await res.json()
+        if (res.ok) {
+            Toastify({
+                text: data.message || "item deleted",
+                duration: 3000,
+                close: true,
+                gravity: "bottom",
+                position: "center",
+                style: {
+                    background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+                },
+                className: "custom-toast",
+            }).showToast();
+
+            document.getElementById("finalAmount").innerText = `${data.finalAmount}`
+            document.getElementById("totalDiscount").innerText = `₹${data.discountAmount}`
+            document.getElementById("couponDiscount").innerText = `₹${data.discountAmount}`
+            document.getElementById("couponCode").value = data.couponCode
+        } else {
+            Toastify({
+                text: data.message || "item deleted",
+                duration: 3000,
+                close: true,
+                gravity: "bottom",
+                position: "center",
+                style: {
+                    background: "linear-gradient(to right, #8B0000, #B22222, #DC143C)",
+                },
+                className: "custom-toast",
+            }).showToast();
+        }
+
+    }
+
+    async function chekout(event) {
+        event.preventDefault();
+
+        const cartIdInput = document.getElementById("cartId")
+        const itemId = cartIdInput ? cartIdInput.value : null;
+        const finalAmount = document.getElementById("finalAmount").innerText;
+        const couponCode = document.getElementById("couponCode").value.trim()
+        let url = `/loadPaymentMode?itemId=${itemId}&amount=${finalAmount}`;
+        if (couponCode) {
+            url += `&couponCode=${couponCode}`;
+        }
+
+        window.location.href = url;
+    }
 
 </script>
-
-

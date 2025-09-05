@@ -211,7 +211,7 @@ const loadAddressForOrder = async (req, res) => {
 const submitAddress = async (req, res) => {
   try {
     const addressId = req.body.selectedAddress;
-    userId = req.session.user;
+    const userId = req.session.user;
     const { productId, size } = req.body;
 
     //submitting address
@@ -263,30 +263,78 @@ const submitAddress = async (req, res) => {
 
     //getting cart items
     const updatedCart = await Cart.findOne({ userId })
+      .sort({ createdOn: -1 })
+      .limit(1)
       .populate({
         path: "items.productId",
         match: { isBlocked: false, isDeleted: false },
       })
       .lean();
 
-    //fetching the current item
-    const currentItem = updatedCart.items.find(
-      (item) => item.productId && item.productId._id.toString() === productId
+    const addedItem = updatedCart.items.find(
+      (item) =>
+        item.productId && item.productId._id.toString() === productId.toString()
     );
 
-    //add to cart then
-    return res.render("user/orderSummary", {
-      title: "Order Summary",
-      adminHeader: true,
-      hideFooter: false,
-      cartItems: currentItem ? [currentItem] : [],
-      totalPrice: currentItem ? currentItem.totalPrice : 0,
-    });
+    const itemId = addedItem ? addedItem._id : null;
+    console.log(itemId);
+
+    return res.redirect(`/orderSummary?cartId=${itemId}`);
+
+    // //fetching the current item
+    // const currentItem = updatedCart.items.find(
+    //   (item) => item.productId && item.productId._id.toString() === productId
+    // );
+
+    // //add to cart then
+    // return res.render("user/orderSummary", {
+    //   title: "Order Summary",
+    //   adminHeader: true,
+    //   hideFooter: false,
+    //   cartItems: currentItem ? [currentItem] : [],
+    //   totalPrice: currentItem ? currentItem.totalPrice : 0,
+    // });
   } catch (error) {
     console.error(
       "Error in selecting address and saving to cart for order:",
       error
     );
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
+    });
+  }
+};
+
+const loadOrderSummary = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const itemId = req.query.cartId;
+
+    console.log(itemId);
+    const cart = await Cart.findOne({ userId,"items._id":itemId })
+      .populate({
+        path: "items.productId",
+        match: { isBlocked: false, isDeleted: false },
+      })
+      .lean();
+
+    const item = cart.items.find(i => i._id.toString() === itemId.toString());
+    
+    const totalPrice = item.totalPrice;
+    console.log(item)
+
+    return res.render("user/orderSummary", {
+      title: "Order Summary",
+      adminHeader: true,
+      hideFooter: false,
+      item,
+      totalPrice,
+    });
+  } catch (error) {
+    console.error("Error in rendering loadOrderSummary:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message:
@@ -512,7 +560,7 @@ const orderSuccess = async (req, res) => {
         0
       );
       let discount = 0;
-
+      //checking the coupons
       if (couponCode) {
         const coupon = await CouponSchema.findOne({
           code: couponCode,
@@ -902,4 +950,5 @@ module.exports = {
   returnOrder,
   createRazorpayOrder,
   verifyPayment,
+  loadOrderSummary,
 };

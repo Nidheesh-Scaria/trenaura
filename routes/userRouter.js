@@ -24,7 +24,8 @@ router.get("/signup", userAuth.isLoggedIn, userController.loadSignup);
 router.get("/verifyOtp", userAuth.isLoggedIn, userController.verifyOtp);
 router.get("/pageNotFound", userController.pageNotFound);
 router.get("/logout", userAuth.isLoggedIn, userController.loadLogout);
-router.get('/productDetails',userAuth.userBlocked, userController.productDetails)
+
+
 
 
 //profile info
@@ -39,11 +40,13 @@ router.get('/change-password',userAuth.isLoggedIn,userController.loadForgotPassw
 router.post('/changePassword',userController.changePassword)
 router.post('/resendPswrdOtp',userController.resendPswrdOtp)
 
+//product
 router.get('/shop',userAuth.userBlocked,userController.loadShop)
 router.get('/mensCategory',userAuth.userBlocked,userController.mensCategory);
 router.get('/womensCategory',userAuth.userBlocked,userController.womensCategory);
 router.get('/beautyCategory',userAuth.userBlocked,userController.beautyCategory);
 router.get('/filter',userAuth.userBlocked,userController.filter);
+router.get('/productDetails',userAuth.userBlocked, userController.productDetails)
 
 
 // adreess mangement
@@ -84,6 +87,9 @@ router.delete('/removeFromWishlist/:id',userAuth.userBlocked,userAuth.checkSessi
 router.get('/loadMyOrder',userAuth.userBlocked,userAuth.checkSession, orderController.loadMyOrder)
 router.get('/loadAddressForOrder/:id',userAuth.userBlocked,userAuth.checkSession, orderController.loadAddressForOrder)
 router.post('/submit-address',userAuth.userBlocked,userAuth.checkSession, orderController.submitAddress)
+
+router.get("/orderSummary",userAuth.userBlocked,userAuth.checkSession, orderController.loadOrderSummary)
+
 router.get('/loadPaymentMode',userAuth.userBlocked,userAuth.checkSession, orderController.loadPaymentMethod)
 router.post('/orderSuccess',userAuth.userBlocked,userAuth.checkSession, orderController.orderSuccess)
 router.get('/order-placed',userAuth.userBlocked,userAuth.checkSession, orderController.orderPlaced)

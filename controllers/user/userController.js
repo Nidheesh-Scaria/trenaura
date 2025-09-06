@@ -7,6 +7,7 @@ const Wishlist = require("../../models/wishlistSchema");
 const Order = require("../../models/orderSchema");
 const Wallet = require("../../models/walletSchema");
 const WalletTopupOrder = require("../../models/walletTopupOrderSchema ");
+const Coupon = require("../../models/couponSchema");
 
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
@@ -51,13 +52,36 @@ async function sendVerificationEmail(email, otp) {
     return false;
   }
 }
+//generating referal code
+function generateReferralCode(name) {
+  const random = Math.floor(1000 + Math.random() * 9000);
+  return name.toUpperCase().substring(0, 4) + random;
+}
+
+function generateCouponCode(name) {
+  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `REF-${name.substring(0, 3).toUpperCase()}-${random}`;
+}
 
 const signup = async (req, res) => {
   try {
-    let { name, email, phone, password } = req.body;
+    let { name, email, phone, password, referralCode } = req.body;
 
     const existingEmail = await userSchema.findOne({ email });
     const existingPhone = await userSchema.findOne({ phone });
+    
+    if (referralCode) {
+      const isReferalcode = await userSchema.findOne({ referralCode });
+      if (!isReferalcode) {
+        return res.redirect(
+          "/signup?message=" +
+            encodeURIComponent(MESSAGES.NO_REFERRAL_CODE) +
+            "&t=" +
+            Date.now()
+        );
+      }
+    }
+
     if (existingEmail || existingPhone) {
       return res.redirect(
         "/signup?message=" +
@@ -74,8 +98,9 @@ const signup = async (req, res) => {
     }
     req.session.userOtp = otp;
     req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000; // OTP expires in 5 minutes
-    req.session.userData = { name, email, phone, password };
+    req.session.userData = { name, email, phone, password, referralCode };
     res.redirect("/verifyOtp");
+
     console.log("Otp Sent:", otp);
   } catch (error) {
     console.error("Error in signup", error);
@@ -98,7 +123,7 @@ const verifySignupOtp = async (req, res) => {
     }
 
     if (String(otp) === String(req.session.userOtp)) {
-      const user = req.session.userData;
+      const user = req.session.userData; //getting data of user
       const hashedPassword = await bcrypt.hash(user.password, saltRounds);
 
       const saveUserData = new userSchema({
@@ -106,9 +131,34 @@ const verifySignupOtp = async (req, res) => {
         email: user.email,
         phone: user.phone,
         password: hashedPassword,
+        referralCode: generateReferralCode(user.name),
+        referredBy: user.referralCode || null,
       });
 
       await saveUserData.save();
+      let referralCode = user.referralCode;
+      let name = user.name;
+      if (referralCode) {
+        const referrer = await userSchema.findOne({ referralCode });
+
+        if (referrer) {
+          referrer.redeemedUser.push(saveUserData._id);
+          await referrer.save();
+
+          const coupon = new Coupon({
+            code: generateCouponCode(name),
+            discountType: "flat",
+            discountValue: 200,
+            expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+            userId: referrer._id,
+          });
+          await coupon.save();
+        } else {
+          return res
+            .status(httpStatus.BAD_REQUEST)
+            .json({ message: "No referral code found" });
+        }
+      }
 
       req.session.user = saveUserData._id;
       req.session.isLoggedIn = true;
@@ -1005,11 +1055,14 @@ const editProfileInfo = async (req, res) => {
 const loadChangePassword = async (req, res) => {
   try {
     const errorMessage = req.query.error;
+    const userId=req.session.user
+    const user=await userSchema.findById(userId)
 
     res.render("user/changePassword", {
       title: "Change password",
       adminHeader: true,
       errorMessage,
+      name:user.name
     });
   } catch (error) {
     console.error("Error in Change password rendering:", error);
@@ -1314,6 +1367,4 @@ module.exports = {
   renderChangePassword,
   submitChangedPassword,
   renderVerifyOtpPage,
-
-  
 };

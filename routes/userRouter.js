@@ -8,6 +8,7 @@ const wishlistController=require("../controllers/user/wishlistController")
 const orderController=require("../controllers/user/orderController")
 const walletController=require("../controllers/user/walletController")
 const addressController=require("../controllers/user/addressController")
+const couponController=require("../controllers/user/couponController")
 
 
 
@@ -114,6 +115,7 @@ router.post("/verify-payment-wallet",userAuth.userBlocked,userAuth.checkSession,
 
 //coupon management
 router.post("/applyCoupon",userAuth.userBlocked,userAuth.checkSession, cartController.applyCoupon)
+router.get('/myCoupons',userAuth.userBlocked,userAuth.checkSession, couponController.loadMyCoupon)
 
 
 

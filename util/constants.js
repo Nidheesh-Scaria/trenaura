@@ -12,6 +12,7 @@ const MESSAGES = {
   PRODUCT_DELETED: "Product deleted successfully!",
 
   ALREADY_EXISTS:"Email or phone number already in use. Please use a different one.",
+  NO_REFERRAL_CODE:"No referral code found try valid one",
   INVALID_OTP: "Invalid OTP, please try again",
   EXPIRED_SESSION: "Session expired. Please login again.",
 

@@ -8,7 +8,7 @@ const couponSchema = new Schema(
       required: true,
       unique: true,
       trim: true,
-      uppercase: true, // ensures SAVE10 == save10
+      uppercase: true,
     },
     discountType: {
       type: String,
@@ -29,7 +29,7 @@ const couponSchema = new Schema(
     },
     usageLimit: {
       type: Number,
-      default: 1, // how many times this coupon can be used (per user or global)
+      default: 1, 
     },
     isActive: {
       type: Boolean,
@@ -38,7 +38,7 @@ const couponSchema = new Schema(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      default: null, // null = global coupon, not tied to a single user
+      default: null, 
     },
   },
   { timestamps: true }

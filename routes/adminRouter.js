@@ -12,6 +12,7 @@ const productController = require("../controllers/admin/productController");
 const brandController = require("../controllers/admin/brandController");
 const orderController=require('../controllers/admin/orderController')
 const couponController=require("../controllers/admin/couponController")
+const salesReportController=require("../controllers/admin/salesReportController")
 
 
 
@@ -69,6 +70,9 @@ router.get('/coupon',adminAuth.adminAuth,couponController.loadCoupon)
 router.post("/createCoupon",adminAuth.adminAuth,couponController.createCoupon)
 router.put("/editCoupon/:id",adminAuth.adminAuth,couponController.editCoupon)
 router.delete("/deleteCoupon/:id",adminAuth.adminAuth,couponController.deleteCoupon)
+
+//sales report
+router.get("/salesReport",adminAuth.adminAuth,salesReportController.loadSalesReport)
 
 
 

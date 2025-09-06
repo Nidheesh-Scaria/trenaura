@@ -1,0 +1,177 @@
+
+<style>
+  .referral-section, .coupon-section {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .referral-box {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .referral-box input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+
+  .referral-box button {
+    background: #203acd;
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .referral-box button:hover {
+    background: #16279e;
+  }
+
+  .coupon-list {
+    list-style: none;
+    margin-top: 15px;
+    padding: 0;
+  }
+
+  .coupon-card {
+    background: #f8f8f8;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+  }
+
+  .coupon-card strong {
+    color: #1a237e;
+  }
+
+  .coupon-card small {
+    display: block;
+    margin-top: 5px;
+    color: #777;
+  }
+
+  .no-coupon-box {
+  background: linear-gradient(135deg, #f0f4ff, #e6edff);
+  border: 1px dashed #203acd;
+  color: #1a237e;
+  text-align: center;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 15px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.no-coupon-box p {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.no-coupon-box small {
+  display: block;
+  margin-top: 8px;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+</style>
+
+
+
+<body>
+    
+<div class="container">
+{{> user/sidebar }}
+
+  
+
+  <main class="main-content">
+    <h2>My Coupons</h2>
+
+    <!-- Referral Section -->
+    <div class="referral-section">
+      <h3>Your Referral Code</h3>
+      <small> Invite friends with your referral code and earn rewards! &#127873;</small>
+      <div class="referral-box">
+        <input type="text" id="referralCode" value="{{referalCode}}" readonly>
+        <button onclick="copyReferralCode()">Copy</button>
+        <button onclick="shareReferralCode()">Share</button>
+      </div>
+    </div>
+
+    <!-- Coupon List -->
+    <div class="coupon-section">
+        
+    {{#if coupon.length}}
+      <h3>Your Available Coupons</h3>
+        <ul class="coupon-list">
+          {{#each coupon}}
+            <li class="coupon-card">
+              <div>
+                <strong>{{this.code}}</strong> 
+                - {{this.discountValue}} {{#if (eq this.discountType "percentage")}}%{{else}}₹{{/if}} OFF
+              </div>
+              <small>Expires on: {{this.expiryDate}}</small>
+            </li>
+          {{/each}}
+        </ul>
+      {{else}}
+        <div class="no-coupon-box">
+            <p>&#127881; You don’t have any coupons yet.</p>
+            <small> &#127873; Invite friends with your referral code and earn rewards!</small>
+        </div>
+      {{/if}}
+    </div>
+  </main>
+</div>
+
+
+<script>
+  function copyReferralCode() {
+    const referralInput = document.getElementById("referralCode");
+    referralInput.select();
+    referralInput.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(referralInput.value);
+        Toastify({
+            text: "Referral Code Copied: " + referralInput.value ,
+            duration: 3000,
+            close: true,
+            gravity: "top",
+            position: "center",
+            style: {
+            background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+            },
+            className: "custom-toast"
+        }).showToast();
+  }
+
+  function shareReferralCode() {
+    const code = document.getElementById("referralCode").value;
+    const shareText = `Join me on Trenaura! Use my referral code: ${code}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: "Trenaura Referral",
+        text: shareText,
+        url: shareText,
+      }).catch(console.error);
+    } else {
+      alert("Share not supported. Copy the code instead!");
+    }
+  }
+</script>
+</body>

@@ -66,8 +66,6 @@ const loadMyOrder = async (req, res) => {
       })
       .filter((order) => order.orderedItems.length > 0);
 
-    console.log("loadMyOrder", filteredOrders.isReturnInitiated);
-
     const count = await Order.countDocuments({ userId });
 
     if (filteredOrders.length === 0) {

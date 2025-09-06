@@ -1,3 +1,5 @@
+document.getElementById('message').innerText=""
+
 const form = document.getElementById("signupForm");
 const email = document.getElementById("email");
 const userName = document.getElementById("name");
@@ -45,6 +47,8 @@ form.addEventListener("submit", function (e) {
   document.getElementById("confirmError").innerText = "";
   document.getElementById("mobileError").innerText = "";
   document.getElementById("nameError").innerText = "";
+  document.getElementById("referralError").innerText = "";
+
 
   let valid = true;
 

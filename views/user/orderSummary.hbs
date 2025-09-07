@@ -377,7 +377,7 @@
                 <span>Total</span>
                 <span id="finalAmount">₹{{totalPrice}}</span>
             </div>
-            <button type="button" id="checkout-btn" onclick="chekout(event)">CONTINUE TO CHECKOUT</button>
+            <button type="button" id="checkout-btn" onclick="chekout(event,'{{item._id}}')">CONTINUE TO CHECKOUT</button>
         </div>
 
     </div> <!-- END cart-wrapper -->
@@ -568,14 +568,15 @@
 
     }
 
-    async function chekout(event) {
+    async function chekout(event,id) {
         event.preventDefault();
 
         const cartIdInput = document.getElementById("cartId")
         const itemId = cartIdInput ? cartIdInput.value : null;
+        console.log(itemId)
         const finalAmount = document.getElementById("finalAmount").innerText;
         const couponCode = document.getElementById("couponCode").value.trim()
-        let url = `/loadPaymentMode?itemId=${itemId}&amount=${finalAmount}`;
+        let url = `/loadPaymentMode?itemId=${id}&amount=${finalAmount}`;
         if (couponCode) {
             url += `&couponCode=${couponCode}`;
         }

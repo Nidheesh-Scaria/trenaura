@@ -98,11 +98,15 @@ router.post('/cancelOrder/:id',userAuth.userBlocked,userAuth.checkSession, order
 router.get('/orderDetails/:id',userAuth.userBlocked,userAuth.checkSession,orderController.orderDetails)
 router.get('/loadReturnOrder/:id',userAuth.userBlocked,userAuth.checkSession,orderController.loadReturnOrder)
 router.post('/returnOrder/:id',userAuth.userBlocked,userAuth.checkSession,orderController.returnOrder)
-
+//wallet payment
+router.get("/walletPayment",userAuth.userBlocked,userAuth.checkSession, orderController.walletPayment)
+router.post("/confirmWalletPayment",userAuth.userBlocked,userAuth.checkSession, orderController.confirmWalletPayment)
 
 //payment mangement
 router.post('/create-razorpay-order',userAuth.userBlocked,userAuth.checkSession,orderController.createRazorpayOrder)
 router.post("/verify-payment",userAuth.userBlocked,userAuth.checkSession,orderController.verifyPayment)
+
+
 
 //wallet management
 router.get('/myWallet',userAuth.userBlocked,userAuth.checkSession,walletController.getMyWallet)

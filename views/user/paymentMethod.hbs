@@ -248,7 +248,7 @@
                         <label class="payment-label form-check-label d-flex flex-column flex-grow-1" for="wallet">
                             <div class="payment-info">
                                 <h6>WALLETS</h6>
-                                <small>Use your Trenaura wallet to pay ₹{{grandTotal}}</small>
+                                <small>Use your Trenaura wallet to pay ₹<span id="walletTotal">{{grandTotal}}</span></small>
                             </div>
                         </label>
                     </div>
@@ -349,6 +349,7 @@
                 const couponCode=document.getElementById("couponCode").value
                 const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
                 const grandTotal = document.getElementById("grandTotal").innerText.replace("₹", "");
+                
 
                 if (!paymentMethod) {
                     errorMsg.innerText = "Please select a payment method to continue.";
@@ -589,17 +590,27 @@
                 }
                 //if wallet
                 else if(paymentMethod==="wallet"){
-                    Toastify({
-                                text: "Wallet Selected",
-                                duration: 3000,
-                                close: true,
-                                gravity: "top",
-                                position: "center",
-                                style: {
-                                background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
-                                },
-                                className: "custom-toast"
-                            }).showToast();
+
+                    if (isSubmitting) return;
+                    isSubmitting = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+                    submitBtn.disabled = true;
+
+                    let url = `/walletPayment?paymentMethod=${paymentMethod}&grandTotal=${grandTotal}`;
+                    if (itemId) url += `&itemId=${itemId}`;
+                    if (couponCode) url += `&couponCode=${couponCode}`;
+
+                    console.log("Payment method",itemId)
+                    
+
+                    setTimeout(() => {
+                        submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Success!';
+                        setTimeout(() => {
+                        window.location.href = url;
+                      }, 1000);
+                    }, 2000);
+                    
+                    
                 }
                 else{
                     Toastify({

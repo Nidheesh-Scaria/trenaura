@@ -1,210 +1,74 @@
 <head>
-  <style>
+    <style>
+        .wallet-confirm-box {
+        background: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        max-width: 500px;
+        margin: 40px auto;
+        text-align: center;
+        }
 
-    .main-container {
-  display: flex;
-  font-family: "Nunito Sans", sans-serif;
-  background: #f8f9fc;
-  min-height: 100vh;
-}
+        .wallet-confirm-box h2 {
+        color: #1a237e;
+        margin-bottom: 20px;
+        }
 
-.content {
-  flex: 1;
-  padding: 2rem;
-}
+        .wallet-info p {
+        font-size: 16px;
+        margin: 10px 0;
+        }
 
-.page-title {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  color: #333;
-}
+        .confirm-btn {
+        background: #1a237e;
+        color: #fff;
+        border: none;
+        padding: 12px 24px;
+        margin-top: 20px;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+        }
 
-.filter-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  align-items: center;
-}
+        .confirm-btn:hover {
+        background: #0d1656;
+        }
 
-.filter-form input,
-.filter-form select {
-  padding: 0.5rem 0.8rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
+        .error-msg {
+        color: red;
+        margin-top: 20px;
+        font-weight: bold;
+        }
 
-.btn-generate {
-  background: #4e73df;
-  color: #fff;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 6px;
-  cursor: pointer;
-}
-.btn-generate:hover { background: #2e59d9; }
-
-.summary-cards {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.card {
-  background: #fff;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
-  text-align: center;
-}
-.card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #555; }
-.card p { font-size: 1.2rem; font-weight: 700; color: #000; }
-
-.download-form {
-  margin-bottom: 1rem;
-}
-.btn-download {
-  background: #1cc88a;
-  color: #fff;
-  border: none;
-  margin-right: 0.8rem;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-}
-.btn-download:hover { background: #17a673; }
-.btn-download i { margin-right: 5px; }
-
-.styled-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #fff;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.styled-table thead {
-  background: #4e73df;
-  color: #fff;
-}
-.styled-table th, 
-.styled-table td {
-  padding: 12px;
-  text-align: center;
-  border-bottom: 1px solid #eee;
-}
-.styled-table tbody tr:hover { background: #f1f3f9; }
-
-.no-data {
-  text-align: center;
-  color: #777;
-  padding: 1rem;
-}
-
-.pagination {
-  margin-top: 1.5rem;
-  text-align: center;
-}
-.pagination a {
-  margin: 0 5px;
-  padding: 8px 12px;
-  background: #e2e6ea;
-  color: #333;
-  text-decoration: none;
-  border-radius: 5px;
-}
-.pagination a.active {
-  background: #4e73df;
-  color: #fff;
-}
-.pagination a:hover { background: #d6d8db; }
-
-  </style>
+    </style>
 </head>
+
 <div class="container">
-
-
-  <div class="dashboard-container">
-    <h2>📊 Sales Dashboard</h2>
-
-    {{!-- Filter Form --}}
-    <form method="GET" action="/admin/salesReport" id="filterForm">
-      <label>Date Range:</label>
-      <input type="date" name="startDate" id="startDate" value="{{startDate}}" max="{{today}}">
-      <input type="date" name="endDate" id="endDate" value="{{endDate}}" max="{{today}}">
-
-      <select name="filter">
-        <option value="">Custom</option>
-        <option value="day" {{#if (eq filter "day")}}selected{{/if}}>Last Day</option>
-        <option value="week" {{#if (eq filter "week")}}selected{{/if}}>Last Week</option>
-        <option value="month" {{#if (eq filter "month")}}selected{{/if}}>Last Month</option>
-      </select>
-
-      <input type="text" name="search" placeholder="Search by Order ID" value="{{search}}">
-      <button type="submit" class="btn btn-primary">Generate</button>
-    </form>
-
-    {{!-- Summary --}}
-    <div class="summary">
-      <p><strong>Total Sales:</strong> ₹{{totalSales}}</p>
-      <p><strong>Total Discount:</strong> ₹{{totalDiscount}}</p>
-      <p><strong>Coupon Deduction:</strong> ₹{{totalCoupon}}</p>
-      <p><strong>Total Orders:</strong> {{orders.length}}</p>
-    </div>
-
  
-    <form id="downloadForm" method="POST" action="/admin/sales-report/download">
-      <input type="hidden" name="startDate" value="{{startDate}}">
-      <input type="hidden" name="endDate" value="{{endDate}}">
-      <button class="btn btn-danger" name="format" value="pdf">Download PDF</button>
-      <button class="btn btn-success" name="format" value="excel">Download Excel</button>
-      <p id="downloadError" style="color: rgb(238, 86, 86); display: none; margin-top: 10px;"></p>
-    </form>
 
-   
-    <table class="table table-bordered mt-4">
-      <thead>
-        <tr>
-          <th>Order ID</th>
-          <th>Date</th>
-          <th>Total</th>
-          <th>Final Amount</th>
-          <th>Discount</th>
-          <th>Coupon</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#if orders.length}}
-          {{#each orders}}
-            <tr>
-              <td>{{this.orderId}}</td>
-              <td>{{formatDate this.createdAt}}</td>
-              <td>₹{{this.totalPrice}}</td>
-              <td>₹{{this.finalAmount}}</td>
-              <td>₹{{this.discount}}</td>
-              <td>{{#if this.coupon}}{{this.coupon.code}}{{else}}N/A{{/if}}</td>
-            </tr>
-          {{/each}}
-        {{else}}
-          <tr>
-            <td colspan="6" class="text-muted">No orders found for selected criteria.</td>
-          </tr>
-        {{/if}}
-      </tbody>
-    </table>
+  <main class="main-content">
+    <div class="wallet-confirm-box">
+      <h2>💳 Wallet Payment Confirmation</h2>
 
-   
-    {{#if totalPages}}
-      <div class="pagination">
-        {{#each (range 1 totalPages)}}
-          <a class="{{#if (eq this ../currentPage)}}active{{/if}}"
-             href="?page={{this}}&startDate={{../startDate}}&endDate={{../endDate}}&filter={{../filter}}&search={{../search}}">
-            {{this}}
-          </a>
-        {{/each}}
+      <div class="wallet-info">
+        <p><strong>Your Wallet Balance:</strong> ₹{{walletBalance}}</p>
+        <p><strong>Amount to Pay:</strong> ₹{{amount}}</p>
       </div>
-    {{/if}}
-  </div>
+
+      {{#if insufficientBalance}}
+        <p class="error-msg">❌ Insufficient balance in your wallet</p>
+      {{else}}
+        <form action="/confirmWalletPayment" method="POST">
+          <input type="hidden" name="itemId" value="{{itemId}}">
+          <input type="hidden" name="amount" value="{{amount}}">
+          <input type="hidden" name="couponCode" value="{{couponCode}}">
+          <button type="submit" class="confirm-btn">✅ Confirm Payment</button>
+        </form>
+      {{/if}}
+    </div>
+  </main>
 </div>
+
+

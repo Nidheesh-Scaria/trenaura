@@ -221,6 +221,7 @@
             <form id="paymentForm">
 
                 <div class="payment-options">
+                    <input type="hidden" name="orderId" id="orderId" value="{{orderId}}">
                     <input type="hidden" name="itemId" id="itemId" value="{{itemId}}">
                     <input type="hidden" name="amount" id="amount" value="{{grandTotal}}">
                     <input type="hidden" name="couponCode" id="couponCode" value="{{couponCode}}">
@@ -343,12 +344,13 @@
             
             form.addEventListener("submit", async function (e) {
                 e.preventDefault();
-
+                const retryOrderId = document.getElementById("orderId").value;
                 const itemId = document.getElementById("itemId").value;
                 const amount=document.getElementById("amount").value
                 const couponCode=document.getElementById("couponCode").value
                 const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
-                const grandTotal = document.getElementById("grandTotal").innerText.replace("₹", "");
+                let grandTotal = document.getElementById("grandTotal").innerText.replace("₹", "");
+                grandTotal=Number(grandTotal)
                 
 
                 if (!paymentMethod) {
@@ -360,7 +362,7 @@
                 
 
                 //if COD
-                if(paymentMethod==="cod"){
+                if(paymentMethod==="cod"){ 
                     //preventing from the button double click 
                     if (isSubmitting) return;
                     isSubmitting = true;
@@ -372,16 +374,18 @@
                             const response=await fetch('/orderSuccess',{
                                 method:"POST",
                                 headers:{"Content-Type":"application/json"},
-                                body:JSON.stringify({paymentMethod,couponCode})
+                                body:JSON.stringify({paymentMethod,couponCode,retryOrderId})
                             })
                         
                             let data;
                             if (response.ok) {
+
                                 data = await response.json();
+                                console.log(data.orderId)
                                 setTimeout(() => {
                                     submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Success!';
                                     setTimeout(() => {
-                                        window.location.href = data.redirectUrl;
+                                        window.location.href = data.redirectUrl+`&orderId=${data.orderId}&isRetryPayment=${data.isRetryPayment}`;
                                     }, 1000);
                                 }, 2000);
                             } else {
@@ -432,10 +436,11 @@
                         }
 
                         if (response.ok) {
+                            
                             setTimeout(() => {
                                 submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Success!';
                                 setTimeout(() => {
-                                    window.location.href = `/order-placed?itemId=${itemId}`;
+                                    window.location.href = `/order-placed?itemId=${itemId}&orderId=${data.orderId}`;
                                 }, 1000);
                             }, 2000);
                         } else {
@@ -471,7 +476,7 @@
                         const response = await fetch("/orderSuccess", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ itemId, paymentMethod ,couponCode})
+                            body: JSON.stringify({ itemId, paymentMethod ,couponCode,retryOrderId})
                         });
 
                         const dataAfterSavingOrder = await response.json();
@@ -567,12 +572,19 @@
                         // last step: Open Razorpay
                         const rzp1  = new window.Razorpay(options);
                         rzp1.open();
+                         rzp1.on("payment.failed",function(response){
+                            console.error("Payment failed:", response.error);
+                            console.log(orderId)
+                                setTimeout(()=>{
+                                    window.location.href = `/payment-failed?id=${orderId}&message=${response.error}`
+                                },1000)
+                        })
                        
 
                     }catch(err){
                         console.error("Error in Razorpay payment:", err);
                             Toastify({
-                            text: verifyData.message || "Payment verification failed",
+                            text: err.message ||"Payment verification failed",
                             duration: 3000,
                             close: true,
                             gravity: "top",
@@ -599,6 +611,7 @@
                     let url = `/walletPayment?paymentMethod=${paymentMethod}&grandTotal=${grandTotal}`;
                     if (itemId) url += `&itemId=${itemId}`;
                     if (couponCode) url += `&couponCode=${couponCode}`;
+                    if (retryOrderId) url += `&orderId=${retryOrderId}`;
 
                     console.log("Payment method",itemId)
                     

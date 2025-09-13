@@ -8,6 +8,7 @@ const Wallet = require("../../models/walletSchema");
 const WalletTopupOrder = require("../../models/walletTopupOrderSchema ");
 const CouponUsageSchema = require("../../models/couponUsageSchema ");
 const CouponSchema = require("../../models/couponSchema");
+const Wishlist = require("../../models/wishlistSchema");
 
 const env = require("dotenv").config();
 const httpStatus = require("../../util/statusCodes");
@@ -20,7 +21,8 @@ const addToCart = async (req, res) => {
   try {
     const userId = req.session.user;
     const productId = req.params.id;
-    const { size = "S" } = req.body || "S";
+    const { size, fromWishList } = req.body;
+
     const quantity = 1;
 
     const product = await Product.findById(productId);
@@ -66,6 +68,16 @@ const addToCart = async (req, res) => {
     await cart.save();
     const cartCount = await Cart.findOne({ userId }).lean();
     const cartLength = cartCount?.items?.length || 0;
+
+    if (fromWishList) {
+      await Wishlist.updateOne(
+        { "products.productsId": productId },
+        {
+          $pull: { products: { productsId: productId } },
+        }
+      );
+      
+    }
 
     return res
       .status(httpStatus.OK)
@@ -276,9 +288,9 @@ const removefromCart = async (req, res) => {
 
 const applyCoupon = async (req, res) => {
   try {
-    const userId=req.session.user
-    const { couponCode, cartTotal ,quantity} = req.body;
-    
+    const userId = req.session.user;
+    const { couponCode, cartTotal, quantity } = req.body;
+
     const coupon = await CouponSchema.findOne({
       code: couponCode,
       isActive: true,
@@ -292,33 +304,32 @@ const applyCoupon = async (req, res) => {
     if (coupon.expiryDate < new Date()) {
       return res.status(400).json({ message: "Coupon expired" });
     }
-    
+
     if (cartTotal < coupon.minOrderValue) {
-      return res
-        .status(400)
-        .json({
-          message: `Minimum order value should be ${coupon.minOrderValue}`,
-        });
+      return res.status(400).json({
+        message: `Minimum order value should be ${coupon.minOrderValue}`,
+      });
     }
 
-    let finalAmount=cartTotal
-    let discountAmount
-    
+    let finalAmount = cartTotal;
+    let discountAmount;
 
-    const cart=await Cart.findOne({userId})
-    if(coupon.discountType==="flat"){
-      discountAmount=coupon.discountValue
-      finalAmount=cartTotal-coupon.discountValue
-    }else if(coupon.discountType==="percentage"){
-      discountAmount=(coupon.discountValue/100)*cartTotal
-      finalAmount=cartTotal-discountAmount
+    const cart = await Cart.findOne({ userId });
+    if (coupon.discountType === "flat") {
+      discountAmount = coupon.discountValue;
+      finalAmount = cartTotal - coupon.discountValue;
+    } else if (coupon.discountType === "percentage") {
+      discountAmount = (coupon.discountValue / 100) * cartTotal;
+      finalAmount = cartTotal - discountAmount;
     }
     if (finalAmount < 0) finalAmount = 0;
 
-
-   
-    
-    res.json({ message: "Coupon applied successfully", discountAmount, finalAmount,couponCode });
+    res.json({
+      message: "Coupon applied successfully",
+      discountAmount,
+      finalAmount,
+      couponCode,
+    });
   } catch (error) {
     console.error("Error in applyCoupon:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -330,11 +341,10 @@ const applyCoupon = async (req, res) => {
   }
 };
 
-const removeCoupon=async(req,res)=>{
+const removeCoupon = async (req, res) => {
   try {
-    const userId=req.session.user
-    const {couponId}=req.body;
-
+    const userId = req.session.user;
+    const { couponId } = req.body;
   } catch (error) {
     console.error("Error in removeCoupon:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -342,7 +352,7 @@ const removeCoupon=async(req,res)=>{
       message: "An error occurred. Please try again later.",
     });
   }
-}
+};
 
 module.exports = {
   addToCart,
@@ -351,5 +361,5 @@ module.exports = {
   decreaseQuantity,
   removefromCart,
   applyCoupon,
-  removeCoupon
+  removeCoupon,
 };

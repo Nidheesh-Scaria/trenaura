@@ -9,89 +9,108 @@ const { MESSAGES } = require("../../util/constants");
 
 //order management
 
+// const loadOrder = async (req, res) => {
+//   try {
+//     const raw = parseInt(req.query.page, 10);
+//     const page = Math.max(1, Number.isFinite(raw) ? raw : 1);
+//     const limit = 6;
+//     const search = req.query.search || "";
+
+//     let searchFilter = {};
+
+//     if (search) {
+//       searchFilter = {
+//         $or: [
+//           { paymentMethod: { $regex: search, $options: "i" } },
+//           { paymentStatus: { $regex: search, $options: "i" } },
+//           { currentStatus: { $regex: search, $options: "i" } },
+//         ],
+//       };
+//     }
+
+//     const orders = await OrderSchema.find(searchFilter)
+//       .populate("userId", "name email")
+//       .populate("orderedItems.productId", "productName productImages")
+//       .sort({ createdAt: -1 })
+//       .skip((page - 1) * limit)
+//       .limit(limit)
+//       .lean();
+
+//     const filteredOrders = orders
+//       .map((order) => {
+//         order.orderedItems = order.orderedItems
+//           .filter((item) => item.productId !== null)
+//           .map((item) => ({
+//             id: item._id,
+//             productId: item.productId._id,
+//             productName: item.productId.productName,
+//             productImages: item.productId.productImages,
+//             quantity: item.quantity,
+//             regularPrice: item.productId.regularPrice,
+//             price: item.price,
+//             totalPrice: item.totalPrice,
+//             statusHistory:
+//               item.statusHistory[item.statusHistory.length - 1].status,
+//             isAdminCancelled:
+//               item.statusHistory[item.statusHistory.length - 1]
+//                 .isAdminCancelled,
+//             isUserRequested: item.returnRequest.isUserRequested,
+//             isReturnInitiated: item.returnRequest.isReturnInitiated,
+//             refundStatus: item.returnRequest.refundStatus,
+//           }));
+//         order.formattedDate = new Date(order.createdAt).toLocaleDateString();
+//         order.user = order.userId;
+//         order.finalAmount = order.finalAmount;
+//         order.paymentStatus = order.paymentStatus;
+
+//         return order;
+//       })
+//       .filter((order) => order.orderedItems.length > 0);
+
+//     const count = await OrderSchema.countDocuments(searchFilter);
+
+//     return res.render("admin/order", {
+//       hideHeader: true,
+//       hideFooter: true,
+//       orders: filteredOrders,
+//       totalPage: Math.ceil(count / limit),
+//       currentPage: page,
+//       isMyOrderEmpty: orders.length === 0,
+//       search,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send("Internal Server Error");
+//   }
+// };
+
 const loadOrder = async (req, res) => {
   try {
-    const raw = parseInt(req.query.page, 10);
-    const page = Math.max(1, Number.isFinite(raw) ? raw : 1);
-    const limit = 6;
-    const search = req.query.search || "";
-
-    let searchFilter = {};
-
-    if (search) {
-      searchFilter = {
-        $or: [
-          { paymentMethod: { $regex: search, $options: "i" } },
-          { paymentStatus: { $regex: search, $options: "i" } },
-          { currentStatus: { $regex: search, $options: "i" } },
-        ],
-      };
-    }
-
-    const orders = await OrderSchema.find(searchFilter)
+    const orders = await OrderSchema.find({isOrderPlaced:true}).sort({createdAt:-1})
       .populate("userId", "name email")
       .populate("orderedItems.productId", "productName productImages")
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
       .lean();
 
-    const filteredOrders = orders
-      .map((order) => {
-        order.orderedItems = order.orderedItems
-          .filter((item) => item.productId !== null)
-          .map((item) => ({
-            id: item._id,
-            productId: item.productId._id,
-            productName: item.productId.productName,
-            productImages: item.productId.productImages,
-            quantity: item.quantity,
-            regularPrice: item.productId.regularPrice,
-            price: item.price,
-            totalPrice: item.totalPrice,
-            statusHistory:
-              item.statusHistory[item.statusHistory.length - 1].status,
-            isAdminCancelled:
-              item.statusHistory[item.statusHistory.length - 1]
-                .isAdminCancelled,
-            isUserRequested: item.returnRequest.isUserRequested,
-            isReturnInitiated: item.returnRequest.isReturnInitiated,
-            refundStatus:item.returnRequest.refundStatus
-          }));
-        order.formattedDate = new Date(order.createdAt).toLocaleDateString();
-        order.user = order.userId;
-        order.finalAmount = order.finalAmount;
-        order.paymentStatus = order.paymentStatus;
-
-        return order;
-      })
-      .filter((order) => order.orderedItems.length > 0);
-
-    const count = await OrderSchema.countDocuments(searchFilter);
-
-    return res.render("admin/order", {
+    return res.render("admin/orderList", {
       hideHeader: true,
       hideFooter: true,
-      orders: filteredOrders,
-      totalPage: Math.ceil(count / limit),
-      currentPage: page,
-      isMyOrderEmpty: filteredOrders.length === 0,
-      search,
+      orders,
+      isMyOrderEmpty: orders.length === 0,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal Server Error");
+    console.error("loadOrder error", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
 const orderMangement = async (req, res) => {
   try {
-    const itemId = req.params.id;
-  
+    const orderId = req.params.id;
+
     const orders = await OrderSchema.findOne(
-      { "orderedItems._id": itemId },
+      { _id: orderId },
       {
-        orderedItems: { $elemMatch: { _id: itemId } },
+        orderedItems: 1,
         address: 1,
         totalPrice: 1,
         discount: 1,
@@ -110,36 +129,42 @@ const orderMangement = async (req, res) => {
       .populate("orderedItems.productId", "productName productImages")
       .lean();
 
-    orders.orderedItems = orders.orderedItems.filter((item) => item.productId);
-
-    orders.formattedDate = new Date(orders.createdAt).toLocaleDateString();
-    const item = orders.orderedItems[0];
-    orders.itemId = item._id;
-    const fullStatusHistory = item.statusHistory;
-    orders.fullStatusHistory = fullStatusHistory.map((item) => ({
-      status: item.status,
-      date: new Date(item.changedAt).toLocaleString(),
-    }));
-    let latestOrderStatus = item.statusHistory[item.statusHistory.length - 1];
-    orders.status = latestOrderStatus.status;
-    orders.cancellationReason = latestOrderStatus.cancellationReason;
-    orders.isAdminCancelled = latestOrderStatus.isAdminCancelled;
-    let changedAtDate = latestOrderStatus.changedAt;
-    orders.date = new Date(changedAtDate).toLocaleDateString();
-
-    let returnRequest = item.returnRequest;
-    orders.isUserRequested = returnRequest.isUserRequested;
-    orders.returnRequestDate = new Date(
-      returnRequest.returnRequest
-    ).toLocaleString;
-    orders.reason = returnRequest.reason;
-    orders.comment = returnRequest.comment;
-    orders.isAdminApproved = returnRequest.isAdminApproved;
-
     const address = await AddressSchema.findOne(
       { "address._id": orders.address },
       { "address.$": 1 }
     ).lean();
+
+    orders.orderedItems = orders.orderedItems.filter((item) => item.productId);
+
+    orders.formattedDate = new Date(orders.createdAt).toLocaleDateString();
+
+    orders.orderedItems = orders.orderedItems.map((item) => {
+      const fullStatusHistory = item.statusHistory || [];
+
+      const formattedStatusHistory = fullStatusHistory.map((statusItem) => ({
+        status: statusItem.status,
+        date: new Date(statusItem.changedAt).toLocaleString(),
+      }));
+
+      const latestStatus =
+        fullStatusHistory.length > 0
+          ? fullStatusHistory[fullStatusHistory.length - 1]
+          : null;
+      const latestStatusDate = latestStatus ? latestStatus.changedAt : null;
+
+      //order return status
+      const returnRequest = item.returnRequest;
+
+      return {
+        ...item,
+        fullStatusHistory: formattedStatusHistory,
+        latestStatus: latestStatus ? latestStatus.status : "Pending",
+        latestStatusDate: new Date(latestStatusDate).toLocaleString(),
+        returnRequest,
+        isAdminCancelled: latestStatus ? latestStatus.isAdminCancelled : false,
+        cancellationReason: latestStatus ? latestStatus.cancellationReason : null,
+      };
+    });
 
     res.render("admin/orderManagement", {
       hideHeader: true,
@@ -325,6 +350,12 @@ const changeReturnStatus = async (req, res) => {
     const itemId = req.params.id;
     let updatedOrder;
 
+    const order = await OrderSchema.findOne({ "orderedItems._id": itemId });
+    const item = await OrderSchema.findOne(
+      { "orderedItems._id": itemId },
+      { orderedItems: { $elemMatch: { _id: itemId } } }
+    );
+
     if (isAccepted) {
       updatedOrder = await OrderSchema.findOneAndUpdate(
         { "orderedItems._id": itemId },
@@ -386,7 +417,7 @@ const loadReturnOrRefund = async (req, res) => {
     const order = await OrderSchema.find(
       {
         "orderedItems.returnRequest.isUserRequested": true,
-      },
+      }
       // {
       //   orderedItems: {
       //     $elemMatch: { "returnRequest.isUserRequested": true },
@@ -400,7 +431,10 @@ const loadReturnOrRefund = async (req, res) => {
     const filteredOrders = order
       .map((order) => {
         order.orderedItems = order.orderedItems
-          .filter((item) =>  item.productId !== null && item.returnRequest?.isUserRequested)
+          .filter(
+            (item) =>
+              item.productId !== null && item.returnRequest?.isUserRequested
+          )
           .map((item) => ({
             id: item._id,
             productId: item.productId._id,
@@ -441,7 +475,7 @@ const initiateRefund = async (req, res) => {
     const order = await OrderSchema.findOne(
       { "orderedItems._id": itemId },
       {
-        _id:1,
+        _id: 1,
         orderedItems: { $elemMatch: { _id: itemId } },
         userId: 1,
         orderId: 1,
@@ -477,7 +511,7 @@ const initiateRefund = async (req, res) => {
           },
         },
       },
-      { new: true }
+      { new: true, upsert: true, setDefaultsOnInsert: true }
     );
 
     const updatedOrder = await OrderSchema.findOneAndUpdate(

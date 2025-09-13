@@ -1,517 +1,606 @@
 <head>
-    <style>
-            .order-details-container {
-            display: flex;
-            gap: 20px;
-            }
+  <style>
+    .order-details-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
 
-            .order-card {
-            background: white;
-            padding: 20px;
-            flex: 2;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            }
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 25px;
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
 
-            .order-left {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            }
+    header h1 {
+        font-size: 2rem;
+        color: #0c2946;
+    }
 
-            .product-img {
-            width: 120px;
-            height: 120px;
-            border-radius: 10px;
-            object-fit: cover;
-            }
+    .order-header {
+        width: 100%;
+        margin-bottom: 20px;
+    }
 
-            .order-info h3 {
-            font-size: 16px;
-            margin-bottom: 8px;
-            }
+    .order-header h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #132043;
+        /* theme color */
+        margin: 0 0 8px 0;
+    }
 
-            .order-info h2 {
-            color: #000;
-            margin-top: 8px;
-            }
+    .order-header p {
+        font-size: 0.95rem;
+        color: #555;
+        margin: 0;
+    }
 
-            .status-section {
-            margin-top: 20px;
-            }
+    .top-details {
+        display: flex;
+        gap: 20px;
+        margin-top: 10px;
+        align-items: stretch;
+    }
 
-            .status-buttons {
-            display: flex;
-            gap: 15px;
-            margin-top: 10px;
-            }
+    .top-details hr {
+        margin: 10px 0;
+        border: 0;
+        border-top: 1px solid #d6d6d6;
+    }
 
-            .btn {
-            padding: 5px 15px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            }
+    .shipping-card,
+    .price-card {
+        flex: 1;
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .price-card {
+        justify-content: space-between;
+    }
 
-            .btn-outfordelivery {
-            background: #fff4ec;
-            color: #ff6600;
-            border: 1px solid #ff6600;
-            }
+    .price-card p {
+        display: flex;
+        justify-content: space-between;
+        margin: 8px 0;
+    }
 
-            .btn-delivered {
-            background: #e6f9ec;
-            color: #2ecc71;
-            border: 1px solid #2ecc71;
-            }
+    .price-card p strong {
+        font-size: 1.1rem;
+    }
 
-            .btn-returned {
-            background: #f5f5f5;
-            color: #797777;;
-            border: 1px solid #aaa;
-            }
-            .btn-cancel {
-            background: #ff00008b;
-            color: #760707;
-            border: 1px solid #760707;
-            }
-             .btn-pending {
-            background: #f5e1a176;
-            color:#8d6b03;;
-            border: 1px solid #aaa;
-            }
-             .btn-processing {
-            background: #8fbff39d;
-            color: #044b97;
-            border: 1px solid #aaa;
-            }
-            .btn-shipped {
-            background: #8ce3f26d;
-            color: #077487;
-            border: 1px solid #aaa;
-            }
-           
+    /* Original styles for reference */
+    .free {
+        color: green;
+        font-weight: bold;
+    }
 
-            .btn-outfordelivery:hover {
-            background: #f9dcc7bb;
-            color: #333;
-            border: 1px solid #ff6600;
-            }
+    .shipping-card h4,
+    .price-card h4 {
+        margin-bottom: 15px;
+        color: #333;
+        font-size: 1.2rem;
+    }
 
-            .btn-delivered:hover {
-            background: #c8f7d7;
-            color: #370202;
-            border: 1px solid #2ecc71;
-            }
+    .shipping-card p {
+        margin: 5px 0;
+        color: #555;
+        line-height: 1.5;
+    }
 
-            .btn-returned:hover {
-            background: #f8e0e0;
-            color: #333;
-            border: 1px solid #aaa;
-            }
-   
-            .btn-cancel:hover {
-            background: #ff0000a9;
-            color: #000000;;
-            border: 1px solid #ff00007c;
-            }
-             .btn-pending:hover {
-            background: #f3cb4676;
-            color: #333;
-            border: 1px solid #aaa;
-            }
-             .btn-processing:hover {
-            background: #70b0f49d;
-            color: #333;
-            border: 1px solid #aaa;
-            }
-            .btn-shipped:hover {
-            background: #4ed6ee6d;
-            color: #333;
-            border: 1px solid #aaa;
-            }
+    .shipping-card strong {
+        color: #222;
+    }
 
+    .order-items {
+        flex: 2;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
 
-            .side-details {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            }
+    .order-item-card {
+        background: #fff;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
 
-            .shipping-card, .price-card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            }
+    .order-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
 
-            .price-card p {
-            display: flex;
-            justify-content: space-between;
-            margin: 8px 0;
-            }
+    .product-img {
+        width: 100px;
+        height: 100px;
+        border-radius: 8px;
+        object-fit: cover;
+    }
 
-            .free {
-            color: green;
-            font-weight: bold;
-            }
-            .shipping-card {
-            max-width: 400px;         
-            background-color: #fff;     
-            border-radius: 10px;        
-            padding: 20px;             
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
-            margin: 20px auto; 
-            font-family: 'Arial', sans-serif;
-            transition: transform 0.2s, box-shadow 0.2s;
-          }
+    .order-info {
+        padding: 15px 20px;
+        margin-bottom: 15px;
+        font-family: "Segoe UI", Tahoma, sans-serif;
+    }
+    .order-info h3 {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0 0 8px 0;
+        color: #333;
+    }
 
-          .shipping-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-          }
+    .order-info p {
+        font-size: 14px;
+        margin: 0 0 10px 0;
+        color: #555;
+    }
 
-          .shipping-card h4 {
-            margin-bottom: 15px;
-            color: #333;
-            font-size: 1.2rem;
-          }
+    .order-info h2 {
+        font-size: 20px;
+        font-weight: 700;
+        margin: 0;
+        color: #333;
+    }
 
-          .shipping-card p {
-            margin: 5px 0;
-            color: #555;
-            line-height: 1.5;
-          }
+    .order-info h2 span {
+        font-size: 13px;
+        font-weight: 400;
+        color: #8f8c8c;
+    }
+    .order-card {
+        background: white;
+        padding: 20px;
+        flex: 2;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
 
-          .shipping-card strong {
-            color: #222;
-          }
-          .status {
-          font-weight: 600;
-          padding: 5px 12px;
-          border-radius: 20px;
-          font-size: 0.9rem;
-          display: inline-block;
-        }
+    .status-section {
+        margin-top: 20px;
+    }
 
+    .status-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 10px;
+    }
 
-        /* Different colors per status */
-        .status.pending {
-          background-color: #f1cc54;
-          color: #5e4703;
-        }
+    .btn {
+        padding: 5px 15px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+    }
 
-        .status.processing {
-          background-color: #8fbff3;
-          color: #004085;
-        }
+    .btn-outfordelivery {
+        background: #fff4ec;
+        color: #ff6600;
+        border: 1px solid #ff6600;
+    }
 
-        .status.shipped {
-          background-color: #18d4f5;
-          color:  #035766;
-        }
+    .btn-delivered {
+        background: #e6f9ec;
+        color: #2ecc71;
+        border: 1px solid #2ecc71;
+    }
 
-        .status.out-for-delivery {
-          background-color: #f27516ef;
-          color: #7c3404;
-        }
+    .btn-returned {
+        background: #f5f5f5;
+        color: #797777;
+        border: 1px solid #aaa;
+    }
 
-        .status.delivered {
-          background-color: #00ff22;
-          color: #155724;
-        }
+    .btn-cancel {
+        background: #ff00008b;
+        color: #760707;
+        border: 1px solid #760707;
+    }
 
-        .status.cancelled {
-          background-color: #f7220a;
-          color: #721c24;
-        }
+    .btn-pending {
+        background: #f5e1a176;
+        color: #8d6b03;
+        border: 1px solid #aaa;
+    }
 
-        .status.returned {
-          background-color: #b8b9ba;
-          color: #383d41;
-        }
-        /* Table container */
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-top: 20px;
-          background: #ffffff;
-          border-radius: 12px;
-          overflow: hidden;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-          font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        }
+    .btn-processing {
+        background: #8fbff39d;
+        color: #044b97;
+        border: 1px solid #aaa;
+    }
 
-        /* Table header */
-        thead {
-          background: linear-gradient(135deg, #2c5364, #203a43, #0f2027);
-          color: #ffffff;
-        }
+    .btn-shipped {
+        background: #8ce3f26d;
+        color: #077487;
+        border: 1px solid #aaa;
+    }
 
-        thead th {
-          padding: 14px 16px;
-          text-align: left;
-          font-weight: 600;
-          font-size: 15px;
-          letter-spacing: 0.5px;
-          text-transform: uppercase;
-        }
+    .btn-outfordelivery:hover {
+        background: #f9dcc7bb;
+        color: #333;
+        border: 1px solid #ff6600;
+    }
 
-        /* Table rows */
-        tbody tr {
-          border-bottom: 1px solid #e5e7eb;
-          transition: background 0.2s ease;
-        }
+    .btn-delivered:hover {
+        background: #c8f7d7;
+        color: #370202;
+        border: 1px solid #2ecc71;
+    }
 
-        tbody tr:hover {
-          background: #f9fafb;
-        }
+    .btn-returned:hover {
+        background: #f8e0e0;
+        color: #333;
+        border: 1px solid #aaa;
+    }
 
-        /* Table cells */
-        td {
-          padding: 14px 16px;
-          font-size: 14px;
-          color: #374151;
-        }
+    .btn-cancel:hover {
+        background: #ff0000a9;
+        color: #000000;
+        border: 1px solid #ff00007c;
+    }
 
-        /* Button styling */
-        .payment-status {
-          padding: 8px 14px;
-          background: linear-gradient(135deg, #3eca02, #043406);
-          color: #ffffff;
-          font-size: 14px;
-          font-weight: 500;
-          border: none;
-          border-radius: 6px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
+    .btn-pending:hover {
+        background: #f3cb4676;
+        color: #333;
+        border: 1px solid #aaa;
+    }
 
-        .payment-status:hover {
-          background: linear-gradient(135deg, #3eca02, #043406);
-          transform: scale(1.05);
-          
-        }
-         .payment-status.cancel {
-          padding: 8px 14px;
-          background: linear-gradient(135deg, #a40303, #043406);
-          color: #ffffff;
-          font-size: 14px;
-          font-weight: 500;
-          border: none;
-          border-radius: 6px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
+    .btn-processing:hover {
+        background: #70b0f49d;
+        color: #333;
+        border: 1px solid #aaa;
+    }
 
-        .payment-status.cancel:hover {
-         background: linear-gradient(135deg, #8d2a02, #043406);
+    .btn-shipped:hover {
+        background: #4ed6ee6d;
+        color: #333;
+        border: 1px solid #aaa;
+    }
 
-        }
+    .status {
+        font-weight: 600;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        display: inline-block;
+    }
 
-        /* Payment status colors */
-        td:nth-child(2) {
-          font-weight: 600;
-        }
+    /* Different colors per status */
+    .status.pending {
+        background-color: #f1cc54;
+        color: #5e4703;
+    }
 
-        td:nth-child(2).paid {
-          color: #059669; /* green */
-        }
+    .status.processing {
+        background-color: #8fbff3;
+        color: #004085;
+    }
 
-        td:nth-child(2).pending {
-          color: #d97706; /* amber */
-        }
+    .status.shipped {
+        background-color: #18d4f5;
+        color: #035766;
+    }
 
-        td:nth-child(2).failed {
-          color: #dc2626; /* red */
-        }
+    .status.out-for-delivery {
+        background-color: #f27516ef;
+        color: #7c3404;
+    }
 
-       
-        .cancel-reason {
-          display: none; 
-          margin: 20px 0;
-          padding: 15px;
-          border: 1px solid #ddd;
-          border-radius: 12px;
-          background: #fafafa;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-        }
+    .status.delivered {
+        background-color: #00ff22;
+        color: #155724;
+    }
 
-        .cancel-reason .form-group {
-          margin-bottom: 12px;
-        }
+    .status.cancelled {
+        background-color: #f7220a;
+        color: #721c24;
+    }
 
-        .cancel-label {
-          display: block;
-          font-weight: 600;
-          margin-bottom: 10px;
-          font-size: 16px;
-          color: #333;
-        }
+    .status.returned {
+        background-color: #b8b9ba;
+        color: #383d41;
+    }
 
-        .cancel-options label {
-          display: block;
-          margin-bottom: 8px;
-          font-size: 14px;
-          color: #444;
-          cursor: pointer;
-        }
+    /* Table container */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background: #ffffff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-        .cancel-options input[type="radio"] {
-          margin-right: 8px;
-          accent-color: #e63946; /* modern browsers */
-        }
+    /* Table header */
+    thead {
+        background: linear-gradient(135deg, #2c5364, #203a43, #0f2027);
+        color: #ffffff;
+    }
 
-        #otherReasonContainer {
-          margin-top: 10px;
-        }
+    thead th {
+        padding: 14px 16px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 15px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
 
-        #otherReasonContainer textarea {
-          width: 100%;
-          padding: 8px;
-          border-radius: 8px;
-          border: 1px solid #ccc;
-          font-size: 14px;
-          resize: vertical;
-        }
+    /* Table rows */
+    tbody tr {
+        border-bottom: 1px solid #e5e7eb;
+        transition: background 0.2s ease;
+    }
 
-        #error-modal {
-          font-size: 13px;
-          margin-top: 6px;
-        }
+    tbody tr:hover {
+        background: #f9fafb;
+    }
 
+    /* Table cells */
+    td {
+        padding: 14px 16px;
+        font-size: 14px;
+        color: #374151;
+    }
 
-        .cancelButtonConfirm {
-          display: flex;
-          gap: 12px;
-          margin-top: 15px;
-        }
+    /* Button styling */
+    .payment-status {
+        padding: 8px 14px;
+        background: linear-gradient(135deg, #3eca02, #043406);
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 500;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
 
-        .cancelButtonConfirm button{
-          font-size: 14px;
-          font-weight: 600;
-          cursor: pointer;
-          padding: 10px 16px;
-          border-radius: 8px;
-          border: none;
-          transition: all 0.3s ease;
-        }
+    .payment-status:hover {
+        background: linear-gradient(135deg, #3eca02, #043406);
+        transform: scale(1.05);
+    }
 
-        .cancelButtonConfirm .keep-product {
-          background-color: #454b45; 
-          color: #eae6e6;
-          cursor: pointer;
-        }
+    .payment-status.cancel {
+        padding: 8px 14px;
+        background: linear-gradient(135deg, #a40303, #043406);
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 500;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
 
-        .cancelButtonConfirm .keep-product:hover {
-          background-color: #242a25;
-          color: #e4e1e1;
-        }
+    .payment-status.cancel:hover {
+        background: linear-gradient(135deg, #8d2a02, #043406);
+    }
 
-        .cancelButtonConfirm .cancel-product {
-          background-color: #e82434; 
-          color:  #eae6e6;
-          cursor: pointer;
-        }
+    /* Payment status colors */
+    td:nth-child(2) {
+        font-weight: 600;
+    }
 
-        .cancelButtonConfirm .cancel-product:hover {
-          background-color: #ca1a1a;
-          color: #ffffff;
-        }
+    td:nth-child(2).paid {
+        color: #059669;
+        /* green */
+    }
 
-        .timeline {
+    td:nth-child(2).pending {
+        color: #d97706;
+        /* amber */
+    }
+
+    td:nth-child(2).failed {
+        color: #dc2626;
+        /* red */
+    }
+
+    .cancel-reason {
+        display: none;
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        background: #fafafa;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .cancel-reason .form-group {
+        margin-bottom: 12px;
+    }
+
+    .cancel-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 10px;
+        font-size: 16px;
+        color: #333;
+    }
+
+    .cancel-options label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: #444;
+        cursor: pointer;
+    }
+
+    .cancel-options input[type="radio"] {
+        margin-right: 8px;
+        accent-color: #e63946;
+        /* modern browsers */
+    }
+
+    #otherReasonContainer {
+        margin-top: 10px;
+    }
+
+    #otherReasonContainer textarea {
+        width: 100%;
+        padding: 8px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+        resize: vertical;
+    }
+
+    #error-modal {
+        font-size: 13px;
+        margin-top: 6px;
+    }
+
+    .cancelButtonConfirm {
+        display: flex;
+        gap: 12px;
+        margin-top: 15px;
+    }
+
+    .cancelButtonConfirm button {
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .cancelButtonConfirm .keep-product {
+        background-color: #454b45;
+        color: #eae6e6;
+        cursor: pointer;
+    }
+
+    .cancelButtonConfirm .keep-product:hover {
+        background-color: #242a25;
+        color: #e4e1e1;
+    }
+
+    .cancelButtonConfirm .cancel-product {
+        background-color: #e82434;
+        color: #eae6e6;
+        cursor: pointer;
+    }
+
+    .cancelButtonConfirm .cancel-product:hover {
+        background-color: #ca1a1a;
+        color: #ffffff;
+    }
+
+    .timeline {
         list-style: none;
         padding-left: 0;
         margin: 0;
-        border-left: 3px solid #4CAF50; 
+        border-left: 3px solid #4CAF50;
         padding-left: 20px;
         position: relative;
-        
-      }
+    }
 
-      .timeline li {
-        
+    .timeline li {
         margin-bottom: 15px;
         font-size: 15px;
         line-height: 1.4;
         position: relative;
-        color: #777; /* Softer text color for past statuses */
-      }
+        color: #777;
+        /* Softer text color for past statuses */
+    }
 
-      .timeline li:last-child {
+    .timeline li:last-child {
         margin-bottom: 0;
-      }
+    }
 
-      .timeline li::before {
+    .timeline li::before {
         content: "";
         width: 12px;
         height: 12px;
-        background: #4CAF50; /* Light gray for past status dots */
+        background: #4CAF50;
+        /* Light gray for past status dots */
         border-radius: 50%;
         position: absolute;
         left: -27px;
         top: 5px;
         border: 2px solid #fff;
         box-shadow: 0 0 0 2px #4CAF50;
-      }
+    }
 
-      /* This is the key change: targeting the *last* item to make it prominent. */
-      .timeline li:last-child {
-        color: #333; /* Darker text for the current status */
-        font-weight: 600; /* Bold the text */
-      }
-
-      .timeline li:last-child::before {
-        background: #0c8001; /* A vibrant color to indicate the current status */
-        box-shadow: 0 0 0 2px #016904;
-      }
-
-      .timeline li strong {
+    /* This is the key change: targeting the *last* item to make it prominent. */
+    .timeline li:last-child {
+        color: #333;
+        /* Darker text for the current status */
         font-weight: 600;
-        color: inherit; /* Inherit the color from the parent li */
-      }
+        /* Bold the text */
+    }
 
-      .timeline li span.date {
+    .timeline li:last-child::before {
+        background: #0c8001;
+        /* A vibrant color to indicate the current status */
+        box-shadow: 0 0 0 2px #016904;
+    }
+
+    .timeline li strong {
+        font-weight: 600;
+        color: inherit;
+        /* Inherit the color from the parent li */
+    }
+
+    .timeline li span.date {
         display: block;
         font-size: 13px;
-        color: #999; /* A lighter gray for all dates */
+        color: #999;
+        /* A lighter gray for all dates */
         margin-top: 2px;
-      }
+    }
 
-      /* delivery Container Card */
-      .delivery-card {
+    /* delivery Container Card */
+    .delivery-card {
         background: #f9f9f9;
         border: 1px solid #ddd;
         border-radius: 10px;
         padding: 20px;
         margin: 15px 0;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         display: flex;
         flex-direction: column;
-        gap: 15px; /* space between heading and row */
-      }
+        gap: 15px;
+        /* space between heading and row */
+    }
 
-      /* Delivery Heading */
-      .delivery-card h2 {
+    /* Delivery Heading */
+    .delivery-card h2 {
         color: #08a500;
         font-size: 18px;
         margin: 0;
-      }
+    }
 
-      /* Row for status + button */
-      .action-row {
+    /* Row for status + button */
+    .action-row {
         display: flex;
         align-items: center;
-        gap: 12px; /* space between badge and button */
-      }
+        gap: 12px;
+        /* space between badge and button */
+    }
 
-      /* Status Badge */
-      .review-status {
+    /* Status Badge */
+    .review-status {
         display: inline-block;
-        background: #ffe6e6;         
-        color: #b60303;               
+        background: #ffe6e6;
+        color: #b60303;
         font-weight: 600;
         padding: 6px 14px;
         border-radius: 20px;
@@ -519,10 +608,10 @@
         border: 1px solid #b60303;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         animation: fadeIn 0.6s ease-in-out;
-      }
+    }
 
-      /* Button */
-      .review-btn {
+    /* Button */
+    .review-btn {
         background: linear-gradient(90deg, #015a04, #00a64e);
         color: #ffffff;
         border: none;
@@ -532,84 +621,116 @@
         cursor: pointer;
         transition: 0.3s;
         height: 1.8rem;
-      }
+    }
 
-      /* Hover effect */
-      .review-btn:hover {
+    /* Hover effect */
+    .review-btn:hover {
         transform: scale(1.05);
-        
-      }
-
-     
-
-    </style>
+    }
+  </style>
 </head>
 
 
+
+
 <main class="main-content">
+  <header>
+    <h1>Order Details</h1>
+</header>
   <div class="order-details-container">
 
-    <div class="order-card">
-      
-      {{#each orders.orderedItems}}
-      <div class="order-left">
-        <img src="/images/{{this.productId.productImages.[1]}}" alt="Product Image" class="product-img">
-        <div class="order-info">
-          <h3>{{this.productId.productName}}</h3>
-          <p>Quantity : {{this.quantity}}</p>
-      {{/each}} 
-          
-          <h2>₹{{orders.totalPrice}}</h2>
+
+    <div class="order-header">
+      <h2>Order ID: {{orders.orderId}}</h2>
+      <p>Ordered On: {{orders.formattedDate}}</p>
+
+      <!-- Address & Price Top Section -->
+      <div class="top-details">
+        <!-- Shipping Address -->
+        <div class="shipping-card">
+          <h4>Shipping Address</h4>
+          <hr>
+          <p><strong>{{address.name}}</strong></p>
+          <p>{{address.address}}, {{address.city}}, {{address.state}} - {{address.pincode}}</p>
+          <p>Phone: {{address.phone}}</p>
         </div>
-       
+
+        <!-- Price Details -->
+        <div class="price-card">
+          <h4>Price Details</h4>
+          <hr>
+          <p>Items Total <span>₹ {{orders.totalPrice}}</span></p>
+          <p>Coupon <span>₹ {{orders.discount}}</span></p>
+          <p>Total Discount <span>₹ {{orders.discount}}</span></p>
+          <p>Delivery Charges <span class="free">₹ 0{{orders.deliveryCharge}}</span></p>
+          <hr>
+          <p><strong>Final Amount</strong> 
+             <span><strong>₹ {{orders.finalAmount}}</strong></span>
+          </p>
+        </div>
       </div>
+    </div>
 
+    <!--  Each Product -->
+    <div class="order-items">
+    
+      {{#each orders.orderedItems}}
+      <div class="order-item-card">
+        <!-- Product Info -->
+        <div class="order-left">
+          <img src="/images/{{this.productId.productImages.[0]}}" alt="Product Image" class="product-img">
+          <div class="order-info">
+            <h3>{{this.productId.productName}}</h3>
+            <p>Quantity : {{this.quantity}}</p>
+            <h2> ₹ {{this.totalPrice}} <span style="font-size: small; color:#8f8c8c">(₹{{this.price}} x {{this.quantity}})</span></h2>
+          </div>
+        </div>
 
-      <div class="status-section">
-        <input type="hidden" name="itemId" id="itemId" value="{{orders.itemId}}">
-        <h4>Ordered On:{{orders.formattedDate}}</h4><br>
-        <h4>Order ID:{{orders.orderId}}</h4>
+        <!-- Status Timeline -->
+        <div>
+          <br>
+          <h4>Status History:</h4>
+          <ul class="timeline" id="timeline-{{this._id}}">
+            {{#each this.fullStatusHistory}}
+            <li>
+              <strong>{{this.status}}</strong>
+              <span class="date">on {{this.date}}</span>
+            </li>
+            {{/each}}
+          </ul><br>
+        </div>
 
-        
-      <div>
-        <h4>Status History:</h4><br>
-        <ul class="timeline">
-          {{#each orders.fullStatusHistory}}
-          <li><strong >{{this.status}}</strong> <span  class="date ">on {{this.date}}</span></li>
-          {{/each}}
-        </ul><br>
-      </div>
+        <!-- Current Status -->
         <br><p>Current Status:
-            <span 
-              id="order-status" 
-              class="status 
-                {{#if (eq orders.status "Pending")}}pending
-                {{else if (eq orders.status "Processing")}}processing
-                {{else if (eq orders.status "Shipped")}}shipped
-                {{else if (eq orders.status "OutForDelivery")}}out-for-delivery
-                {{else if (eq orders.status "Delivered")}}delivered
-                {{else if (eq orders.status "Cancelled")}}cancelled
-                {{else if (eq orders.status "Returned")}}returned
+          <span id="order-status-{{this._id}}"
+            class="status 
+                {{#if (eq this.latestStatus "Pending")}}pending
+                {{else if (eq this.latestStatus "Processing")}}processing
+                {{else if (eq this.latestStatus "Shipped")}}shipped
+                {{else if (eq this.latestStatus "OutForDelivery")}}out-for-delivery
+                {{else if (eq this.latestStatus "Delivered")}}delivered
+                {{else if (eq this.latestStatus "Cancelled")}}cancelled
+                {{else if (eq this.latestStatus "Returned")}}returned
                 {{/if}}">
-              {{orders.status}}
-            </span>
-          </p><br><br>
-        <h2 style="color: #03b609; display:none" id="show-deliverd"></h2>
-        <h1 style="color: #f7220a;" id="show-cancelled"></h1><br>
-        <p style="color:#510707ea; font-size:large" id="cancelled-reason"></span> </p><br>
+            {{this.latestStatus}}
+          </span>
+        </p>
+        <h2 style="color: #03b609; display:none" id="show-delivered-{{this._id}}"></h2>
+        <h1 style="color: #f7220a;" id="show-cancelled-{{this._id}}"></h1><br>
+        <p style="color:#510707ea; font-size:large" id="cancelled-reason-{{this._id}}"> </p><br>
        
         
-        {{#if (eq orders.status "Delivered")}}
+        {{#if (eq this.latestStatus "Delivered")}}
 
         <div class="delivery-card">
-          <h2>Item delivered on {{orders.date}}</h2>
+          <h2>Item delivered on : {{this.latestStatusDate}}</h2>
 
-          {{#if orders.isUserRequested}}
+          {{#if this.returnRequest.isUserRequested}}
             <div class="action-row">
               {{#if (eq orders.isAdminApproved false)}}
               <p class="review-status">Return request rejected</p>
               {{else}}
-              <p class="review-status">Return Initiated</p>
+              <p class="review-status">Requested for return</p>
               
               <button class="review-btn" onclick="reviewReturn(event)">Review return</button>
               {{/if}}
@@ -617,35 +738,36 @@
           {{/if}}
         </div>
 
-        {{else if (eq orders.status "Cancelled")}}
+        {{else if (eq this.latestStatus "Cancelled")}}
         <div>
-          <h1 style="color: #f7220a;">Item Cancelled on {{orders.date}}</h1><br>
-          <p style="color:#510707ea; font-size:large">Reason for cancellation: <span style="color: #f30909; font-size:x-large; font-weight:500">{{orders.cancellationReason}}</span> </p><br>
+          <h1 style="color: #f7220a;">Item Cancelled on {{this.latestStatusDate}}</h1><br>
+          <p style="color:#510707ea; font-size:large">Reason for cancellation: <span style="color: #f30909; font-size:x-large; font-weight:500">{{this.cancellationReason}}</span> </p><br>
 
-          {{#if orders.isAdminCancelled}}
+          {{#if this.isAdminCancelled}}
           <p>Cancelled by Admin</p>
           {{else}}
           <p>Cancelled by User</p>
           {{/if}}
         
         </div>
-        {{else if (eq orders.status "Returned")}}
-        <p><h1 style="color: #f7220a;">Item Returned on {{orders.date}}</h1><br></p>
+        {{else if (eq this.latestStatus "Returned")}}
+        <p><h1 style="color: #f7220a;">Item Returned on {{this.latestStatusDate}}</h1><br></p>
         {{else}}
-        <div id="statusChangeButtons"   >
-        <p>Change Status :</p>
-        <div class="status-buttons ">
-          <button class="btn btn-pending" onclick="changeStatus(event, '{{orders.itemId}}', 'Pending')">Pending</button>
-          <button class="btn btn-processing" onclick="changeStatus(event, '{{orders.itemId}}', 'Processing')">Processing</button>
-          <button class="btn btn-shipped" onclick="changeStatus(event, '{{orders.itemId}}', 'Shipped')">Shipped</button>
-          <button class="btn btn-outfordelivery" onclick="changeStatus(event, '{{orders.itemId}}', 'OutForDelivery')">Out For Delivery</button>
-          <button class="btn btn-delivered" onclick="changeStatus(event, '{{orders.itemId}}', 'Delivered')">Delivered</button>
-          <button class="btn btn-returned" onclick="changeStatus(event, '{{orders.iteitemId}}', 'Returned')">Returned</button>
-          <button class="btn btn-cancel" onclick="cancelOrder(event, '{{orders.itemId}}', 'Cancelled',changeStatus)">Cancel</button>
-          
+       
+
+        <!-- Status Buttons -->
+        <div class="status-buttons" id="statusChangeButtons-{{this._id}}">
+          <div><p>Change Status to:</p></div>
+          <button class="btn btn-pending" onclick="changeStatus(event, '{{this._id}}', 'Pending')">Pending</button>
+          <button class="btn btn-processing" onclick="changeStatus(event, '{{this._id}}', 'Processing')">Processing</button>
+          <button class="btn btn-shipped" onclick="changeStatus(event, '{{this._id}}', 'Shipped')">Shipped</button>
+          <button class="btn btn-outfordelivery" onclick="changeStatus(event, '{{this._id}}', 'OutForDelivery')">Out For Delivery</button>
+          <button class="btn btn-delivered" onclick="changeStatus(event, '{{this._id}}', 'Delivered')">Delivered</button>
+          {{!-- <button class="btn btn-returned" onclick="changeStatus(event, '{{this._id}}', 'Returned')">Returned</button> --}}
+          <button class="btn btn-cancel" onclick="cancelOrder(event, '{{this._id}}', 'Cancelled', changeStatus)">Cancel</button>
         </div>
-        {{!-- cancel reason --}}
-              <div id="cancelReason" class="cancel-reason">
+
+              <div id="cancelReason-{{this._id}}" class="cancel-reason">
                 <div class="form-group">
                   <label class="cancel-label">Reason for cancellation</label>
 
@@ -675,184 +797,151 @@
                   <button class="keep-product" id="keepProduct" onclick="closeCancelReason()">Keep the product</button>
                   <button class="cancel-product" id="cancelProduct">Cancel product</button>
                 </div>
-                </div>
+              </div>
+       {{/if}}
 
-        </div>
-        {{/if}}
-        <div>
-
+        <!-- Payment Table -->
         {{#if (ne orders.status "Returned")}}
-         {{!-- payment management --}}
-          <table>
-           
-              <thead>
-              <tr>
+        <br>
+        <h4>Payment Details</h4>
+        <table>
+          <thead>
+            <tr>
               <th>Payment Method</th>
               <th>Payment Status</th>
               <th>Action</th>
-              </tr>
-              </thead>
-
-            <tbody>
-              <tr>
-              <td style="font-weight: 600;">{{orders.paymentMethod}}</td>
-              <td><span id="paymentStatus-{{orders.itemId}}">{{orders.paymentStatus}}</span></td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight: 600;">{{../orders.paymentMethod}}</td>
+              <td><span id="paymentStatus-{{this._id}}">{{../orders.paymentStatus}}</span></td>
               <td>
-                {{#if (eq orders.status "Cancelled")}}
-                <button class="payment-status cancel"   >Change</button>
+                {{#if (eq this.status "Cancelled")}}
+                <button class="payment-status cancel">Change</button>
                 {{else}}
-                <button class="payment-status"  onclick="changePaymentstatus(event,'{{orders.itemId}}')"  >Change</button>
-                 {{/if}}
-
+                <button class="payment-status" onclick="changePaymentstatus(event,'{{this._id}}')">Change</button>
+                {{/if}}
               </td>
-              
-              </tr>
-            </tbody>
-          </table>
+            </tr>
+          </tbody>
+        </table>
         {{/if}}
-        </div>
       </div>
-    </div>
-
-    <div class="side-details">
-      <div class="shipping-card">
-        <h4>Shipping Address</h4>
-        <p><strong>{{address.name}}</strong></p>
-        <p>{{address.address}}, {{address.city}}, {{address.state}} - {{address.pincode}}</p>
-
-      </div>
-
-      <div class="price-card">
-        <h4>Price Details</h4>
-        <p>Price ({{orders.quantity}} item) <span>₹ {{orders.totalPrice}}</span></p>
-        <p>Delivery Charges <span class="free">FREE</span></p>
-        {{!-- <p>Platform Fee <span>₹ 0</span></p>
-        <p>Delivery Tip <span>₹ 0</span></p> --}}
-        <p>Discount <span>₹ {{orders.discount}}</span></p>
-        <p>Final amount <span>₹ {{orders.finalAmount}}</span></p>
-      </div>
-   
+    {{/each}}
     </div>
 
   </div>
 </main>
 
+
 <script>
+  async function changeStatus(event, id, status, reason) {
+    try {
+      event.preventDefault();
 
- async function changeStatus(event, id, status,reason) {
-  try {
-    event.preventDefault();
+      const res = await fetch(`/admin/changeOrderStatus/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status, reason }),
+      });
 
-    const res = await fetch(`/admin/changeOrderStatus/${id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status ,reason})
-    });
+      const data = await res.json();
 
-    const data = await res.json();
+      if (res.ok) {
+        Toastify({
+          text: data.message,
+          duration: 3000,
+          close: true,
+          gravity: "top",
+          position: "center",
+          style: {
+            background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+          },
+          className: "custom-toast",
+        }).showToast();
 
-    if (res.ok) {
-      
-      Toastify({
-        text: data.message,
-        duration: 3000,
-        close: true,
-        gravity: "top",
-        position: "center",
-        style: {
-          background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+        const statusElement = document.getElementById(`order-status-${id}`);
+        const statsuDiv = document.getElementById(`statusChangeButtons-${id}`);
+        const deliveredStatus = document.getElementById(`show-delivered-${id}`);
+        const cancelStatus = document.getElementById(`show-cancelled-${id}`);
+        const cancelReason = document.getElementById(`cancelled-reason-${id}`);
+        const timeline = document.getElementById(`timeline-${id}`);
+        const li = document.createElement("li");
 
-        },
-        className: "custom-toast"
-      }).showToast();
+        if (statusElement) {
+          //resetting to base cls
+          statusElement.className = "status";
+          const formatted = data.status.replace(/\s+/g, "-").toLowerCase();
+          //setting classes
+          statusElement.classList.add(formatted);
+          statusElement.innerText = data.status;
+          li.innerHTML = `<strong >${data.status}</strong> <span  class="date ">on ${data.date}</span>`;
+          timeline.appendChild(li);
+        }
 
-      
-      const statusElement = document.getElementById("order-status");
-      const statsuDiv = document.getElementById("statusChangeButtons");
-      const deliveredStatus = document.getElementById("show-deliverd");
-      const cancelStatus=document.getElementById("show-cancelled")
-      const cancelReason=document.getElementById("cancelled-reason")
-      const timeline=document.querySelector(".timeline")
-      const li=document.createElement("li")
-
-      
-      if (statusElement) {
-        //resetting to base cls
-        statusElement.className = "status";
-        const formatted = data.status.replace(/\s+/g, "-").toLowerCase();
-        //setting classes
-        statusElement.classList.add(formatted);
-        statusElement.innerText = data.status;
-        li.innerHTML=`<strong >${data.status}</strong> <span  class="date ">on ${data.date}</span>`
-        timeline.appendChild(li)
-        
+        if (data.status === "Delivered") {
+          statsuDiv.style.display = "none";
+          deliveredStatus.style.display = "block";
+          deliveredStatus.innerHTML = `Item delivered on  ${data.date}`;
+        } else if (data.status === "Cancelled") {
+          statsuDiv.style.display = "none";
+          cancelStatus.innerHTML = ` Item Cancelled on ${data.date}`;
+          cancelReason.innerHTML = `Reason for cancellation: <span style="color: #f30909; font-size:x-large; font-weight:500">${data.reason}`;
+        }
+      } else {
+        console.error("Failed to update:", data);
       }
-      
-      if(data.status==="Delivered"){
-        statsuDiv.style.display="none"
-        deliveredStatus.style.display="block"
-        deliveredStatus.innerHTML=`Item delivered on  ${data.date}`
-      }else if(data.status==="Cancelled"){
-        statsuDiv.style.display="none"
-        cancelStatus.innerHTML=` Item Cancelled on ${data.date}`
-        cancelReason.innerHTML=`Reason for cancellation: <span style="color: #f30909; font-size:x-large; font-weight:500">${data.reason}`
-       
-      }
-    } else {
-      console.error("Failed to update:", data);
+    } catch (err) {
+      console.log("Error in changeStatus:", err);
     }
-  } catch (err) {
-    console.log("Error in changeStatus:", err);
   }
-}
 
-
-function cancelOrder(event,id,status,callback){
-
-  document.getElementById("error-modal").innerText = "";  
-  const cancelReasonDiv=document.getElementById("cancelReason")
-  cancelReasonDiv.style.display="block"
-
-  const cancelBtn=document.getElementById("cancelProduct");
-  const newCancelBtn = cancelBtn.cloneNode(true);
-  cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
-  
-
-  newCancelBtn.addEventListener("click", function(event){
-    event.preventDefault();
-
-    const selectedReason=document.querySelector('input[name="cancelReason"]:checked')?.value
-    let reason=selectedReason;
-
-    if(!selectedReason){
-    
-      document.getElementById("error-modal").innerText="Please specify your reason.";
-      return
-    }
-    
-    if(selectedReason==="Other"){
-      const otherReason=document.getElementById("otherReason").value.trim()
-      if(!otherReason){
-        document.getElementById("error-modal").innerText="Please specify your reason.";
-        return
-      }
-      reason=otherReason
-    }
-
-    callback(event,id,status,reason)
-    document.getElementById("cancelReason").style.display = "none";
+  function cancelOrder(event, id, status, callback) {
     document.getElementById("error-modal").innerText = "";
-  })  
+    const cancelReasonDiv = document.getElementById(`cancelReason-${id}`);
+    cancelReasonDiv.style.display = "block";
 
-}
+    const cancelBtn = document.getElementById("cancelProduct");
+    const newCancelBtn = cancelBtn.cloneNode(true);
+    cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
 
+    newCancelBtn.addEventListener("click", function (event) {
+      event.preventDefault();
 
-function closeCancelReason(){
-  document.getElementById("error-modal").innerText = "";
-  document.getElementById("cancelReason").style.display = "none";
-}
+      const selectedReason = document.querySelector(
+        'input[name="cancelReason"]:checked'
+      )?.value;
+      let reason = selectedReason;
 
-function toggleOtherReason(radio) {
+      if (!selectedReason) {
+        document.getElementById("error-modal").innerText =
+          "Please specify your reason.";
+        return;
+      }
+
+      if (selectedReason === "Other") {
+        const otherReason = document.getElementById("otherReason").value.trim();
+        if (!otherReason) {
+          document.getElementById("error-modal").innerText =
+            "Please specify your reason.";
+          return;
+        }
+        reason = otherReason;
+      }
+
+      callback(event, id, status, reason);
+      document.getElementById(`cancelReason-${id}`).style.display = "none";
+      document.getElementById("error-modal").innerText = "";
+    });
+  }
+
+  function closeCancelReason() {
+    document.getElementById("error-modal").innerText = "";
+    document.getElementById(`cancelReason-${id}`).style.display = "none";
+  }
+
+  function toggleOtherReason(radio) {
     document.getElementById("error-modal").innerText = "";
     const otherContainer = document.getElementById("otherReasonContainer");
     if (radio.value === "Other") {
@@ -862,54 +951,53 @@ function toggleOtherReason(radio) {
     }
   }
 
-async function changePaymentstatus(event, id) {
-  try {
-    event.preventDefault();
+  async function changePaymentstatus(event, id) {
+    try {
+      event.preventDefault();
 
-    let paymentStatusElement = document.getElementById(`paymentStatus-${id}`);
-    const payment = paymentStatusElement.innerText.trim();
+      let paymentStatusElement = document.getElementById(`paymentStatus-${id}`);
+      const payment = paymentStatusElement.innerText.trim();
+      console.log(id);
+      const res = await fetch(`/admin/changePyamentStatus/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ payment }),
+      });
 
-    const res = await fetch(`/admin/changePyamentStatus/${id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ payment })
-    });
+      const data = await res.json();
 
-    const data = await res.json();
+      if (res.ok) {
+        Toastify({
+          text: data.message,
+          duration: 3000,
+          close: true,
+          gravity: "top",
+          position: "center",
+          style: {
+            background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+          },
+          className: "custom-toast",
+        }).showToast();
 
-    if (res.ok) {
-      Toastify({
-        text: data.message,
-        duration: 3000,
-        close: true,
-        gravity: "top",
-        position: "center",
-        style: {
-          background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
-        },
-        className: "custom-toast"
-      }).showToast();
-
-      paymentStatusElement.innerText = data.status;
-     
-    } else {
-      console.error("Failed to update:", data);
+        paymentStatusElement.innerText = data.status;
+      } else {
+        console.error("Failed to update:", data);
+      }
+    } catch (err) {
+      console.log("Error in changePaymentstatus:", err);
     }
-  } catch (err) {
-    console.log("Error in changePaymentstatus:", err);
   }
-}
 
-
-function reviewReturn(event) {
-  event.preventDefault();
-  id = document.getElementById("itemId").value;
-  try {
-    window.location.href = `/admin/reviewReturn/${id}`;
-  } catch (error) {
-    console.error("Error navigating to order management:", error);
+  function reviewReturn(event) {
+    event.preventDefault();
+    id = document.getElementById("itemId").value;
+    try {
+      window.location.href = `/admin/reviewReturn/${id}`;
+    } catch (error) {
+      console.error("Error navigating to order management:", error);
+    }
   }
-}
-
 
 </script>
+
+

@@ -105,6 +105,7 @@ router.post("/confirmWalletPayment",userAuth.userBlocked,userAuth.checkSession, 
 //payment mangement
 router.post('/create-razorpay-order',userAuth.userBlocked,userAuth.checkSession,orderController.createRazorpayOrder)
 router.post("/verify-payment",userAuth.userBlocked,userAuth.checkSession,orderController.verifyPayment)
+router.get("/payment-failed",userAuth.userBlocked,userAuth.checkSession,orderController.failedPayment)
 
 
 

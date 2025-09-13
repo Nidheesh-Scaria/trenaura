@@ -4,7 +4,8 @@ const getBrandPage = async (req, res) => {
   try {
     const search = req.query.search || "";
     const page = parseInt(req.query.page) || 1;
-    const limit = 3;
+    const limit = 10
+    ;
 
     const query = {
       brandName: { $regex: search, $options: "i" },
@@ -22,7 +23,7 @@ const getBrandPage = async (req, res) => {
       brandName: brand.brandName,
       status: brand.isBlocked,
       createdAt: brand.createdAt.toISOString().split("T")[0],
-      serialNumber: (page - 1) * limit + index + 1, //
+      serialNumber: (page - 1) * limit + index + 1,
     }));
 
     const count = await Brand.countDocuments(query);

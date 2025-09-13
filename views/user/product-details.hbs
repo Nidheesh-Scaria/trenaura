@@ -78,21 +78,69 @@
             margin-bottom: 15px;
         }
 
-        .size-selection {
-            margin-bottom: 20px;
+      .size-selection {
+        margin: 1rem 0;
+        font-family: Arial, sans-serif;
         }
 
         .size-selection label {
-            font-size: 1rem;
-            margin-right: 10px;
+        display: block;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+        color: #333;
         }
 
-        .size-selection select {
-            padding: 8px;
-            font-size: 1rem;
-            border-radius: 4px;
-            border: 1px solid #ccc;
+        .size-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
         }
+
+        .size-option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        }
+
+        .size-option button {
+        padding: 8px 14px;
+        border: 2px solid #333;
+        border-radius: 6px;
+        background-color: white;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        }
+        .size-btn.selected {
+        background-color: #333;
+        color: #fff;
+        border: 2px solid #000;
+        }
+
+        .size-option button:hover:not(:disabled) {
+        background-color: #333;
+        color: #fff;
+        }
+
+        .size-option button:disabled {
+        border-color: #aaa;
+        background-color: #f2f2f2;
+        color: #888;
+        cursor: not-allowed;
+        }
+
+        .size-option small {
+        margin-top: 4px;
+        font-size: 12px;
+        color: #28a745; /* green for stock */
+        }
+
+        .size-option button:disabled + small {
+        display: none; /* hide stock info if disabled */
+        }
+
 
         .add-to-cart {
             background-color: #ff9800;
@@ -173,115 +221,122 @@
     </style>
 </head>
 
-
 <div class="container">
-      
-            <div class="easyzoom easyzoom--overlay" id="main-easyzoom">
-                <a id="main-easyzoom-link" href="/images/{{product.productImages.[0]}}">
-                <img id="main-product-image" style="height: 25rem; width:28rem" src="/images/{{product.productImages.[0]}}" alt="Zoomed Product Image" />
-                </a>
-                <div class="product-thumbnails" style="margin-top: 1rem; display: flex; gap: 10px;">
-            {{#each product.productImages}}
-                <img class="product-thumbnail" data-image="/images/{{this}}" src="/images/{{this}}" style="width: 60px; height: 60px; object-fit: cover; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;" alt="Product Thumbnail" />
-            {{/each}}
-            </div>
-            </div>
-            <!-- Thumbnails of product-->
-            
 
-
-        <div class="product-details">
-        <h1 class="product-title">{{product.productName}}</h1>
-        <p class="product-price">&#x20b9;{{product.salePrice}} 
-            <span style="text-decoration: line-through; color: #888;">
-                &#x20b9;{{product.regularPrice}}
-            </span>
-        </p>
-        <div class="size-selection">
-            <label for="size">Select Size</label>
-            
-            <select id="size" name="size">
-                <option value="S">S</option>
-                <option value="M">M</option>
-                <option value="L">L</option>
-                <option value="XL">XL</option>
-                <option value="XXL">XXL</option>
-            </select>
-            
-        </div>
-        {{#if (gt product.quantity 5)}}
-            <p><strong>Stock left:{{product.quantity}}</strong> </p>
-        {{else if (and (lt product.quantity 5)(gt product.quantity 0))}}
-            <p><strong>Stock left:{{product.quantity}}</strong> </p>
-        {{else}}   
-            <p style="color: red;"><strong>Out of stock</strong> </p>
-        {{/if}}
-        
-        {{#if product.quantity}}
-      
-        <div>
-            <button class="add-to-cart" onclick="addToCart(event,'{{product._id}}')">Add to Cart</button>
-            <button class="add-to-cart" onclick="buyItNow(event,'{{product._id}}')">Buy it Now</button>
-        
-        </div>
-        
-        {{/if}}
-        <div class="product-info">
-            <h3 style="color: black;">About this item</h3>
-            <p>{{product.description}}</p>
-        </div>
+  <div class="easyzoom easyzoom--overlay" id="main-easyzoom">
+    <a id="main-easyzoom-link" href="/images/{{product.productImages.[0]}}">
+      <img id="main-product-image" style="height: 25rem; width:28rem" src="/images/{{product.productImages.[0]}}"
+        alt="Zoomed Product Image" />
+    </a>
+    <div class="product-thumbnails" style="margin-top: 1rem; display: flex; gap: 10px;">
+      {{#each product.productImages}}
+      <img class="product-thumbnail" data-image="/images/{{this}}" src="/images/{{this}}"
+        style="width: 60px; height: 60px; object-fit: cover; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;"
+        alt="Product Thumbnail" />
+      {{/each}}
     </div>
+  </div>
+  <!-- Thumbnails of product-->
+
+
+
+  <div class="product-details">
+    <h1 class="product-title">{{product.productName}}</h1>
+    <p class="product-price">&#x20b9;{{product.salePrice}}
+      <span style="text-decoration: line-through; color: #888;">
+        &#x20b9;{{product.regularPrice}}
+      </span>
+    </p>
+
+    <div class="size-selection">
+      <label for="size">Select Size</label>
+      <div class="size-options">
+        {{#each product.allVariants}}
+        <div class="size-option">
+          <button type="button" value="{{@key}}" class="size-btn" {{#if (eq this 0)}}disabled{{/if}}>
+            {{@key}}
+          </button>
+          {{#if (gt this 0)}}
+          {{#if (lt this 6)}}
+          <small style="color: red;">Only {{this}} left</small>
+          {{else}}
+          <small>{{this}} in stock</small>
+          {{/if}}
+          {{/if}}
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+    {{#if (eq isOutOfStock false)}}
+
+    <div>
+      <button class="add-to-cart" onclick="addToCart(event,'{{product._id}}')">Add to Cart</button>
+      <button class="add-to-cart" onclick="buyItNow(event,'{{product._id}}')">Buy it Now</button>
+
+    </div>
+    <p id="error" style="color: red;"></p>
+    {{else}}
+    <p style="color: red;">Out of of stock</p>
+
+    {{/if}}
+    <div class="product-info">
+      <h3 style="color: black;">About this item</h3>
+      <p>{{product.description}}</p>
+    </div>
+  </div>
 </div>
 
 
 <section class="product spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    
-                    <ul class="filter__controls">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
 
-                       
-                        <li data-filter=".new-arrivals">Your Choices</li>
-                        
-                    </ul>
-                </div>
+        <ul class="filter__controls">
+
+
+          <li data-filter=".new-arrivals">Your Choices</li>
+
+        </ul>
+      </div>
+    </div>
+    <div class="row product__filter">
+      {{#each products}}
+      <div class="col-lg-3 col-md-6 col-sm-6 mix new-arrivals">
+        <div class="product__item">
+          <a href="/productDetails?id={{this._id}}">
+            <div class="product__item__pic set-bg" data-setbg="/images/{{this.productImages.[0]}}">
+              {{!-- <span class="label">New</span> --}}
+              <ul class="product__hover">
+                {{!-- <li><button onclick="addWishlist(event,'{{this._id}}')"><img src="img/icon/heart.png" alt=""></button>
+                </li>
+                <li><img src="img/icon/compare.png" alt=""> <span>Compare</span></li>
+                <li><img src="img/icon/search.png" alt=""></li> --}}
+              </ul>
             </div>
-            <div class="row product__filter">
-             {{#each products}}
-                <div class="col-lg-3 col-md-6 col-sm-6 mix new-arrivals">
-                    <div class="product__item">
-                        <a href="/productDetails?id={{this._id}}">
-                            <div class="product__item__pic set-bg" data-setbg="/images/{{this.productImages.[0]}}">
-                                {{!-- <span class="label">New</span> --}}
-                                <ul class="product__hover">
-                                    <li><button  onclick="addWishlist(event,'{{this._id}}')"><img src="img/icon/heart.png" alt=""></button></li>
-                                    <li><img src="img/icon/compare.png" alt=""> <span>Compare</span></li>
-                                    <li><img src="img/icon/search.png" alt=""></li>
-                                </ul>
-                            </div>
-                        </a>
-                        <div class="product__item__text">
-                            <h6>{{this.productName}}</h6>
-                            <a href="#" onclick="addToCarts(event,'{{this._id}}')"  class="add-cart">+ Add To Cart</a>
-                            <div class="rating">
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                            </div>
-                            <h5>&#x20b9;{{this.salePrice}} <span style="text-decoration: line-through; color: #888;">&#x20b9;{{this.regularPrice}}</span> </h5>
-                        </div>
-                    </div>
-                </div>
-                {{/each}}
+          </a>
+          <div class="product__item__text">
+            <h6>{{this.productName}}</h6>
+            <a href="#" onclick="addWishlist(event,'{{this._id}}')" class="add-cart">+ Add to Wish list</a>
+            {{!-- <div class="rating">
+              <i class="fa fa-star-o"></i>
+              <i class="fa fa-star-o"></i>
+              <i class="fa fa-star-o"></i>
+              <i class="fa fa-star-o"></i>
+              <i class="fa fa-star-o"></i>
+            </div> --}}
+            <h5>&#x20b9;{{this.salePrice}} <span
+                style="text-decoration: line-through; color: #888;">&#x20b9;{{this.regularPrice}}</span> </h5>
+          </div>
+        </div>
+      </div>
+      {{/each}}
 
 
-            </div>
-        </div> 
+    </div>
+  </div>
 </section>
-    
 
 
 
@@ -289,7 +344,14 @@
 <script src="https://cdn.jsdelivr.net/npm/easyzoom@2.5.0/dist/easyzoom.js"></script>
 
 <script>
-const selectedSize = document.getElementById("size")
+let selectedSize;
+document.querySelectorAll(".size-btn").forEach(btn => {
+  btn.addEventListener("click", (e) => {
+    document.querySelectorAll(".size-btn").forEach(b => b.classList.remove("selected"));
+    e.target.classList.add("selected");
+    
+  });
+});
 
   $(document).ready(function () {
     $('.set-bg').each(function () {
@@ -320,7 +382,16 @@ const selectedSize = document.getElementById("size")
 //if cart is empty
 async function addToCart(event, id) {
 
-const size=selectedSize.value
+event.preventDefault();
+document.getElementById("error").innerText=""
+const selectedBtn = document.querySelector(".size-btn.selected");
+
+if (!selectedBtn) {
+    document.getElementById("error").innerText="Please select a size before adding to cart."
+    return;
+  }
+
+const size=selectedBtn.value
 
   const res = await fetch(`/addToCart/${id}`, {
     method:"POST",
@@ -356,43 +427,6 @@ const size=selectedSize.value
 }
 //linear-gradient(to right,  #1e3c72, #6dd5ed)
 
-
-
-async function addToCarts(event, id) {
-
-const size=selectedSize.value
-
-  const res = await fetch(`/addToCart/${id}`, {
-    method:"POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body:JSON.stringify({size})
-  });
-
-  
-  const data = await res.json();
-
-  if (res.ok) {
-    Toastify({
-        text: data.message,
-        duration: 3000,
-        close: true,          
-        gravity: "top",       
-        position: "center",    
-        style: {
-            background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)", 
-        },
-        className: "custom-toast", 
-        
-        }).showToast();
-        document.getElementById("cart-count").textContent = data.cartCount;
-  
-  } else {
-    console.error("Failed to add item in cart:", data.message || "Unknown error");
-  }
-}
-
 async function addWishlist(event,id){
     event.preventDefault();
     console.log('addWishlist loaded with id   :::::::',id)
@@ -426,7 +460,14 @@ async function addWishlist(event,id){
      
 async function buyItNow(event,id){
     event.preventDefault()
-    const size=selectedSize.value
+
+    const selectedBtn = document.querySelector(".size-btn.selected");
+
+    if (!selectedBtn) {
+        document.getElementById("error").innerText="Please select a size before check out."
+        return;
+      }
+    const size=selectedBtn
     
     window.location.href = `/loadAddressForOrder/${id}?size=${size}`;
 }

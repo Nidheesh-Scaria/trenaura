@@ -8,6 +8,7 @@ const Order = require("../../models/orderSchema");
 const Wallet = require("../../models/walletSchema");
 const WalletTopupOrder = require("../../models/walletTopupOrderSchema ");
 const Coupon = require("../../models/couponSchema");
+const Brand = require("../../models/brandSchema");
 
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
@@ -69,7 +70,7 @@ const signup = async (req, res) => {
 
     const existingEmail = await userSchema.findOne({ email });
     const existingPhone = await userSchema.findOne({ phone });
-    
+
     if (referralCode) {
       const isReferalcode = await userSchema.findOne({ referralCode });
       if (!isReferalcode) {
@@ -288,6 +289,7 @@ const loadHomepage = async (req, res) => {
 
     const userOk = await userSchema.findById(user);
     const categories = await Category.find({ isListed: true });
+    const brand = await Brand.find({ isBlocked: false });
     const mensCategory = await Category.findOne({ name: "Mens" });
     const womensCategory = await Category.findOne({ name: "Womens" });
     const beautyCategory = await Category.findOne({ name: "Beauty" });
@@ -306,21 +308,12 @@ const loadHomepage = async (req, res) => {
       isBlocked: false,
       isDeleted: false,
       category: { $in: categories.map((category) => category._id) },
-      quantity: { $gt: 0 },
-    }).sort({
-      createdOn: -1,
-    });
-
-    // Get latest 4 products
-    productData = productData.slice(0, 8).map((product) => {
-      return {
-        ...product._doc,
-        firstImage:
-          product.productImages && product.productImages.length > 0
-            ? product.productImages[0]
-            : "default.jpg",
-      };
-    });
+      brand: { $in: brand.map((brand) => brand._id) },
+      size: { $ne: [] },
+    })
+      .sort({ createdAt: -1 })
+      .limit(12)
+      .lean();
 
     const randomImages = (images) => {
       if (!images || images.length == 0) return null;
@@ -357,7 +350,7 @@ const loadShop = async (req, res) => {
     const products = await Product.find({
       isBlocked: false,
       isDeleted: false,
-      quantity: { $gt: 0 },
+      size: { $ne: [] },
     }).lean();
 
     return res.render("user/shop", {
@@ -684,6 +677,7 @@ const resendPswrdOtp = async (req, res) => {
 const productDetails = async (req, res) => {
   try {
     const productId = req.query.id;
+    let isOutOfStock = false;
     const productDoc = await Product.findById(productId).lean();
 
     if (!productDoc) {
@@ -694,19 +688,28 @@ const productDetails = async (req, res) => {
 
     const product = {
       ...productDoc,
+      allVariants: productDoc.variants,
       firstImage:
         productDoc.productImages && productDoc.productImages.length > 0
           ? productDoc.productImages[0]
           : "default.jpg",
     };
 
+    if (!product.size || product.size.length === 0) {
+      isOutOfStock = true;
+    }
+
     const categories = await Category.find({ isListed: true });
+    const brand = await Brand.find({ isBlocked: false });
 
     let productData = await Product.find({
       isBlocked: false,
       category: { $in: categories.map((category) => category._id) },
-      quantity: { $gt: 0 },
+      brand: { $in: brand.map((brand) => brand._id) },
+      size: { $ne: [] },
     });
+
+    productData = productData.sort(() => 0.5 - Math.random()).slice(0, 12);
 
     productData = productData.slice().map((product) => {
       return {
@@ -724,6 +727,7 @@ const productDetails = async (req, res) => {
       hideFooter: false,
       product,
       products: productData,
+      isOutOfStock,
     });
   } catch (error) {
     console.error("Error in rendering home page:", error);
@@ -736,21 +740,24 @@ const productDetails = async (req, res) => {
 const mensCategory = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 2;
+    const limit = 12;
     const skip = (page - 1) * limit;
 
     const categories = await Category.find({
       isListed: true,
       name: { $regex: "Mens" },
     });
+    const brand = await Brand.find({ isBlocked: false });
 
     const categoryIds = categories.map((cat) => cat._id);
+    const brandIds = brand.map((brand) => brand._id);
 
     const totalProducts = await Product.countDocuments({
       isBlocked: false,
       isDeleted: false,
       category: { $in: categoryIds },
-      quantity: { $gt: 0 },
+      brand: { $in: brandIds },
+      size: { $ne: [] },
     });
 
     const totalPages = Math.ceil(totalProducts / limit);
@@ -759,7 +766,8 @@ const mensCategory = async (req, res) => {
       isDeleted: false,
       isBlocked: false,
       category: { $in: categoryIds },
-      quantity: { $gt: 0 },
+      brand: { $in: brandIds },
+      size: { $ne: [] },
     })
       .skip(skip)
       .limit(limit);
@@ -793,7 +801,7 @@ const mensCategory = async (req, res) => {
 const womensCategory = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 2;
+    const limit = 12;
     const skip = (page - 1) * limit;
 
     const categories = await Category.find({
@@ -801,13 +809,16 @@ const womensCategory = async (req, res) => {
       name: { $regex: "Womens", $options: "i" },
     });
 
+    const brand = await Brand.find({ isBlocked: false });
+    const brandIds = brand.map((brand) => brand._id);
     const categoryIds = categories.map((cat) => cat._id);
 
     const totalProducts = await Product.countDocuments({
       isBlocked: false,
       isDeleted: false,
       category: { $in: categoryIds },
-      quantity: { $gt: 0 },
+      brand: { $in: brandIds },
+      size: { $ne: [] },
     });
 
     const totalPages = Math.ceil(totalProducts / limit);
@@ -816,7 +827,8 @@ const womensCategory = async (req, res) => {
       isBlocked: false,
       isDeleted: false,
       category: { $in: categoryIds },
-      quantity: { $gt: 0 },
+      brand: { $in: brandIds },
+      size: { $ne: [] },
     })
       .skip(skip)
       .limit(limit);
@@ -850,13 +862,15 @@ const womensCategory = async (req, res) => {
 const beautyCategory = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 2;
+    const limit = 12;
     const skip = (page - 1) * limit;
 
     const categories = await Category.find({
       isListed: true,
       name: { $regex: "Beauty", $options: "i" },
     });
+    const brand = await Brand.find({ isBlocked: false });
+    const brandIds = brand.map((brand) => brand._id);
 
     const categoryIds = categories.map((cat) => cat._id);
 
@@ -864,7 +878,8 @@ const beautyCategory = async (req, res) => {
       isDeleted: false,
       isBlocked: false,
       category: { $in: categoryIds },
-      quantity: { $gt: 0 },
+      brand: { $in: brandIds },
+      size: { $ne: [] },
     });
 
     const totalPages = Math.ceil(totalProducts / limit);
@@ -873,7 +888,7 @@ const beautyCategory = async (req, res) => {
       isBlocked: false,
       isDeleted: false,
       category: { $in: categoryIds },
-      quantity: { $gt: 0 },
+      size: { $ne: [] },
     })
       .skip(skip)
       .limit(limit);
@@ -1055,14 +1070,14 @@ const editProfileInfo = async (req, res) => {
 const loadChangePassword = async (req, res) => {
   try {
     const errorMessage = req.query.error;
-    const userId=req.session.user
-    const user=await userSchema.findById(userId)
+    const userId = req.session.user;
+    const user = await userSchema.findById(userId);
 
     res.render("user/changePassword", {
       title: "Change password",
       adminHeader: true,
       errorMessage,
-      name:user.name
+      name: user.name,
     });
   } catch (error) {
     console.error("Error in Change password rendering:", error);

@@ -13,7 +13,7 @@ const getProductPage = async (req, res) => {
   try {
     const search = req.query.search || "";
     const page = parseInt(req.query.page) || 1;
-    const limit = 3;
+    const limit = 10;
 
     const query = {
       isBlocked: false,
@@ -23,11 +23,11 @@ const getProductPage = async (req, res) => {
 
     const productData = await Product.find(query)
       .select(
-        "productName regularPrice salePrice category status isBlocked isDeleted productImages quantity"
+        "productName regularPrice salePrice category status isBlocked isDeleted productImages variants size"
       )
       .populate("category", "name")
       .limit(limit)
-      .sort({ createdOn: -1 })
+      .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .lean();
 
@@ -38,18 +38,24 @@ const getProductPage = async (req, res) => {
       regularPrice: product.regularPrice,
       category: product.category?.name || "Unknown",
       categoryId: product.category?._id || "",
+      brand: product.brand?.brandName || "Unknown",
+      brandId: product.brand?._id || "",
       status: product.status,
       isBlocked: product.isBlocked,
-      quantity: product.quantity,
+      variants: Object.fromEntries(Object.entries(product.variants || {})),
+      stock: product.size?.length || 0,
       productImages: product.productImages || [], //image is passing
       firstImage: product.productImages?.[0] || null,
       serialNumber: (page - 1) * limit + index + 1, //to get serial number
     }));
 
-    console.log("getProductPage",products.quantity)
+    console.log("getProductPage", products.quantity);
     const count = await Product.countDocuments(query);
     const categories = await Category.find({ isListed: true })
       .select("_id name")
+      .lean();
+    const brand = await Brand.find({ isBlocked: false })
+      .select("_id brandName")
       .lean();
 
     res.render("admin/product", {
@@ -57,6 +63,7 @@ const getProductPage = async (req, res) => {
       hideFooter: true,
       products,
       categories,
+      brand,
       totalPages: Math.ceil(count / limit),
       currentPage: page,
       search,
@@ -74,9 +81,13 @@ const getAddProducts = async (req, res) => {
     const category = await Category.find({ isListed: true })
       .select("_id name")
       .lean();
+    const brand = await Brand.find({ isBlocked: false })
+      .select("_id brandName")
+      .lean();
 
     res.render("admin/product-add", {
       category,
+      brand,
       hideHeader: true,
       hideFooter: true,
     });
@@ -93,6 +104,7 @@ const getEditProduct = async (req, res) => {
     const productId = req.params.id;
     const product = await Product.findById(productId)
       .populate("category", "name _id")
+      .populate("brand", "brandName _id")
       .lean();
 
     if (!product) {
@@ -110,8 +122,10 @@ const getEditProduct = async (req, res) => {
         productName: product.productName,
         regularPrice: product.regularPrice,
         salePrice: product.salePrice,
-        quantity:product.quantity,
+        variants: Object.fromEntries(Object.entries(product.variants || {})),
+        size: product.size,
         category: product.category?._id,
+        brand: product.brand?._id,
         categoryName: product.category?.name,
         productImages: product.productImages || [],
       },
@@ -149,6 +163,19 @@ const addProducts = async (req, res) => {
       });
     }
 
+    const variants = {
+      XS: parseInt(productData["quantity-xs"], 10) || 0,
+      S: parseInt(productData["quantity-s"], 10) || 0,
+      M: parseInt(productData["quantity-m"], 10) || 0,
+      L: parseInt(productData["quantity-l"], 10) || 0,
+      XL: parseInt(productData["quantity-xl"], 10) || 0,
+      XXL: parseInt(productData["quantity-xxl"], 10) || 0,
+    };
+
+    const availableSizes = Object.keys(variants).filter(
+      (size) => variants[size] > 0
+    );
+
     const productExists = await Product.findOne({
       productName: productData.productName,
     });
@@ -167,13 +194,6 @@ const addProducts = async (req, res) => {
       const bucket = req.app.locals.bucket;
 
       for (const file of req.files) {
-        // console.log("File details:", {
-        //   originalname: file.originalname,
-        //   mimetype: file.mimetype,
-        //   size: file.size,
-        //   buffer: file.buffer ? 'Buffer present' : 'No buffer'
-        // });
-
         const filename = `product-${Date.now()}-${file.originalname}`;
 
         const uploadStream = bucket.openUploadStream(filename, {
@@ -205,12 +225,20 @@ const addProducts = async (req, res) => {
     // Find category
 
     const category = await Category.findOne({ name: productData.category });
-    console.log("Found category:", category);
+    console.log("Found category in addProducts:", category);
+    const brand = await Brand.findOne({ brandName: productData.brand });
+    console.log("Found category in addProducts:", brand);
 
     if (!category) {
       return res.status(httpStatus.BAD_REQUEST).json({
         success: false,
         message: MESSAGES.INVALID_CATEGORY || "Invalid category",
+      });
+    }
+    if (!brand) {
+      return res.status(httpStatus.BAD_REQUEST).json({
+        success: false,
+        message: MESSAGES.INVALID_BRAND || "Invalid brand",
       });
     }
 
@@ -219,12 +247,12 @@ const addProducts = async (req, res) => {
     const newProduct = await Product.create({
       productName: productData.productName,
       description: productData.description,
-      brand: productData.brand || undefined,
       category: category._id,
-      regularPrice: productData.regularPrice,
-      salePrice: productData.salePrice,
-      quantity: productData.quantity,
-      size: productData.size,
+      brand: brand._id,
+      regularPrice: parseFloat(productData.regularPrice) || 0,
+      salePrice: parseFloat(productData.salePrice) || 0,
+      variants: variants,
+      size: availableSizes,
       color: productData.color,
       status: "Available",
       productImages: images,
@@ -266,8 +294,19 @@ const editProducts = async (req, res) => {
     const id = req.params.id;
     const bucket = req.app.locals.bucket;
 
-    const { productName, regularPrice, salePrice, category, quantity } =
-      req.body;
+    const {
+      productName,
+      regularPrice,
+      salePrice,
+      category,
+      quantityXs,
+      quantityS,
+      quantityM,
+      quantityL,
+      quantityXl,
+      quantityXxl,
+    } = req.body;
+
     const deleteImages = Array.isArray(req.body.deleteImages)
       ? req.body.deleteImages
       : req.body.deleteImages
@@ -315,12 +354,33 @@ const editProducts = async (req, res) => {
       }
     }
 
+    const variants = {
+      XS: Math.max(parseInt(quantityXs, 10) || 0, 0),
+      S: Math.max(parseInt(quantityS, 10) || 0, 0),
+      M: Math.max(parseInt(quantityM, 10) || 0, 0),
+      L: Math.max(parseInt(quantityL, 10) || 0, 0),
+      XL: Math.max(parseInt(quantityXl, 10) || 0, 0),
+      XXL: Math.max(parseInt(quantityXxl, 10) || 0, 0),
+    };
+
+    const availableSizes = Object.keys(variants).filter(
+      (size) => variants[size] > 0
+    );
+
+    if (availableSizes.length === 0) {
+      return res.status(httpStatus.BAD_REQUEST).json({
+        success: false,
+        message: "At least one size must have stock",
+      });
+    }
+
     // Updateing other product fields
     product.productName = productName;
     product.regularPrice = regularPrice;
     product.salePrice = salePrice;
     product.category = category;
-    product.quantity = quantity;
+    product.variants = variants;
+    product.size = availableSizes;
 
     await product.save();
 

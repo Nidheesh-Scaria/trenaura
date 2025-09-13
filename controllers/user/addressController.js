@@ -92,6 +92,7 @@ const addAddress = async (req, res) => {
       pincode: Number(pincode),
       phone: Number(phone),
       altPhone: altPhone ? Number(altPhone) : undefined,
+      selected:true,
     };
 
     const userAddress = await Address.findOne({ userId });

@@ -24,66 +24,119 @@ const crypto = require("crypto");
 
 //order management
 
+// const loadMyOrder = async (req, res) => {
+//   try {
+//     const userId = req.session.user;
+//     const raw = parseInt(req.query.page, 10);
+//     const page = Math.max(1, Number.isFinite(raw) ? raw : 1);
+//     const limit = 5;
+
+//     const myOrders = await Order.find({ userId })
+//       .populate({
+//         path: "orderedItems.productId",
+//         match: { isBlocked: false, isDeleted: false },
+//       })
+//       .sort({ createdAt: -1 })
+//       .skip((page - 1) * limit)
+//       .limit(limit)
+//       .lean();
+
+//     const filteredOrders = myOrders
+//       .map((order) => {
+//         order.orderedItems = order.orderedItems
+//           .filter((item) => item.productId !== null)
+//           .map((item) => ({
+//             id: item._id,
+//             productId: item.productId._id,
+//             productName: item.productId.productName,
+//             productImages: item.productId.productImages,
+//             quantity: item.quantity,
+//             regularPrice: item.productId.regularPrice,
+//             price: item.price,
+//             totalPrice: item.totalPrice,
+//             statusHistory:
+//               item.statusHistory[item.statusHistory.length - 1].status,
+//             isAdminCancelled:
+//               item.statusHistory[item.statusHistory.length - 1]
+//                 .isAdminCancelled,
+//             isReturnInitiated: item.returnRequest.isReturnInitiated,
+//           }));
+//         order.formattedDate = new Date(order.createdAt).toLocaleDateString();
+//         return order;
+//       })
+//       .filter((order) => order.orderedItems.length > 0);
+
+//     const count = await Order.countDocuments({ userId });
+
+//     if (filteredOrders.length === 0) {
+//       return res.render("user/myOrder", {
+//         title: "My order",
+//         adminHeader: true,
+//         isMyOrderEmpty: true,
+//         myOrder: [],
+//       });
+//     }
+
+//     return res.render("user/myOrder", {
+//       title: "My order",
+//       adminHeader: true,
+//       myOrder: filteredOrders,
+//       totalPages: Math.ceil(count / limit),
+//       currentPage: page,
+//       isMyOrderEmpty: filteredOrders.length === 0,
+//     });
+//   } catch (error) {
+//     console.error("Error in loadMyOrder:", error);
+//     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+//       success: false,
+//       message:
+//         MESSAGES.INTERNAL_SERVER_ERROR ||
+//         "An error occurred. Please try again later.",
+//     });
+//   }
+// };
+
 const loadMyOrder = async (req, res) => {
   try {
     const userId = req.session.user;
-    const raw = parseInt(req.query.page, 10);
-    const page = Math.max(1, Number.isFinite(raw) ? raw : 1);
-    const limit = 5;
 
-    const myOrders = await Order.find({ userId })
-      .populate({
-        path: "orderedItems.productId",
-        match: { isBlocked: false, isDeleted: false },
-      })
+    let orders = await Order.find({ userId })
       .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
+      .populate("userId", "name email")
+      .populate("orderedItems.productId", "productName productImages")
       .lean();
 
-    const filteredOrders = myOrders
-      .map((order) => {
-        order.orderedItems = order.orderedItems
-          .filter((item) => item.productId !== null)
-          .map((item) => ({
-            id: item._id,
-            productId: item.productId._id,
-            productName: item.productId.productName,
-            productImages: item.productId.productImages,
-            quantity: item.quantity,
-            regularPrice: item.productId.regularPrice,
-            price: item.price,
-            totalPrice: item.totalPrice,
-            statusHistory:
-              item.statusHistory[item.statusHistory.length - 1].status,
-            isAdminCancelled:
-              item.statusHistory[item.statusHistory.length - 1]
-                .isAdminCancelled,
-            isReturnInitiated: item.returnRequest.isReturnInitiated,
-          }));
-        order.formattedDate = new Date(order.createdAt).toLocaleDateString();
-        return order;
-      })
-      .filter((order) => order.orderedItems.length > 0);
+    orders = orders.map((order) => {
+      order.orderedItems = order.orderedItems.map((item) => {
+        const statusHistory = item.statusHistory || [];
 
-    const count = await Order.countDocuments({ userId });
+        const latestStatusEntry =
+          statusHistory.length > 0
+            ? statusHistory[statusHistory.length - 1]
+            : null;
 
-    if (filteredOrders.length === 0) {
-      return res.render("user/myOrder", {
-        title: "My order",
-        adminHeader: true,
-        isMyOrderEmpty: true,
-        myOrder: [],
+        let latestStatusDate = new Date(
+          latestStatusEntry.changedAt
+        ).toLocaleString();
+
+        return {
+          ...item,
+          latestStatus: latestStatusEntry
+            ? latestStatusEntry.status
+            : "Pending",
+          latestStatusDate,
+          returnRequest: item.returnRequest || null,
+        };
       });
-    }
+
+      return order;
+    });
 
     return res.render("user/myOrder", {
       title: "My order",
       adminHeader: true,
-      myOrder: filteredOrders,
-      totalPages: Math.ceil(count / limit),
-      currentPage: page,
-      isMyOrderEmpty: filteredOrders.length === 0,
+      myOrder: orders,
+      isMyOrderEmpty: orders.length === 0 ? true : false,
     });
   } catch (error) {
     console.error("Error in loadMyOrder:", error);
@@ -179,6 +232,8 @@ const loadAddressForOrder = async (req, res) => {
     const { size, quantity } = req.query;
     const user = await userSchema.findById(userId);
     const userAddresses = await Address.findOne({ userId });
+
+    req.session.productDetails = { size, quantity };
 
     const addresses = userAddresses ? userAddresses.address : [];
 
@@ -278,20 +333,6 @@ const submitAddress = async (req, res) => {
     console.log(itemId);
 
     return res.redirect(`/orderSummary?cartId=${itemId}`);
-
-    // //fetching the current item
-    // const currentItem = updatedCart.items.find(
-    //   (item) => item.productId && item.productId._id.toString() === productId
-    // );
-
-    // //add to cart then
-    // return res.render("user/orderSummary", {
-    //   title: "Order Summary",
-    //   adminHeader: true,
-    //   hideFooter: false,
-    //   cartItems: currentItem ? [currentItem] : [],
-    //   totalPrice: currentItem ? currentItem.totalPrice : 0,
-    // });
   } catch (error) {
     console.error(
       "Error in selecting address and saving to cart for order:",
@@ -346,9 +387,9 @@ const loadPaymentMethod = async (req, res) => {
   try {
     const userId = req.session.user;
     const { itemId } = req.query;
-    const { couponCode, amount } = req.query;
+    const { couponCode, amount, orderId } = req.query;
 
-    console.log(itemId);
+    console.log("loadPaymentMethod", orderId);
 
     //for all the cart items
     if (!itemId) {
@@ -373,6 +414,7 @@ const loadPaymentMethod = async (req, res) => {
         grandTotal: amount,
         itemId,
         couponCode,
+        orderId,
       });
     }
 
@@ -406,8 +448,9 @@ const orderSuccess = async (req, res) => {
   try {
     console.log("orderSuccess reached");
     const userId = req.session.user;
-    let { itemId, paymentMethod, couponCode } = req.body;
-    console.log("orderSuccess", itemId);
+    let { itemId, paymentMethod, couponCode, retryOrderId } = req.body;
+
+    let orderId = retryOrderId;
 
     //getting address
     const userAddress = await Address.findOne({ userId });
@@ -457,6 +500,26 @@ const orderSuccess = async (req, res) => {
     let isWholeCart;
     let item;
     let savedOrder;
+    let finalAmount;
+    let isRetryPayment = false;
+
+    if (orderId) {
+      const order = await Order.findById(orderId);
+      finalAmount = order.finalAmount;
+
+      await Order.findByIdAndUpdate(orderId, {
+        $set: { paymentMethod },
+      });
+
+      return res.status(httpStatus.OK).json({
+        orderId,
+        finalAmount,
+        isRetryPayment: true,
+        redirectUrl: isWholeCart
+          ? `/order-placed?isWholeCart=${isWholeCart}`
+          : `/order-placed?itemId=${itemId}&isWholeCart=${isWholeCart}`,
+      });
+    }
 
     //for single item
     if (itemId) {
@@ -519,6 +582,7 @@ const orderSuccess = async (req, res) => {
             productId: item.productId._id,
             quantity: item.quantity,
             price: item.price,
+            variant: item.size,
             totalPrice: item.totalPrice,
             statusHistory: [
               {
@@ -540,9 +604,21 @@ const orderSuccess = async (req, res) => {
       const productId = item.productId._id;
       const quantity = item.quantity;
       await Product.updateOne(
-        { _id: productId },
-        { $inc: { quantity: -quantity } }
+        {
+          _id: productId,
+          [`variants.${item.size}`]: { $gte: quantity },
+        },
+        {
+          $inc: { [`variants.${item.size}`]: -quantity },
+        }
       );
+      const product = await Product.findById(productId);
+
+      product.size = [...product.variants.entries()]
+        .filter(([_, qty]) => qty > 0)
+        .map(([size]) => size);
+
+      await product.save();
 
       isWholeCart = false;
     }
@@ -552,6 +628,7 @@ const orderSuccess = async (req, res) => {
         productId: item.productId._id,
         quantity: item.quantity,
         price: item.price,
+        variant: item.size,
         totalPrice: item.totalPrice,
         statusHistory: [{ status: "Pending" }],
       }));
@@ -580,7 +657,7 @@ const orderSuccess = async (req, res) => {
           discount = (coupon.discountValue / 100) * totalPrice;
         }
 
-        //changeing usageCount
+        //changing usageCount
         let usage = await CouponUsageSchema.findOne({
           couponId: coupon._id,
           userId,
@@ -603,7 +680,7 @@ const orderSuccess = async (req, res) => {
       }
 
       // const finalAmount = totalPrice - discount;
-      const finalAmount = Math.max(totalPrice - discount, 0);
+      finalAmount = Math.max(totalPrice - discount, 0);
 
       newOrder = new Order({
         userId,
@@ -623,14 +700,26 @@ const orderSuccess = async (req, res) => {
       // decrease stock for each item
       for (const item of orderedItems) {
         await Product.updateOne(
-          { _id: item.productId },
-          { $inc: { quantity: -item.quantity } }
+          {
+            _id: item.productId,
+            [`variants.${item.size}`]: { $gte: item.quantity },
+          },
+          {
+            $inc: { [`variants.${item.size}`]: -item.quantity },
+          }
         );
+
+        const product = await Product.findById(item.productId);
+
+        product.size = [...product.variants.entries()]
+          .filter(([_, qty]) => qty > 0)
+          .map(([size]) => size);
+        await product.save();
       }
     }
 
-    const orderId = savedOrder._id;
-    const finalAmount = savedOrder.finalAmount;
+    orderId = savedOrder._id;
+    finalAmount = savedOrder.finalAmount;
 
     return res.status(httpStatus.OK).json({
       orderId,
@@ -654,7 +743,27 @@ const orderPlaced = async (req, res) => {
   try {
     const userId = req.session.user;
     const itemId = req.query.itemId;
+    const orderId = req.query.orderId;
+    const isRetryPayment = req.query.isRetryPayment;
     const isWholeCart = req.query.isWholeCart === "true";
+
+    console.log("orderPlaced orderId---", orderId);
+    console.log("orderPlaced userId---", userId);
+    console.log("orderPlaced itemId---", itemId);
+
+    if (isRetryPayment) {
+      await Order.findByIdAndUpdate(orderId, {
+        $set: { isOrderPlaced: true },
+      });
+      return res.render("user/orderSuccess", {
+        title: "Order placed",
+        adminHeader: true,
+      });
+    }
+
+    await Order.findByIdAndUpdate(orderId, {
+      $set: { isOrderPlaced: true },
+    });
 
     if (isWholeCart) {
       //remove item from cart
@@ -859,22 +968,31 @@ const returnOrder = async (req, res) => {
 const walletPayment = async (req, res) => {
   try {
     const userId = req.session.user;
-    const { itemId, paymentMethod, couponCode, grandTotal } = req.query;
-    console.log("walletPayment", itemId);
-    req.session.walletData = { itemId, paymentMethod, couponCode };
-    let insufficientBalance=false;
+    const { itemId, paymentMethod, couponCode, grandTotal, orderId } =
+      req.query;
+    console.log("walletPayment", orderId);
+    req.session.walletData = { itemId, paymentMethod, couponCode, orderId };
+    let insufficientBalance = false;
+    let noWallet = false;
 
     const wallet = await Wallet.findOne({ userId });
+    if (!wallet) {
+      return res.render("user/confirmWalletPayment", {
+        title: "Order details",
+        adminHeader: true,
+        noWallet: true,
+      });
+    }
+
     let item;
     if (itemId) {
       item = await Cart.findOne();
     }
-    let amount=Number(grandTotal)
+    let amount = Number(grandTotal);
 
     let walletBalance = wallet.balance;
     if (walletBalance < amount) {
-      insufficientBalance=true
-      
+      insufficientBalance = true;
     }
 
     return res.render("user/confirmWalletPayment", {
@@ -884,6 +1002,7 @@ const walletPayment = async (req, res) => {
       amount,
       itemId,
       insufficientBalance,
+      noWallet,
     });
   } catch (error) {
     console.error("Error in walletPayment :", error);
@@ -900,7 +1019,8 @@ const confirmWalletPayment = async (req, res) => {
   try {
     console.log("confirmWalletPayment");
     const userId = req.session.user;
-    const { itemId, paymentMethod, couponCode } = req.session.walletData;
+    const { itemId, paymentMethod, couponCode, orderId } =
+      req.session.walletData;
     let item;
     let newOrder, savedOrder;
 
@@ -925,6 +1045,56 @@ const confirmWalletPayment = async (req, res) => {
       (a) => a.selected === true
     );
 
+    if (orderId) {
+      console.log("confirmWalletPayment", orderId);
+      const order = await Order.findById(orderId);
+      if (!order) {
+        return res
+          .status(httpStatus.BAD_REQUEST)
+          .json({ message: "Order not found" });
+      }
+
+      const finalAmount = order.finalAmount;
+      if (!wallet || wallet.balance < finalAmount) {
+        return res
+          .status(httpStatus.BAD_REQUEST)
+          .json({ message: "Insufficient wallet balance" });
+      }
+
+      //updating wallet
+      const wallets = await Wallet.findOneAndUpdate(
+        { userId: userId },
+        {
+          $inc: { balance: -finalAmount },
+          $push: {
+            transactions: {
+              orderId: order._id,
+              type: "debit",
+              amount: finalAmount,
+              description: `Product purchase on ${new Date()} with orderId:${
+                order.orderId
+              }`,
+            },
+          },
+        }
+      );
+      await Order.findByIdAndUpdate(
+        orderId,
+        {
+          $set: {
+            paymentMethod: "WALLET",
+            paymentStatus: "Paid",
+            isOrderPlaced: true,
+          },
+        },
+        { new: true }
+      );
+
+      return res
+        .status(httpStatus.OK)
+        .json({ message: "Order placed successfully" });
+    }
+
     //for one order
     if (itemId) {
       item = cart.items.find((i) => i._id.toString() === itemId);
@@ -938,11 +1108,6 @@ const confirmWalletPayment = async (req, res) => {
           isActive: true,
         });
         //cheking of coupon exists
-        if (!coupon) {
-          return res
-            .status(400)
-            .json({ message: "Invalid or inactive coupon" });
-        }
         if (coupon.discountType === "flat") {
           discount = coupon.discountValue;
         } else if (coupon.discountType === "percentage") {
@@ -1022,13 +1187,14 @@ const confirmWalletPayment = async (req, res) => {
       );
 
       savedOrder.paymentStatus = "Paid";
+      savedOrder.isOrderPlaced = true;
       await savedOrder.save();
 
       //decreaseing stock
       const productId = item.productId._id;
       const quantity = item.quantity;
       await Product.updateOne(
-        { _id: productId },
+        { _id: productId, quantity: { $gte: quantity } },
         { $inc: { quantity: -quantity } }
       );
 
@@ -1135,6 +1301,7 @@ const confirmWalletPayment = async (req, res) => {
       );
 
       savedOrder.paymentStatus = "Paid";
+      savedOrder.isOrderPlaced = true;
       await savedOrder.save();
 
       // decrease stock for each item
@@ -1172,6 +1339,7 @@ const createRazorpayOrder = async (req, res) => {
     console.log("createRazorpayOrder reached");
     const userId = req.session.user;
     const { itemId, orderId, finalAmount } = req.body;
+    console.log(orderId);
 
     const order = await Order.findOne({ _id: orderId, userId });
     if (!order) {
@@ -1228,7 +1396,11 @@ const verifyPayment = async (req, res) => {
     if (expectedSignature === razorpay_signature) {
       await Order.findOneAndUpdate(
         { razorpayOrderId: razorpay_order_id },
-        { paymentStatus: "Paid", razorpayPaymentId: razorpay_payment_id }
+        {
+          paymentStatus: "Paid",
+          razorpayPaymentId: razorpay_payment_id,
+          isOrderPlaced: true,
+        }
       );
 
       return res.json({
@@ -1242,6 +1414,25 @@ const verifyPayment = async (req, res) => {
     }
   } catch (error) {
     console.error("Error verifying Razorpay payment:", error);
+    res.status(httpStatus.OK).json({
+      success: false,
+      message: MESSAGES.INTERNAL_SERVER_ERROR || "Something went wrong ",
+    });
+  }
+};
+
+const failedPayment = async (req, res) => {
+  try {
+    const orderId = req.query.id;
+    const message = req.query.message;
+    console.log(orderId);
+    return res.render("user/paymentFailure", {
+      adminHeader: true,
+      orderId,
+      message,
+    });
+  } catch (error) {
+    console.error("Error failedPayement:", error);
     res.status(httpStatus.OK).json({
       success: false,
       message: MESSAGES.INTERNAL_SERVER_ERROR || "Something went wrong ",
@@ -1265,4 +1456,5 @@ module.exports = {
   loadOrderSummary,
   walletPayment,
   confirmWalletPayment,
+  failedPayment,
 };

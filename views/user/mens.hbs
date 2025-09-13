@@ -219,16 +219,16 @@
                             <div class="product__item">
                                 <a href="/productDetails?id={{this._id}}">
                                 <div class="product__item__pic set-bg" data-setbg="/images/{{this.productImages.[0]}}">
-                                    <ul class="product__hover">
+                                    {{!-- <ul class="product__hover">
                                         <li><button  onclick="addWishlist(event,'{{this._id}}')"><img src="img/icon/heart.png" alt=""></button></li>
                                         <li><img src="img/icon/compare.png" alt=""> <span>Compare</span></li>
-                                        {{!-- <li><img src="img/icon/search.png" alt=""></li> --}}
-                                    </ul>
+                                        <li><img src="img/icon/search.png" alt=""></li>
+                                    </ul> --}}
                                 </div>
                                 </a>
                                 <div class="product__item__text">
                                     <h6>{{this.productName}}</h6>
-                                    <a href="#" onclick="addToCarts(event,'{{this._id}}')"  class="add-cart">+ Add To Cart</a>
+                                    <a href="#" onclick="addWishlist(event,'{{this._id}}')"  class="add-cart">+ Add to Wish list</a>
                                     <div class="rating">
                                         <i class="fa fa-star-o"></i>
                                         <i class="fa fa-star-o"></i>
@@ -317,7 +317,7 @@
 
 
         
-async function addToCarts(event,id){
+/*async function addToCarts(event,id){
   const res=await fetch(`/addToCarts/${id}`,{
     method:"POST",
     headers:{"Content-type":"application/json"},
@@ -346,7 +346,7 @@ async function addToCarts(event,id){
 
      document.getElementById("cart-count").textContent = data.cartCount;
   }
-}
+}*/
 
 
 

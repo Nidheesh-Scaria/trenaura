@@ -56,8 +56,9 @@
         <p><strong>Your Wallet Balance:</strong> ₹{{walletBalance}}</p>
         <p><strong>Amount to Pay:</strong> {{amount}}</p>
       </div>
-
-      {{#if insufficientBalance}}
+      {{#if noWallet}}
+        <p class="error-msg">&#128269; No wallet found</p>
+      {{else if insufficientBalance}}
         <p class="error-msg">&#10060; Insufficient balance in your wallet</p>
       {{else}}
         <form >

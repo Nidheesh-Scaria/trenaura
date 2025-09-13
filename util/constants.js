@@ -5,6 +5,7 @@ const MESSAGES = {
   PRODUCT_EXISTS: "Product already exists, please try another name",
   MISSING_FIELDS: "Missing required fields",
   INVALID_CATEGORY: "Invalid category",
+  INVALID_BRAND: "Invalid brand",
   UPLOAD_AT_LEAST_3_IMAGES: "Please upload at least 3 images",
   PRODUCT_ADD_FAILED: "Failed to add product",
   PRODUCT_NOT_FOUND: "Product not found",

@@ -16,9 +16,7 @@ const env = require("dotenv").config();
 const httpStatus = require("../../util/statusCodes");
 const { MESSAGES } = require("../../util/constants");
 const { default: mongoose } = require("mongoose");
-const razorpay = require("../../config/razorpay");
-const razorpayInstance = require("../../config/razorpay");
-const crypto = require("crypto");
+
 
 //wishlist mangement
 
@@ -28,17 +26,11 @@ const loadWishlist = async (req, res) => {
     const wishlist = await Wishlist.findOne({ userId })
       .populate({
         path: "products.productsId",
-        match: { isBlocked: false, isDeleted: false },
+        match: { isBlocked: false, isDeleted: false, size: { $ne: [] } },
       })
       .lean();
-    //sorting items with a valid productId .
-    if (wishlist?.products?.length) {
-      wishlist.products = wishlist.products.filter(
-        (product) => product.productsId !== null
-      );
-    }
 
-    if (!wishlist || wishlist.products.length === 0) {
+    if (!wishlist || !wishlist.products?.length) {
       return res.render("user/wishlist", {
         title: "Wishlist",
         adminHeader: true,
@@ -46,6 +38,40 @@ const loadWishlist = async (req, res) => {
         wishlistItems: [],
       });
     }
+
+    //sorting items with a valid productId .
+
+    wishlist.products = wishlist.products
+      .filter((p) => p.productsId)
+      .map((item) => {
+        const product = item.productsId;
+
+        const availableVariants = Object.entries(product.variants || {})
+          .filter(([_, qty]) => qty > 0)
+          .map(([size, qty]) => ({ size, qty }));
+
+        // keep only useful fields for frontend
+        return {
+          _id: product._id,
+          productName: product.productName,
+          color: product.color,
+          regularPrice: product.regularPrice,
+          salePrice: product.salePrice,
+          description:product.description,
+          productImages: product.productImages,
+          availableVariants,
+        };
+      });
+
+    if (wishlist.products.length === 0) {
+      return res.render("user/wishlist", {
+        title: "Wishlist",
+        adminHeader: true,
+        isWishListEmpty: true,
+        wishlistItems: [],
+      });
+    }
+    console.log(wishlist)
 
     return res.render("user/wishlist", {
       title: "Wishlist",
@@ -67,7 +93,7 @@ const addWishlist = async (req, res) => {
   try {
     const productId = req.params.id;
     const userId = req.session.user;
-
+    
     let wishlist = await Wishlist.findOne({ userId });
 
     if (!wishlist) {

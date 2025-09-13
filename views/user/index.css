@@ -1,0 +1,409 @@
+.refresh-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s;
+    background-color: #1d1c8a;
+}
+
+.refresh-btn i {
+    margin-right: 5px;
+}
+
+.refresh-btn:hover {
+    background-color: #1916b3;
+}
+
+
+.table-container a {
+    text-decoration: none;
+}
+
+.edit {
+    color: #1916b3;
+}
+
+.delete {
+    color: red;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.9rem;
+    margin-top: 4px;
+}
+
+
+
+/* Edit Modal Styles - Centered and Stable */
+#editCategoryModal.modal {
+
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1050;
+    overflow-y: auto;
+}
+
+#editCategoryModal .modal-dialog {
+    position: relative;
+    width: auto;
+    max-width: 600px;
+    margin: 0 auto;
+    pointer-events: none;
+    transition: none !important;
+    /* Disable any movement transitions */
+    transform: none !important;
+    /* Disable any transform animations */
+}
+
+#editCategoryModal .modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    pointer-events: auto;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 0.3rem;
+    outline: 0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Modal Header */
+#editCategoryModal .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+    background-color: #4361ee;
+    color: white;
+}
+
+#editCategoryModal .modal-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 500;
+}
+
+#editCategoryModal .btn-close {
+    padding: 0.5rem;
+    margin: -0.5rem -0.5rem -0.5rem auto;
+    background-color: transparent;
+    border: 0;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+#editCategoryModal .btn-close:hover {
+    opacity: 1;
+}
+
+/* Modal Body */
+#editCategoryModal .modal-body {
+    position: relative;
+    flex: 1 1 auto;
+    padding: 1.5rem;
+}
+
+#editCategoryModal .form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+#editCategoryModal .form-control {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+#editCategoryModal .form-control:focus {
+    border-color: #4361ee;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+}
+
+/* Modal Footer */
+#editCategoryModal .modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+
+#editCategoryModal .btn {
+    display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    user-select: none;
+    border: 1px solid transparent;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: 0.25rem;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+}
+
+#editCategoryModal .btn-secondary {
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #6c757d;
+    margin-right: 0.5rem;
+}
+
+#editCategoryModal .btn-primary {
+    color: #fff;
+    background-color: #4361ee;
+    border-color: #4361ee;
+}
+
+.form-select {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 8px 12px;
+    width: 100%;
+}
+
+/* Size Quantity Section */
+.size-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 15px;
+    text-align: center;
+}
+
+.size-input label {
+    font-weight: 500;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.size-title {
+    margin-bottom: 10px;
+    color: #132043;
+}
+
+.size-note {
+    font-size: small;
+    color: #6c757d;
+    margin: 0;
+}
+
+.size-grid #size-error {
+    grid-column: 1 / -1;
+    text-align: left;
+    margin-top: 8px;
+}
+
+
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    #editCategoryModal .modal-dialog {
+        max-width: 95%;
+        margin: 0.5rem auto;
+    }
+}
+
+/* Disable any movement animations */
+.modal.fade .modal-dialog {
+    transition: none !important;
+    transform: none !important;
+}
+
+
+/* Delete Modal Styles - Fixed Centered Position */
+#deleteCategoryModal.modal {
+
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1050;
+    overflow-y: auto;
+}
+
+#deleteCategoryModal .modal-dialog {
+    position: relative;
+    width: auto;
+    max-width: 500px;
+    margin: 0 auto;
+    pointer-events: none;
+    transition: none !important;
+    transform: none !important;
+}
+
+#deleteCategoryModal .modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    pointer-events: auto;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 0.3rem;
+    outline: 0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border-top: 4px solid #dc3545;
+}
+
+/* Modal Header */
+#deleteCategoryModal .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+#deleteCategoryModal .modal-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #dc3545;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#deleteCategoryModal .modal-title::before {
+    content: "⚠";
+    font-size: 1.2em;
+}
+
+#deleteCategoryModal .btn-close {
+    padding: 0.5rem;
+    margin: -0.5rem -0.5rem -0.5rem auto;
+    background-color: transparent;
+    border: 0;
+    font-size: 1rem;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+#deleteCategoryModal .btn-close:hover {
+    opacity: 1;
+}
+
+/* Modal Body */
+#deleteCategoryModal .modal-body {
+    position: relative;
+    flex: 1 1 auto;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+#deleteCategoryModal .modal-body p {
+    margin: 0;
+    font-size: 1.05rem;
+    color: #6c757d;
+}
+
+/* Modal Footer */
+#deleteCategoryModal .modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    border-top: 1px solid #e9ecef;
+    gap: 1rem;
+}
+
+#deleteCategoryModal .btn {
+    display: inline-block;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    user-select: none;
+    border: 1px solid transparent;
+    padding: 0.5rem 1.25rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: 0.25rem;
+    transition: all 0.15s ease;
+    min-width: 100px;
+}
+
+#deleteCategoryModal .btn-secondary {
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+#deleteCategoryModal .btn-danger {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+    position: relative;
+    overflow: hidden;
+}
+
+#deleteCategoryModal .btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+/* Disable any movement animations */
+.modal.fade .modal-dialog {
+    transition: none !important;
+    transform: none !important;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    #deleteCategoryModal .modal-dialog {
+        max-width: 95%;
+        margin: 0.5rem auto;
+    }
+
+    #deleteCategoryModal .modal-footer {
+        flex-direction: column-reverse;
+        gap: 0.5rem;
+    }
+
+    #deleteCategoryModal .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    #deleteCategoryModal .modal-title {
+        font-size: 1.1rem;
+    }
+
+    #deleteCategoryModal .modal-body p {
+        font-size: 0.95rem;
+    }
+}

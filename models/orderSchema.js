@@ -6,7 +6,7 @@ const Product = require("./productSchema");
 const orderSchema = new Schema({
   orderId: {
     type: String,
-    default: () => uuidv4(),
+    default: () => "OD" + Date.now() + Math.floor(Math.random() * 1000),
     unique: true,
   },
   userId: {
@@ -41,6 +41,10 @@ const orderSchema = new Schema({
       couponDiscount: {
         type: Number,
         default: 0,
+      },
+      variant: {
+        type: String,
+        default: null,
       },
       statusHistory: [
         {
@@ -156,13 +160,17 @@ const orderSchema = new Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ["COD", "RAZORPAY","WALLET"],
+    enum: ["COD", "RAZORPAY", "WALLET"],
     default: "COD",
   },
   paymentStatus: {
     type: String,
     enum: ["Paid", "Unpaid", "Failed", "Pending"],
     default: "Unpaid",
+  },
+  isOrderPlaced: {
+    type: Boolean,
+    default: false,
   },
   razorpayOrderId: {
     type: String,

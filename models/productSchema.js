@@ -1,71 +1,88 @@
-
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const productSchema = new Schema({
-  productName: {
-    type: String,
-    required: true
+const productSchema = new Schema(
+  {
+    productName: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    brand: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Brand",
+      required: true,
+    },
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
+    },
+    regularPrice: {
+      type: Number,
+      required: true,
+    },
+    salePrice: {
+      type: Number,
+      required: true,
+    },
+    productOffer: {
+      type: Number,
+      default: 0,
+    },
+    variants: {
+      type: Map,
+      of: Number,
+      default: {
+        XS: 0,
+        S: 0,
+        M: 0,
+        L: 0,
+        XL: 0,
+        XXL: 0,
+      },
+    },
+    size: {
+      type: [String],
+      default: [],
+    },
+    color: {
+      type: String,
+      required: true,
+    },
+    productImages: {
+      type: [String],
+      required: true,
+    },
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    status: {
+      type: String,
+      enum: ["Available", "Out of Stock", "Discontinued"],
+      default: "Available",
+    },
   },
-  description: { 
-    type: String,
-    required: true
-  },
-  brand: {
-    type: String,
-    required: false
-  },
-  category: { 
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category',
-    required: true
-  },
-  regularPrice: {
-    type: Number,
-    required: true
-  },
-  salePrice: {
-    type: Number,
-    required: true
-  },
-  productOffer: {
-    type: Number,
-    default: 0
-  },
-  quantity: {
-    type: Number,
-    required: true
-  },
-  size: {
-    type: [String],
-    default: []
-  },
-  color: {
-    type: String,
-    required: true
-  },
-  productImages: {
-    type: [String],
-    required: true
-  },
-  isBlocked: {
-    type: Boolean,
-    default: false
-  },
-  isDeleted:{
-    type: Boolean,
-    default: false
-  },
-  createdOn: {
-    type: Date,
-    default: Date.now,
-  },
+  { timestamps: true }
+);
 
-  status: {
-    type: String,
-    enum: ['Available', 'Out of Stock', 'Discontinued'],
-    default: 'Available'
+// Auto-update size before saving
+
+productSchema.pre("save", function (next) {
+  if (this.variants) {
+    this.size = [...this.variants.entries()]
+      .filter(([_, qty]) => qty > 0)
+      .map(([size]) => size);
   }
-}, { timestamps: true });
+  next();
+});
 
-module.exports = mongoose.model('Product', productSchema);
+module.exports = mongoose.model("Product", productSchema);

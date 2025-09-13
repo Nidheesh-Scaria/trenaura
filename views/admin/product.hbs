@@ -25,364 +25,397 @@
     }
 
     .refresh-btn:hover {
-        background-color:  #1916b3;
+        background-color: #1916b3;
     }
 
 
-    .table-container a{
-      text-decoration: none;
+    .table-container a {
+        text-decoration: none;
     }
-    .edit{
-     color: #1916b3;
+
+    .edit {
+        color: #1916b3;
     }
-    .delete{
-      color: red;
+
+    .delete {
+        color: red;
     }
-  .error-message {
-    color: red;
-    font-size: 0.9rem;
-    margin-top: 4px;
-  }
-    
 
-
-  /* Edit Modal Styles - Centered and Stable */
-#editCategoryModal.modal {
-  
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1050;
-  overflow-y: auto;
-}
-
-#editCategoryModal .modal-dialog {
-  position: relative;
-  width: auto;
-  max-width: 600px;
-  margin: 0 auto;
-  pointer-events: none;
-  transition: none !important; /* Disable any movement transitions */
-  transform: none !important; /* Disable any transform animations */
-}
-
-#editCategoryModal .modal-content {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  pointer-events: auto;
-  background-color: #fff;
-  background-clip: padding-box;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 0.3rem;
-  outline: 0;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-/* Modal Header */
-#editCategoryModal .modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem;
-  border-bottom: 1px solid #e9ecef;
-  background-color: #4361ee;
-  color: white;
-}
-
-#editCategoryModal .modal-title {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 500;
-}
-
-#editCategoryModal .btn-close {
-  padding: 0.5rem;
-  margin: -0.5rem -0.5rem -0.5rem auto;
-  background-color: transparent;
-  border: 0;
-  color: white;
-  font-size: 1rem;
-  cursor: pointer;
-  opacity: 0.8;
-}
-
-#editCategoryModal .btn-close:hover {
-  opacity: 1;
-}
-
-/* Modal Body */
-#editCategoryModal .modal-body {
-  position: relative;
-  flex: 1 1 auto;
-  padding: 1.5rem;
-}
-
-#editCategoryModal .form-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-}
-
-#editCategoryModal .form-control {
-  display: block;
-  width: 100%;
-  padding: 0.375rem 0.75rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  color: #495057;
-  background-color: #fff;
-  background-clip: padding-box;
-  border: 1px solid #ced4da;
-  border-radius: 0.25rem;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-#editCategoryModal .form-control:focus {
-  border-color: #4361ee;
-  outline: 0;
-  box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
-}
-
-/* Modal Footer */
-#editCategoryModal .modal-footer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 1rem;
-  border-top: 1px solid #e9ecef;
-}
-
-#editCategoryModal .btn {
-  display: inline-block;
-  font-weight: 400;
-  text-align: center;
-  white-space: nowrap;
-  vertical-align: middle;
-  user-select: none;
-  border: 1px solid transparent;
-  padding: 0.375rem 0.75rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  border-radius: 0.25rem;
-  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out;
-}
-
-#editCategoryModal .btn-secondary {
-  color: #fff;
-  background-color: #6c757d;
-  border-color: #6c757d;
-  margin-right: 0.5rem;
-}
-
-#editCategoryModal .btn-primary {
-  color: #fff;
-  background-color: #4361ee;
-  border-color: #4361ee;
-}
-.form-select {
-   border: 1px solid #ced4da;
-   border-radius: 4px;
-   padding: 8px 12px;
-   width: 100%;
- }
-
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-  #editCategoryModal .modal-dialog {
-    max-width: 95%;
-    margin: 0.5rem auto;
-  }
-}
-
-/* Disable any movement animations */
-.modal.fade .modal-dialog {
-  transition: none !important;
-  transform: none !important;
-}
-
-
-/* Delete Modal Styles - Fixed Centered Position */
-#deleteCategoryModal.modal {
-  
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1050;
-  overflow-y: auto;
-}
-
-#deleteCategoryModal .modal-dialog {
-  position: relative;
-  width: auto;
-  max-width: 500px;
-  margin: 0 auto;
-  pointer-events: none;
-  transition: none !important;
-  transform: none !important;
-}
-
-#deleteCategoryModal .modal-content {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  pointer-events: auto;
-  background-color: #fff;
-  background-clip: padding-box;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 0.3rem;
-  outline: 0;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  border-top: 4px solid #dc3545;
-}
-
-/* Modal Header */
-#deleteCategoryModal .modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem;
-  border-bottom: 1px solid #e9ecef;
-}
-
-#deleteCategoryModal .modal-title {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 500;
-  color: #dc3545;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-#deleteCategoryModal .modal-title::before {
-  content: "⚠";
-  font-size: 1.2em;
-}
-
-#deleteCategoryModal .btn-close {
-  padding: 0.5rem;
-  margin: -0.5rem -0.5rem -0.5rem auto;
-  background-color: transparent;
-  border: 0;
-  font-size: 1rem;
-  cursor: pointer;
-  opacity: 0.7;
-}
-
-#deleteCategoryModal .btn-close:hover {
-  opacity: 1;
-}
-
-/* Modal Body */
-#deleteCategoryModal .modal-body {
-  position: relative;
-  flex: 1 1 auto;
-  padding: 1.5rem;
-  text-align: center;
-}
-
-#deleteCategoryModal .modal-body p {
-  margin: 0;
-  font-size: 1.05rem;
-  color: #6c757d;
-}
-
-/* Modal Footer */
-#deleteCategoryModal .modal-footer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  border-top: 1px solid #e9ecef;
-  gap: 1rem;
-}
-
-#deleteCategoryModal .btn {
-  display: inline-block;
-  font-weight: 500;
-  text-align: center;
-  white-space: nowrap;
-  vertical-align: middle;
-  user-select: none;
-  border: 1px solid transparent;
-  padding: 0.5rem 1.25rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  border-radius: 0.25rem;
-  transition: all 0.15s ease;
-  min-width: 100px;
-}
-
-#deleteCategoryModal .btn-secondary {
-  color: #fff;
-  background-color: #6c757d;
-  border-color: #6c757d;
-}
-
-#deleteCategoryModal .btn-danger {
-  color: #fff;
-  background-color: #dc3545;
-  border-color: #dc3545;
-  position: relative;
-  overflow: hidden;
-}
-
-#deleteCategoryModal .btn-danger:hover {
-  background-color: #c82333;
-  border-color: #bd2130;
-}
-
-/* Disable any movement animations */
-.modal.fade .modal-dialog {
-  transition: none !important;
-  transform: none !important;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-  #deleteCategoryModal .modal-dialog {
-    max-width: 95%;
-    margin: 0.5rem auto;
-  }
-  
-  #deleteCategoryModal .modal-footer {
-    flex-direction: column-reverse;
-    gap: 0.5rem;
-  }
-  
-  #deleteCategoryModal .btn {
-    width: 100%;
-  }
-}
-
-@media (max-width: 576px) {
-  #deleteCategoryModal .modal-title {
-    font-size: 1.1rem;
-  }
-  
-  #deleteCategoryModal .modal-body p {
-    font-size: 0.95rem;
-  }
-}
+    .error-message {
+        color: red;
+        font-size: 0.9rem;
+        margin-top: 4px;
+    }
 
 
 
+    /* Edit Modal Styles - Centered and Stable */
+    #editCategoryModal.modal {
+
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.5);
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1050;
+        overflow-y: auto;
+    }
+
+    #editCategoryModal .modal-dialog {
+        position: relative;
+        width: auto;
+        max-width: 600px;
+        margin: 0 auto;
+        pointer-events: none;
+        transition: none !important;
+        /* Disable any movement transitions */
+        transform: none !important;
+        /* Disable any transform animations */
+    }
+
+    #editCategoryModal .modal-content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        pointer-events: auto;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 0.3rem;
+        outline: 0;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Modal Header */
+    #editCategoryModal .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
+        background-color: #4361ee;
+        color: white;
+    }
+
+    #editCategoryModal .modal-title {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 500;
+    }
+
+    #editCategoryModal .btn-close {
+        padding: 0.5rem;
+        margin: -0.5rem -0.5rem -0.5rem auto;
+        background-color: transparent;
+        border: 0;
+        color: white;
+        font-size: 1rem;
+        cursor: pointer;
+        opacity: 0.8;
+    }
+
+    #editCategoryModal .btn-close:hover {
+        opacity: 1;
+    }
+
+    /* Modal Body */
+    #editCategoryModal .modal-body {
+        position: relative;
+        flex: 1 1 auto;
+        padding: 1.5rem;
+    }
+
+    #editCategoryModal .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    #editCategoryModal .form-control {
+        display: block;
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    #editCategoryModal .form-control:focus {
+        border-color: #4361ee;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+    }
+
+    /* Modal Footer */
+    #editCategoryModal .modal-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 1rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    #editCategoryModal .btn {
+        display: inline-block;
+        font-weight: 400;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        user-select: none;
+        border: 1px solid transparent;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        border-radius: 0.25rem;
+        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+    }
+
+    #editCategoryModal .btn-secondary {
+        color: #fff;
+        background-color: #6c757d;
+        border-color: #6c757d;
+        margin-right: 0.5rem;
+    }
+
+    #editCategoryModal .btn-primary {
+        color: #fff;
+        background-color: #4361ee;
+        border-color: #4361ee;
+    }
+
+    .form-select {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 8px 12px;
+        width: 100%;
+    }
+
+    /* Size Quantity Section */
+    .size-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 5px;
+        text-align: center;
+    }
+
+    .size-input label {
+        font-weight: 500;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .size-title {
+        margin-bottom: 10px;
+        color: #132043;
+    }
+
+    .size-note {
+        font-size: small;
+        color: #6c757d;
+        margin: 0;
+    }
+
+    .size-grid #size-error {
+        grid-column: 1 / -1;
+        text-align: left;
+        margin-top: 8px;
+    }
 
 
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        #editCategoryModal .modal-dialog {
+            max-width: 95%;
+            margin: 0.5rem auto;
+        }
+    }
+
+    /* Disable any movement animations */
+    .modal.fade .modal-dialog {
+        transition: none !important;
+        transform: none !important;
+    }
+
+
+    /* Delete Modal Styles - Fixed Centered Position */
+    #deleteCategoryModal.modal {
+
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.5);
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1050;
+        overflow-y: auto;
+    }
+
+    #deleteCategoryModal .modal-dialog {
+        position: relative;
+        width: auto;
+        max-width: 500px;
+        margin: 0 auto;
+        pointer-events: none;
+        transition: none !important;
+        transform: none !important;
+    }
+
+    #deleteCategoryModal .modal-content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        pointer-events: auto;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 0.3rem;
+        outline: 0;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        border-top: 4px solid #dc3545;
+    }
+
+    /* Modal Header */
+    #deleteCategoryModal .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    #deleteCategoryModal .modal-title {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 500;
+        color: #dc3545;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    #deleteCategoryModal .modal-title::before {
+        content: "⚠";
+        font-size: 1.2em;
+    }
+
+    #deleteCategoryModal .btn-close {
+        padding: 0.5rem;
+        margin: -0.5rem -0.5rem -0.5rem auto;
+        background-color: transparent;
+        border: 0;
+        font-size: 1rem;
+        cursor: pointer;
+        opacity: 0.7;
+    }
+
+    #deleteCategoryModal .btn-close:hover {
+        opacity: 1;
+    }
+
+    /* Modal Body */
+    #deleteCategoryModal .modal-body {
+        position: relative;
+        flex: 1 1 auto;
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    #deleteCategoryModal .modal-body p {
+        margin: 0;
+        font-size: 1.05rem;
+        color: #6c757d;
+    }
+
+    /* Modal Footer */
+    #deleteCategoryModal .modal-footer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        border-top: 1px solid #e9ecef;
+        gap: 1rem;
+    }
+
+    #deleteCategoryModal .btn {
+        display: inline-block;
+        font-weight: 500;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        user-select: none;
+        border: 1px solid transparent;
+        padding: 0.5rem 1.25rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        border-radius: 0.25rem;
+        transition: all 0.15s ease;
+        min-width: 100px;
+    }
+
+    #deleteCategoryModal .btn-secondary {
+        color: #fff;
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+
+    #deleteCategoryModal .btn-danger {
+        color: #fff;
+        background-color: #dc3545;
+        border-color: #dc3545;
+        position: relative;
+        overflow: hidden;
+    }
+
+    #deleteCategoryModal .btn-danger:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
+
+    /* Disable any movement animations */
+    .modal.fade .modal-dialog {
+        transition: none !important;
+        transform: none !important;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        #deleteCategoryModal .modal-dialog {
+            max-width: 95%;
+            margin: 0.5rem auto;
+        }
+
+        #deleteCategoryModal .modal-footer {
+            flex-direction: column-reverse;
+            gap: 0.5rem;
+        }
+
+        #deleteCategoryModal .btn {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 576px) {
+        #deleteCategoryModal .modal-title {
+            font-size: 1.1rem;
+        }
+
+        #deleteCategoryModal .modal-body p {
+            font-size: 0.95rem;
+        }
+    }
   </style>
 
 </head>
@@ -413,6 +446,7 @@
           </form>
        
         </div>
+        
       </div>
 
       <div class="table-container" >
@@ -448,11 +482,22 @@
                   <td>{{this.productName}}</td>
                   <td>{{this.regularPrice}}</td> 
                   <td>{{this.salePrice}}</td>
-                  <td>{{this.quantity}}</td>
+                  {{#if (eq this.stock 0)}}
+                  <td><span style="color: rgb(200, 6, 6);">Out of Stock</span> </td>
+                  {{else}}
+                  <td><span style="color: rgb(6, 200, 6);">In Stock</span> </td>
+                  {{/if}}
                   <td>{{this.category}}</td>
                   <td>{{this.status}}</td>
                   <td class="d-flex gap-2 flex-wrap">
-                    <a href="#" class="btn edit" style="" onclick="openEditModal('{{this._id}}', '{{this.productName}}', '{{this.regularPrice}}', '{{this.salePrice}}', '{{this.category}}')">Edit</a>
+                    <a href="#" class="btn edit"
+                      data-id="{{this._id}}"
+                      data-name="{{this.productName}}"
+                      data-regular="{{this.regularPrice}}"
+                      data-sale="{{this.salePrice}}"
+                      data-category="{{this.category}}"
+                      onclick="openEditModalFromData(this)">Edit</a>
+
                     <a href="#" class="btn delete" onclick="openDeleteModal('{{this._id}}')">Delete</a>
                   </td>
                 </tr>
@@ -520,10 +565,38 @@
                 <input type="number" id="editSalePrice" name="salePrice" class="form-control" step="0.01"/>
                 <div class="error-message" id="editSalePrice-error"></div>
               </div>
-              <div class="mb-3">
-                <label class="form-label">Quantity</label>
-                <input type="number" id="editQuantity" name="quantity" class="form-control" step="0.01"/>
-                <div class="error-message" id="editQuantity-error"></div>
+              <!-- Size-wise Quantity -->
+              <div class="size-quantity-box mb-3">
+                  <label for="" class="size-title form-label">Sizes & Quantities</label>
+                  <p class="size-note">*By default, all size quantities are set to zero. You must specify at least one size with a quantity greater than zero</p>
+                  <div class="size-grid">
+                      <div class="size-input">
+                          <label class="form-label">XS</label>
+                          <input id="quantity-xs" name="quantityXs" type="number" class="form-control border quantity">
+                      </div>
+                       <div class="size-input">
+                           <label class="form-label">S</label>
+                           <input id="quantity-s" name="quantityS" type="number" class="form-control border quantity" >
+                                    </div>
+                          <div class="size-input">
+                          <label class="form-label">M</label>
+                          <input id="quantity-m" name="quantityM" type="number" class="form-control border quantity" >
+                      </div>
+                      <div class="size-input">
+                          <label class="form-label">L</label>
+                          <input id="quantity-l" name="quantityL" type="number" class="form-control border quantity">
+                      </div>
+                      <div class="size-input">
+                          <label class="form-label">XL</label>
+                          <input id="quantity-xl" name="quantityXl" type="number" class="form-control border quantity" >
+                      </div>
+                      <div class="size-input">
+                          <label class="form-label">XXL</label>
+                          <input id="quantity-xxl" name="quantityXxl" type="number" class="form-control border quantity" >
+                       </div>
+                      
+                  </div>
+                  <div id="editSize-error" class="error-message"></div>
               </div>
               <div class="mb-3">
                 <label class="form-label">Category</label>
@@ -533,6 +606,16 @@
                   {{/each}}
                 </select>
                 <div class="error-message" id="editCategory-error"></div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Brand</label>
+                <select class="form-select border" name="brand" id="editBrand" class="form-control" >
+                  {{#each brand}}
+                    <option value="{{this._id}}">{{this.brandName}}</option>
+                  {{/each}}
+                </select>
+                <div class="error-message" id="editBrand-error"></div>
               </div>
             </div>
             <div class="mb-3">
@@ -606,7 +689,24 @@
 
 
 <script>
+
+function openEditModalFromData(el) {
+  const id = el.dataset.id;
+  const productName = el.dataset.name;
+  const regularPrice = el.dataset.regular;
+  const salePrice = el.dataset.sale;
+  const category = el.dataset.category;
+
+  openEditModal(id, productName, regularPrice, salePrice, category);
+}
+
+ const numInputs = document.querySelectorAll('input[type=number]');
+          numInputs.forEach(input => {
+          input.addEventListener('wheel', e => e.preventDefault());
+        });
+
 function openEditModal(id, productName, regularPrice, salePrice, category) {
+ 
   fetch(`/admin/editProducts/${id}`)
     .then((response) => {
       console.log("Response status:", response.status);
@@ -616,8 +716,7 @@ function openEditModal(id, productName, regularPrice, salePrice, category) {
       return response.json();
     })
     .then((data) => {
-      console.log("Received data:", data);
-
+  
       if (data.success) {
         const product = data.product;
 
@@ -625,8 +724,15 @@ function openEditModal(id, productName, regularPrice, salePrice, category) {
         $("#editProductName").val(product.productName);
         $("#editRegularPrice").val(product.regularPrice);
         $("#editSalePrice").val(product.salePrice);
-        $("#editQuantity").val(product.quantity);
         $("#editCategory").val(product.category);
+        $("#editBrand").val(product.brand);
+        //variants
+        $("#quantity-xs").val(product.variants.XS);
+        $("#quantity-s").val(product.variants.S);
+        $("#quantity-m").val(product.variants.M);
+        $("#quantity-l").val(product.variants.L);
+        $("#quantity-xl").val(product.variants.XL);
+        $("#quantity-xxl").val(product.variants.XXL);
 
         // Clear previous images and show with current images
         $(".current-images-container").empty();
@@ -651,6 +757,8 @@ function openEditModal(id, productName, regularPrice, salePrice, category) {
 
         // Showing modal
         $("#editCategoryModal").modal("show");
+
+       
       } else {
         console.error("API returned error:", data.message);
         Swal.fire(
@@ -679,8 +787,15 @@ $("#editCategoryForm").on("submit", function (e) {
   const regularPrice = parseFloat($("#editRegularPrice").val());
   const salePrice = parseFloat($("#editSalePrice").val());
   const category = $("#editCategory").val();
-  const quantity=  parseFloat($("#editQuantity").val());
+  const brand=  $("#editBrand").val();
   const id = $("#editCategoryId").val();
+  //variants
+  const sizeXs=$("#quantity-xs").val()
+  const sizeS=$("#quantity-s").val()
+  const sizeM=$("#quantity-m").val()
+  const sizeL=$("#quantity-l").val()
+  const sizeXl=$("#quantity-xl").val()
+  const sizeXxl=$("#quantity-xxl").val()
 
   if (!productName) {
     $("#editProductName-error").text("Product name is required");
@@ -697,8 +812,8 @@ $("#editCategoryForm").on("submit", function (e) {
     isValid = false;
   }
  
-  if (isNaN(quantity) || quantity < 0 || !Number.isInteger(Number(quantity)) ) {
-    $("#editQuantity-error").text("Quantity must be a valid whole number");
+  if(sizeS < 0 ||  sizeXs < 0 ||  sizeM < 0 || sizeL < 0 || sizeXl < 0 || sizeXxl < 0  ){
+    $("#editSize-error").text("Quantity must be a greater than zero");
     isValid = false;
   }
 
@@ -713,6 +828,10 @@ $("#editCategoryForm").on("submit", function (e) {
     $("#editCategory-error").text("Category is required");
     isValid = false;
   }
+    if (!brand) {
+    $("#editBrand-error").text("Brand is required");
+    isValid = false;
+  }
 
   if (!isValid) {
     Swal.fire("Error", "Please fix the errors in the form.", "error");
@@ -721,6 +840,7 @@ $("#editCategoryForm").on("submit", function (e) {
 
   const form = document.getElementById("editCategoryForm");
   const formData = new FormData(form);
+  console.log(formData)
 
   fetch(`/admin/editProducts/${id}`, {
     method: "POST",

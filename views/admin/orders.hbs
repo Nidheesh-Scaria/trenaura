@@ -108,8 +108,8 @@
                     <span class="status status-pending">{{this.statusHistory}}</span>
                 {{else if (eq this.statusHistory "Shipped")}}
                     <span class="status status-shipped">{{this.statusHistory}}</span>
-                {{else if (eq this.statusHistory "Delivered")}}
-                    <span class="status status-delivered">{{this.statusHistory}}</span>
+                {{else if (eq ../currentStatus "Delivered")}}
+                    <span class="status status-delivered">{{../currentStatus}}</span>
                 {{else if (eq this.statusHistory "Cancelled")}}
                     <span class="status status-cancelled">{{this.statusHistory}}</span>
                 {{else if (eq this.statusHistory "Returned")}}

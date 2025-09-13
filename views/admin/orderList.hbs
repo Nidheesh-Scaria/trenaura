@@ -1,0 +1,150 @@
+  
+  <head>
+    <link rel="stylesheet" href="/css/OrderMngmnt-Admin.css">
+    <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+</head>
+  
+  
+  <main class="main-content">
+    <div class="orders-header">
+      <h2>Orders</h2>
+      <div class="actions">
+        <form action="/admin/order"method="GET">
+          <input type="text" name="search" placeholder="🔍 Search here" value="{{search}}">
+        </form>
+        {{!-- <button class="btn export"><i class="fas fa-download"></i> Export</button>
+        <button class="btn"><i class="fas fa-sort"></i> Sort By</button>
+        <button class="btn"><i class="fas fa-filter"></i> Filters</button> --}}
+      </div>
+    </div>
+
+    <table class="orders-table">
+      <thead>
+        <tr>
+          
+          <th>Customer</th>
+          <th>Order ID</th>
+          <th>No. Items</th>
+          <th>Date</th>
+          <th>Delivery Status</th>
+          <th>Price</th>
+          <th>Paid Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      
+        <tbody>
+      {{#each orders}}
+       
+          <tr>
+            <td>{{this.userId.name}}</td>
+            <td>
+              <span>{{this.orderId}}</span>
+            </td>
+            <td>{{this.orderedItems.length}}</td>
+            
+            <td>{{formatDate this.createdAt}}</td>
+
+            <td>
+              {{!-- status --}}
+              {{#if (eq this.currentStatus "Pending")}}
+                    <span class="status status-pending">{{this.currentStatus}}</span>
+                {{else if (eq this.currentStatus "Shipped")}}
+                    <span class="status status-shipped">{{this.currentStatus}}</span>
+                {{else if (eq this.currentStatus "Delivered")}}
+                    <span class="status status-delivered">{{this.currentStatus}}</span>
+                {{else if (eq this.currentStatus "Cancelled")}}
+                    <span class="status status-cancelled">{{this.currentStatus}}</span>
+                {{else if (eq this.currentStatus "Returned")}}
+                    <span class="status status-returned">{{this.currentStatus}}</span>
+                    {{#unless this.refundStatus}}
+                      <p class="return-initiated" >Refund pending </p>
+                    {{/unless}}
+                {{else if (eq this.currentStatus "OutForDelivery")}}
+                    <span class="status status-OutForDelivery">{{this.currentStatus}}</span>
+                {{else if (eq this.currentStatus "Processing")}}
+                    <span class="status status-processing">{{this.currentStatus}}</span>
+                {{else}}
+                    <span class="status">{{this.currentStatus}}</span>
+                {{/if}}
+            </td>
+            
+            {{!-- <td>₹{{../finalAmount}}</td> --}}
+            <td>₹{{this.finalAmount}}</td>
+            <td>
+              {{#if (eq this.currentStatus "Cancelled")}}
+              <span class="status cancelled">
+                N/A
+              </span>
+              {{else}}
+              <span class="status {{this.paymentStatus}}">
+                {{this.paymentStatus}}
+              </span>
+              {{/if}}
+            </td>
+            <td>
+              <button class="btn-edit" 
+                      onclick="orderManagement(event,'{{this._id}}')">
+                Details
+              </button>
+            </td>
+          </tr>
+        {{/each}}
+      
+    </tbody>
+
+
+      
+    </table>
+
+    {{!-- Pagination --}}
+    
+    <div class="pagination">
+      {{!-- Previous --}}
+      {{#ifCond currentPage ">" 1}}
+        <a href="?page={{decrement currentPage}}" class="page-btn">&lt;</a>
+      {{else}}
+        <button class="page-btn" disabled>&lt;</button>
+      {{/ifCond}}
+
+      {{!-- Page Numbers --}}
+      {{#each (range 1 totalPage)}}
+        {{#ifCond this "===" ../currentPage}}
+          <span class="page-number current">{{this}}</span>
+        {{else}}
+          <a href="?page={{this}}" class="page-number">{{this}}</a>
+        {{/ifCond}}
+      {{/each}}
+
+      {{!-- Next --}}
+      {{#ifCond currentPage "<" totalPage}}
+        <a href="?page={{increment currentPage}}" class="page-btn">&gt; </a>
+      {{else}}
+        <button class="page-btn" disabled>&gt;</button>
+      {{/ifCond}}
+    </div>
+
+
+  </main>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="/js/jquery-3.3.1.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+
+<script>
+
+ function orderManagement(event,id){
+      event.preventDefault();
+      console.log("id",id)
+      try {
+            window.location.href = `/admin/orderMangement/${id}`;
+        } catch (error) {
+            console.error("Error navigating to order management:", error);
+        }
+
+   }
+</script>
+
+

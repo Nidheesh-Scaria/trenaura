@@ -3,386 +3,240 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.css">
     <!-- SweetAlert CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    {{!-- <style>
-        /* General Styles */
-        .content-main {
-            padding: 20px;
-        }
+    <style>
+            /* Layout Content Area */
+    .content-main {
+        padding: 30px 20px;
+        width: 100%;
+    }
 
-        .content-header {
-            margin-bottom: 20px;
-        }
+    /* Add Product Page Wrapper (centers the card) */
+    .add-product-page {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
 
-        .content-header h2 {
-            font-size: 24px;
-            font-weight: 600;
-        }
+    /* Card/Form Container */
+    .add-product-wrapper {
+        background-color: #ffffff;
+        padding: 35px;
+        border-radius: 15px;
+        box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.08);
+        width: 100%;
+        max-width: 800px;
+    }
 
-        .card {
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+    /* Page Title */
+    .content-title {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 30px;
+        text-align: center;
+        color: #1c1c1c;
+    }
 
-        .card-body {
-            padding: 20px;
-        }
+    /* Form Labels */
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 6px;
+        display: block;
+        color: #333;
+    }
 
-        .form-label {
-            font-weight: 500;
-            margin-bottom: 8px;
-            display: block;
-        }
+    /* Inputs and Selects */
+    .form-control,
+    .form-select {
+        width: 100%;
+        padding: 12px 14px;
+        font-size: 15px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #fdfdfd;
+        margin-bottom: 20px;
+        transition: border 0.3s;
+    }
 
-        .form-control, .form-select {
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            padding: 8px 12px;
-            width: 100%;
-        }
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #4a90e2;
+        outline: none;
+    }
 
-        .btn {
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+    /* Textarea */
+    textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+    }
 
-        .btn-primary {
-            background-color: #0d6efd;
-            color: white;
-            border: none;
-        }
+    /* Submit Button */
+    .btn {
+        padding: 12px 20px;
+        font-size: 15px;
+        border-radius: 6px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
 
-        .btn-primary:hover {
-            background-color: #0b5ed7;
-        }
+    .btn-primary {
+        background-color: #132043;
+        color: white;
+    }
 
-        .hover-up:hover {
-            transform: translateY(-2px);
-        }
+    .btn-primary:hover {
+        background-color: #1e3555;
+    }
 
-        /* Error Message Styles */
-        .error-message {
-            color: red;
-            font-size: 0.9rem;
-            margin-top: 4px;
-            display: none;
-        }
+    /* Error Message */
+    .error-message {
+        color: #e74c3c;
+        font-size: 0.85rem;
+        margin-top: -14px;
+        margin-bottom: 15px;
+    }
 
-        /* Thumbnail Styles */
-        .thumbnails-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            padding: 10px 0;
+    /* Thumbnail Container */
+    .thumbnails-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 15px;
+    }
+
+    .thumbnail {
+        position: relative;
+        width: 110px;
+        height: 110px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #fafafa;
+    }
+
+    .thumbnail img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .thumbnail-actions {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.65);
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+        padding: 5px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .thumbnail:hover .thumbnail-actions {
+        opacity: 1;
+    }
+
+    .thumbnail-actions button {
+        font-size: 11px;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+    }
+
+    .thumbnail-actions .btn-danger {
+        background-color: #e74c3c;
+    }
+    
+
+    /* Size Quantity Section */
+    .size-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 15px;
+        text-align: center;
+    }
+
+    .size-input label {
+        font-weight: 500;
+        margin-bottom: 5px;
+        display: block;
+    }
+    .size-title {
+        margin-bottom: 10px;
+        color: #132043;
+    }
+
+    .size-note {
+        font-size: small;
+        color: #6c757d;
+        margin: 0;
+    }
+    .size-grid #size-error {
+        grid-column: 1 / -1;
+        text-align: left;
+        margin-top: 8px;
+    }
+
+    /* Crop Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1050;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.85);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 600px;
+    }
+
+    .modal-image-container {
+        text-align: center;
+        max-height: 60vh;
+        overflow: hidden;
+    }
+
+    .modal-image-container img {
+        max-width: 100%;
+        max-height: 100%;
+    }
+
+    .modal-actions {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 15px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .add-product-wrapper {
+            padding: 25px 20px;
         }
 
         .thumbnail {
-            position: relative;
-            width: 100px;
-            height: 100px;
+            width: 90px;
+            height: 90px;
         }
 
-        .thumbnail img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 4px;
-            border: 1px solid #ddd;
+        .content-title {
+            font-size: 22px;
         }
-
-        .thumbnail-actions {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: center;
-            gap: 5px;
-            padding: 5px;
-            background: rgba(0,0,0,0.7);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .thumbnail:hover .thumbnail-actions {
-            opacity: 1;
-        }
-
-        .thumbnail-actions button {
-            padding: 4px 8px;
-            font-size: 11px;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .thumbnail-actions button:hover {
-            transform: scale(1.05);
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1050;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.8);
-            cursor: pointer;
-        }
-
-        .modal-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            max-width: 90%;
-            max-height: 90%;
-            cursor: default;
-        }
-
-        .modal-image-container {
-            max-width: 80vw;
-            max-height: 70vh;
-        }
-
-        .modal-image-container img {
-            max-width: 100%;
-            max-height: 100%;
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            .row {
-                flex-direction: column;
-            }
-            
-            .col-md-6 {
-                width: 100%;
-            }
-        }
-    </style> --}}
-    <style>
-        /* Layout Content Area */
-.content-main {
-  padding: 30px 20px;
-  width: 100%;
-}
-
-/* Add Product Page Wrapper (centers the card) */
-.add-product-page {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-}
-
-/* Card/Form Container */
-.add-product-wrapper {
-  background-color: #ffffff;
-  padding: 35px;
-  border-radius: 15px;
-  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.08);
-  width: 100%;
-  max-width: 800px;
-}
-
-/* Page Title */
-.content-title {
-  font-size: 28px;
-  font-weight: 600;
-  margin-bottom: 30px;
-  text-align: center;
-  color: #1c1c1c;
-}
-
-/* Form Labels */
-.form-label {
-  font-weight: 500;
-  margin-bottom: 6px;
-  display: block;
-  color: #333;
-}
-
-/* Inputs and Selects */
-.form-control,
-.form-select {
-  width: 100%;
-  padding: 12px 14px;
-  font-size: 15px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #fdfdfd;
-  margin-bottom: 20px;
-  transition: border 0.3s;
-}
-
-.form-control:focus,
-.form-select:focus {
-  border-color: #4a90e2;
-  outline: none;
-}
-
-/* Textarea */
-textarea.form-control {
-  resize: vertical;
-  min-height: 100px;
-}
-
-/* Submit Button */
-.btn {
-  padding: 12px 20px;
-  font-size: 15px;
-  border-radius: 6px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-primary {
-  background-color: #132043;
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #1e3555;
-}
-
-/* Error Message */
-.error-message {
-  color: #e74c3c;
-  font-size: 0.85rem;
-  margin-top: -14px;
-  margin-bottom: 15px;
-}
-
-/* Thumbnail Container */
-.thumbnails-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 15px;
-}
-
-.thumbnail {
-  position: relative;
-  width: 110px;
-  height: 110px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  overflow: hidden;
-  background: #fafafa;
-}
-
-.thumbnail img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.thumbnail-actions {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  background: rgba(0, 0, 0, 0.65);
-  display: flex;
-  justify-content: center;
-  gap: 5px;
-  padding: 5px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.thumbnail:hover .thumbnail-actions {
-  opacity: 1;
-}
-
-.thumbnail-actions button {
-  font-size: 11px;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 4px;
-  background-color: #007bff;
-  color: white;
-  cursor: pointer;
-}
-
-.thumbnail-actions .btn-danger {
-  background-color: #e74c3c;
-}
-
-/* Crop Modal */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1050;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.85);
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  width: 90%;
-  max-width: 600px;
-}
-
-.modal-image-container {
-  text-align: center;
-  max-height: 60vh;
-  overflow: hidden;
-}
-
-.modal-image-container img {
-  max-width: 100%;
-  max-height: 100%;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 15px;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .add-product-wrapper {
-    padding: 25px 20px;
-  }
-
-  .thumbnail {
-    width: 90px;
-    height: 90px;
-  }
-
-  .content-title {
-    font-size: 22px;
-  }
-}
-
+    }
     </style>
 </head>
 <body>
@@ -423,15 +277,48 @@ textarea.form-control {
                             </div>
 
                             <div class="row mb-3">
-                                <div class="col-md-6">
+                                {{!-- <div class="col-md-6">
                                     <label class="form-label">Quantity</label>
                                     <input name="quantity" type="number" class="form-control border" min="0" >
                                     <div id="quantity-error" class="error-message"></div>
-                                </div>
+                                </div> --}}
                                 <div class="col-md-6">
                                     <label class="form-label">Color</label>
                                     <input name="color" type="text" class="form-control border" >
                                     <div id="color-error" class="error-message"></div>
+                                </div>
+                            </div>
+
+                            <!-- Size-wise Quantity -->
+                            <div class="size-quantity-box mb-4">
+                                <label for="" class="size-title">Sizes & Quantities</label>
+                                <p class="size-note">*By default, all size quantities are set to zero. You must specify at least one size with a quantity greater than zero</p>
+                                <div class="size-grid">
+                                    <div class="size-input">
+                                        <label class="form-label">XS</label>
+                                        <input id="quantity-xs" name="quantity-xs" type="number" class="form-control border quantity">
+                                    </div>
+                                    <div class="size-input">
+                                        <label class="form-label">S</label>
+                                        <input id="quantity-s" name="quantity-s" type="number" class="form-control border quantity" >
+                                    </div>
+                                        <div class="size-input">
+                                        <label class="form-label">M</label>
+                                        <input id="quantity-m" name="quantity-m" type="number" class="form-control border quantity" >
+                                    </div>
+                                    <div class="size-input">
+                                        <label class="form-label">L</label>
+                                        <input id="quantity-l" name="quantity-l" type="number" class="form-control border quantity">
+                                    </div>
+                                    <div class="size-input">
+                                        <label class="form-label">XL</label>
+                                        <input id="quantity-xl" name="quantity-xl" type="number" class="form-control border quantity" >
+                                    </div>
+                                    <div class="size-input">
+                                        <label class="form-label">XXL</label>
+                                        <input id="quantity-xxl" name="quantity-xxl" type="number" class="form-control border quantity" >
+                                    </div>
+                                   <div id="size-error" class="error-message"></div>
                                 </div>
                             </div>
 
@@ -452,6 +339,17 @@ textarea.form-control {
                                     {{/each}}
                                 </select>
                                 <div id="category-error" class="error-message"></div>
+                            </div>
+                            <!--brand-->
+                            <div class="mb-4">
+                                <label class="form-label">Brand</label>
+                                <select class="form-select border" name="brand" >
+                                        <option ></option>
+                                    {{#each brand}}
+                                        <option value="{{this.brandName}}">{{this.brandName}}</option>
+                                    {{/each}}
+                                </select>
+                                <div id="brand-error" class="error-message"></div>
                             </div>
 
                             <!-- Image Uploads -->
@@ -541,12 +439,11 @@ textarea.form-control {
         document.getElementById('productForm').addEventListener('submit', function(e) {
             e.preventDefault();
             console.log("Form submission started");
-            if (validateForm()) {
-                console.log("Form validation passed, submitting...");
-                this.submit();
-            } else {
-                console.log("Form validation failed");
+            validateForm(); 
+            if (!validateSizes()) {
+                e.preventDefault(); 
             }
+            
         });
 
 
@@ -901,12 +798,39 @@ textarea.form-control {
             }
             
            
-            const quantity = parseInt(document.getElementsByName('quantity')[0].value);
-            if (isNaN(quantity) || quantity < 5) {
-                displayErrorMessage('quantity-error', 'Quantity should be more than five');
+           // Validate sizes 
+           const sizeXs=document.getElementById("quantity-xs").value;
+           const sizeS=document.getElementById("quantity-s").value;
+           const sizeM=document.getElementById("quantity-m").value;
+           const sizeL=document.getElementById("quantity-l").value;
+           const sizeXl=document.getElementById("quantity-xl").value;
+           const sizeXXL=document.getElementById("quantity-xxl").value;
+
+           if(!sizeXs && !sizeS && !sizeM && !sizeL && !sizeXl && !sizeXXL){
+                displayErrorMessage('size-error', 'Please specify at least one size with a quantity greater than zero.');
                 isValid = false;
-            }
+           }
+            if(sizeXs<0 || sizeS< 0|| sizeM< 0|| sizeL< 0|| sizeXl<0 ||sizeM<0||sizeXXL<0){
+                displayErrorMessage('size-error', 'Please specify the quantity greater than zero.');
+                isValid = false;
+           }
+           
+            {{!-- const sizeInputs = document.querySelectorAll('.quantity');
+            let hasQuantity = false;
             
+            // Check if at least one size has a quantity > 0
+            sizeInputs.forEach(input => {
+                if (Number(input.value) > 0) {
+                    hasQuantity = true;
+                }
+            });
+
+            if (!hasQuantity) {
+                displayErrorMessage('size-error', 'Please specify at least one size with a quantity greater than zero.');
+                isValid = false;
+            } else {
+                clearErrorMessage('size-error');
+            } --}}
             
             const color = document.getElementsByName('color')[0].value.trim();
             if (!color) {
@@ -987,13 +911,14 @@ textarea.form-control {
                             icon: 'success',
                             title: 'Success!',
                             text: data.message || 'Product added successfully!',
-                            confirmButtonText: 'View Products',
+                            confirmButtonText: 'Add Products',
                             confirmButtonColor: '#28a745'
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.href = "/admin/products";
+                                window.location.href = "/admin/addProducts";
                             }
                         });
+                        /*window.location.href = "/admin/addProducts";*/
                     } else {
                         
                         Swal.fire({

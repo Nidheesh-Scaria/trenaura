@@ -48,8 +48,18 @@ const walletTransactionHistory = async (req, res) => {
   try {
     console.log("reached walletTransactionHistory");
     const userId = req.session.user;
+    let emptyWallet=false;
 
     const wallet = await Wallet.findOne({ userId }).lean();
+
+    if(!wallet){
+      return res.render("user/walletTranscations", {
+      title: "Trenaura wallet-transactions",
+      adminHeader: true,
+      wallet,
+      emptyWallet:true,
+    });
+    }
 
     const transactions = wallet.transactions;
 
@@ -72,6 +82,7 @@ const walletTransactionHistory = async (req, res) => {
       adminHeader: true,
       wallet,
       transactionHistory,
+      emptyWallet
     });
   } catch (error) {
     console.error("Error in walletTransactionHistory :", error);

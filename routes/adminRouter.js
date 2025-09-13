@@ -73,6 +73,8 @@ router.delete("/deleteCoupon/:id",adminAuth.adminAuth,couponController.deleteCou
 
 //sales report
 router.get("/salesReport",adminAuth.adminAuth,salesReportController.loadSalesReport)
+router.post("/sales-report/download",adminAuth.adminAuth,salesReportController.salesReportDownload)
+
 
 
 

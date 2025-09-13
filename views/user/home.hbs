@@ -137,23 +137,23 @@
                         <a href="/productDetails?id={{this._id}}">
                             <div class="product__item__pic set-bg" data-setbg="/images/{{this.productImages.[0]}}">
                                 <span class="label">New</span>
-                                <ul class="product__hover">
+                                {{!-- <ul class="product__hover">
                                     <li><button  onclick="addWishlist(event,'{{this._id}}')"><img src="img/icon/heart.png" alt=""></button></li>
                                     <li><img src="img/icon/compare.png" alt=""> <span>Compare</span></li>
-                                    {{!-- <li><img src="img/icon/search.png" alt=""></li> --}}
-                                </ul>
+                                    <li><img src="img/icon/search.png" alt=""></li>
+                                </ul> --}}
                             </div>
                         </a>
                         <div class="product__item__text">
                             <h6>{{this.productName}}</h6>
-                            <a href="#" onclick="addToCarts(event,'{{this._id}}')" class="add-cart">+ Add To Cart</a>
-                            <div class="rating">
+                            <a href="#" onclick="addWishlist(event,'{{this._id}}')" class="add-cart">+ Add to Wish list</a>
+                            {{!-- <div class="rating">
                                 <i class="fa fa-star-o"></i>
                                 <i class="fa fa-star-o"></i>
                                 <i class="fa fa-star-o"></i>
                                 <i class="fa fa-star-o"></i>
                                 <i class="fa fa-star-o"></i>
-                            </div>
+                            </div> --}}
                             <h5>&#x20b9;{{this.salePrice}} <span style="text-decoration: line-through; color: #888;">&#x20b9;{{this.regularPrice}}</span> </h5>
                         </div>
                     </div>
@@ -191,7 +191,7 @@
   });
 
   
-async function addToCarts(event,id){
+/*async function addToCarts(event,id){
     event.preventDefault();
   const res=await fetch(`/addToCarts/${id}`,{
     method:"POST",
@@ -219,7 +219,7 @@ async function addToCarts(event,id){
 
 
   }
-}
+}*/
 
 
 async function addWishlist(event,id){

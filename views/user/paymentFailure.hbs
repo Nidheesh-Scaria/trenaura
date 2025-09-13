@@ -1,0 +1,187 @@
+
+
+
+<head>
+
+  <link rel="stylesheet" href="/css/header-style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      background: #f8f9fa;
+    }
+
+    .payment-failure-container {
+      max-width: 500px;
+      margin: 80px auto;
+      background: #fff;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    .payment-failure-container i {
+      font-size: 80px;
+      color: #ff0000de;
+      margin-bottom: 20px;
+      /*animation: shake 0.6s ease-in-out;*/
+    }
+
+    .payment-failure-container h2 {
+      font-size: 28px;
+      color: #1a1a1a;
+      margin-bottom: 15px;
+    }
+
+    .payment-failure-container p {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 35px;
+      line-height: 1.6;
+    }
+
+    .retry-btn {
+      display: inline-block;
+      background: linear-gradient(135deg, #ff0015, #ab0303);
+      color: #fff;
+      padding: 14px 35px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 16px;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 12px rgba(255, 0, 21, 0.553);
+    }
+
+    .retry-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(255, 0, 21, 0.553);
+    }
+
+    .back-home {
+      display: block;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #1a1a1a;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .back-home:hover {
+      color: #e63946;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+  </style>
+</head>
+<body>
+
+
+  <main>
+    <div class="payment-failure-container">
+      <i class="fas fa-times-circle"></i>
+      <h2>Payment Failed</h2>
+      <p>Oops! Something went wrong while processing your payment.<br>
+         Please try again or choose a different payment method.</p>
+        <p>{{message}}</p>
+      <a onclick="retryPayments(event,'{{orderId}}')" class="retry-btn">🔄 Retry Payment</a>
+      <a href="/" class="back-home">← Back to Home</a>
+    </div>
+  </main>
+
+  
+</body>
+
+<script>
+     async function retryPayments(event, id) {
+        try {
+            event.preventDefault();
+            const res = await fetch("/create-razorpay-order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id }),
+            });
+
+            const razorData = await res.json();
+            if (!razorData.success) {
+                Toastify({
+                    text: razorData.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "center",
+                    style: {
+                    background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+                    },
+                    className: "custom-toast",
+                }).showToast();
+
+                throw new Error(razorData.message || "Failed to create Razorpay order");
+            }
+            const options = {
+                key: razorData.key,
+                amount: razorData.amount * 100,
+                currency: razorData.currency,
+                order_id: razorData.orderId,
+                name: "Trenaura",
+                description: "The Aura of Trend",
+                handler: async function (response) {
+                    //payment verification in backend
+                    const verifyRes = await fetch("/verify-payment", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(response),
+                    });
+
+                    const verifyData = await verifyRes.json();
+
+                    if (verifyData.success) {
+                        console.log("Success")
+                        //redirecting to order-placed
+                        setTimeout(() => {
+                            window.location.href = dataAfterSavingOrder.redirectUrl;
+                        }, 1000);
+                    } else {
+                        Toastify({
+                            text: verifyData.message || "Payment verification failed",
+                            duration: 3000,
+                            close: true,
+                            gravity: "top",
+                            position: "center",
+                            style: {
+                            background:
+                                "linear-gradient(to right,#730202f2, #ba0d0d, #e00808e8)",
+                            },
+                            className: "custom-toast",
+                        }).showToast();
+
+                        window.location.href = `/payment-failed?id=${id}`;
+                        
+                    }
+                },
+                theme: {
+                        color: "#3399cc",
+                    },
+            };
+
+            // last step: Open Razorpay
+            const rzp1 = new window.Razorpay(options);
+            rzp1.open();
+        } catch (error) {
+            console.log("error in viewOrderDetails", err);
+        }
+    }
+
+
+</script>
+

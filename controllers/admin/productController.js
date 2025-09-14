@@ -23,7 +23,7 @@ const getProductPage = async (req, res) => {
 
     const productData = await Product.find(query)
       .select(
-        "productName regularPrice salePrice category status isBlocked isDeleted productImages variants size"
+        "productName regularPrice salePrice category status isBlocked isDeleted productImages variants size quantity" 
       )
       .populate("category", "name")
       .limit(limit)
@@ -31,25 +31,59 @@ const getProductPage = async (req, res) => {
       .skip((page - 1) * limit)
       .lean();
 
-    const products = productData.map((product, index) => ({
-      _id: product._id,
-      productName: product.productName,
-      salePrice: product.salePrice,
-      regularPrice: product.regularPrice,
-      category: product.category?.name || "Unknown",
-      categoryId: product.category?._id || "",
-      brand: product.brand?.brandName || "Unknown",
-      brandId: product.brand?._id || "",
-      status: product.status,
-      isBlocked: product.isBlocked,
-      variants: Object.fromEntries(Object.entries(product.variants || {})),
-      stock: product.size?.length || 0,
-      productImages: product.productImages || [], //image is passing
-      firstImage: product.productImages?.[0] || null,
-      serialNumber: (page - 1) * limit + index + 1, //to get serial number
-    }));
+    // const products = productData.map((product, index) => ({
 
-    console.log("getProductPage", products.quantity);
+    //   _id: product._id,
+    //   productName: product.productName,
+    //   salePrice: product.salePrice,
+    //   regularPrice: product.regularPrice,
+    //   category: product.category?.name || "Unknown",
+    //   categoryId: product.category?._id || "",
+    //   brand: product.brand?.brandName || "Unknown",
+    //   brandId: product.brand?._id || "",
+    //   status: product.status,
+    //   isBlocked: product.isBlocked,
+    //   variants: Object.fromEntries(Object.entries(product.variants || {})),
+    //   stock: product.size?.length || 0,
+    //   quantity:product.quantity?product.quantity:null,
+    //   productImages: product.productImages || [], //image is passing
+    //   firstImage: product.productImages?.[0] || null,
+    //   serialNumber: (page - 1) * limit + index + 1, //to get serial number
+    // }));
+
+    const products = productData.map((product, index) => {
+      // Total stock calculation
+      let totalStock = 0;
+
+      if (product.category?.name === "Beauty") {
+        totalStock = Number(product.quantity) || 0;
+      } else {  
+        totalStock = Object.values(product.variants || {}).reduce(
+          (sum, qty) => sum + Number(qty || 0),
+          0
+        );
+
+      }
+
+      return {
+        _id: product._id,
+        productName: product.productName,
+        salePrice: product.salePrice,
+        regularPrice: product.regularPrice,
+        category: product.category?.name || "Unknown",
+        categoryId: product.category?._id || "",
+        brand: product.brand?.brandName || "Unknown",
+        brandId: product.brand?._id || "",
+        status: product.status,
+        isBlocked: product.isBlocked,
+        variants: Object.fromEntries(Object.entries(product.variants || {})),
+        stock: totalStock,
+        productImages: product.productImages || [],
+        firstImage: product.productImages?.[0] || null,
+        serialNumber: (page - 1) * limit + index + 1,
+      };
+    });
+
     const count = await Product.countDocuments(query);
     const categories = await Category.find({ isListed: true })
       .select("_id name")
@@ -115,23 +149,50 @@ const getEditProduct = async (req, res) => {
       });
     }
 
-    const responseData = {
-      success: true,
-      product: {
-        _id: product._id,
-        productName: product.productName,
-        regularPrice: product.regularPrice,
-        salePrice: product.salePrice,
-        variants: Object.fromEntries(Object.entries(product.variants || {})),
-        size: product.size,
-        category: product.category?._id,
-        brand: product.brand?._id,
-        categoryName: product.category?.name,
-        productImages: product.productImages || [],
-      },
-    };
+    const categories = await Category.find().lean();
+    const brand = await Brand.find().lean();
+    let isBeauty = false;
+    if (product.category.name === "Beauty") {
+      isBeauty = true;
+    }
 
-    res.json(responseData);
+    //for edit modal in product page
+    // const responseData = {
+    //   success: true,
+    //   product: {
+    //     _id: product._id,
+    //     productName: product.productName,
+    //     regularPrice: product.regularPrice,
+    //     salePrice: product.salePrice,
+    //     variants: Object.fromEntries(Object.entries(product.variants || {})),
+    //     size: product.size,
+    //     quantity:product.quantity,
+    //     category: product.category?._id,
+    //     brand: product.brand?._id,
+    //     isBeauty:isBeauty,
+    //     categoryName: product.category?.name,
+    //     productImages: product.productImages || [],
+    //   },
+    // };
+
+    //  res.json(responseData);
+
+    return res.render("admin/editProduct", {
+      hideHeader: true,
+      hideFooter: true,
+      product: {
+        ...product,
+        isBeauty,
+        categoryName: product.category?.name,
+        brandName: product.brand?.brandName,
+        variants: Object.fromEntries(Object.entries(product.variants || {})),
+        category: product.category?.name,
+        brand: product.brand?.brandName,
+      },
+
+      categories,
+      brand,
+    });
   } catch (error) {
     console.error("Error fetching product:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -242,6 +303,8 @@ const addProducts = async (req, res) => {
       });
     }
 
+    // const categoryName = category.name;
+
     // Create new product
 
     const newProduct = await Product.create({
@@ -256,6 +319,7 @@ const addProducts = async (req, res) => {
       color: productData.color,
       status: "Available",
       productImages: images,
+      quantity: productData.quantity ? parseInt(productData.quantity, 10) : null,
     });
 
     console.log("Product created successfully:", newProduct._id);
@@ -305,6 +369,8 @@ const editProducts = async (req, res) => {
       quantityL,
       quantityXl,
       quantityXxl,
+      quantity,
+      brand,
     } = req.body;
 
     const deleteImages = Array.isArray(req.body.deleteImages)
@@ -312,7 +378,8 @@ const editProducts = async (req, res) => {
       : req.body.deleteImages
       ? [req.body.deleteImages]
       : [];
-
+    const categoryData = await Category.findById(category).lean();
+    const brandData = await Brand.findById(brand).lean();
     const product = await Product.findById(id);
     if (!product) {
       return res.status(httpStatus.NOT_FOUND).json({
@@ -354,33 +421,53 @@ const editProducts = async (req, res) => {
       }
     }
 
-    const variants = {
-      XS: Math.max(parseInt(quantityXs, 10) || 0, 0),
-      S: Math.max(parseInt(quantityS, 10) || 0, 0),
-      M: Math.max(parseInt(quantityM, 10) || 0, 0),
-      L: Math.max(parseInt(quantityL, 10) || 0, 0),
-      XL: Math.max(parseInt(quantityXl, 10) || 0, 0),
-      XXL: Math.max(parseInt(quantityXxl, 10) || 0, 0),
-    };
+    console.log(category);
+    console.log(typeof category);
 
-    const availableSizes = Object.keys(variants).filter(
-      (size) => variants[size] > 0
-    );
+    let variants;
+    let availableSizes;
 
-    if (availableSizes.length === 0) {
-      return res.status(httpStatus.BAD_REQUEST).json({
-        success: false,
-        message: "At least one size must have stock",
-      });
+    if (categoryData.name !== "Beauty") {
+      variants = {
+        XS: Math.max(parseInt(quantityXs, 10) || 0, 0),
+        S: Math.max(parseInt(quantityS, 10) || 0, 0),
+        M: Math.max(parseInt(quantityM, 10) || 0, 0),
+        L: Math.max(parseInt(quantityL, 10) || 0, 0),
+        XL: Math.max(parseInt(quantityXl, 10) || 0, 0),
+        XXL: Math.max(parseInt(quantityXxl, 10) || 0, 0),
+      };
+      availableSizes = Object.keys(variants).filter(
+        (size) => variants[size] > 0
+      );
+      if (availableSizes.length === 0) {
+        return res.status(httpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "At least one size must have stock",
+        });
+      }
+    } else {
+      variants = {
+        XS: 0,
+        S: 0,
+        M: 0,
+        L: 0,
+        XL: 0,
+        XXL: 0,
+      };
+      availableSizes = [];
     }
 
     // Updateing other product fields
     product.productName = productName;
     product.regularPrice = regularPrice;
     product.salePrice = salePrice;
-    product.category = category;
+    product.category = categoryData._id;
+    product.brand = brandData._id;
     product.variants = variants;
     product.size = availableSizes;
+    product.quantity = quantity
+      ? Math.max(parseInt(req.body.quantity, 10) || 0, 0)
+      : null;
 
     await product.save();
 

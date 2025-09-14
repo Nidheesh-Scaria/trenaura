@@ -50,6 +50,12 @@
     <script src="js/mixitup.min.js"></script>
     <script src="js/owl.carousel.min.js"></script>
     <script src="js/main.js"></script>
+    <script>
+        const numInputs = document.querySelectorAll('input[type=number]');
+          numInputs.forEach(input => {
+          input.addEventListener('wheel', e => e.preventDefault());
+        });
+    </script>
     
 </body>
 </html>

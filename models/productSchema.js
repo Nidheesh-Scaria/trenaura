@@ -49,6 +49,11 @@ const productSchema = new Schema(
       type: [String],
       default: [],
     },
+    //for non sized products
+    quantity: {
+      type: Number,
+      default: 0,
+    },
     color: {
       type: String,
       required: true,
@@ -77,12 +82,17 @@ const productSchema = new Schema(
 // Auto-update size before saving
 
 productSchema.pre("save", function (next) {
-  if (this.variants) {
+  // If product has variants 
+  if (this.variants && this.variants.size > 0) {
     this.size = [...this.variants.entries()]
       .filter(([_, qty]) => qty > 0)
       .map(([size]) => size);
+  } else {
+    // For non-sized products
+    this.size = [];
   }
   next();
 });
+
 
 module.exports = mongoose.model("Product", productSchema);

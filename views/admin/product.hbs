@@ -482,21 +482,29 @@
                   <td>{{this.productName}}</td>
                   <td>{{this.regularPrice}}</td> 
                   <td>{{this.salePrice}}</td>
-                  {{#if (eq this.stock 0)}}
-                  <td><span style="color: rgb(200, 6, 6);">Out of Stock</span> </td>
+                  {{!-- {{#if (eq this.category "Beauty")}}
+                    {{#if (eq this.quantity 0)}}
+                    <td><span style="color: rgb(200, 6, 6);">Out of Stock</span> </td>
+                    {{else}}
+                    <td><span style="color: rgb(6, 200, 6);">In Stock</span> </td>
+                    {{/if}}
                   {{else}}
-                  <td><span style="color: rgb(6, 200, 6);">In Stock</span> </td>
+                    {{#if (eq this.stock 0)}}
+                    <td><span style="color: rgb(200, 6, 6);">Out of Stock</span> </td>
+                    {{else}}
+                    <td><span style="color: rgb(6, 200, 6);">In Stock</span> </td>
+                    {{/if}}
+                  {{/if}} --}}
+                  {{#if (eq this.stock 0)}}
+                    <td><span style="color: rgb(200, 6, 6);">Out of Stock</span></td>
+                  {{else}}
+                    <td><span style="color: rgb(6, 200, 6);">In Stock</span></td>
                   {{/if}}
+
                   <td>{{this.category}}</td>
                   <td>{{this.status}}</td>
                   <td class="d-flex gap-2 flex-wrap">
-                    <a href="#" class="btn edit"
-                      data-id="{{this._id}}"
-                      data-name="{{this.productName}}"
-                      data-regular="{{this.regularPrice}}"
-                      data-sale="{{this.salePrice}}"
-                      data-category="{{this.category}}"
-                      onclick="openEditModalFromData(this)">Edit</a>
+                      <a href="/admin/editProducts/{{this._id}}" class="btn edit">Edit</a>
 
                     <a href="#" class="btn delete" onclick="openDeleteModal('{{this._id}}')">Delete</a>
                   </td>
@@ -538,107 +546,6 @@
     
     </div>
   </main>
-
-  <!-- Edit Product Modal -->
-    <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <form id="editCategoryForm" method="POST" enctype="multipart/form-data">
-            <div class="modal-header">
-              <h5 class="modal-title">Edit Product</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
-            </div>
-            <div class="modal-body">
-              <input type="hidden" id="editCategoryId" />
-              <div class="mb-3">
-                <label class="form-label">Product Name</label>
-                <input type="text" id="editProductName" name="productName" class="form-control" />
-                <div class="error-message" id="editProductName-error"></div>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Regular Price</label>
-                <input type="number" id="editRegularPrice" name="regularPrice" class="form-control" step="0.01" />
-                <div class="error-message" id="editRegularPrice-error"></div>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Sale Price</label>
-                <input type="number" id="editSalePrice" name="salePrice" class="form-control" step="0.01"/>
-                <div class="error-message" id="editSalePrice-error"></div>
-              </div>
-              <!-- Size-wise Quantity -->
-              <div class="size-quantity-box mb-3">
-                  <label for="" class="size-title form-label">Sizes & Quantities</label>
-                  <p class="size-note">*By default, all size quantities are set to zero. You must specify at least one size with a quantity greater than zero</p>
-                  <div class="size-grid">
-                      <div class="size-input">
-                          <label class="form-label">XS</label>
-                          <input id="quantity-xs" name="quantityXs" type="number" class="form-control border quantity">
-                      </div>
-                       <div class="size-input">
-                           <label class="form-label">S</label>
-                           <input id="quantity-s" name="quantityS" type="number" class="form-control border quantity" >
-                                    </div>
-                          <div class="size-input">
-                          <label class="form-label">M</label>
-                          <input id="quantity-m" name="quantityM" type="number" class="form-control border quantity" >
-                      </div>
-                      <div class="size-input">
-                          <label class="form-label">L</label>
-                          <input id="quantity-l" name="quantityL" type="number" class="form-control border quantity">
-                      </div>
-                      <div class="size-input">
-                          <label class="form-label">XL</label>
-                          <input id="quantity-xl" name="quantityXl" type="number" class="form-control border quantity" >
-                      </div>
-                      <div class="size-input">
-                          <label class="form-label">XXL</label>
-                          <input id="quantity-xxl" name="quantityXxl" type="number" class="form-control border quantity" >
-                       </div>
-                      
-                  </div>
-                  <div id="editSize-error" class="error-message"></div>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Category</label>
-                <select class="form-select border" name="category" id="editCategory" class="form-control" >
-                  {{#each categories}}
-                    <option value="{{this._id}}">{{this.name}}</option>
-                  {{/each}}
-                </select>
-                <div class="error-message" id="editCategory-error"></div>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Brand</label>
-                <select class="form-select border" name="brand" id="editBrand" class="form-control" >
-                  {{#each brand}}
-                    <option value="{{this._id}}">{{this.brandName}}</option>
-                  {{/each}}
-                </select>
-                <div class="error-message" id="editBrand-error"></div>
-              </div>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Current Images</label><br />
-                <div class="d-flex flex-wrap gap-2 current-images-container">
-                </div>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Upload New Images</label>
-              <input type="file" name="images" multiple class="form-control" />
-            </div>
-
-
-                        
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary">Save Changes</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
 
 
   <!-- Delete Product Modal -->
@@ -689,178 +596,6 @@
 
 
 <script>
-
-function openEditModalFromData(el) {
-  const id = el.dataset.id;
-  const productName = el.dataset.name;
-  const regularPrice = el.dataset.regular;
-  const salePrice = el.dataset.sale;
-  const category = el.dataset.category;
-
-  openEditModal(id, productName, regularPrice, salePrice, category);
-}
-
- const numInputs = document.querySelectorAll('input[type=number]');
-          numInputs.forEach(input => {
-          input.addEventListener('wheel', e => e.preventDefault());
-        });
-
-function openEditModal(id, productName, regularPrice, salePrice, category) {
- 
-  fetch(`/admin/editProducts/${id}`)
-    .then((response) => {
-      console.log("Response status:", response.status);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then((data) => {
-  
-      if (data.success) {
-        const product = data.product;
-
-        $("#editCategoryId").val(product._id);
-        $("#editProductName").val(product.productName);
-        $("#editRegularPrice").val(product.regularPrice);
-        $("#editSalePrice").val(product.salePrice);
-        $("#editCategory").val(product.category);
-        $("#editBrand").val(product.brand);
-        //variants
-        $("#quantity-xs").val(product.variants.XS);
-        $("#quantity-s").val(product.variants.S);
-        $("#quantity-m").val(product.variants.M);
-        $("#quantity-l").val(product.variants.L);
-        $("#quantity-xl").val(product.variants.XL);
-        $("#quantity-xxl").val(product.variants.XXL);
-
-        // Clear previous images and show with current images
-        $(".current-images-container").empty();
-
-        if (product.productImages && product.productImages.length > 0) {
-          product.productImages.forEach(function (image) {
-            const imageHtml = `
-              <div class="text-center">
-                <img src="/images/${image}" width="100" class="mb-1" />
-                <br />
-                <input type="checkbox" name="deleteImages" value="${image}" /> Delete
-              </div>
-            `;
-            $(".current-images-container").append(imageHtml);
-          });
-        } else {
-          console.log("No product images found");
-        }
-
-        // Clear previous error messages
-        $(".error-message").text("");
-
-        // Showing modal
-        $("#editCategoryModal").modal("show");
-
-       
-      } else {
-        console.error("API returned error:", data.message);
-        Swal.fire(
-          "Error",
-          data.message || "Failed to load product data",
-          "error"
-        );
-      }
-    })
-    .catch((error) => {
-      console.error("Error fetching product:", error);
-      Swal.fire("Error", "Failed to load product data", "error");
-    });
-}
-
-//edit modal 
-$("#editCategoryForm").on("submit", function (e) {
-  e.preventDefault();
-
-  // Clear previous error messages
-  $(".error-message").text("");
-
-  let isValid = true;
-
-  const productName = $("#editProductName").val().trim();
-  const regularPrice = parseFloat($("#editRegularPrice").val());
-  const salePrice = parseFloat($("#editSalePrice").val());
-  const category = $("#editCategory").val();
-  const brand=  $("#editBrand").val();
-  const id = $("#editCategoryId").val();
-  //variants
-  const sizeXs=$("#quantity-xs").val()
-  const sizeS=$("#quantity-s").val()
-  const sizeM=$("#quantity-m").val()
-  const sizeL=$("#quantity-l").val()
-  const sizeXl=$("#quantity-xl").val()
-  const sizeXxl=$("#quantity-xxl").val()
-
-  if (!productName) {
-    $("#editProductName-error").text("Product name is required");
-    isValid = false;
-  }
-
-  if (isNaN(regularPrice) || regularPrice <= 0) {
-    $("#editRegularPrice-error").text("Regular price must be valid");
-    isValid = false;
-  }
-
-  if (isNaN(salePrice) || salePrice <= 0) {
-    $("#editSalePrice-error").text("Sale price must be valid");
-    isValid = false;
-  }
- 
-  if(sizeS < 0 ||  sizeXs < 0 ||  sizeM < 0 || sizeL < 0 || sizeXl < 0 || sizeXxl < 0  ){
-    $("#editSize-error").text("Quantity must be a greater than zero");
-    isValid = false;
-  }
-
-  if (regularPrice <= salePrice) {
-    $("#editRegularPrice-error").text(
-      "Regular price must be greater than sale price"
-    );
-    isValid = false;
-  }
-
-  if (!category) {
-    $("#editCategory-error").text("Category is required");
-    isValid = false;
-  }
-    if (!brand) {
-    $("#editBrand-error").text("Brand is required");
-    isValid = false;
-  }
-
-  if (!isValid) {
-    Swal.fire("Error", "Please fix the errors in the form.", "error");
-    return;
-  }
-
-  const form = document.getElementById("editCategoryForm");
-  const formData = new FormData(form);
-  console.log(formData)
-
-  fetch(`/admin/editProducts/${id}`, {
-    method: "POST",
-    body: formData,
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.success) {
-        Swal.fire("Updated!", data.message, "success").then(() =>
-          location.reload()
-        );
-      } else {
-        Swal.fire("Error", data.message, "error");
-      }
-    })
-    .catch((err) => {
-      console.error(err);
-      Swal.fire("Error", "Something went wrong", "error");
-    });
-});
 
 function openDeleteModal(id) {
   $("#deleteCategoryId").val(id);

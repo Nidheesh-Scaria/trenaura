@@ -1,0 +1,83 @@
+<head>
+  <link rel="stylesheet" href="/css/header-style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      background: #f8f9fa;
+    }
+
+    .payment-failure-container {
+      max-width: 500px;
+      margin: 80px auto;
+      background: #fff;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    .payment-failure-container i {
+      font-size: 80px;
+      color: #ff0000de;
+      margin-bottom: 20px;
+      /*animation: shake 0.6s ease-in-out;*/
+    }
+
+    .payment-failure-container h2 {
+      font-size: 28px;
+      color: #1a1a1a;
+      margin-bottom: 15px;
+    }
+
+    .payment-failure-container p {
+        font-size: 16px;
+        color: #555;
+        margin-bottom: 35px;
+        line-height: 1.6;
+      }
+    .payment-failure-container .back-home {
+        display: inline-block;
+        padding: 12px 24px;
+        background-color: #043c77; /* Blue call-to-action color */
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 50px;
+        font-size: 16px;
+        font-weight: 600;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    /* Hover effect for the link */
+    .payment-failure-container .back-home:hover {
+        background-color: #034fa0; /* Darker blue on hover */
+        transform: translateY(-2px); /* Slight lift effect */
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+  </style>
+</head>
+<body>
+
+
+  <main>
+    <div class="payment-failure-container">
+      <i class="fas fa-times-circle"></i>
+      <h2>Payment Failed</h2>
+      <p>Oops! Something went wrong while processing your payment.<br>
+      </p>
+      <a href="/myWallet" class="back-home">Back to Wallet</a>
+    </div>
+  </main>
+
+  
+</body>

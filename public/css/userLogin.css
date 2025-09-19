@@ -19,7 +19,7 @@ body {
   flex-direction: row;
   padding: 40px;
   border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   max-width: 700px;
   width: 100%;
 }
@@ -50,8 +50,8 @@ body {
 }
 
 .logoImg {
-  height:15rem;
-  width:20rem;
+  height: 15rem;
+  width: 20rem;
   margin-bottom: 2px;
 }
 
@@ -64,7 +64,7 @@ body {
   text-align: center;
   font-size: 24px;
   margin-bottom: 20px;
-  color:rgb(30, 55, 138 ,1) ;
+  color: rgb(30, 55, 138, 1);
 }
 
 .google-btn {
@@ -88,6 +88,7 @@ body {
   font-weight: bold;
   text-decoration: none;
 }
+
 .google-btn a:hover {
   text-decoration: underline;
 }
@@ -175,11 +176,38 @@ form input {
   margin-bottom: 10px;
 }
 
+.password-container {
+  position: relative;
+  width: 100%;
+}
+
+.password-container input {
+  width: 100%;
+  padding-right: 40px;
+  /* space for eye icon */
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  color: #555;
+}
+
+.toggle-password:hover {
+  color: #000;
+}
+
+
 @media (max-width: 768px) {
   .container {
     flex-direction: column;
     padding: 20px;
   }
+
   .left, .right {
     padding: 0;
   }

@@ -713,7 +713,7 @@ textarea.form-control {
                           <a href="/admin/category/offer/remove/{{this._id}}" class="btn btn-sm btn-info">Remove</a>
                     {{/if}}
 
-                  </td> --}}
+                  </td> --}} 
                   <td>
                     <div class="d-flex flex-column gap-1">
                     <a href="/admin/category/offer/add/{{this._id}}" class="btn btn-sm btn-info" style="color: green;">Add Offer</a>
@@ -740,7 +740,11 @@ textarea.form-control {
                    </td>
                   <td class="d-flex gap-2 flex-wrap">
                     <a href="#" class="btn edit" style="color:#1916b3" onclick="openEditModal('{{this._id}}', '{{this.name}}','{{this.description}}')">Edit</a>
+                    {{if this.isDeleted}}
                     <a href="#" class="btn delete" style="color: red;" onclick="openDeleteModal('{{this._id}}')">Delete</a>
+                    {{else}}
+                    <a href="#" class="btn delete" style="color: red;" onclick="openDeleteModal('{{this._id}}')">Undo Delete</a>
+                    {{/if}}
                   </td>
                 </tr>
               {{/each}}

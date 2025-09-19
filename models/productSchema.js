@@ -49,11 +49,6 @@ const productSchema = new Schema(
       type: [String],
       default: [],
     },
-    //for non sized products
-    quantity: {
-      type: Number,
-      default: 0,
-    },
     color: {
       type: String,
       required: true,
@@ -70,6 +65,10 @@ const productSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
     status: {
       type: String,
       enum: ["Available", "Out of Stock", "Discontinued"],
@@ -82,7 +81,7 @@ const productSchema = new Schema(
 // Auto-update size before saving
 
 productSchema.pre("save", function (next) {
-  // If product has variants 
+  // If product has variants
   if (this.variants && this.variants.size > 0) {
     this.size = [...this.variants.entries()]
       .filter(([_, qty]) => qty > 0)
@@ -93,6 +92,5 @@ productSchema.pre("save", function (next) {
   }
   next();
 });
-
 
 module.exports = mongoose.model("Product", productSchema);

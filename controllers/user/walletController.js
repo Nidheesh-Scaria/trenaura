@@ -44,6 +44,24 @@ const getMyWallet = async (req, res) => {
   }
 };
 
+const paymemntFailed=async(req,res)=>{
+  try {
+    
+    return res.render("user/walletPaymentFailed",{
+      title: "Wallet payment failed",
+      adminHeader: true,
+    })
+  } catch (error) {
+    console.error("Error in paymemntFaild :", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
+    });
+  }
+}
+
 const walletTransactionHistory = async (req, res) => {
   try {
     console.log("reached walletTransactionHistory");
@@ -229,4 +247,5 @@ module.exports = {
   createRazorpayOrderWallet,
   verifyPaymentForWallet,
   walletTransactionHistory,
+  paymemntFailed,
 };

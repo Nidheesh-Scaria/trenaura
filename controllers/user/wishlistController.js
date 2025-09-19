@@ -17,7 +17,6 @@ const httpStatus = require("../../util/statusCodes");
 const { MESSAGES } = require("../../util/constants");
 const { default: mongoose } = require("mongoose");
 
-
 //wishlist mangement
 
 const loadWishlist = async (req, res) => {
@@ -27,6 +26,11 @@ const loadWishlist = async (req, res) => {
       .populate({
         path: "products.productsId",
         match: { isBlocked: false, isDeleted: false, size: { $ne: [] } },
+        populate: {
+          path: "brand",
+          select: "brandName",
+          match: { isBlocked: false },
+        },
       })
       .lean();
 
@@ -39,10 +43,10 @@ const loadWishlist = async (req, res) => {
       });
     }
 
-    //sorting items with a valid productId .
-
-    wishlist.products = wishlist.products
-      .filter((p) => p.productsId)
+    // sort products by addedOn (latest first), filter invalid, and map useful fields
+    const sortedProducts = wishlist.products
+      .filter((p) => p.productsId) // remove products that failed populate
+      .sort((a, b) => new Date(b.addedOn) - new Date(a.addedOn)) // sort in JS
       .map((item) => {
         const product = item.productsId;
 
@@ -50,20 +54,21 @@ const loadWishlist = async (req, res) => {
           .filter(([_, qty]) => qty > 0)
           .map(([size, qty]) => ({ size, qty }));
 
-        // keep only useful fields for frontend
         return {
           _id: product._id,
           productName: product.productName,
           color: product.color,
           regularPrice: product.regularPrice,
           salePrice: product.salePrice,
-          description:product.description,
+          description: product.description,
+          brand: product.brand?.brandName || "Unknown",
           productImages: product.productImages,
           availableVariants,
+          addedOn: item.addedOn,
         };
       });
 
-    if (wishlist.products.length === 0) {
+    if (sortedProducts.length === 0) {
       return res.render("user/wishlist", {
         title: "Wishlist",
         adminHeader: true,
@@ -71,12 +76,11 @@ const loadWishlist = async (req, res) => {
         wishlistItems: [],
       });
     }
-    console.log(wishlist)
 
     return res.render("user/wishlist", {
       title: "Wishlist",
       adminHeader: true,
-      wishlistItems: wishlist.products,
+      wishlistItems: sortedProducts,
     });
   } catch (error) {
     console.error("Error in rendering wishlist:", error);
@@ -93,7 +97,7 @@ const addWishlist = async (req, res) => {
   try {
     const productId = req.params.id;
     const userId = req.session.user;
-    
+
     let wishlist = await Wishlist.findOne({ userId });
 
     if (!wishlist) {

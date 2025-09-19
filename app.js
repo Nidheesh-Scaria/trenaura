@@ -97,6 +97,10 @@ const hbs = exphbs.create({
       const options = { day: "2-digit", month: "short", year: "numeric" };
       return new Date(date).toLocaleDateString("en-GB", options);
     },
+    includes: function (array, value) {
+      if (!array) return false;
+      return array.map(String).includes(String(value));
+    },
   },
 });
 

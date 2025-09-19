@@ -29,7 +29,7 @@ const cartSchema = new Schema(
         },
         size: {
           type: String,
-          required: true,
+          
         },
         createdOn: {
           type: Date,

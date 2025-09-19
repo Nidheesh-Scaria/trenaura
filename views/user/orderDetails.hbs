@@ -1,430 +1,1641 @@
+<style>
+  /* Order Details Page Styling */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  color: #333;
+  line-height: 1.6;
+}
 
-<head>
-  <style>
-    body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: #f9fafc;
-      color: #333;
-      line-height: 1.5;
-      
-    }
+.orders-container {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
 
-    .orders-container {
-      max-width: 1000px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-    }
+.orders-container h2 {
+  color: #2c3e50;
+  font-size: 28px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  border-bottom: 3px solid #3498db;
+  padding-bottom: 10px;
+}
 
-    .orders-container h2 {
-      font-size: 26px;
-      margin-bottom: 20px;
-      font-weight: 600;
-      color: #222;
-      text-align: center;
-    }
+.orders-container h3 {
+  color: #34495e;
+  font-size: 20px;
+  margin: 15px 0 5px 0;
+  font-weight: 500;
+}
 
-    .order-card {
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
-      margin-bottom: 25px;
-      background: #fff;
-      padding: 20px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+.orders-container small {
+  color: #7f8c8d;
+  font-size: 14px;
+  margin-bottom: 25px;
+  display: block;
+}
 
-    .order-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-    }
+/* Order Details Section */
+.order-details {
+  display: grid;
+  grid-template-columns: 1fr 200px auto;
+  gap: 20px;
+  margin: 25px 0;
+  padding: 20px;
+  background: #fdfdfd;
+  border: 1px solid #e8ecef;
+  border-radius: 8px;
+  transition: box-shadow 0.3s ease;
+}
 
-    .refund-box {
-      border: 1px solid #4caf50;
-      background: #f1fff4;
-      padding: 14px;
-      border-radius: 10px;
-      margin-bottom: 18px;
-    }
+.order-details:hover {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
 
-    .refund-box .status {
-      font-size: 14px;
-      font-weight: bold;
-      color: green;
-    }
+.order-info {
+  flex: 1;
+}
 
-    .refund-text {
-      font-size: 13px;
-      color: #555;
-    }
+.order-info h3 {
+  color: #2c3e50;
+  font-size: 22px;
+  margin-bottom: 10px;
+}
 
-    .order-details {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 20px;
-    }
+.price {
+  font-size: 18px;
+  font-weight: 600;
+  color: #27ae60;
+  margin-bottom: 15px;
+}
 
-    .order-info {
-      flex: 1;
-    }
+.order-info h4 {
+  color: #34495e;
+  font-size: 16px;
+  margin: 20px 0 10px 0;
+  font-weight: 500;
+}
 
-    .order-info h3 {
-      font-size: 20px;
-      margin-bottom: 8px;
-      color: #1a1a1a;
-    }
+/* Timeline Styling */
+.timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+}
 
-    .order-info .price {
-      font-size: 16px;
-      font-weight: bold;
-      margin-bottom: 12px;
-      color: #111827;
-    }
-   
-        .timeline {
-        list-style: none;
-        padding-left: 0;
-        margin: 0;
-        border-left: 3px solid #4CAF50; 
-        padding-left: 20px;
-        position: relative;
-      }
+.timeline li {
+  position: relative;
+  padding: 12px 0 12px 30px;
+  border-left: 3px solid #3498db;
+  margin-bottom: 8px;
+}
 
-      .timeline li {
-        margin-bottom: 15px;
-        font-size: 15px;
-        line-height: 1.4;
-        position: relative;
-        color: #777; /* Softer text color for past statuses */
-      }
+.timeline li:before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 18px;
+  width: 10px;
+  height: 10px;
+  background: #3498db;
+  border-radius: 50%;
+}
 
-      .timeline li:last-child {
-        margin-bottom: 0;
-      }
+.timeline li:last-child {
+  border-left-color: #27ae60;
+}
 
-      .timeline li::before {
-        content: "";
-        width: 12px;
-        height: 12px;
-        background: #4CAF50; /* Light gray for past status dots */
-        border-radius: 50%;
-        position: absolute;
-        left: -27px;
-        top: 5px;
-        border: 2px solid #fff;
-        box-shadow: 0 0 0 2px #4CAF50;
-      }
+.timeline li:last-child:before {
+  background: #27ae60;
+}
 
-      /* This is the key change: targeting the *last* item to make it prominent. */
-      .timeline li:last-child {
-        color: #333; /* Darker text for the current status */
-        font-weight: 600; /* Bold the text */
-      }
+.timeline .date {
+  color: #7f8c8d;
+  font-size: 13px;
+  font-weight: normal;
+}
 
-      .timeline li:last-child::before {
-        background: #0c8001; /* A vibrant color to indicate the current status */
-        box-shadow: 0 0 0 2px #016904;
-      }
+/* Order Image */
+.order-img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-      .timeline li strong {
-        font-weight: 600;
-        color: inherit; /* Inherit the color from the parent li */
-      }
+.order-img img {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e8ecef;
+  transition: transform 0.3s ease;
+}
 
-      .timeline li span.date {
-        display: block;
-        font-size: 13px;
-        color: #999; /* A lighter gray for all dates */
-        margin-top: 2px;
-      }
-              
-    .order-img img {
-      width: 100px;
-      height: auto;
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
-      object-fit: cover;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
+.order-img img:hover {
+  transform: scale(1.05);
+}
 
-    .extra-details {
-      display: flex;
-      gap: 20px;
-      margin-top: 22px;
-      flex-wrap: wrap;
-    }
+/* Buttons */
+button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
-    .invoice-btn {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: #fff;
-      border: none;
-      padding: 10px 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      transition: background 0.3s ease;
-    }
+.btn-return {
+  background: #3498db;
+  color: white;
+  border-radius: 10px;
+}
 
-    .invoice-btn:hover {
-      background: linear-gradient(135deg, #5563d6, #643d8f);
-    }
+.btn-return:hover {
+  background: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
 
-    .shipping-box,
-    .price-box {
-      flex: 1;
-      min-width: 260px;
-      background: #fdfdfd;
-      padding: 15px;
-      border-radius: 10px;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-     
-    }
+button[type="button"] {
+  background: #e74c3c;
+  color: white;
+  align-self: start;
+  border-radius: 10px;
+}
 
-    .shipping-box h4,
-    .price-box h4 {
-      font-size: 16px;
-      margin-bottom: 10px;
-      color: #1f2937;
-      font-weight: 600;
-    }
+button[type="button"]:hover {
+  background: #c0392b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
 
-    .price-box p,
-    .shipping-box p {
-      font-size: 14px;
-      margin: 6px 0;
-    }
+/* Retry Payment Button */
+.payment-info button[type="button"] {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  color: white;
+  margin-left: 15px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
 
-    .price-box .free {
-      color: green;
-      font-weight: bold;
-    }
-    .price-box {
-      flex: 1;
-      min-width: 260px;
-      background: linear-gradient(145deg, #ffffff, #f9fafc);
-      padding: 18px;
-      border-radius: 14px;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+.payment-info button[type="button"]:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
 
-    
+.payment-info button[type="button"]:hover {
+  background: linear-gradient(135deg, #e67e22, #d35400);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4);
+}
 
-    .price-box h4 {
-      font-size: 18px;
-      margin-bottom: 12px;
-      color: #1f2937;
-      font-weight: 600;
-      border-bottom: 2px solid #eee;
-      padding-bottom: 6px;
-    }
+.payment-info button[type="button"]:hover:before {
+  left: 100%;
+}
 
-    .price-item, .grand-total {
-      display: flex;
-      justify-content: space-between;
-      font-size: 15px;
-      margin: 8px 0;
-    }
+.payment-info button[type="button"]:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+}
 
-    .grand-total {
-      font-weight: 700;
-      font-size: 16px;
-      color: #111;
-    }
+/* Payment info paragraph styling */
+.payment-info p {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
 
-    .free {
-      color: green;
-      font-weight: bold;
-    }
+/* Extra Details Section */
+.extra-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-top: 30px;
+  padding-top: 25px;
+  border-top: 2px solid #ecf0f1;
+}
 
-    .payment-info {
-      margin-top: 12px;
-      font-size: 14px;
-    }
+.shipping-box, .price-box {
+  background: #fdfdfd;
+  padding: 25px;
+  border-radius: 8px;
+  border: 1px solid #e8ecef;
+}
 
-    .highlight {
-      color: #2563eb;
-      font-weight: 600;
-    }
+.shipping-box h4, .price-box h4 {
+  color: #2c3e50;
+  font-size: 18px;
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #3498db;
+}
 
-    .status {
-      font-weight: 600;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 13px;
-    }
+.shipping-box p {
+  margin-bottom: 8px;
+  color: #34495e;
+}
 
-    .status.unpaid {
-      background: #fee2e2;
-      color: #dc2626;
-    }
+/* Price Details */
+.price-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 8px 0;
+  color: #34495e;
+}
 
-    .status.paid {
-      background: #d1fae5;
-      color: #059669;
-    }
-    .status.pending {
-      background: #f9f6a3;
-      color: #7a7402;
-    }
-    .btn-return {
-    background: linear-gradient(135deg, #ff4b2b, #ff416c);
-    color: #fff;
+.price-item .free {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.price-box hr {
+  border: none;
+  height: 1px;
+  background: #bdc3c7;
+  margin: 15px 0;
+}
+
+.grand-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: #2c3e50;
+  padding: 15px 0;
+  background: #ecf0f1;
+  padding: 15px;
+  border-radius: 6px;
+  margin: 10px 0;
+}
+
+/* Payment Status */
+.payment-info {
+  margin-top: 15px;
+}
+
+.payment-info p {
+  margin-bottom: 8px;
+  color: #34495e;
+}
+
+.highlight {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.status {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status.unpaid {
+  background: #fadbd8;
+  color: #e74c3c;
+}
+
+.status.pending {
+  background: #fef9e7;
+  color: #f39c12;
+}
+
+.status.paid {
+  background: #d5f4e6;
+  color: #27ae60;
+}
+
+/* Status Messages */
+.order-info p[style*="color:#d00505"],
+.order-info p[style*="color:#8f0404ea"] {
+  background: #fadbd8;
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 4px solid #e74c3c;
+  margin: 10px 0;
+}
+
+.order-info h3[style*="color: #209f00"] {
+  background: #d5f4e6;
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 4px solid #27ae60;
+  margin: 10px 0;
+}
+
+.order-info h3[style*="color: red"] {
+  background: #fadbd8;
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 4px solid #e74c3c;
+  margin: 10px 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .orders-container {
+    margin: 10px;
+    padding: 15px;
+  }
+  
+  .order-details {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 15px;
+  }
+  
+  .extra-details {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .order-img img {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .orders-container h2 {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .orders-container {
+    margin: 5px;
+    padding: 10px;
+  }
+  
+  .shipping-box, .price-box {
+    padding: 15px;
+  }
+  
+  .grand-total {
+    font-size: 18px;
+    padding: 12px;
+  }
+  
+  button {
+    padding: 10px 20px;
+    font-size: 12px;
+  }
+}
+/*
+ .cancel-modal {
+    border-radius: 15px;
     border: none;
-    padding: 10px 18px;
-    font-size: 15px;
-    font-weight: 600;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  }
+
+  .cancel-reasons {
+    display: grid;
+    gap: 10px;
+  }
+
+  .cancel-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 1px solid #e0e0e0;
     border-radius: 8px;
+    transition: all 0.2s ease-in-out;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    font-size: 15px;
+    color: #333;
   }
 
-  .btn-return:hover {
-    background: linear-gradient(135deg, #ff6a3d, #ff416c);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.25);
+  .cancel-option:hover {
+    background-color: #f8f9fa;
+    border-color: #d0d0d0;
   }
 
-  .btn-return:active {
-    transform: scale(0.96);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  .cancel-option input[type="radio"] {
+    accent-color: #dc3545;
+    transform: scale(1.2);
   }
 
-  </style>
-</head>
+  #otherReason {
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    resize: none;
+  }
+
+  .btn-danger {
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-weight: 600;
+  }
+
+  .btn-outline-secondary {
+    border-radius: 8px;
+    padding: 8px 18px;
+  } */
+
+  /* Order Details Page Styling */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  color: #333;
+  line-height: 1.6;
+}
+
+.orders-container {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.orders-container h2 {
+  color: #2c3e50;
+  font-size: 28px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  border-bottom: 3px solid #3498db;
+  padding-bottom: 10px;
+}
+
+.orders-container h3 {
+  color: #34495e;
+  font-size: 20px;
+  margin: 15px 0 5px 0;
+  font-weight: 500;
+}
+
+.orders-container small {
+  color: #7f8c8d;
+  font-size: 14px;
+  margin-bottom: 25px;
+  display: block;
+}
+
+/* Order Details Section */
+.order-details {
+  display: grid;
+  grid-template-columns: 1fr 200px auto;
+  gap: 20px;
+  margin: 25px 0;
+  padding: 20px;
+  background: #fdfdfd;
+  border: 1px solid #e8ecef;
+  border-radius: 8px;
+  transition: box-shadow 0.3s ease;
+}
+
+.order-details:hover {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.order-info {
+  flex: 1;
+}
+
+.order-info h3 {
+  color: #2c3e50;
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.price {
+  font-size: 18px;
+  font-weight: 600;
+  color: #27ae60;
+  margin-bottom: 15px;
+}
+
+.order-info h4 {
+  color: #34495e;
+  font-size: 16px;
+  margin: 20px 0 10px 0;
+  font-weight: 500;
+}
+
+/* Timeline Styling */
+.timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+}
+
+.timeline li {
+  position: relative;
+  padding: 12px 0 12px 30px;
+  border-left: 3px solid #3498db;
+  margin-bottom: 8px;
+}
+
+.timeline li:before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 18px;
+  width: 10px;
+  height: 10px;
+  background: #3498db;
+  border-radius: 50%;
+}
+
+.timeline li:last-child {
+  border-left-color: #27ae60;
+}
+
+.timeline li:last-child:before {
+  background: #27ae60;
+}
+
+.timeline .date {
+  color: #7f8c8d;
+  font-size: 13px;
+  font-weight: normal;
+}
+
+/* Order Image */
+.order-img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.order-img img {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e8ecef;
+  transition: transform 0.3s ease;
+}
+
+.order-img img:hover {
+  transform: scale(1.05);
+}
+
+/* Buttons */
+button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-return {
+  background: #3498db;
+  color: white;
+  border-radius: 10px;
+}
+
+.btn-return:hover {
+  background: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+button[type="button"] {
+  background: #e74c3c;
+  color: white;
+  align-self: start;
+}
+
+button[type="button"]:hover {
+  background: #c0392b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+/* Retry Payment Button */
+.payment-info button[type="button"] {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  color: white;
+  margin-left: 15px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.payment-info button[type="button"]:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.payment-info button[type="button"]:hover {
+  background: linear-gradient(135deg, #e67e22, #d35400);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4);
+}
+
+.payment-info button[type="button"]:hover:before {
+  left: 100%;
+}
+
+.payment-info button[type="button"]:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+}
+
+/* Payment info paragraph styling */
+.payment-info p {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Extra Details Section */
+.extra-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-top: 30px;
+  padding-top: 25px;
+  border-top: 2px solid #ecf0f1;
+}
+
+.shipping-box, .price-box {
+  background: #fdfdfd;
+  padding: 25px;
+  border-radius: 8px;
+  border: 1px solid #e8ecef;
+}
+
+.shipping-box h4, .price-box h4 {
+  color: #2c3e50;
+  font-size: 18px;
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #3498db;
+}
+
+.shipping-box p {
+  margin-bottom: 8px;
+  color: #34495e;
+}
+
+/* Price Details */
+.price-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 8px 0;
+  color: #34495e;
+}
+
+.price-item .free {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.price-box hr {
+  border: none;
+  height: 1px;
+  background: #bdc3c7;
+  margin: 15px 0;
+}
+
+.grand-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: #2c3e50;
+  padding: 15px 0;
+  background: #ecf0f1;
+  padding: 15px;
+  border-radius: 6px;
+  margin: 10px 0;
+}
+
+/* Payment Status */
+.payment-info {
+  margin-top: 15px;
+}
+
+.payment-info p {
+  margin-bottom: 8px;
+  color: #34495e;
+}
+
+.highlight {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.status {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status.unpaid {
+  background: #fadbd8;
+  color: #e74c3c;
+}
+
+.status.pending {
+  background: #fef9e7;
+  color: #f39c12;
+}
+
+.status.paid {
+  background: #d5f4e6;
+  color: #27ae60;
+}
+
+/* Status Messages */
+.order-info p[style*="color:#d00505"],
+.order-info p[style*="color:#8f0404ea"] {
+  background: #fadbd8;
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 4px solid #e74c3c;
+  margin: 10px 0;
+}
+
+.order-info h3[style*="color: #209f00"] {
+  background: #d5f4e6;
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 4px solid #27ae60;
+  margin: 10px 0;
+}
+
+.order-info h3[style*="color: red"] {
+  background: #fadbd8;
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 4px solid #e74c3c;
+  margin: 10px 0;
+}
+.order-info h5[style*="color: red"] {
+  background: #d8defa;
+  color: #3c47e7;
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 4px solid #3c47e7;
+  margin: 10px 0;
+}
+
+/* Updated Modal Styles with Glass Effect */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.modal.show {
+  opacity: 1;
+  visibility: visible;
+  backdrop-filter: blur(15px);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-dialog {
+  max-width: 600px;
+  width: 90%;
+  margin: 0;
+  position: relative;
+  transform: scale(0.7) translateY(-50px);
+  transition: transform 0.3s ease;
+}
+
+.modal.show .modal-dialog {
+  transform: scale(1) translateY(0);
+}
+
+/* Cancel Modal Specific Styling */
+.cancel-modal {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  animation: modalSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-100px) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Modal Header */
+.cancel-modal .modal-header {
+  background: linear-gradient(135deg, #f92525, #f9352b, #e74c3c);
+  color: rgb(255, 255, 255);
+  padding: 25px 30px;
+  border-bottom: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.cancel-modal .modal-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
+}
+
+.cancel-modal .modal-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #ffffff;
+}
+
+.cancel-modal .modal-title i {
+  font-size: 24px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.cancel-modal .btn-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  opacity: 1;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.cancel-modal .btn-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.cancel-modal .btn-close::before,
+.cancel-modal .btn-close::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 2px;
+  background: white;
+  top: 50%;
+  left: 50%;
+  transform-origin: center;
+}
+
+.cancel-modal .btn-close::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.cancel-modal .btn-close::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+/* Modal Body */
+.cancel-modal .modal-body {
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.cancel-modal .modal-body p {
+  font-size: 16px;
+  color: #2c3e50;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+.cancel-modal .modal-body .fw-semibold {
+  color: #7f8c8d;
+  font-size: 14px;
+}
+
+/* Cancel Reasons */
+.cancel-reasons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.cancel-option {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(5px);
+  border: 2px solid rgba(52, 152, 219, 0.2);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  font-size: 15px;
+  color: #34495e;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+}
+
+.cancel-option::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(52, 152, 219, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.cancel-option:hover {
+  background: rgba(52, 152, 219, 0.15);
+  border-color: rgba(52, 152, 219, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(52, 152, 219, 0.2);
+}
+
+.cancel-option:hover::before {
+  left: 100%;
+}
+
+.cancel-option input[type="radio"] {
+  margin-right: 15px;
+  accent-color: #3498db;
+  transform: scale(1.3);
+  transition: transform 0.2s ease;
+}
+
+.cancel-option:has(input:checked) {
+  background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(52, 152, 219, 0.15));
+  border-color: #3498db;
+  color: #2c3e50;
+  font-weight: 600;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(52, 152, 219, 0.25);
+}
+
+.cancel-option:has(input:checked) input[type="radio"] {
+  transform: scale(1.4);
+}
+
+/* Other Reason Container */
+#otherReasonContainer {
+  animation: slideDown 0.4s ease-out;
+  margin-top: 15px;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    max-height: 200px;
+    transform: translateY(0);
+  }
+}
+
+#otherReason {
+  width: 100%;
+  padding: 16px 20px;
+  border: 2px solid rgba(52, 152, 219, 0.3);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  font-family: inherit;
+  font-size: 15px;
+  color: #34495e;
+  resize: vertical;
+  min-height: 100px;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+#otherReason:focus {
+  outline: none;
+  border-color: #3498db;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1), inset 0 2px 10px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+}
+
+#otherReason::placeholder {
+  color: #bdc3c7;
+  font-style: italic;
+}
+
+/* Error Message */
+#error-modal {
+  padding: 12px 16px;
+  font-weight: 500;
+  color: red;
+}
+
+@keyframes shake {
+  0%, 20%, 40%, 60%, 80%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+}
+
+/* Modal Footer */
+.cancel-modal .modal-footer {
+  background: rgba(248, 249, 250, 0.9);
+  backdrop-filter: blur(10px);
+  padding: 25px 30px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.cancel-modal .modal-footer .btn {
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.cancel-modal .btn-outline-secondary {
+  background: rgba(108, 117, 125, 0.1);
+  border: 2px solid #6c757d;
+  color: #6c757d;
+  backdrop-filter: blur(5px);
+}
+
+.cancel-modal .btn-outline-secondary:hover {
+  background: #6c757d;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+}
+
+.cancel-modal .btn-danger {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+  position: relative;
+}
+
+.cancel-modal .btn-danger::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.cancel-modal .btn-danger:hover {
+  background: linear-gradient(135deg, #c0392b, #a93226);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(231, 76, 60, 0.4);
+}
+
+.cancel-modal .btn-danger:hover::before {
+  left: 100%;
+}
+
+.cancel-modal .btn-danger i {
+  margin-right: 8px;
+  transition: transform 0.3s ease;
+}
+
+.cancel-modal .btn-danger:hover i {
+  transform: scale(1.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .modal-dialog {
+    width: 95%;
+    max-width: none;
+  }
+  
+  .cancel-modal .modal-header,
+  .cancel-modal .modal-body,
+  .cancel-modal .modal-footer {
+    padding: 20px;
+  }
+  
+  .cancel-reasons {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .cancel-modal .modal-footer {
+    flex-direction: column-reverse;
+    gap: 15px;
+  }
+  
+  .cancel-modal .modal-footer .btn {
+    width: 100%;
+    padding: 16px;
+  }
+  
+  .cancel-modal .modal-title {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cancel-option {
+    padding: 14px 16px;
+    font-size: 14px;
+  }
+  
+  #otherReason {
+    padding: 14px 16px;
+    font-size: 14px;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .orders-container {
+    margin: 10px;
+    padding: 15px;
+  }
+  
+  .order-details {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 15px;
+  }
+  
+  .extra-details {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .order-img img {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .orders-container h2 {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .orders-container {
+    margin: 5px;
+    padding: 10px;
+  }
+  
+  .shipping-box, .price-box {
+    padding: 15px;
+  }
+  
+  .grand-total {
+    font-size: 18px;
+    padding: 12px;
+  }
+  
+  button {
+    padding: 10px 20px;
+    font-size: 12px;
+  }
+}
+
+</style>
 
 
 <body>
   <div class="orders-container">
     <h2>My Orders details</h2>
-      <div class="order-details">
-        <div class="order-info">
-          <input type="hidden" name="itemId" id="itemId" value="{{itemId}}">
-          <h3>{{orders.orderedItems.[0].productId.productName}}</h3>
-          <p class="price">Price: ₹{{orders.orderedItems.[0].price}}</p>
-          <p class="price">Order id:{{orders.orderId}}</p>
-          <br>
-         
-          <h4>Status History:</h4><br>
-          <ul class="timeline">
-            {{#each fullStatusHistory}}
-            <li><strong>{{this.status}}</strong> <span class="date">on {{this.changedAt}}</span></li>
-             {{/each}}
-          </ul><br>
-          {{#each fullStatusHistory}}
-          {{#if (eq this.status "Cancelled")}}
-          {{#if this.isAdminCancelled}}
-            <p style="color:#d00505; font-size:large">Cancelled by Admin please contact support</p>
-          {{/if}}
-            <p style="color:#8f0404ea; font-size:large">Reason for cancellation: <span style="color: #f30909; font-size:x-large; font-weight:500">{{this.cancellationReason}}</span> </p><br>
-          {{else if (eq this.status "Delivered")}}
-          <h3 style="color: #209f00;"><strong>{{this.status}}</strong> <span >on {{this.changedAt}}</span></h3>
-            {{#if ../isUserRequested}}
-            <h3 style="color: red;">Return initiated</h3>
-            {{else}}
-            <button class="btn-return" onclick="returnOrder(event)">Return</button>
-            {{/if}}
-          {{/if}}
+    <h3>Order id: {{orders.orderId}}</h3>
+    <small>Ordered on:{{orders.formattedDate}}</small>
 
+    {{#each orders.orderedItems}}
+    <div class="order-details">
+      <div class="order-info">
+        
+        
+        <input type="hidden" name="itemId" class="itemId" value="{{this._id}}">
+
+        <h3>{{this.productId.productName}}</h3>
+        <p class="price">Price: ₹{{this.price}}</p>
+        <p><small>Quantity: {{this.quantity}}</small></p>
+        <p><small>Size: {{this.variant}}</small></p>
+        
+        <br>
+
+        <h4>Status History:</h4><br>
+        <ul class="timeline">
+          {{#each this.fullStatusHistory}}
+            <li><strong>{{this.status}}</strong> 
+              <span class="date">on {{this.date}}</span>
+            </li>
           {{/each}}
-         
-          
-        </div>
-        <div class="order-img">
-          <img src="/images/{{orders.orderedItems.[0].productId.productImages.[0]}}" alt="{{orders.orderedItems.[0].productId.productName}}">
-        </div>
+        </ul><br>
+
+        {{#each this.fullStatusHistory}}
+          {{#if (eq this.status "Cancelled")}}
+            {{#if ../this.isAdminCancelled}}
+              <p style="color:#d00505; font-size:large">
+                Cancelled by Admin, please contact support
+              </p>
+            {{/if}}
+            <p style="color:#8f0404ea; font-size:large">
+              Reason for cancellation: 
+              <span style="color: #f30909; font-size:x-large; font-weight:500">
+                {{../this.cancellationReason}}
+              </span>
+            </p><br>
+          {{else if (eq this.status "Delivered")}}
+            <h3 style="color: #209f00;">
+              <strong>{{this.status}}</strong> on {{this.date}}
+            </h3>
+            
+            {{#if (and (eq ../returnRequest.isUserRequested true) (eq ../returnRequest.isAdminApproved false))}}
+              <h3 style="color: red;">Return initiated</h3>
+
+            {{else if ../returnRequest.isAdminApproved}}
+              <h3 style="color: red;">Return accepted by admin</h3>
+
+              {{#if (eq ../returnRequest.refundStatus true)}}
+                <h5 style="color: red;">Refund status: Refunded accepted</h5>
+              {{else if (eq ../returnRequest.refundStatus false)}}
+                <h5 style="color: red;">Refund status: Refunded rejected</h5>
+              {{else}}
+                <h5 style="color: red;">Refund status: Pending</h5>
+              {{/if}}
+
+            {{else}}
+              <button class="btn-return" onclick="returnOrder(event,'{{../_id}}')">Return</button>
+            {{/if}}
+
+          {{/if}}
+        {{/each}}
       </div>
 
-      <div class="extra-details">
-        {{!-- <button class="invoice-btn">Invoice Download</button> --}}
+      <div class="order-img">
+        <img src="/images/{{this.productId.productImages.[0]}}" 
+             alt="{{this.productId.productName}}">
+      </div>
+      {{#if (and (eq ../orders.isOrderPlaced true) (ne this.latestStatus "Returned"))}}
+      {{#if (and (ne this.latestStatus "Cancelled") (ne this.latestStatus "Delivered"))}}
+      <div>
+        <button type="button" id="cancelBtn-{{this._id}}" onclick="openCancelModal('{{this._id}}',this)"> Cancel</button>
+      </div>
+      {{/if}}
+      {{/if}}
+    </div>
+    {{/each}}
 
-        <div class="shipping-box">
-          <h4>Shipping Details</h4>
-          <p>{{address.name}},{{address.address}},{{address.city}}</p>
-          <p>{{address.state}}-{{address.pincode}}</p>
-          <p>Phone:{{address.phone}}</p>
-        </div>
+    <div class="extra-details">
+      <div class="shipping-box">
+        <h4>Shipping Details</h4>
+        <p>{{address.name}}, {{address.address}}, {{address.city}}</p>
+        <p>{{address.state}} - {{address.pincode}}</p>
+        <p>Phone: {{address.phone}}</p>
+      </div>
 
-        {{!-- price box --}}
-        <div class="price-box">
+      <div class="price-box">
         <h4>Price Details</h4>
         <div class="price-item">
-          <span>Price ({{orders.orderedItems.[0].quantity}} items)</span>
+          <span>Total Price ({{orders.orderedItems.length}} items)</span>
           <span>₹ {{orders.totalPrice}}</span>
         </div>
-        <div class="price-item">
-          <span>Delivery Charges</span>
-          <span class="free">FREE</span>
-        </div>
-        <div class="price-item">
-          <span>Platform Fee</span>
-          <span>₹ 0</span>
-        </div>
-        <div class="price-item">
-          <span>Delivery Tip</span>
-          <span>₹ 0</span>
-        </div>
-        <div class="price-item">
-          <span>Discount</span>
-          <span>₹ 0</span>
-        </div>
+        <div class="price-item"><span>Delivery Charges</span><span class="free">FREE</span></div>
+        <div class="price-item"><span>Platform Fee</span><span>₹ 0</span></div>
+        <div class="price-item"><span>Delivery Tip</span><span>₹ 0</span></div>
+        <div class="price-item"><span>Discount</span><span>₹ 0</span></div>
 
         <hr>
 
         <div class="grand-total">
           <span>Grand Total</span>
           <span>₹ {{orders.finalAmount}}</span>
+          <input type="hidden" name="finalAmount" id="finalAmount" value="{{orders.finalAmount}}">
         </div>
 
         <hr>
-       
-        
-        
+
         {{#if isCancelled}}
-        <div class="payment-info">
-          <p style="color:#c00303; font-size:large">Item cancelled</span> </p><br>
-        </div>
-        
-        
+          <div class="payment-info">
+            <p style="color:#c00303; font-size:large">Item cancelled</p>
+          </div>
         {{else}}
-        <div class="payment-info">
-          <p>Payment Method: 
-            <span class="highlight">{{orders.paymentMethod}}</span>
-          </p>
-          <p>Payment Status:
-            {{#if (eq orders.paymentStatus "Unpaid")}}
-              <span class="status unpaid">{{orders.paymentStatus}}</span>
-            {{else if (eq orders.paymentStatus "Pending")}}
-              <span class="status pending">{{orders.paymentStatus}}</span>
-            {{else if (eq orders.paymentStatus "Paid")}}
-              <span class="status paid">{{orders.paymentStatus}}</span>
-            {{/if}}
-          </p>
-        </div>
+          <div class="payment-info">
+            <p>Payment Method: <span class="highlight">{{orders.paymentMethod}}</span></p>
+            <p>Payment Status:
+              {{#if (eq orders.paymentStatus "Unpaid")}}
+                <span class="status unpaid">{{orders.paymentStatus}}</span>
+              {{else if (eq orders.paymentStatus "Pending")}}
+                <span class="status pending">{{orders.paymentStatus}}</span>
+              {{else if (eq orders.paymentStatus "Paid")}}
+                <span class="status paid">{{orders.paymentStatus}}</span>
+              {{/if}}
+
+            
+             {{#if (ne orders.currentStatus "Cancelled")}}
+              {{#if (or (eq orders.paymentMethod "RAZORPAY") (eq orders.paymentMethod "Wallet"))}}
+                {{#if (or (eq orders.paymentStatus "Unpaid") (eq orders.paymentStatus "Pending"))}}
+                <button type="button" onclick="retryPayment(event,'{{orders._id}}')">Retry Payment</button>
+
+                {{/if}}
+              {{/if}}
+              {{/if}}
+            </p>
+          </div>
         {{/if}}
-        
-      </div>
       </div>
     </div>
-    
   </div>
 
-  <script>
-   async function returnOrder(event){
-    event.preventDefault();
-    const id=document.getElementById("itemId").value
-    
-    window.location.href = `/loadReturnOrder/${id}`;
-    
-   }
-  </script>
+<!-- Cancel Order Modal -->
+<div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content cancel-modal">
+      <form id="cancelOrderForm">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">
+            <i class="bi bi-x-circle-fill"></i> Cancel Order
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+
+        <div class="modal-body">
+          <input type="hidden" id="cancelOrderId" />
+
+          <p class="text-center mb-4">
+            Are you sure you want to cancel this order? <br />
+            <span class="fw-semibold text-muted">This action cannot be undone.</span>
+          </p>
+
+          <div class="cancel-reasons">
+            <label class="cancel-option">
+              <input type="radio" name="cancelReason" value="ordered_by_mistake" onchange="toggleOtherReason(this)"> Ordered by mistake
+            </label>
+            <label class="cancel-option">
+              <input type="radio" name="cancelReason" value="found_better_price" onchange="toggleOtherReason(this)"> Found a better price
+            </label>
+            <label class="cancel-option">
+              <input type="radio" name="cancelReason" value="item_not_needed" onchange="toggleOtherReason(this)"> Item not needed
+            </label>
+            <label class="cancel-option">
+              <input type="radio" name="cancelReason" value="delivery_too_slow" onchange="toggleOtherReason(this)"> Delivery is taking too long
+            </label>
+            <label class="cancel-option">
+              <input type="radio" name="cancelReason" value="wrong_item_ordered" onchange="toggleOtherReason(this)"> Wrong item ordered
+            </label>
+            <label class="cancel-option">
+              <input type="radio" name="cancelReason" value="Other" onchange="toggleOtherReason(this)"> Other (Specify)
+            </label>
+          </div>
+
+          <!-- Other Reason Input -->
+          <div id="otherReasonContainer" style="display:none;">
+            <textarea id="otherReason" class="form-control mt-3" rows="3" placeholder="Please specify your reason"></textarea>
+          </div>
+
+          <p id="error-modal" class="text-danger small mt-2"></p>
+        </div>
+
+        <div class="modal-footer d-flex justify-content-between">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Confirm Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 
+
+
+<!-- Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap 5 JS (bundle includes Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<script>
+
+async function returnOrder(event,itemId) {
+  event.preventDefault()
+  window.location.href = `/loadReturnOrder/${itemId}`;
+}
+
+let currentCancelButton = null;
+function openCancelModal(id, btn) {
+  currentCancelButton = btn;
+  
+  $("#cancelOrderId").val(id);
+  $("#cancelOrderModal").modal("show");
+
+  //cancell section
+  document.querySelectorAll('input[name="cancelReason"]').forEach((radio) => {
+    radio.checked = false;
+  });
+
+  document.getElementById("otherReasonContainer").style.display = "none";
+  document.getElementById("otherReason").value = "";
+  document.getElementById("error-modal").innerText = "";
+}
+
+
+$("#cancelOrderForm").on("submit", function (e) {
+  e.preventDefault();
+  const id = $("#cancelOrderId").val();
+  document.getElementById("error-modal").innerText = "";
+
+  const selectedReason = document.querySelector(
+    'input[name="cancelReason"]:checked'
+  )?.value;
+
+  // error if no reason selected
+  if (!selectedReason) {
+    document.getElementById("error-modal").innerText =
+      "Please specify your reason.";
+    return;
+  }
+
+  // check for "Other" reason
+  let reason = selectedReason;
+  if (selectedReason === "Other") {
+    const otherText = document.getElementById("otherReason").value.trim();
+    if (!otherText) {
+      document.getElementById("error-modal").innerText =
+        "Please specify your reason.";
+      return;
+    }
+    reason = otherText;
+  }
+
+  // disable button AFTER validation passes
+  if (currentCancelButton) currentCancelButton.disabled = true;
+
+
+  fetch(`/cancelOrder/${id}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status: "Cancelled", reason }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        $("#cancelOrderModal").modal("hide");
+
+        const li = document.createElement("li");
+
+      
+
+        const btn = document.getElementById(`cancelBtn-${id}`);
+        if (btn) {
+          btn.style.display = "none";
+        }
+        Swal.fire("Cancelled!", data.message, "success").then(() => {
+          window.location.reload();
+        });
+        
+      } else {
+        Swal.fire("Error", data.message, "error");
+        if (currentCancelButton) currentCancelButton.disabled = false;
+      }
+
+    })
+    .catch(() => {
+      Swal.fire("Error", "Something went wrong", "error");
+      if (currentCancelButton) currentCancelButton.disabled = false;
+    });
+});
+
+
+
+function toggleOtherReason(radio) {
+  const otherContainer = document.getElementById("otherReasonContainer");
+  if (radio.value === "Other") {
+    otherContainer.style.display = "block";
+  } else {
+    otherContainer.style.display = "none";
+  }
+}
+
+async function orderDetails(event, id) {
+  event.preventDefault();
+  window.location.href = `/orderDetails/${id}`;
+}
+
+ async function retryPayment(event, id){
+        event.preventDefault();
+        let amount=document.getElementById(`finalAmount`).value;
+        amount=Number(amount)
+        const orderId=id
+        window.location.href = `/loadPaymentMode?orderId=${orderId}&amount=${amount}`
+  }
+
+
+</script>
 </body>
-
-

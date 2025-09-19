@@ -16,66 +16,347 @@
     <link rel="stylesheet" href="css/home.css" type="text/css">
     {{!-- toastify --}}
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<style>
+/* Sidebar Container */
+.sidebar {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 5px;
+}
 
+/* Sidebar Items */
+.sidebar__item {
+    margin-bottom: 25px;
+}
+
+.sidebar__item h5 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #333;
+    border-bottom: 2px solid #f2f2f2;
+    padding-bottom: 8px;
+}
+
+/* Lists */
+.sidebar__item ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar__item ul li {
+    margin-bottom: 10px;
+}
+
+.sidebar__item ul li a {
+    color: #555;
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-block;
+}
+
+.sidebar__item ul li a:hover {
+    color: #007bff;
+    padding-left: 4px;
+}
+
+/* Price Filter Links */
+.price-range ul li a {
+    font-size: 14px;
+}
+
+/* Checkbox Style */
+.sidebar__item input[type="checkbox"] {
+    margin-right: 6px;
+    accent-color: #007bff;
+    /* modern browsers */
+    cursor: pointer;
+}
+
+/* Dropdown (Sorting) */
+.sidebar__item select.form-control {
+    font-size: 14px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.sidebar__item select.form-control:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+}
+
+/* Search Bar (inside sidebar for small screens) */
+#sidebarSearch {
+    border-radius: 6px;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    width: 100%;
+    transition: border-color 0.2s;
+}
+
+#sidebarSearch:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/*pagination*/
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 0;
+    font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Base button and number styles */
+.page-btn, .page-number {
+    background: #2a2a2a;
+    color: #b0b0b0;
+    border: none;
+    min-width: 42px;
+    height: 42px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 10px;
+    border-radius: 50%;
+    /* Make them circular */
+    font-size: 15px;
+    text-decoration: none;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: pointer;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5), -2px -2px 5px rgba(50, 50, 50, 0.2);
+}
+
+.page-btn i {
+    font-size: 14px;
+}
+
+/* Hover & Focus Effects */
+.page-btn:hover, .page-number:hover {
+    background: #333;
+    color: #fff;
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.5), inset -2px -2px 5px rgba(50, 50, 50, 0.2);
+    transform: scale(1.05);
+}
+
+/* Current Page */
+.page-number.current {
+    background: linear-gradient(145deg, #333, #111);
+    color: #fff;
+    font-weight: bold;
+    pointer-events: none;
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.8), inset -2px -2px 5px rgba(50, 50, 50, 0.3);
+}
+
+/* Disabled buttons */
+.page-btn[disabled] {
+    opacity: 0.2;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+/* Dots for ellipsis */
+.dots {
+    color: #666;
+    font-size: 20px;
+    line-height: 1;
+}
+</style>
     
 </head>
 
     <!-- Page Preloder -->
-    <div id="preloder">
-        <div class="loader"></div>
-    </div>
+<div id="preloder">
+    <div class="loader"></div>
+</div>
+    
+<!-- Product Section Begin -->
+<section class="product spad">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar Start -->
+            <div class="col-lg-3 col-md-4">
+                <div class="sidebar">
+
+                    <!-- Search Bar (only visible on large screens in top-right) -->
+                    {{!-- <div class="d-lg-none mb-4">
+                        <input type="text" class="form-control" placeholder="Search products..." id="sidebarSearch">
+                    </div> --}}
 
 
+                    <!-- Sorting -->
+                    <div class="sidebar__item">
+                        <h5>Sort By</h5>
+                        <select id="sortProducts" onchange="applySort()">
+                            <option value="default">Default</option>
+                            <option value="low-high">Price: Low to High</option>
+                            <option value="high-low">Price: High to Low</option>
+                            <option value="newest">Newest First</option>
+                        </select>
 
-    <!-- Product Section Begin -->
-    <section class="product spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <ul class="filter__controls">
+                    </div><br>
 
-                        {{!-- <li class="active" data-filter="*">Best Sellers</li>
-                        <li data-filter=".new-arrivals">New Arrivals</li>
-                        <li data-filter=".hot-sales">Hot Sales</li> --}}
-                    </ul>
-                </div>
-            </div>
-            <div class="row product__filter">
-             {{#each products}}
-                <div class="col-lg-3 col-md-6 col-sm-6 mix new-arrivals">
-                    <div class="product__item">
-                        <a href="/productDetails?id={{this._id}}">
-                            <div class="product__item__pic set-bg" data-setbg="/images/{{this.productImages.[0]}}">
-                               
-                                {{!-- <ul class="product__hover">
-                                    <li><button  onclick="addWishlist(event,'{{this._id}}')"><img src="img/icon/heart.png" alt=""></button></li>
-                                    <li><img src="img/icon/compare.png" alt=""> <span>Compare</span></li> 
-                                   <li><img src="img/icon/search.png" alt=""></li>
-                                </ul> --}}
-                            </div>
-                        </a>
-                        <div class="product__item__text">
-                            <h6>{{this.productName}}</h6>
-                            <a href="#" onclick="addWishlist(event,'{{this._id}}')" class="add-cart">+ Add to Wish list</a>
-                            <div class="rating">
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                            </div>
-                            <h5>&#x20b9;{{this.salePrice}} <span style="text-decoration: line-through; color: #888;">&#x20b9;{{this.regularPrice}}</span> </h5>
+                    <!-- Category Filter -->
+                    <div class="sidebar__item"><br>
+
+                        <h5>Categories</h5>
+                        <ul>
+                            <li><a href="/shop?category=all">All</a></li>
+                            {{#each categories}}
+                            <li><a href="/shop?category={{this._id}}">{{this.name}}</a></li>
+                            {{/each}}
+                        </ul>
+
+                    </div>
+
+                    <!-- Price Filter -->
+                    <div class="sidebar__item">
+                        <h5>Filter by Price</h5>
+                        <div class="price-range">
+                            <ul>
+                                <li><a href="/shop?price=0-1000">₹0 - ₹1000</a></li>
+                                <li><a href="/shop?price=1000-2000">₹1000 - ₹2000</a></li>
+                                <li><a href="/shop?price=2000-4000">₹2000 - ₹4000</a></li>
+                                <li><a href="/shop?price=4000-8000">₹4000 - ₹8000</a></li>
+                                <li><a href="/shop?price=8000+">₹8000+</a></li>
+                            </ul>
                         </div>
                     </div>
+
+                    <!-- Brand Filter -->
+                    {{!-- <div class="sidebar__item">
+                        <h5>Brands</h5>
+                        <ul>
+                           {{#each brands}}
+                            <li>
+                                <label>
+                                <input type="checkbox" value="{{this._id}}" onchange="filterBrand()"
+                                    {{#if (includes ../selectedBrands this._id)}}checked{{/if}}>
+                                {{this.brandName}}
+                                </label>
+                            </li>
+                            {{/each}}
+                        </ul>
+                    </div> --}}
+
                 </div>
+            </div>
+            <!-- Sidebar End -->
+            <!-- Product Grid Start -->
+            <div class="col-lg-9 col-md-8">
+            {{#if isFilter}}
+            <div>
+                <p>Filters applied:
+                {{#if search}}
+                    {{search}}
+                {{else if brand}}
+                    Brand: {{#each brandNames}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+                {{else if sort}}
+                    Sorted by: {{sort}}
+                {{else if category}}
+                    Category: {{category}}
+                {{else if price}}
+                    Price: {{price}}
+                {{/if}}
+                </p>
+            </div>
+            {{/if}}
+
+                <!-- Top bar with search -->
+                <div class="d-flex justify-content-end mb-3">
+                    <input type="text" class="form-control w-50" placeholder="Search products..." id="mainSearch"
+                        value="{{search}}" onkeypress="if(event.key === 'Enter') searchProducts()">
+                    <button class="btn btn-secondary ms-2" onclick="searchProducts()">Search</button>
+                </div>
+
+                <div class="row product__filter">
+                    {{#each products}}
+                    <div class="col-lg-4 col-md-6 col-sm-6 mix new-arrivals">
+                        <div class="product__item">
+                            <a href="/productDetails?id={{this._id}}">
+                                <div class="product__item__pic set-bg" data-setbg="/images/{{this.productImages.[0]}}">
+                                </div>
+                            </a>
+                            <div class="product__item__text">
+                                <h6>{{this.productName}}</h6>
+                                <a href="#" onclick="addWishlist(event,'{{this._id}}')" class="add-cart">+ Add to Wish
+                                    list</a>
+                                <h5>
+                                    ₹{{this.salePrice}}
+                                    <span style="text-decoration: line-through; color: #888;">
+                                        ₹{{this.regularPrice}}
+                                    </span>
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+            <!-- Product Grid End -->
+
+        </div>
+<!-- pagination -->
+        <div class="pagination">
+            {{!-- Previous Arrow --}}
+            {{#ifCond currentPage ">" 1}}
+            <a href="?page={{decrement currentPage}}&search={{search}}" class="page-btn">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            {{else}}
+            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+            {{/ifCond}}
+
+            {{!-- First Page --}}
+            {{#ifCond currentPage ">" 2}}
+            <a href="?page=1&search={{search}}" class="page-number">1</a>
+            {{#ifCond currentPage ">" 3}}
+            <span class="dots">…</span>
+            {{/ifCond}}
+            {{/ifCond}}
+
+            {{!-- Sliding Window Pages (currentPage -1 to currentPage +1) --}}
+            {{#each (range (decrement currentPage) (increment currentPage))}}
+            {{#ifCond this ">=" 1}}
+            {{#ifCond this "<=" ../totalPages}} {{#ifCond this "===" ../currentPage}} <span class="page-number current">
+                {{this}}</span>
+                {{else}}
+                <a href="?page={{this}}&search={{../search}}" class="page-number">{{this}}</a>
+                {{/ifCond}}
+                {{/ifCond}}
+                {{/ifCond}}
                 {{/each}}
 
+                {{!-- Last Page --}}
+                {{#ifCond currentPage "<" (decrement totalPages)}} {{#ifCond currentPage "<" (decrement (decrement
+                    totalPages))}} <span class="dots">…</span>
+                {{/ifCond}}
+                    <a href="?page={{totalPages}}&search={{search}}" class="page-number">{{totalPages}}</a>
+                    {{/ifCond}}
 
-            </div>
-        </div> 
-    </section>
+                {{!-- Next Arrow --}}
+                {{#ifCond currentPage "<" totalPages}} <a href="?page={{increment currentPage}}&search={{search}}"
+                        class="page-btn">
+                        <i class="fas fa-chevron-right"></i>
+                        </a>
+                        {{else}}
+                        <button class="page-btn" disabled><i class="fas fa-chevron-right"></i></button>
+                {{/ifCond}}
+        </div>
 
-
+    </div>
+</section>
     
 <script src="js/jquery-3.3.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
@@ -88,38 +369,6 @@
       }
     });
   });
-
-  
-/*async function addToCarts(event,id){
-    event.preventDefault();
-  const res=await fetch(`/addToCarts/${id}`,{
-    method:"POST",
-    headers:{"Content-type":"application/json"},
-  })
-  const data = await res.json();
-  if(res.ok){
-  
-   Toastify({
-        text: data.message,
-        duration: 3000,
-        close: true,          
-        gravity: "top",       
-        position: "center",    
-        style: {
-            background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)", 
-        },
-        className: "custom-toast", 
-        onClick: () => {     
-            alert("Toast clicked!");
-        }
-        }).showToast();
-
-        document.getElementById("cart-count").textContent = data.cartCount;
-
-
-  }
-}*/
-
 
 async function addWishlist(event,id){
     event.preventDefault();
@@ -148,8 +397,44 @@ async function addWishlist(event,id){
         }
         }).showToast();
     }else{
-        alert("dei dei")
+        alert("Something wrong in adding wishlist")
     }
+}
+
+function searchProducts() {
+    const query = document.getElementById("mainSearch").value.trim();
+    const url = new URL(window.location.href);
+
+    if (query) {
+      url.searchParams.set("search", query);
+    } else {
+      url.searchParams.delete("search");
+    }
+
+    console.log(url)
+
+    window.location.href = url.toString();
+  }
+
+function filterBrand() {
+  const selectedBrands = Array.from(
+    document.querySelectorAll("input[type=checkbox]:checked")
+  ).map((el) => el.value);
+
+  const url = new URL(window.location.href);
+
+  url.searchParams.delete("brand");
+  selectedBrands.forEach((brand) => {
+    url.searchParams.append("brand", brand);
+  });
+
+  window.location.href = url.toString();
+}
+function applySort() {
+  const sortValue = document.getElementById("sortProducts").value;
+  const url = new URL(window.location.href);
+  url.searchParams.set("sort", sortValue);
+  window.location.href = url.toString();
 }
 
 </script>

@@ -314,12 +314,14 @@
 
 <main class="cart-container">
     <h2 class="cart-heading">ORDER SUMMARY</h2>
+    <p class="cart-subheading">Final Touches Before You Checkout</p>
     <div class="cart-wrapper">
 
         <!-- Left: Cart Items -->
         <div class="cart-items">
             <div class="cart-item" id="cart-item-{{item._id}}">
                 <input type="hidden" id="cartId" value="{{item._id}}">
+                <input type="hidden" name="size" id="size" value="'{{item.size}}">
                 <img src="/images/{{item.productId.productImages.[0]}}" alt="{{item.productId.productName}}"
                     class="cart-item-image" />
 
@@ -329,10 +331,10 @@
                     <p>Size: {{item.size}}</p>
                     <div class="quantity-selector">
                         <button type="button" class="qty-btn"
-                            onclick="decreaseQuantity(event,'{{item._id}}')">&#8722;</button>
+                            onclick="decreaseQuantity(event,'{{item._id}}','{{item.size}}')">&#8722;</button>
                         <span class="qty-display" id="quantity-display-{{item._id}}">{{item.quantity}}</span>
                         <button type="button" class="qty-btn"
-                            onclick="increaseQuantity(event,'{{item._id}}')">&#43;</button>
+                            onclick="increaseQuantity(event,'{{item._id}}','{{item.size}}')">&#43;</button>
                     </div>
                 </div>
 
@@ -388,7 +390,7 @@
 <script>
 
 
-    async function increaseQuantity(event, id) {
+    async function increaseQuantity(event, id,size) {
         try {
             event.preventDefault();
 
@@ -401,7 +403,7 @@
             const res = await fetch(`/increaseQuantity/${id}`, {
                 method: "PATCH",
                 headers: { "Content-type": "application/json" },
-                body: JSON.stringify({ quantity })
+                body: JSON.stringify({ quantity,size })
             });
 
             const data = await res.json();
@@ -444,7 +446,7 @@
         }
     }
 
-    async function decreaseQuantity(event, id) {
+    async function decreaseQuantity(event, id,size) {
         try {
             event.preventDefault();
 
@@ -468,6 +470,7 @@
             const res = await fetch(`/decreaseQuantity/${id}`, {
                 method: "PATCH",
                 headers: { "Content-type": "application/json" },
+                body: JSON.stringify({ quantity,size })
             });
 
             const data = await res.json();
@@ -572,6 +575,7 @@
         const cartIdInput = document.getElementById("cartId")
         const itemId = cartIdInput ? cartIdInput.value : null;
         console.log(itemId)
+        console.log(id)
         const finalAmount = document.getElementById("finalAmount").innerText;
         const couponCode = document.getElementById("couponCode").value.trim()
         let url = `/loadPaymentMode?itemId=${id}&amount=${finalAmount}`;

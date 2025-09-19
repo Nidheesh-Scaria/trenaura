@@ -309,8 +309,8 @@
 </head>
 
 <main class="cart-container">
-  <h2 class="cart-heading">SHOPPING BAG</h2>
-  <p class="cart-subheading">Your cart is more than just a list – it’s the beginning of something amazing</p>
+  <h2 class="cart-heading">Order Summary</h2>
+  <p class="cart-subheading">Final Touches Before You Checkout</p>
 
   <div class="cart-wrapper">
     <!-- Left: Cart Items -->
@@ -333,20 +333,10 @@
           <h5>{{this.productId.productName}}</h5>
           <p>Color: {{this.productId.color}}</p>
           <p>Size: {{this.size}}</p>
-          <div class="quantity-selector">
-             {{!-- decrease quantity --}}
-            <button class="qty-btn" onclick="decreaseQuantity(event,'{{this._id}}','{{this.size}}')">&#8722;</button>
-            <span class="qty-display" id="quantity-display-{{this._id}}">{{this.quantity}}</span>
-            {{!-- increase quantity --}}
-            <button class="qty-btn" onclick="increaseQuantity(event,'{{this._id}}','{{this.size}}')">&#43;</button> 
-          </div>
+          <p>Price: {{this.price}} ( x{{this.quantity}} )</p>
         </div>
         <div class="cart-item-price">
           <span id="totalPrice-{{this._id}}">₹{{this.totalPrice}}</span>
-          
-          {{!-- removing an item --}}
-          <a href="" data-itemid="{{this._id}}"  class="remove-item" id="removefromCart" onclick="removefromCart(event,'{{this._id}}')">✕</a>
-
         </div>
       </div>
       {{/each}}
@@ -377,219 +367,66 @@
         <span>Coupon Discount</span>
         <span id="couponDiscount">₹0</span>
       </div>
-        {{!-- <div class="couponDiv">
+        <div class="couponDiv">
         <input type="hidden" id="couponCode">
         <input type="text" placeholder="APPLY A COUPON CODE -eg:COP101" class="coupon-input" id="coupon-input"/><button onclick="applyCoupon(event)">Apply</button>
         <p id="coupon-error" style="color: red;"></p>
         <hr />
-      </div> --}}
+      </div>
       <div class="summary-line total">
         <span>Total</span>
         <span>₹<span id="finalAmount">{{totalPrice}}</span></span>
       </div>
-      <button onclick="loadPaymentMode(event)" id="checkout-btn">PLACE ORDER</button>
+      <button onclick="loadPaymentMode(event)" id="checkout-btn">CONTINUE TO CHECKOUT</button>
       {{!-- <a href="/loadPaymentMode" id="checkout-btn">CONTINUE TO CHECKOUT</a> --}}
     </div>
   </div>
 
-  <section class="product spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    
-                    <ul class="filter__controls">
 
-                        <li data-filter=".new-arrivals">Your Choices</li>
-                        
-                    </ul>
-                </div>
-            </div>
-            <div class="row product__filter">
-             {{#each products}}
-                <div class="col-lg-3 col-md-6 col-sm-6 mix new-arrivals">
-                    <div class="product__item">
-                        <a href="/productDetails?id={{this._id}}">
-                            <div class="product__item__pic set-bg" data-setbg="/images/{{this.productImages.[0]}}">
-                                
-                            </div>
-                        </a>
-                        <div class="product__item__text">
-                            <h6>{{this.productName}}</h6>
-                            <a href="#" onclick="addWishlist(event,'{{this._id}}')" class="add-cart">+ Add to Wishlist</a>
-                            <h5>&#x20b9;{{this.salePrice}} <span style="text-decoration: line-through; color: #888;">&#x20b9;{{this.regularPrice}}</span> </h5>
-                        </div>
-                    </div>
-                </div>
-                {{/each}}
+ 
 
-
-            </div>
-        </div> 
-</section>
 </main>
 
 
 <script>
-
-
-
-async function increaseQuantity(event, id,size) {
-  try {
-    event.preventDefault();
-
-    let quantityElem = document.getElementById(`quantity-display-${id}`);
-    let quantity = parseInt(quantityElem.textContent);
-    let totalPriceOfItem=document.getElementById(`totalPrice-${id}`);
-    let grandTotal=document.getElementById("grandTotal")
-    let finalAmount=document.getElementById('finalAmount')
-
-    if(quantity>=5){
-      return Toastify({
-        text: "Quantity should not be greater than Five",
-        duration: 3000,
-        close: true,
-        gravity: "bottom",
-        position: "center",
-        style: {
-          background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
-        },
-        className: "custom-toast",
-      }).showToast();
-    }
-
-    const res = await fetch(`/increaseQuantity/${id}`, {
-      method: "PATCH",
-      headers: { "Content-type": "application/json" },
-      body:JSON.stringify({quantity,size})
-    });
-
+async function applyCoupon(event){
+  event.preventDefault()
+  document.getElementById("coupon-error").innerHTML=""
+  let couponCode=document.getElementById("coupon-input").value
+  let cartTotal = document.getElementById("finalAmount").innerText
+  cartTotal=parseInt(cartTotal)
+  couponCode=couponCode.toUpperCase()
   
-    let data
-    if (res.ok) {
-       data = await res.json();
-      Toastify({
-        text: data.message||"Quantity increased",
-        duration: 3500,
-        close: true,
-        gravity: "bottom",
-        position: "center",
-        style: {
-          background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
-        },
-        className: "custom-toast",
-      }).showToast();
 
-       quantityElem.textContent = data.quantity;
-       totalPriceOfItem.innerText=data.totalPrice;
-       grandTotal.innerText=data.grandTotal;
-       finalAmount.innerText=data.grandTotal;
-
-     
-    } else {
-      if(res.status===404){
-          data = await res.json();
-      
-       }
-      Toastify({
-        text: data.message||"Failed to increase quantity",
-        duration: 3000,
-        close: true,
-        gravity: "bottom",
-        position: "center",
-        style: {
-          background: "linear-gradient(to right, #8B0000, #B22222, #DC143C)",
-        },
-        className: "custom-toast",
-      }).showToast();
-
-     
-    }
-  } catch (err) {
-    console.error("Error increasing quantity:", err);
+  if(!couponCode){
+    return document.getElementById("coupon-error").innerHTML="Enter coupon to get discount"
   }
-}
+  const res=await fetch("/applyCoupon",{
+    method:"POST",
+    headers:{"Content-type":"application/json"},
+    body:JSON.stringify({couponCode,cartTotal})
+  })
 
-async function decreaseQuantity(event, id,size) {
-  try {
-    event.preventDefault();
-
-    let quantityElem = document.getElementById(`quantity-display-${id}`);
-    let quantity = parseInt(quantityElem.textContent);
-    let totalPriceOfItem=document.getElementById(`totalPrice-${id}`);
-    let grandTotal=document.getElementById("grandTotal")
-    let finalAmount=document.getElementById('finalAmount')
-
-    if(quantity<=1){
-      return removefromCart(event, id)
-    }
-
-    const res = await fetch(`/decreaseQuantity/${id}`, {
-      method: "PATCH",
-      headers: { "Content-type": "application/json" },
-      body:JSON.stringify({quantity,size})
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      Toastify({
-        text: data.message,
+  const data=await res.json()
+  if(res.ok){
+    Toastify({
+        text: data.message || "item deleted",
         duration: 3000,
         close: true,
         gravity: "bottom",
         position: "center",
         style: {
-          background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+          background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)", 
         },
         className: "custom-toast",
       }).showToast();
 
-      quantityElem.textContent = quantity - 1;
-      totalPriceOfItem.innerText=data.totalPrice
-      grandTotal.innerText=data.grandTotal
-      finalAmount.innerText=data.grandTotal;
-
-     
-    } else {
-      Toastify({
-        text: "Failed to increase quantity",
-        duration: 3000,
-        close: true,
-        gravity: "bottom",
-        position: "center",
-        style: {
-          background: "linear-gradient(to right, #8B0000, #B22222, #DC143C)",
-        },
-        className: "custom-toast",
-      }).showToast();
-
-     
-    }
-  } catch(err) {
-    console.error("Error removing item:", err);
-  }
-}
-
-
-
-
-async function removefromCart(event, id) {
-  try {
-    event.preventDefault();
-    const cartItem=document.getElementById(`cart-item-${id}`)
-   
-
-    const res = await fetch(`/removefromCart/${id}`, {
-      method: "DELETE",
-      headers: { "Content-type": "application/json" },
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      
-
-      Toastify({
+      document.getElementById("finalAmount").innerText=`${data.finalAmount}`  
+      document.getElementById("totalDiscount").innerText=`₹${data.discountAmount}` 
+      document.getElementById("couponDiscount").innerText=`₹${data.discountAmount}` 
+      document.getElementById("couponCode").value=data.couponCode
+  }else{
+    Toastify({
         text: data.message || "item deleted",
         duration: 3000,
         close: true,
@@ -600,58 +437,12 @@ async function removefromCart(event, id) {
         },
         className: "custom-toast",
       }).showToast();
-
-      cartItem.style.display="none"
-      {{!-- setTimeout(() => {
-        window.location.reload();
-      }, 2000); --}}
-
-
-      {{!-- const itemElememt = document.getElementById(`cart-item-${id}`);
-      if (itemElememt) {
-        itemElememt.remove(); 
-      }--}}
-    } else {
-      console.error("failed in deleteing item");
-    }
-  } catch (err) {
-    console.error("Error removing item:", err);
   }
-}
 
-async function addWishlist(event,id){
-    event.preventDefault();
-    console.log('addWishlist loaded with id   :::::::',id)
-    const res=await fetch(`/addWishlist/${id}`,{
-        method:"POST",
-        headers:{"Content-type":"application/json"}
-    })
-
-    const data=await res.json()
-
-
-    if(res.ok){
-        Toastify({
-            text: "Added to wishlist",
-            duration: 3000,
-            close: true,          
-            gravity: "top",
-            position: "center",    
-            style: {
-                background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)", 
-            },
-            className: "custom-toast", 
-            onClick: () => {     
-                alert("Toast clicked!");
-        }
-        }).showToast();
-    }else{
-        alert("Something wrong in adding wishlist")
-    }
 }
 
 
-/* async function loadPaymentMode(event){
+async function loadPaymentMode(event){
   event.preventDefault()
   const couponCode=document.getElementById("couponCode").value
   const finalAmount=document.getElementById("finalAmount").innerText
@@ -659,16 +450,8 @@ async function addWishlist(event,id){
    if (couponCode) {
     url += `&couponCode=${couponCode}`;
   }
-  url="/cartOrderSummary"
-  window.location.href = url;
-} */
-async function loadPaymentMode(event){
-  event.preventDefault()
-  //let url="/cartOrderSummary" 
-  let url="/loadAddressForOrder"
   window.location.href = url;
 }
-
 
 
 

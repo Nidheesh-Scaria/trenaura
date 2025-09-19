@@ -1,0 +1,183 @@
+<section class="product spad">
+    <div class="container">
+        <div class="row">
+
+            <!-- Sidebar Start -->
+            <div class="col-lg-3 col-md-4">
+                <div class="sidebar">
+
+                    <!-- Search Bar (only visible on large screens in top-right) -->
+                    {{!-- <div class="d-lg-none mb-4">
+                        <input type="text" class="form-control" placeholder="Search products..." id="sidebarSearch">
+                    </div> --}}
+
+
+                    <!-- Sorting -->
+                    <div class="sidebar__item">
+                        <h5>Sort By</h5>
+                        <select id="sortProducts" onchange="applySort()">
+                            <option value="default">Default</option>
+                            <option value="low-high">Price: Low to High</option>
+                            <option value="high-low">Price: High to Low</option>
+                            <option value="newest">Newest First</option>
+                        </select>
+
+                    </div><br>
+
+                    <!-- Category Filter -->
+                    <div class="sidebar__item"><br>
+
+                        <h5>Categories</h5>
+                        <ul>
+                            <li><a href="/filter?category=all">All</a></li>
+                            {{#each categories}}
+                            <li><a href="/filter?category={{this._id}}">{{this.name}}</a></li>
+                            {{/each}}
+                        </ul>
+
+                    </div>
+
+                    <!-- Price Filter -->
+                    <div class="sidebar__item">
+                        <h5>Filter by Price</h5>
+                        <div class="price-range">
+                            <ul>
+                                <li><a href="/filter?price=0-1000">₹0 - ₹1000</a></li>
+                                <li><a href="/filter?price=1000-2000">₹1000 - ₹2000</a></li>
+                                <li><a href="/filter?price=2000-4000">₹2000 - ₹4000</a></li>
+                                <li><a href="/filter?price=4000-8000">₹4000 - ₹8000</a></li>
+                                <li><a href="/filter?price=8000+">₹8000+</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Brand Filter -->
+                    {{!-- <div class="sidebar__item">
+                        <h5>Brands</h5>
+                        <ul>
+                            {{#each brands}}
+                            <li>
+                                <label>
+                                    <input type="checkbox" value="{{this._id}}" onchange="filterBrand()">
+                                    {{this.brandName}}
+                                </label>
+                            </li>
+                            {{/each}}
+                        </ul>
+                    </div> --}}
+
+                </div>
+            </div>
+            <!-- Sidebar End -->
+
+            <!-- Product Grid Start -->
+            <div class="col-lg-9 col-md-8">
+
+                <!-- Top bar with search -->
+                <div class="d-flex justify-content-end mb-3">
+                    <input type="text" class="form-control w-50" placeholder="Search products..." id="mainSearch"
+                        value="{{search}}" onkeypress="if(event.key === 'Enter') searchProducts()">
+                    <button class="btn btn-primary ms-2" onclick="searchProducts()">Search</button>
+                </div>
+
+                <div class="row product__filter">
+                    {{#each products}}
+                    <div class="col-lg-4 col-md-6 col-sm-6 mix new-arrivals">
+                        <div class="product__item">
+                            <a href="/productDetails?id={{this._id}}">
+                                <div class="product__item__pic set-bg" data-setbg="/images/{{this.productImages.[0]}}">
+                                </div>
+                            </a>
+                            <div class="product__item__text">
+                                <h6>{{this.productName}}</h6>
+                                <a href="#" onclick="addWishlist(event,'{{this._id}}')" class="add-cart">+ Add to Wish
+                                    list</a>
+                                <h5>
+                                    ₹{{this.salePrice}}
+                                    <span style="text-decoration: line-through; color: #888;">
+                                        ₹{{this.regularPrice}}
+                                    </span>
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+            <!-- Product Grid End -->
+
+        </div>
+
+        {{!-- <div class="pagination">
+            {{#ifCond currentPage '>' 1}}
+            <a href="?page={{decrement currentPage}}&search={{search}}" class="page-btn"><i
+                    class="fas fa-chevron-left"></i></a>
+            {{else}}
+            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+            {{/ifCond}}
+
+            {{#each (range 1 totalPages)}}
+            {{#ifCond this '===' ../currentPage}}
+            <span class="page-number current">{{this}}</span>
+            {{else}}
+            <a href="?page={{this}}&search={{../search}}" class="page-number">{{this}}</a>
+            {{/ifCond}}
+            {{/each}}
+
+            {{#ifCond currentPage '<' totalPages}} <a href="?page={{increment currentPage}}&search={{search}}"
+                class="page-btn">
+                <i class="fas fa-chevron-right"></i></a>
+                {{else}}
+                <button class="page-btn" disabled><i class="fas fa-chevron-right"></i></button>
+                {{/ifCond}}
+        </div> --}}
+
+        <div class="pagination">
+            {{!-- Previous Arrow --}}
+            {{#ifCond currentPage ">" 1}}
+            <a href="?page={{decrement currentPage}}&search={{search}}" class="page-btn">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            {{else}}
+            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+            {{/ifCond}}
+
+            {{!-- First Page --}}
+            {{#ifCond currentPage ">" 2}}
+            <a href="?page=1&search={{search}}" class="page-number">1</a>
+            {{#ifCond currentPage ">" 3}}
+            <span class="dots">…</span>
+            {{/ifCond}}
+            {{/ifCond}}
+
+            {{!-- Sliding Window Pages (currentPage -1 to currentPage +1) --}}
+            {{#each (range (decrement currentPage) (increment currentPage))}}
+            {{#ifCond this ">=" 1}}
+            {{#ifCond this "<=" ../totalPages}} {{#ifCond this "===" ../currentPage}} <span class="page-number current">
+                {{this}}</span>
+                {{else}}
+                <a href="?page={{this}}&search={{../search}}" class="page-number">{{this}}</a>
+                {{/ifCond}}
+                {{/ifCond}}
+                {{/ifCond}}
+                {{/each}}
+
+                {{!-- Last Page --}}
+                {{#ifCond currentPage "<" (decrement totalPages)}} {{#ifCond currentPage "<" (decrement (decrement
+                    totalPages))}} <span class="dots">…</span>
+                {{/ifCond}}
+                    <a href="?page={{totalPages}}&search={{search}}" class="page-number">{{totalPages}}</a>
+                    {{/ifCond}}
+
+                {{!-- Next Arrow --}}
+                {{#ifCond currentPage "<" totalPages}} <a href="?page={{increment currentPage}}&search={{search}}"
+                        class="page-btn">
+                        <i class="fas fa-chevron-right"></i>
+                        </a>
+                        {{else}}
+                        <button class="page-btn" disabled><i class="fas fa-chevron-right"></i></button>
+                {{/ifCond}}
+        </div>
+
+    </div>
+</section>

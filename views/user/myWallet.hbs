@@ -363,9 +363,6 @@ async function addMoneyToWallet() {
       const verifyData = await verifyRes.json();
 
       if (verifyData.success) {
-       
-
-
        Toastify({
           text: verifyData.message || "Wallet added ",
           duration: 3000,
@@ -398,6 +395,15 @@ async function addMoneyToWallet() {
         
       }
     },
+    modal: {
+        ondismiss: function () {
+                                
+        console.log("Payment popup closed by user");
+        setTimeout(() => {
+            window.location.href = `/walletPaymentFailed`;
+        }, 500);
+        },
+    },
     theme: {
       color: "#3399cc",
     },
@@ -406,6 +412,13 @@ async function addMoneyToWallet() {
   // Step 5: Open Razorpay
   const rzp1 = new window.Razorpay(options);
   rzp1.open();
+  rzp1.on("payment.failed",function(response){
+    console.error("Payment failed:", response.error);
+    console.log(orderId)
+        setTimeout(()=>{
+             window.location.href = `/walletPaymentFailed`
+        },1000)
+  })
 }  
 
 

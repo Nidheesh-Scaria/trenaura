@@ -46,8 +46,8 @@ router.get('/shop',userAuth.userBlocked,userController.loadShop)
 router.get('/mensCategory',userAuth.userBlocked,userController.mensCategory);
 router.get('/womensCategory',userAuth.userBlocked,userController.womensCategory);
 router.get('/beautyCategory',userAuth.userBlocked,userController.beautyCategory);
-router.get('/filter',userAuth.userBlocked,userController.filter);
-router.get('/productDetails',userAuth.userBlocked, userController.productDetails)
+//router.get('/filter',userAuth.userBlocked,userController.filter);
+router.get('/productDetails',userAuth.userBlocked,userAuth.checkSession, userController.productDetails)
 
 
 // adreess mangement
@@ -76,6 +76,7 @@ router.get('/loadcartPage',userAuth.userBlocked,userAuth.checkSession, cartContr
 router.patch('/increaseQuantity/:id',userAuth.userBlocked,userAuth.checkSession, cartController.increaseQuantity)
 router.patch('/decreaseQuantity/:id',userAuth.userBlocked,userAuth.checkSession, cartController.decreaseQuantity)
 router.delete("/removefromCart/:id",userAuth.userBlocked,userAuth.checkSession, cartController.removefromCart)
+router.get('/cartOrderSummary',userAuth.userBlocked,userAuth.checkSession, cartController.cartOrderSummary)
 
 
 //wishlist management
@@ -86,10 +87,12 @@ router.delete('/removeFromWishlist/:id',userAuth.userBlocked,userAuth.checkSessi
 
 //order management
 router.get('/loadMyOrder',userAuth.userBlocked,userAuth.checkSession, orderController.loadMyOrder)
+router.get('/loadAddressForOrder',userAuth.userBlocked,userAuth.checkSession, orderController.loadAddressForOrder)
 router.get('/loadAddressForOrder/:id',userAuth.userBlocked,userAuth.checkSession, orderController.loadAddressForOrder)
 router.post('/submit-address',userAuth.userBlocked,userAuth.checkSession, orderController.submitAddress)
 
 router.get("/orderSummary",userAuth.userBlocked,userAuth.checkSession, orderController.loadOrderSummary)
+
 
 router.get('/loadPaymentMode',userAuth.userBlocked,userAuth.checkSession, orderController.loadPaymentMethod)
 router.post('/orderSuccess',userAuth.userBlocked,userAuth.checkSession, orderController.orderSuccess)
@@ -98,6 +101,7 @@ router.post('/cancelOrder/:id',userAuth.userBlocked,userAuth.checkSession, order
 router.get('/orderDetails/:id',userAuth.userBlocked,userAuth.checkSession,orderController.orderDetails)
 router.get('/loadReturnOrder/:id',userAuth.userBlocked,userAuth.checkSession,orderController.loadReturnOrder)
 router.post('/returnOrder/:id',userAuth.userBlocked,userAuth.checkSession,orderController.returnOrder)
+router.get('/orderPlaced',userAuth.userBlocked,userAuth.checkSession,orderController.getOrderPlaced)
 //wallet payment
 router.get("/walletPayment",userAuth.userBlocked,userAuth.checkSession, orderController.walletPayment)
 router.post("/confirmWalletPayment",userAuth.userBlocked,userAuth.checkSession, orderController.confirmWalletPayment)
@@ -112,7 +116,7 @@ router.get("/payment-failed",userAuth.userBlocked,userAuth.checkSession,orderCon
 //wallet management
 router.get('/myWallet',userAuth.userBlocked,userAuth.checkSession,walletController.getMyWallet)
 router.get("/walletTransactionHistory",userAuth.userBlocked,userAuth.checkSession,walletController.walletTransactionHistory)
-
+router.get('/walletPaymentFailed',userAuth.userBlocked,userAuth.checkSession,walletController.paymemntFailed)
 //adding money in wallet
 router.post("/create-razorpay-order-wallet",userAuth.userBlocked,userAuth.checkSession,walletController.createRazorpayOrderWallet)
 router.post("/verify-payment-wallet",userAuth.userBlocked,userAuth.checkSession,walletController.verifyPaymentForWallet)

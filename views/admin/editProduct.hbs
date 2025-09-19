@@ -457,14 +457,6 @@
           </div>
         </div>
 
-        {{!-- If Beauty category => show quantity --}}
-        {{!-- {{#if product.isBeauty}} --}}
-          <div class="form-group" id="quantity-group">
-            <label class="form-label">Quantity</label>
-            <input type="number" id="editQuantity" name="quantity" class="form-input" value="{{product.quantity}}" />
-            <div class="error-message" id="editQuantity-error"></div>
-          </div>
-        {{!-- {{else}} --}}
           {{!-- Size-based variant inputs --}}
           <div class="form-group" id="sizes-group">
             <label class="form-label">Sizes & Quantities</label>
@@ -497,7 +489,6 @@
             </div>
             <div id="editSize-error" class="error-message"></div>
           </div>
-        {{!-- {{/if}} --}}
 
         <div class="form-group">
           <label class="form-label">Current Images</label>
@@ -525,24 +516,6 @@
 
 
 <script>
-
-const editCategory = document.getElementById("editCategory");
-  const quantityGroup = document.getElementById("quantity-group");
-  const sizesGroup = document.getElementById("sizes-group");
-
-  function toggleFields() {
-    const selectedText = editCategory.selectedOptions[0].textContent.trim();
-
-    if (selectedText === "Beauty") {
-      quantityGroup.style.display = "block";
-      sizesGroup.style.display = "none";
-    } else {
-      quantityGroup.style.display = "none";
-      sizesGroup.style.display = "block";
-    }
-  }
-toggleFields();
-editCategory.addEventListener("change", toggleFields);
 
 document.getElementById("editProductForm").addEventListener("submit", function (e) {
     e.preventDefault();
@@ -581,45 +554,29 @@ document.getElementById("editProductForm").addEventListener("submit", function (
         setError("editSalePrice-error", "Sale price must be valid");
         isValid = false;
     }
-
-    // Check category name text
-    const categoryName = document.getElementById("editCategory").selectedOptions[0].textContent.trim();
-
-    console.log(categoryName)
-    
-    if (categoryName === "Beauty") {
-        
-    // Beauty quantity
-    const quantity = parseInt(document.getElementById("editQuantity")?.value || 0, 10);
-       console.log("inside if")
-        if (isNaN(quantity) || quantity <= 0) {
-            setError("editQuantity-error", "Quantity must be greater than zero");
-            isValid = false;
-        }
-    } else {
         
         // Size quantities
-        const sizeXS = parseInt(document.getElementById("quantity-xs")?.value || 0, 10);
-        const sizeS = parseInt(document.getElementById("quantity-s")?.value || 0, 10);
-        const sizeM = parseInt(document.getElementById("quantity-m")?.value || 0, 10);
-        const sizeL = parseInt(document.getElementById("quantity-l")?.value || 0, 10);
-        const sizeXL = parseInt(document.getElementById("quantity-xl")?.value || 0, 10);
-        const sizeXXL = parseInt(document.getElementById("quantity-xxl")?.value || 0, 10);
+    const sizeXS = parseInt(document.getElementById("quantity-xs")?.value || 0, 10);
+    const sizeS = parseInt(document.getElementById("quantity-s")?.value || 0, 10);
+    const sizeM = parseInt(document.getElementById("quantity-m")?.value || 0, 10);
+    const sizeL = parseInt(document.getElementById("quantity-l")?.value || 0, 10);
+    const sizeXL = parseInt(document.getElementById("quantity-xl")?.value || 0, 10);
+    const sizeXXL = parseInt(document.getElementById("quantity-xxl")?.value || 0, 10);
 
 
         // Non-Beauty
-        const totalSizeQty = sizeXS + sizeS + sizeM + sizeL + sizeXL + sizeXXL;
-        if (totalSizeQty <= 0) {
-            setError("editSize-error", "Please specify at least one size with a quantity greater than zero.");
-            isValid = false;
-        }
+    const totalSizeQty = sizeXS + sizeS + sizeM + sizeL + sizeXL + sizeXXL;
+    if (totalSizeQty <= 0) {
+        setError("editSize-error", "Please specify at least one size with a quantity greater than zero.");
+        isValid = false;
+    }
 
         // Check negative quantities
-        if (sizeS < 0 || sizeXS < 0 || sizeM < 0 || sizeL < 0 || sizeXL < 0 || sizeXXL < 0) {
-            setError("editSize-error", "Quantities cannot be negative.");
-            isValid = false;
-        }
+    if (sizeS < 0 || sizeXS < 0 || sizeM < 0 || sizeL < 0 || sizeXL < 0 || sizeXXL < 0) {
+        setError("editSize-error", "Quantities cannot be negative.");
+        isValid = false;
     }
+    
 
     if (regularPrice <= salePrice) {
         setError("editRegularPrice-error", "Regular price must be greater than sale price");

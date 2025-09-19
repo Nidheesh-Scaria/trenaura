@@ -47,7 +47,7 @@ const addToCart = async (req, res) => {
             quantity,
             price,
             totalPrice,
-            size,
+            size: size ? size : null,
           },
         ],
       });
@@ -76,7 +76,6 @@ const addToCart = async (req, res) => {
           $pull: { products: { productsId: productId } },
         }
       );
-      
     }
 
     return res
@@ -143,27 +142,90 @@ const loadmyCart = async (req, res) => {
   }
 };
 
+
+const cartOrderSummary = async (req, res) => {
+  try {
+    const userId = req.session.user || req.user;
+    const products = await Product.find().limit(8).lean();
+
+    const cart = await Cart.findOne({ userId })
+      .populate({
+        path: "items.productId",
+        match: { isBlocked: false, isDeleted: false },
+      })
+      .lean();
+    let totalPrice = 0;
+    //sorting items with a valid productId .
+    if (cart?.items?.length) {
+      cart.items = cart.items.filter((item) => item.productId !== null);
+
+      //total price of the cart items
+      totalPrice = cart.items.reduce((total, item) => {
+        return total + item.totalPrice;
+      }, 0);
+    }
+
+    //if cart is empty
+    if (!cart || cart.items.length === 0) {
+      return res.render("user/cartOrderSummary", {
+        title: "Order Summary",
+        adminHeader: true,
+        hideFooter: false,
+        isCartEmpty: true,
+        cartItems: [],
+        products,
+      });
+    }
+
+    return res.render("user/cartOrderSummary", {
+      title: "Order Summary",
+      adminHeader: true,
+      hideFooter: false,
+      cartItems: cart.items,
+      isCartEmpty: cart.items.length === 0,
+      products,
+      totalPrice,
+    });
+  } catch (error) {
+    console.error("Error in loadmyCart:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "An error occurred. Please try again later.",
+    });
+  }
+};
+
 const increaseQuantity = async (req, res) => {
   try {
     const { id: itemId } = req.params;
     const userId = req.session.user;
-    const { quantity } = req.body;
+    const { quantity, size } = req.body;
+
+    console.log("increaseQuantity",size)
+    
+
+    if(quantity>=5){
+      return res.status(400).json({
+        message: "!Sorry,quantity is limited to 5" ,
+      });
+    }
 
     const cart = await Cart.findOne(
-      { userId, "items._id": itemId },
+      { userId, "items._id": itemId ,"items.size":size},
       { "items.$": 1 }
     )
-      .populate("items.productId", "quantity")
-      .lean();
+      .populate("items.productId","variants salePrice")
+     
 
     if (!cart || !cart.items.length) {
-      return res.status(404).json({ message: "Item not found" });
+      return res.status(400).json({ message: "Item not found" });
     }
 
     const item = cart.items[0];
-    const stock = item.productId.quantity;
+    const stock = cart.items[0].productId.variants[cart.items[0].size];
+    
 
-    if (quantity >= stock) {
+    if (item.quantity >= stock) {
       return res.status(httpStatus.BAD_REQUEST).json({
         message: "Quantity should be less than the total stock of the product",
       });
@@ -180,7 +242,7 @@ const increaseQuantity = async (req, res) => {
       .lean();
 
     const updatedItem = updatedCart.items.find(
-      (item) => item._id.toString() === itemId
+      (i) => i._id.toString() === itemId && i.size === size
     );
     const totalPrice = updatedItem.quantity * updatedItem.price;
     const grandTotal = updatedCart.items.reduce((total, item) => {
@@ -211,21 +273,23 @@ const decreaseQuantity = async (req, res) => {
   try {
     const { id: itemId } = req.params;
     const userId = req.session.user;
+    const { size } = req.body;
+    console.log("decreaseQuantity+++++++++++++",size)
 
     // Fetch current item first
     const cart = await Cart.findOne(
-      { userId, "items._id": itemId },
+      { userId, "items._id": itemId ,"items.size":size},
       { "items.$": 1 }
     ).lean();
 
     if (!cart || !cart.items.length) {
-      return res.status(404).json({ message: "Item not found" });
+      return res.status(httpStatus.BAD_REQUEST).json({ message: "Item not found" });
     }
 
     const item = cart.items[0];
 
     if (item.quantity <= 1) {
-      return res.status(400).json({ message: "Minimum quantity is 1" });
+      return res.status(httpStatus.BAD_REQUEST).json({ message: "Minimum quantity is 1" });
     }
     // Decrease quantity
     await Cart.updateOne(
@@ -238,7 +302,7 @@ const decreaseQuantity = async (req, res) => {
       .lean();
 
     const updatedItem = updatedCart.items.find(
-      (item) => item._id.toString() === itemId
+      (i) => i._id.toString() === itemId && i.size === size
     );
 
     const totalPrice = updatedItem.quantity * updatedItem.price;
@@ -357,6 +421,7 @@ const removeCoupon = async (req, res) => {
 module.exports = {
   addToCart,
   loadmyCart,
+  cartOrderSummary,
   increaseQuantity,
   decreaseQuantity,
   removefromCart,

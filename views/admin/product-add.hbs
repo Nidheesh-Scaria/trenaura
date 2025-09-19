@@ -767,26 +767,7 @@
         let currentImageIndex;
         const uploadedFiles = [];
         const croppedImages = [];
-
-
-          //cheking the category
-        const categorySelect=document.getElementById("categorySelect")
-        categorySelect.addEventListener("change",function(){
-            const selectedValue=this.value
-
-
-            if(selectedValue==="Beauty"){
-                document.getElementById("quantityDiv").style.display="block"
-                document.getElementById("size-quantityDiv").style.display="none"
-            }else{
-                document.getElementById("quantityDiv").style.display="none"
-                document.getElementById("size-quantityDiv").style.display="block"
-            }
-           
-
-        })
-
-
+        
        
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {

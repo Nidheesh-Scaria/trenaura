@@ -21,7 +21,7 @@ const getProductPage = async (req, res) => {
       productName: { $regex: search, $options: "i" },
     };
 
-    const productData = await Product.find(query)
+    const productData = await Product.find(query,)
       .select(
         "productName regularPrice salePrice category status isBlocked isDeleted productImages variants size quantity" 
       )
@@ -151,10 +151,6 @@ const getEditProduct = async (req, res) => {
 
     const categories = await Category.find().lean();
     const brand = await Brand.find().lean();
-    let isBeauty = false;
-    if (product.category.name === "Beauty") {
-      isBeauty = true;
-    }
 
     //for edit modal in product page
     // const responseData = {
@@ -182,7 +178,7 @@ const getEditProduct = async (req, res) => {
       hideFooter: true,
       product: {
         ...product,
-        isBeauty,
+        isBeauty:false,
         categoryName: product.category?.name,
         brandName: product.brand?.brandName,
         variants: Object.fromEntries(Object.entries(product.variants || {})),
@@ -302,8 +298,6 @@ const addProducts = async (req, res) => {
         message: MESSAGES.INVALID_BRAND || "Invalid brand",
       });
     }
-
-    // const categoryName = category.name;
 
     // Create new product
 

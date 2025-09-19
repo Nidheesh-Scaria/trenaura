@@ -242,7 +242,9 @@
       <img src="/images/{{productImages.[0]}}" alt="{{productName}}">
       <div class="wishlist-details">
         <h3>{{productName}}</h3>
-        <p class="product-description">{{description}}</p>
+        <p>Brand:{{brand}}</p><br>
+        {{!-- <p class="product-description">{{description}}</p> --}}
+        
         <div class="wishlist-price">
           ₹{{salePrice}} 
           {{#if regularPrice}}<del>₹{{regularPrice}}</del>{{/if}}

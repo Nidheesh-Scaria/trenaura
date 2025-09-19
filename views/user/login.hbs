@@ -1,5 +1,6 @@
 <head>
   <link rel="stylesheet" href="css/userLogin.css">
+
 </head>
 
 <div class="container">
@@ -27,8 +28,13 @@
         <input type="hidden" value="{{{messages}}}" id="errorMessage">
         <input type="text" id="email" name="email" placeholder="Email" />
         <p class="error" id="emailError"></p>
-
-        <input type="password" id="password" name="password" placeholder="Password" />
+        <div class="password-container">
+          <input type="password" id="password" name="password" placeholder="Password" />
+          <span class="toggle-password" onclick="togglePassword()">
+            👁️
+          </span>
+        </div>
+        {{!-- <input type="password" id="password" name="password" placeholder="Password" /> --}}
         <p class="error" id="passwordError"></p>
         <p class="error" id="mainError"></p>
        
@@ -48,6 +54,21 @@
    
 
   <script src="js/userLogIn.js"></script>
+  <script>
+    function togglePassword() {
+      const passwordField = document.getElementById("password");
+      const toggleBtn = document.querySelector(".toggle-password");
+
+      if (passwordField.type === "password") {
+        passwordField.type = "text";
+        toggleBtn.textContent = "🙈"; 
+      } else {
+        passwordField.type = "password";
+        toggleBtn.textContent = "👁️"; 
+      }
+    }
+
+  </script>
 
 
    

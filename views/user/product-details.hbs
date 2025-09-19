@@ -249,23 +249,47 @@
     </p>
 
     <div class="size-selection">
+      {{!-- {{#if (eq isBeauty "Beauty")}}
+        {{#if (gt product.quantity 0)}}
+          {{#if (gt product.quantity 5)}}
+            <p><strong style="color: #03b109;">In stock</strong> </p>
+          {{else}}
+            <p style="color: red;">Hurry! Only {{product.quantity}} left</p>
+          {{/if}}
+          
+          <div>
+            <button class="add-to-cart" onclick="addToCartBeauty(event,'{{product._id}}')">Add to Cart</button>
+            <button class="add-to-cart" onclick="buyItNowBeauty(event,'{{product._id}}')">Buy it Now</button>
+
+          </div>
+          <p id="beautyError" style="color: red;"></p>
+        {{else}}
+          <p style="color: red;">Out of of stock</p>
+        {{/if}}
+
+      {{/if}} --}}
+      {{!-- {{#if (ne isBeauty "Beauty")}} --}}
       <label for="size">Select Size</label>
       <div class="size-options">
         {{#each product.allVariants}}
+        
         <div class="size-option">
-          <button type="button" value="{{@key}}" class="size-btn" {{#if (eq this 0)}}disabled{{/if}}>
+            <button type="button" value="{{@key}}" class="size-btn" {{#if (eq this 0)}}disabled{{/if}}>
             {{@key}}
-          </button>
-          {{#if (gt this 0)}}
-          {{#if (lt this 6)}}
-          <small style="color: red;">Only {{this}} left</small>
-          {{else}}
-          <small>{{this}} in stock</small>
-          {{/if}}
-          {{/if}}
+            </button>
+          
+            {{#if (gt this 0)}}
+              {{#if (lt this 6)}}
+                <small style="color: red;">Hurry! Only {{this}} left</small>
+            {{else}}
+              <small>{{this}} in stock</small>
+              {{/if}}
+            {{/if}}
+          
         </div>
         {{/each}}
       </div>
+      
     </div>
 
     {{#if (eq isOutOfStock false)}}
@@ -280,6 +304,7 @@
     <p style="color: red;">Out of of stock</p>
 
     {{/if}}
+    {{!-- {{/if}} --}}
     <div class="product-info">
       <h3 style="color: black;">About this item</h3>
       <p>{{product.description}}</p>
@@ -461,17 +486,60 @@ async function addWishlist(event,id){
 async function buyItNow(event,id){
     event.preventDefault()
 
-    const selectedBtn = document.querySelector(".size-btn.selected");
+    const selectedBtnEl = document.querySelector(".size-btn.selected");
+    const selectedBtn = selectedBtnEl ? selectedBtnEl.value : null;
+    
 
     if (!selectedBtn) {
         document.getElementById("error").innerText="Please select a size before check out."
         return;
       }
     const size=selectedBtn
-    
     window.location.href = `/loadAddressForOrder/${id}?size=${size}`;
 }
 
+//beauty
+async function addToCartBeauty(event, id) {
 
+event.preventDefault();
+const beauty=true
+  const res = await fetch(`/addToCart/${id}`, {
+    method:"POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body:JSON.stringify({beauty})
+  });
+
+  
+  const data = await res.json();
+
+  if (res.ok) {
+    Toastify({
+        text: data.message,
+        duration: 3000,
+        close: true,          
+        gravity: "top",       
+        position: "center",    
+        style: {
+            background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)", 
+        },
+        className: "custom-toast", 
+        
+        }).showToast();
+
+
+        
+    
+  } else {
+    console.error("Failed to add item:", data.message || "Unknown error");
+  }
+}
+
+async function buyItNowBeauty(event,id){
+    event.preventDefault()
+
+    window.location.href = `/loadAddressForOrder/${id}`;
+}
 
 </script>

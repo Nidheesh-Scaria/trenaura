@@ -307,9 +307,10 @@ const loadHomepage = async (req, res) => {
     let productData = await Product.find({
       isBlocked: false,
       isDeleted: false,
+      isActive: true,
       category: { $in: categories.map((category) => category._id) },
       brand: { $in: brand.map((brand) => brand._id) },
-      size: { $ne: [] },
+      $or: [{ size: { $ne: [] } }, { quantity: { $lt: 0 } }],
     })
       .sort({ createdAt: -1 })
       .limit(12)
@@ -347,17 +348,114 @@ const loadHomepage = async (req, res) => {
 const loadShop = async (req, res) => {
   try {
     const user = req.session.user;
-    const products = await Product.find({
+    const {
+      category,
+      price,
+      brand,
+      sort,
+      search,
+      page = 1,
+      limit = 12,
+    } = req.query;
+
+    let isFilter = false;
+    let categoryName;
+    let brandName;
+    const skip = (page - 1) * limit;
+
+    let filter = {
       isBlocked: false,
       isDeleted: false,
+      isActive: true,
       size: { $ne: [] },
-    }).lean();
+    };
+
+    if (category && category !== "all") {
+      categoryName = await Category.findById(category).lean();
+      categoryName = categoryName.name;
+      filter.category = category;
+      isFilter = true;
+    }
+
+    if (price) {
+      let priceRange = price.split("-");
+      if (priceRange.length === 2) {
+        filter.salePrice = {
+          $gte: parseInt(priceRange[0]),
+          $lte: parseInt(priceRange[1]),
+        };
+      } else if (price.includes("+")) {
+        filter.salePrice = { $gte: parseInt(price) };
+      }
+      isFilter = true;
+    }
+
+    let selectedBrands = [];
+    let brandNames = [];
+
+    if (brand) {
+      if (Array.isArray(brand)) {
+        selectedBrands = brand;
+        const brandDocs = await Brand.find({ _id: { $in: brand } }).lean();
+        brandNames = brandDocs.map((b) => b.brandName);
+        filter.brand = { $in: brand };
+      } else {
+        selectedBrands = [brand];
+        const brandDoc = await Brand.findById(brand).lean();
+        if (brandDoc) brandNames = [brandDoc.brandName];
+        filter.brand = brand;
+      }
+      isFilter = true;
+    }
+
+    if (search && search.trim() !== "") {
+      isFilter = true;
+      filter.productName = { $regex: search, $options: "i" };
+    }
+
+    let sortOption = {};
+
+    switch (sort) {
+      case "low-high":
+        sortOption.salePrice = 1;
+        break;
+      case "high-low":
+        sortOption.salePrice = -1;
+        break;
+      case "newest":
+        sortOption.createdAt = -1;
+        break;
+      default:
+        sortOption = {};
+    }
+
+    const totalProducts = await Product.countDocuments(filter);
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    const products = await Product.find(filter)
+      .sort(sortOption)
+      .skip(skip)
+      .limit(parseInt(limit))
+      .lean();
+
+    const categories = await Category.find({ isListed: true }).lean();
+    const brands = await Brand.find({ isBlocked: false }).lean();
 
     return res.render("user/shop", {
       title: "Trenaura - Shop page",
       isLoggedIn: !!user,
       adminHeader: true,
       products,
+      categories,
+      brands,
+      category: categoryName,
+      price,
+      brand: brandNames,
+      search,
+      sort,
+      currentPage: parseInt(page),
+      totalPages,
+      isFilter,
     });
   } catch (error) {
     console.error("Error in rendering shop page:", error);
@@ -678,7 +776,9 @@ const productDetails = async (req, res) => {
   try {
     const productId = req.query.id;
     let isOutOfStock = false;
-    const productDoc = await Product.findById(productId).lean();
+    const productDoc = await Product.findById(productId)
+      .populate("category", "name")
+      .lean();
 
     if (!productDoc) {
       return res
@@ -695,8 +795,16 @@ const productDetails = async (req, res) => {
           : "default.jpg",
     };
 
-    if (!product.size || product.size.length === 0) {
-      isOutOfStock = true;
+    const isBeauty = product.category.name;
+
+    if (isBeauty === "Beauty") {
+      if (!product.quantity || product.quantity === 0) {
+        isOutOfStock = true;
+      }
+    } else {
+      if (!product.size || product.size.length === 0) {
+        isOutOfStock = true;
+      }
     }
 
     const categories = await Category.find({ isListed: true });
@@ -728,6 +836,7 @@ const productDetails = async (req, res) => {
       product,
       products: productData,
       isOutOfStock,
+      isBeauty,
     });
   } catch (error) {
     console.error("Error in rendering home page:", error);
@@ -745,6 +854,7 @@ const mensCategory = async (req, res) => {
 
     const categories = await Category.find({
       isListed: true,
+      isDeleted: false,
       name: { $regex: "Mens" },
     });
     const brand = await Brand.find({ isBlocked: false });
@@ -755,6 +865,7 @@ const mensCategory = async (req, res) => {
     const totalProducts = await Product.countDocuments({
       isBlocked: false,
       isDeleted: false,
+      isActive: true,
       category: { $in: categoryIds },
       brand: { $in: brandIds },
       size: { $ne: [] },
@@ -765,6 +876,7 @@ const mensCategory = async (req, res) => {
     let productData = await Product.find({
       isDeleted: false,
       isBlocked: false,
+      isActive: true,
       category: { $in: categoryIds },
       brand: { $in: brandIds },
       size: { $ne: [] },
@@ -806,6 +918,7 @@ const womensCategory = async (req, res) => {
 
     const categories = await Category.find({
       isListed: true,
+      isDeleted: false,
       name: { $regex: "Womens", $options: "i" },
     });
 
@@ -816,6 +929,7 @@ const womensCategory = async (req, res) => {
     const totalProducts = await Product.countDocuments({
       isBlocked: false,
       isDeleted: false,
+      isActive: true,
       category: { $in: categoryIds },
       brand: { $in: brandIds },
       size: { $ne: [] },
@@ -826,6 +940,7 @@ const womensCategory = async (req, res) => {
     let productData = await Product.find({
       isBlocked: false,
       isDeleted: false,
+      isActive: true,
       category: { $in: categoryIds },
       brand: { $in: brandIds },
       size: { $ne: [] },
@@ -867,6 +982,7 @@ const beautyCategory = async (req, res) => {
 
     const categories = await Category.find({
       isListed: true,
+      isDeleted: false,
       name: { $regex: "Beauty", $options: "i" },
     });
     const brand = await Brand.find({ isBlocked: false });
@@ -877,9 +993,9 @@ const beautyCategory = async (req, res) => {
     const totalProducts = await Product.countDocuments({
       isDeleted: false,
       isBlocked: false,
+      isActive: true,
       category: { $in: categoryIds },
       brand: { $in: brandIds },
-      size: { $ne: [] },
     });
 
     const totalPages = Math.ceil(totalProducts / limit);
@@ -887,8 +1003,8 @@ const beautyCategory = async (req, res) => {
     let productData = await Product.find({
       isBlocked: false,
       isDeleted: false,
+      isActive: true,
       category: { $in: categoryIds },
-      size: { $ne: [] },
     })
       .skip(skip)
       .limit(limit);
@@ -913,66 +1029,6 @@ const beautyCategory = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in rendering mens category:", error);
-    res
-      .status(httpStatus.INTERNAL_SERVER_ERROR)
-      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
-  }
-};
-
-const filter = async (req, res) => {
-  try {
-    const { category, price, page = 1, limit = 2 } = req.query;
-    const skip = (page - 1) * limit;
-    let filter = {};
-
-    if (category) {
-      filter.category = category;
-    }
-
-    if (price) {
-      let priceRange = price.split("-");
-      if (priceRange.length === 2) {
-        filter.salePrice = {
-          $gte: parseInt(priceRange[0]),
-          $lte: parseInt(priceRange[1]),
-        };
-      } else if (priceRange[0] === "8000+") {
-        filter.salePrice = { $gte: 8000 };
-      }
-    }
-
-    const totalProducts = await Product.countDocuments(filter);
-
-    const totalPages = Math.ceil(totalProducts / limit);
-
-    let products = await Product.find(filter).skip(skip).limit(limit);
-
-    products = products.map((product) => {
-      return {
-        ...product._doc,
-        firstImage:
-          product.productImages && product.productImages.length > 0
-            ? product.productImages[0]
-            : "default.jpg",
-        productName: product.productName,
-        salePrice: product.salePrice,
-        regularPrice: product.regularPrice,
-        description: product.description,
-      };
-    });
-
-    res.render("user/mens", {
-      title: "Mens Category",
-      adminHeader: true,
-      hideFooter: true,
-      products,
-      currentPage: parseInt(page),
-      totalPages,
-      category,
-      price,
-    });
-  } catch (error) {
-    console.error(error);
     res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
@@ -1372,7 +1428,6 @@ module.exports = {
   mensCategory,
   womensCategory,
   beautyCategory,
-  filter,
   editProfileInfo,
   loadChangePassword,
   handleChangePassword,

@@ -1,0 +1,155 @@
+/* Sidebar Container */
+.sidebar {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 5px;
+}
+
+/* Sidebar Items */
+.sidebar__item {
+    margin-bottom: 25px;
+}
+
+.sidebar__item h5 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #333;
+    border-bottom: 2px solid #f2f2f2;
+    padding-bottom: 8px;
+}
+
+/* Lists */
+.sidebar__item ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar__item ul li {
+    margin-bottom: 10px;
+}
+
+.sidebar__item ul li a {
+    color: #555;
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-block;
+}
+
+.sidebar__item ul li a:hover {
+    color: #007bff;
+    padding-left: 4px;
+}
+
+/* Price Filter Links */
+.price-range ul li a {
+    font-size: 14px;
+}
+
+/* Checkbox Style */
+.sidebar__item input[type="checkbox"] {
+    margin-right: 6px;
+    accent-color: #007bff;
+    /* modern browsers */
+    cursor: pointer;
+}
+
+/* Dropdown (Sorting) */
+.sidebar__item select.form-control {
+    font-size: 14px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.sidebar__item select.form-control:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+}
+
+/* Search Bar (inside sidebar for small screens) */
+#sidebarSearch {
+    border-radius: 6px;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    width: 100%;
+    transition: border-color 0.2s;
+}
+
+#sidebarSearch:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/*pagination*/
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 0;
+    font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Base button and number styles */
+.page-btn, .page-number {
+    background: #1e1e1e;
+    color: #b0b0b0;
+    border: none;
+    min-width: 42px;
+    height: 42px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 10px;
+    border-radius: 50%;
+    /* Make them circular */
+    font-size: 15px;
+    text-decoration: none;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: pointer;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5), -2px -2px 5px rgba(50, 50, 50, 0.2);
+}
+
+.page-btn i {
+    font-size: 14px;
+}
+
+/* Hover & Focus Effects */
+.page-btn:hover, .page-number:hover {
+    background: #333;
+    color: #fff;
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.5), inset -2px -2px 5px rgba(50, 50, 50, 0.2);
+    transform: scale(1.05);
+}
+
+/* Current Page */
+.page-number.current {
+    background: linear-gradient(145deg, #333, #111);
+    color: #fff;
+    font-weight: bold;
+    pointer-events: none;
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.8), inset -2px -2px 5px rgba(50, 50, 50, 0.3);
+}
+
+/* Disabled buttons */
+.page-btn[disabled] {
+    opacity: 0.2;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+/* Dots for ellipsis */
+.dots {
+    color: #666;
+    font-size: 20px;
+    line-height: 1;
+}

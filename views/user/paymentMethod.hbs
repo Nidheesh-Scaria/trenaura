@@ -235,7 +235,7 @@
                             <div class="payment-info">
                                 <h6>RAZORPAY</h6>
                                 <small>Secure online payment gateway</small>
-                                <small>-Pay ₹{{grandTotal}}</small>
+                                <small>-Pay {{grandTotal}}</small>
                             </div>
                         </label>
                     </div>
@@ -249,11 +249,11 @@
                         <label class="payment-label form-check-label d-flex flex-column flex-grow-1" for="wallet">
                             <div class="payment-info">
                                 <h6>WALLETS</h6>
-                                <small>Use your Trenaura wallet to pay ₹<span id="walletTotal">{{grandTotal}}</span></small>
+                                <small>Use your Trenaura wallet to pay <span id="walletTotal">{{grandTotal}}</span></small>
                             </div>
                         </label>
                     </div>
-
+                   
                     <!-- Cash on Delivery -->
                     <div class="form-check payment-option d-flex align-items-center" data-method="cod">
                         <input class="form-check-input me-3" type="radio" name="paymentMethod" id="cod" value="cod">
@@ -263,11 +263,11 @@
                         <label class="payment-label form-check-label d-flex flex-column flex-grow-1" for="cod">
                             <div class="payment-info">
                                 <h6>CASH ON DELIVERY</h6>
-                                <small>Pay <span id="grandTotal">₹{{grandTotal}}</span> when you receive your order</small>
+                                <small>Pay <span id="grandTotal">{{grandTotal}}</span> when you receive your order</small>
                             </div>
                         </label>
                     </div>
-                </div>
+                    
 
                 <div class="security-badge">
                     <i class="fas fa-shield-alt"></i>
@@ -306,7 +306,7 @@
                     paymentOptions.forEach((opt) => opt.classList.remove("selected"));
                     // Add selected class to clicked option
                     this.classList.add("selected");
-                    {{!-- submitBtn.innerHTML = '<i class="fas fa-arrow-right me-2"></i>Continue to Payment'; --}}
+                   //submitBtn.innerHTML = '<i class="fas fa-arrow-right me-2"></i>Continue to Payment'; --}}
                     // Check the radio button
                     const radio = this.querySelector('input[type="radio"]');
                     radio.checked = true;
@@ -351,7 +351,7 @@
                 const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
                 let grandTotal = document.getElementById("grandTotal").innerText.replace("₹", "");
                 grandTotal=Number(grandTotal)
-                
+                console.log(itemId)
 
                 if (!paymentMethod) {
                     errorMsg.innerText = "Please select a payment method to continue.";
@@ -390,7 +390,7 @@
                                 }, 2000);
                             } else {
                                 if(response.status===400){
-                                    data = await res.json();
+                                    data = await response.json();
                                 }
                                 Toastify({
                                     text: data.message || "Order failed",
@@ -536,7 +536,7 @@
                                 const verifyRes = await fetch("/verify-payment", {
                                     method: "POST",
                                     headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify(response),
+                                    body: JSON.stringify({...response,itemId,isWholeCart: !itemId}),
                                 });
 
                                 const verifyData = await verifyRes.json();
@@ -545,7 +545,7 @@
                                     submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Success!';
                                     //redirecting to order-placed
                                     setTimeout(() => {
-                                        window.location.href = dataAfterSavingOrder.redirectUrl;
+                                        window.location.href = "/orderPlaced";
                                     }, 1000);
                                 } else {
                                     Toastify({
@@ -563,6 +563,15 @@
                                     submitBtn.disabled = false;
                                     isSubmitting = false;
                                 }
+                            },
+                            modal: {
+                                ondismiss: function () {
+                                
+                                console.log("Payment popup closed by user");
+                                setTimeout(() => {
+                                    window.location.href = `/payment-failed?id=${orderId}&message=Payment cancelled by user`;
+                                }, 500);
+                                },
                             },
                             theme: {
                                 color: "#3399cc",

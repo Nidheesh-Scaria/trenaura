@@ -179,22 +179,53 @@ const deleteCategory = async (req, res) => {
   try {
     const id = req.params.id;
 
-    await categorySchema.findByIdAndDelete(id);
+    //soft delete
+    await categorySchema.findByIdAndUpdate(id, {
+      $set: { isDeleted: true, isListed: false },
+    });
+
+    await productSchema.updateMany(
+      { category: id },
+      { $set: { isActive: false } } 
+    );
 
     res
       .status(httpStatus.OK)
       .json({ success: true, message: "Category deleted successfully!" });
   } catch (error) {
     console.error("Delete error:", error);
-    res
-      .status(httpStatus.INTERNAL_SERVER_ERROR)
-      .json({
-        success: false,
-        message: MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error",
-      });
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error",
+    });
   }
 };
 
+const undoDeleteCategory = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    //soft delete
+    await categorySchema.findByIdAndUpdate(id, {
+      $set: { isDeleted: false, isListed: true },
+    });
+
+    await productSchema.updateMany(
+      { category: id },
+      { $set: { isActive: true } } 
+    );
+
+    res
+      .status(httpStatus.OK)
+      .json({ success: true, message: "Category deleted successfully!" });
+  } catch (error) {
+    console.error("Delete error:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error",
+    });
+  }
+};
 
 module.exports = {
   addCategory,
@@ -203,4 +234,5 @@ module.exports = {
   unlistCategory,
   editCategory,
   deleteCategory,
+  undoDeleteCategory,
 };

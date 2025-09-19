@@ -101,15 +101,18 @@
 
   
 </body>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <script>
      async function retryPayments(event, id) {
         try {
+          //only razor pay
             event.preventDefault();
+            const orderId=id
             const res = await fetch("/create-razorpay-order", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id }),
+                body: JSON.stringify({ orderId }),
             });
 
             const razorData = await res.json();
@@ -149,7 +152,7 @@
                         console.log("Success")
                         //redirecting to order-placed
                         setTimeout(() => {
-                            window.location.href = dataAfterSavingOrder.redirectUrl;
+                            window.location.href = "/orderPlaced";
                         }, 1000);
                     } else {
                         Toastify({
@@ -175,13 +178,33 @@
             };
 
             // last step: Open Razorpay
-            const rzp1 = new window.Razorpay(options);
+            const rzp1  = new window.Razorpay(options);
             rzp1.open();
+              rzp1.on("payment.failed",function(response){
+                console.error("Payment failed:", response.error);
+                console.log(orderId)
+                    setTimeout(()=>{
+                        window.location.href = `/payment-failed?id=${orderId}&message=${response.error}`
+                    },1000)
+            })
         } catch (error) {
-            console.log("error in viewOrderDetails", err);
+            console.error("Error in Razorpay payment:", error);
+              Toastify({
+              text: error.message ||"Payment verification failed",
+              duration: 3000,
+              close: true,
+              gravity: "top",
+              position: "center",
+              style: {
+                  background: "linear-gradient(to right,#730202f2, #ba0d0d, #e00808e8)",
+              },
+              className: "custom-toast"
+          }).showToast();
+          
+        
         }
-    }
 
+     }
 
 </script>
 

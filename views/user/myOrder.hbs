@@ -361,6 +361,7 @@
                     {{paymentStatus}}
                 </span>
             </p>
+            
             {{#if (or (eq paymentMethod "RAZORPAY") (eq paymentMethod "WALLET"))}}
               {{#if (or (eq paymentStatus "Pending") (eq paymentStatus "Unpaid"))}}
                 <button type="button" class="payment" onclick="retryPayment(event,'{{_id}}')">Retry Payment</button>
@@ -385,7 +386,7 @@
                     <p>Price: ₹{{price}}</p>
                     <p>Total: ₹{{totalPrice}}</p>
                     <p>Quantity: {{quantity}}</p>
-                    <p>Size: {{size}}</p>
+                    <p>Size: {{variant}}</p>
                     <p class="order-status {{latestStatus}}">
                       Status: <span class="order-status {{latestStatus}}">{{latestStatus}}</span> 
                       <small>on {{latestStatusDate}}</small>

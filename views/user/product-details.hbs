@@ -242,6 +242,9 @@
 
   <div class="product-details">
     <h1 class="product-title">{{product.productName}}</h1>
+    {{#if (gt product.appliedOffer 0)}}
+      <p style="color: red; font-weight:900; font-size:large">{{product.appliedOffer}}% off</p> 
+    {{/if}}
     <p class="product-price">&#x20b9;{{product.salePrice}}
       <span style="text-decoration: line-through; color: #888;">
         &#x20b9;{{product.regularPrice}}
@@ -249,26 +252,6 @@
     </p>
 
     <div class="size-selection">
-      {{!-- {{#if (eq isBeauty "Beauty")}}
-        {{#if (gt product.quantity 0)}}
-          {{#if (gt product.quantity 5)}}
-            <p><strong style="color: #03b109;">In stock</strong> </p>
-          {{else}}
-            <p style="color: red;">Hurry! Only {{product.quantity}} left</p>
-          {{/if}}
-          
-          <div>
-            <button class="add-to-cart" onclick="addToCartBeauty(event,'{{product._id}}')">Add to Cart</button>
-            <button class="add-to-cart" onclick="buyItNowBeauty(event,'{{product._id}}')">Buy it Now</button>
-
-          </div>
-          <p id="beautyError" style="color: red;"></p>
-        {{else}}
-          <p style="color: red;">Out of of stock</p>
-        {{/if}}
-
-      {{/if}} --}}
-      {{!-- {{#if (ne isBeauty "Beauty")}} --}}
       <label for="size">Select Size</label>
       <div class="size-options">
         {{#each product.allVariants}}
@@ -335,9 +318,7 @@
               {{!-- <span class="label">New</span> --}}
               <ul class="product__hover">
                 {{!-- <li><button onclick="addWishlist(event,'{{this._id}}')"><img src="img/icon/heart.png" alt=""></button>
-                </li>
-                <li><img src="img/icon/compare.png" alt=""> <span>Compare</span></li>
-                <li><img src="img/icon/search.png" alt=""></li> --}}
+                </li>--}}
               </ul>
             </div>
           </a>
@@ -351,6 +332,9 @@
               <i class="fa fa-star-o"></i>
               <i class="fa fa-star-o"></i>
             </div> --}}
+            {{#if (gt this.appliedOffer 0)}}
+              <p style="color: red; font-weight:900; font-size:large">{{this.appliedOffer}}% off</p> 
+            {{/if}}
             <h5>&#x20b9;{{this.salePrice}} <span
                 style="text-decoration: line-through; color: #888;">&#x20b9;{{this.regularPrice}}</span> </h5>
           </div>

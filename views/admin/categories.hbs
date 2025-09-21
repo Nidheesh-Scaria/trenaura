@@ -2,10 +2,11 @@
 <head>
     
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-  {{!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> --}}
+
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css"/>
   
   <link rel="stylesheet" href="/css/adminCustomers.css">
+
   <style>
     .refresh-btn {
         background-color: var(--primary-color);
@@ -25,851 +26,1086 @@
     }
 
     .refresh-btn:hover {
-        background-color:  #1916b3;
+        background-color: #1916b3;
     }
 
 
-    .table-container a{
-      text-decoration: none;
+    .table-container a {
+        text-decoration: none;
     }
-    .edit{
-     color: #1916b3;
+
+    .edit {
+        color: #1916b3;
     }
-    .delete{
-      color: red;
+
+    .delete {
+        color: red;
     }
-  
-  
-
-
-  /* Edit Modal Styles - Centered and Stable */
-#editCategoryModal.modal {
-  
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1050;
-  overflow-y: auto;
-}
-
-#editCategoryModal .modal-dialog {
-  position: relative;
-  width: auto;
-  max-width: 600px;
-  margin: 0 auto;
-  pointer-events: none;
-  transition: none !important; /* Disable any movement transitions */
-  transform: none !important; /* Disable any transform animations */
-}
-
-#editCategoryModal .modal-content {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  pointer-events: auto;
-  background-color: #fff;
-  background-clip: padding-box;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 0.3rem;
-  outline: 0;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-/* Modal Header */
-#editCategoryModal .modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem;
-  border-bottom: 1px solid #e9ecef;
-  background-color: #4361ee;
-  color: white;
-}
-
-#editCategoryModal .modal-title {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 500;
-}
-
-#editCategoryModal .btn-close {
-  padding: 0.5rem;
-  margin: -0.5rem -0.5rem -0.5rem auto;
-  background-color: transparent;
-  border: 0;
-  color: white;
-  font-size: 1rem;
-  cursor: pointer;
-  opacity: 0.8;
-}
-
-#editCategoryModal .btn-close:hover {
-  opacity: 1;
-}
-
-/* Modal Body */
-#editCategoryModal .modal-body {
-  position: relative;
-  flex: 1 1 auto;
-  padding: 1.5rem;
-}
-
-#editCategoryModal .form-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-}
-
-#editCategoryModal .form-control {
-  display: block;
-  width: 100%;
-  padding: 0.375rem 0.75rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  color: #495057;
-  background-color: #fff;
-  background-clip: padding-box;
-  border: 1px solid #ced4da;
-  border-radius: 0.25rem;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-#editCategoryModal .form-control:focus {
-  border-color: #4361ee;
-  outline: 0;
-  box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
-}
-
-/* Modal Footer */
-#editCategoryModal .modal-footer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 1rem;
-  border-top: 1px solid #e9ecef;
-}
-
-#editCategoryModal .btn {
-  display: inline-block;
-  font-weight: 400;
-  text-align: center;
-  white-space: nowrap;
-  vertical-align: middle;
-  user-select: none;
-  border: 1px solid transparent;
-  padding: 0.375rem 0.75rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  border-radius: 0.25rem;
-  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out;
-}
-
-#editCategoryModal .btn-secondary {
-  color: #fff;
-  background-color: #6c757d;
-  border-color: #6c757d;
-  margin-right: 0.5rem;
-}
-
-#editCategoryModal .btn-primary {
-  color: #fff;
-  background-color: #4361ee;
-  border-color: #4361ee;
-}
-.form-select {
-   border: 1px solid #ced4da;
-   border-radius: 4px;
-   padding: 8px 12px;
-   width: 100%;
- }
-
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-  #editCategoryModal .modal-dialog {
-    max-width: 95%;
-    margin: 0.5rem auto;
-  }
-}
-
-/* Disable any movement animations */
-.modal.fade .modal-dialog {
-  transition: none !important;
-  transform: none !important;
-}
-
-
-/* Delete Modal Styles - Fixed Centered Position */
-#deleteCategoryModal.modal {
-  
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1050;
-  overflow-y: auto;
-}
-
-#deleteCategoryModal .modal-dialog {
-  position: relative;
-  width: auto;
-  max-width: 500px;
-  margin: 0 auto;
-  pointer-events: none;
-  transition: none !important;
-  transform: none !important;
-}
-
-#deleteCategoryModal .modal-content {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  pointer-events: auto;
-  background-color: #fff;
-  background-clip: padding-box;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 0.3rem;
-  outline: 0;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  border-top: 4px solid #dc3545;
-}
-
-/* Modal Header */
-#deleteCategoryModal .modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem;
-  border-bottom: 1px solid #e9ecef;
-}
-
-#deleteCategoryModal .modal-title {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 500;
-  color: #dc3545;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-#deleteCategoryModal .modal-title::before {
-  content: "⚠";
-  font-size: 1.2em;
-}
-
-#deleteCategoryModal .btn-close {
-  padding: 0.5rem;
-  margin: -0.5rem -0.5rem -0.5rem auto;
-  background-color: transparent;
-  border: 0;
-  font-size: 1rem;
-  cursor: pointer;
-  opacity: 0.7;
-}
-
-#deleteCategoryModal .btn-close:hover {
-  opacity: 1;
-}
-
-/* Modal Body */
-#deleteCategoryModal .modal-body {
-  position: relative;
-  flex: 1 1 auto;
-  padding: 1.5rem;
-  text-align: center;
-}
-
-#deleteCategoryModal .modal-body p {
-  margin: 0;
-  font-size: 1.05rem;
-  color: #6c757d;
-}
-
-/* Modal Footer */
-#deleteCategoryModal .modal-footer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  border-top: 1px solid #e9ecef;
-  gap: 1rem;
-}
-
-#deleteCategoryModal .btn {
-  display: inline-block;
-  font-weight: 500;
-  text-align: center;
-  white-space: nowrap;
-  vertical-align: middle;
-  user-select: none;
-  border: 1px solid transparent;
-  padding: 0.5rem 1.25rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  border-radius: 0.25rem;
-  transition: all 0.15s ease;
-  min-width: 100px;
-}
-
-#deleteCategoryModal .btn-secondary {
-  color: #fff;
-  background-color: #6c757d;
-  border-color: #6c757d;
-}
-
-#deleteCategoryModal .btn-danger {
-  color: #fff;
-  background-color: #dc3545;
-  border-color: #dc3545;
-  position: relative;
-  overflow: hidden;
-}
-
-#deleteCategoryModal .btn-danger:hover {
-  background-color: #c82333;
-  border-color: #bd2130;
-}
-
-/* Disable any movement animations */
-.modal.fade .modal-dialog {
-  transition: none !important;
-  transform: none !important;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-  #deleteCategoryModal .modal-dialog {
-    max-width: 95%;
-    margin: 0.5rem auto;
-  }
-  
-  #deleteCategoryModal .modal-footer {
-    flex-direction: column-reverse;
-    gap: 0.5rem;
-  }
-  
-  #deleteCategoryModal .btn {
-    width: 100%;
-  }
-}
-
-@media (max-width: 576px) {
-  #deleteCategoryModal .modal-title {
-    font-size: 1.1rem;
-  }
-  
-  #deleteCategoryModal .modal-body p {
-    font-size: 0.95rem;
-  }
-}
-
-/* Add Brand Modal Styles */
-#addBrandModal {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.modal-dialog {
-  max-width: 500px;
-  margin: 1.75rem auto;
-}
-
-.modal-content {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  background-color: #fff;
-  background-clip: padding-box;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 0.5rem;
-  outline: 0;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.modal-header {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1rem;
-  border-bottom: 1px solid #dee2e6;
-  border-top-left-radius: calc(0.5rem - 1px);
-  border-top-right-radius: calc(0.5rem - 1px);
-  background-color: #f8f9fa;
-}
-
-.modal-title {
-  margin: 0;
-  line-height: 1.5;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #333;
-}
-
-.btn-close {
-  padding: 0.5rem;
-  margin: -0.5rem -0.5rem -0.5rem auto;
-  background-color: transparent;
-  border: 0;
-  border-radius: 0.25rem;
-  opacity: 0.5;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: opacity 0.15s ease;
-}
-
-.btn-close:hover {
-  opacity: 1;
-  color: #dc3545;
-}
-
-.modal-body {
-  position: relative;
-  flex: 1 1 auto;
-  padding: 1rem;
-}
-
-.mb-3 {
-  margin-bottom: 1rem !important;
-}
-
-.form-label {
-  display: inline-block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #495057;
-}
-
-.form-control {
-  display: block;
-  width: 100%;
-  padding: 0.375rem 0.75rem;
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.5;
-  color: #212529;
-  background-color: #fff;
-  background-clip: padding-box;
-  border: 1px solid #ced4da;
-  border-radius: 0.375rem;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-.form-control:focus {
-  color: #212529;
-  background-color: #fff;
-  border-color: #86b7fe;
-  outline: 0;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
-
-textarea.form-control {
-  min-height: 100px;
-  resize: vertical;
-}
-
-.modal-footer {
-  display: flex;
-  flex-wrap: wrap;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 0.75rem;
-  border-top: 1px solid #dee2e6;
-  border-bottom-right-radius: calc(0.5rem - 1px);
-  border-bottom-left-radius: calc(0.5rem - 1px);
-}
-
-.btn {
-  display: inline-block;
-  font-weight: 400;
-  line-height: 1.5;
-  color: #212529;
-  text-align: center;
-  text-decoration: none;
-  vertical-align: middle;
-  cursor: pointer;
-  user-select: none;
-  background-color: transparent;
-  border: 1px solid transparent;
-  padding: 0.375rem 0.75rem;
-  font-size: 1rem;
-  border-radius: 0.375rem;
-  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, 
-              border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-.btn-secondary {
-  color: #fff;
-  background-color: #6c757d;
-  border-color: #6c757d;
-}
-
-.btn-secondary:hover {
-  color: #fff;
-  background-color: #5c636a;
-  border-color: #565e64;
-}
-
-.btn-primary {
-  color: #fff;
-  background-color: #0d6efd;
-  border-color: #0d6efd;
-}
-
-.btn-primary:hover {
-  color: #fff;
-  background-color: #0b5ed7;
-  border-color: #0a58ca;
-}
-
-.error-message {
-  color: #dc3545;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-}
-
-
-
-/* Delete Brand Modal Styles */
-#deleteBrandModal {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-#deleteBrandModal .modal-dialog {
-  max-width: 500px;
-  margin: 1.75rem auto;
-}
-
-#deleteBrandModal .modal-content {
-  border: none;
-  border-radius: 0.5rem;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-}
-
-#deleteBrandModal .modal-header {
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #dee2e6;
-  border-top-left-radius: 0.5rem;
-  border-top-right-radius: 0.5rem;
-  padding: 1rem 1.5rem;
-}
-
-#deleteBrandModal .modal-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #dc3545; /* Red color for delete warning */
-  margin: 0;
-}
-
-#deleteBrandModal .btn-close {
-  padding: 0.5rem;
-  margin: -0.5rem -0.5rem -0.5rem auto;
-  background-size: 0.75rem;
-}
-
-#deleteBrandModal .modal-body {
-  padding: 1.5rem;
-  color: #495057;
-  font-size: 1rem;
-  line-height: 1.5;
-}
-
-#deleteBrandModal .modal-body p {
-  margin: 0;
-}
-
-#deleteBrandModal .modal-footer {
-  border-top: 1px solid #dee2e6;
-  padding: 1rem 1.5rem;
-  justify-content: flex-end;
-}
-
-#deleteBrandModal .btn {
-  padding: 0.5rem 1rem;
-  font-weight: 500;
-  border-radius: 0.375rem;
-  transition: all 0.2s ease;
-}
-
-#deleteBrandModal .btn-secondary {
-  background-color: #6c757d;
-  border-color: #6c757d;
-  color: white;
-}
-
-#deleteBrandModal .btn-secondary:hover {
-  background-color: #5c636a;
-  border-color: #565e64;
-}
-
-#deleteBrandModal .btn-danger {
-  background-color: #dc3545;
-  border-color: #dc3545;
-  color: white;
-}
-
-#deleteBrandModal .btn-danger:hover {
-  background-color: #bb2d3b;
-  border-color: #b02a37;
-}
-
-/* Loading spinner for delete button */
-#deleteBrandModal .spinner-border {
-  vertical-align: middle;
-  margin-right: 0.5rem;
-}
-
-/* Focus states */
-#deleteBrandModal .btn:focus {
-  box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
-  outline: none;
-}
-
-/* Responsive adjustments */
-@media (max-width: 576px) {
-  #deleteBrandModal .modal-dialog {
-    margin: 0.5rem auto;
-  }
-  
-  #deleteBrandModal .modal-header,
-  #deleteBrandModal .modal-body,
-  #deleteBrandModal .modal-footer {
-    padding: 1rem;
-  }
-}
-
-  </style>
+
+
+
+
+    /* Edit Modal Styles - Centered and Stable */
+    #editCategoryModal.modal {
+
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.5);
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1050;
+        overflow-y: auto;
+    }
+
+    #editCategoryModal .modal-dialog {
+        position: relative;
+        width: auto;
+        max-width: 600px;
+        margin: 0 auto;
+        pointer-events: none;
+        transition: none !important;
+        /* Disable any movement transitions */
+        transform: none !important;
+        /* Disable any transform animations */
+    }
+
+    #editCategoryModal .modal-content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        pointer-events: auto;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 0.3rem;
+        outline: 0;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Modal Header */
+    #editCategoryModal .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
+        background-color: #4361ee;
+        color: white;
+    }
+
+    #editCategoryModal .modal-title {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 500;
+    }
+
+    #editCategoryModal .btn-close {
+        padding: 0.5rem;
+        margin: -0.5rem -0.5rem -0.5rem auto;
+        background-color: transparent;
+        border: 0;
+        color: white;
+        font-size: 1rem;
+        cursor: pointer;
+        opacity: 0.8;
+    }
+
+    #editCategoryModal .btn-close:hover {
+        opacity: 1;
+    }
+
+    /* Modal Body */
+    #editCategoryModal .modal-body {
+        position: relative;
+        flex: 1 1 auto;
+        padding: 1.5rem;
+    }
+
+    #editCategoryModal .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    #editCategoryModal .form-control {
+        display: block;
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    #editCategoryModal .form-control:focus {
+        border-color: #4361ee;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+    }
+
+    /* Modal Footer */
+    #editCategoryModal .modal-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 1rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    #editCategoryModal .btn {
+        display: inline-block;
+        font-weight: 400;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        user-select: none;
+        border: 1px solid transparent;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        border-radius: 0.25rem;
+        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+    }
+
+    #editCategoryModal .btn-secondary {
+        color: #fff;
+        background-color: #6c757d;
+        border-color: #6c757d;
+        margin-right: 0.5rem;
+    }
+
+    #editCategoryModal .btn-primary {
+        color: #fff;
+        background-color: #4361ee;
+        border-color: #4361ee;
+    }
+
+    .form-select {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 8px 12px;
+        width: 100%;
+    }
+
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        #editCategoryModal .modal-dialog {
+            max-width: 95%;
+            margin: 0.5rem auto;
+        }
+    }
+
+    /* Disable any movement animations */
+    .modal.fade .modal-dialog {
+        transition: none !important;
+        transform: none !important;
+    }
+
+
+    /* Delete Modal Styles - Fixed Centered Position */
+    #deleteCategoryModal.modal {
+
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.5);
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1050;
+        overflow-y: auto;
+    }
+
+    #deleteCategoryModal .modal-dialog {
+        position: relative;
+        width: auto;
+        max-width: 500px;
+        margin: 0 auto;
+        pointer-events: none;
+        transition: none !important;
+        transform: none !important;
+    }
+
+    #deleteCategoryModal .modal-content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        pointer-events: auto;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 0.3rem;
+        outline: 0;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        border-top: 4px solid #dc3545;
+    }
+
+    /* Modal Header */
+    #deleteCategoryModal .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    #deleteCategoryModal .modal-title {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 500;
+        color: #dc3545;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    #deleteCategoryModal .modal-title::before {
+        content: "⚠";
+        font-size: 1.2em;
+    }
+
+    #deleteCategoryModal .btn-close {
+        padding: 0.5rem;
+        margin: -0.5rem -0.5rem -0.5rem auto;
+        background-color: transparent;
+        border: 0;
+        font-size: 1rem;
+        cursor: pointer;
+        opacity: 0.7;
+    }
+
+    #deleteCategoryModal .btn-close:hover {
+        opacity: 1;
+    }
+
+    /* Modal Body */
+    #deleteCategoryModal .modal-body {
+        position: relative;
+        flex: 1 1 auto;
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    #deleteCategoryModal .modal-body p {
+        margin: 0;
+        font-size: 1.05rem;
+        color: #6c757d;
+    }
+
+    /* Modal Footer */
+    #deleteCategoryModal .modal-footer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        border-top: 1px solid #e9ecef;
+        gap: 1rem;
+    }
+
+    #deleteCategoryModal .btn {
+        display: inline-block;
+        font-weight: 500;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        user-select: none;
+        border: 1px solid transparent;
+        padding: 0.5rem 1.25rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        border-radius: 0.25rem;
+        transition: all 0.15s ease;
+        min-width: 100px;
+    }
+
+    #deleteCategoryModal .btn-secondary {
+        color: #fff;
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+
+    #deleteCategoryModal .btn-danger {
+        color: #fff;
+        background-color: #dc3545;
+        border-color: #dc3545;
+        position: relative;
+        overflow: hidden;
+    }
+
+    #deleteCategoryModal .btn-danger:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
+
+    /* Disable any movement animations */
+    .modal.fade .modal-dialog {
+        transition: none !important;
+        transform: none !important;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        #deleteCategoryModal .modal-dialog {
+            max-width: 95%;
+            margin: 0.5rem auto;
+        }
+
+        #deleteCategoryModal .modal-footer {
+            flex-direction: column-reverse;
+            gap: 0.5rem;
+        }
+
+        #deleteCategoryModal .btn {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 576px) {
+        #deleteCategoryModal .modal-title {
+            font-size: 1.1rem;
+        }
+
+        #deleteCategoryModal .modal-body p {
+            font-size: 0.95rem;
+        }
+    }
+
+    /* Add Brand Modal Styles */
+    #addBrandModal {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .modal-dialog {
+        max-width: 500px;
+        margin: 1.75rem auto;
+    }
+
+    .modal-content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 0.5rem;
+        outline: 0;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+        display: flex;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1rem;
+        border-bottom: 1px solid #dee2e6;
+        border-top-left-radius: calc(0.5rem - 1px);
+        border-top-right-radius: calc(0.5rem - 1px);
+        background-color: #f8f9fa;
+    }
+
+    .modal-title {
+        margin: 0;
+        line-height: 1.5;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .btn-close {
+        padding: 0.5rem;
+        margin: -0.5rem -0.5rem -0.5rem auto;
+        background-color: transparent;
+        border: 0;
+        border-radius: 0.25rem;
+        opacity: 0.5;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: opacity 0.15s ease;
+    }
+
+    .btn-close:hover {
+        opacity: 1;
+        color: #dc3545;
+    }
+
+    .modal-body {
+        position: relative;
+        flex: 1 1 auto;
+        padding: 1rem;
+    }
+
+    .mb-3 {
+        margin-bottom: 1rem !important;
+    }
+
+    .form-label {
+        display: inline-block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #495057;
+    }
+
+    .form-control {
+        display: block;
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    .form-control:focus {
+        color: #212529;
+        background-color: #fff;
+        border-color: #86b7fe;
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .modal-footer {
+        display: flex;
+        flex-wrap: wrap;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 0.75rem;
+        border-top: 1px solid #dee2e6;
+        border-bottom-right-radius: calc(0.5rem - 1px);
+        border-bottom-left-radius: calc(0.5rem - 1px);
+    }
+
+    .btn {
+        display: inline-block;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        text-align: center;
+        text-decoration: none;
+        vertical-align: middle;
+        cursor: pointer;
+        user-select: none;
+        background-color: transparent;
+        border: 1px solid transparent;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        border-radius: 0.375rem;
+        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+            border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    .btn-secondary {
+        color: #fff;
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+
+    .btn-secondary:hover {
+        color: #fff;
+        background-color: #5c636a;
+        border-color: #565e64;
+    }
+
+    .btn-primary {
+        color: #fff;
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .btn-primary:hover {
+        color: #fff;
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+    }
+
+    .error-message {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+
+
+    /* Delete Brand Modal Styles */
+    #deleteBrandModal {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    #deleteBrandModal .modal-dialog {
+        max-width: 500px;
+        margin: 1.75rem auto;
+    }
+
+    #deleteBrandModal .modal-content {
+        border: none;
+        border-radius: 0.5rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    #deleteBrandModal .modal-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+        padding: 1rem 1.5rem;
+    }
+
+    #deleteBrandModal .modal-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #dc3545;
+        /* Red color for delete warning */
+        margin: 0;
+    }
+
+    #deleteBrandModal .btn-close {
+        padding: 0.5rem;
+        margin: -0.5rem -0.5rem -0.5rem auto;
+        background-size: 0.75rem;
+    }
+
+    #deleteBrandModal .modal-body {
+        padding: 1.5rem;
+        color: #495057;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    #deleteBrandModal .modal-body p {
+        margin: 0;
+    }
+
+    #deleteBrandModal .modal-footer {
+        border-top: 1px solid #dee2e6;
+        padding: 1rem 1.5rem;
+        justify-content: flex-end;
+    }
+
+    #deleteBrandModal .btn {
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        border-radius: 0.375rem;
+        transition: all 0.2s ease;
+    }
+
+    #deleteBrandModal .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+    }
+
+    #deleteBrandModal .btn-secondary:hover {
+        background-color: #5c636a;
+        border-color: #565e64;
+    }
+
+    #deleteBrandModal .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: white;
+    }
+
+    #deleteBrandModal .btn-danger:hover {
+        background-color: #bb2d3b;
+        border-color: #b02a37;
+    }
+
+    /* Loading spinner for delete button */
+    #deleteBrandModal .spinner-border {
+        vertical-align: middle;
+        margin-right: 0.5rem;
+    }
+
+    /* Focus states */
+    #deleteBrandModal .btn:focus {
+        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+        outline: none;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 576px) {
+        #deleteBrandModal .modal-dialog {
+            margin: 0.5rem auto;
+        }
+
+        #deleteBrandModal .modal-header,
+        #deleteBrandModal .modal-body,
+        #deleteBrandModal .modal-footer {
+            padding: 1rem;
+        }
+    }
+
+    /* General modal content */
+    #undoDeleteCategoryModal .modal-content {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Header */
+    #undoDeleteCategoryModal .modal-header {
+        background: #198754;
+        /* Bootstrap success green */
+        color: #fff;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        padding: 1rem 1.5rem;
+    }
+
+    /* Title */
+    #undoDeleteCategoryModal .modal-title {
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    /* Body */
+    #undoDeleteCategoryModal .modal-body {
+        font-size: 0.95rem;
+        color: #333;
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    /* Footer */
+    #undoDeleteCategoryModal .modal-footer {
+        border-top: none;
+        justify-content: center;
+        padding: 1rem;
+    }
+
+    /* Buttons */
+    #undoDeleteCategoryModal .btn {
+        min-width: 120px;
+        font-weight: 500;
+        border-radius: 30px;
+    }
+
+    #undoDeleteCategoryModal .btn-success {
+        background-color: #198754;
+        border: none;
+        transition: background 0.3s ease;
+    }
+
+    #undoDeleteCategoryModal .btn-success:hover {
+        background-color: #146c43;
+    }
+
+    #undoDeleteCategoryModal .btn-outline-secondary {
+        border-radius: 30px;
+        transition: all 0.3s ease;
+    }
+
+    #undoDeleteCategoryModal .btn-outline-secondary:hover {
+        background: #e9ecef;
+    }
+
+    /*modal*/
+    /* Add Offer Modal Styles */
+    #addOfferModal .modal-content {
+        border-radius: 0.5rem;
+        border-top: 4px solid #4361ee;
+    }
+
+    #addOfferModal .modal-header {
+        background-color: #ffffff;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    #addOfferModal .modal-title {
+        color: #4361ee;
+        font-weight: 600;
+    }
+
+    #addOfferModal .form-label {
+        font-weight: 500;
+    }
+
+    #addOfferModal .btn-primary {
+        background-color: #4361ee;
+        border-color: #4361ee;
+    }
+
+    #addOfferModal .btn-primary:hover {
+        background-color: #3b59d9;
+        border-color: #3b59d9;
+    }
+
+    /* Remove Offer Modal Styles */
+    #removeOfferModal .modal-content {
+        border-radius: 0.5rem;
+        border-top: 4px solid #dc3545;
+    }
+
+    #removeOfferModal .modal-header {
+        background-color: #ffffff;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    #removeOfferModal .modal-title {
+        color: #dc3545;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    #removeOfferModal .modal-title::before {
+        content: "⚠";
+        font-size: 1.2em;
+    }
+
+    #removeOfferModal .modal-body p {
+        font-size: 1.05rem;
+        color: #495057;
+    }
+
+    #removeOfferModal .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    #removeOfferModal .btn-danger:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
+
+    #removeOfferModal .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+
+    #removeOfferModal .btn-secondary:hover {
+        background-color: #5c636a;
+        border-color: #565e64;
+    }
+</style>
 
 </head>
 <body>
-  <main class="main-content">
+<main class="main-content">
     <header class="header">
-      <h1>Category Management</h1>
-      <div class="header-icons">
-        <img src="https://i.pravatar.cc/40" alt="Profile">
-      </div>
+        <h1>Category Management</h1>
+        <div class="header-icons">
+            <img src="https://i.pravatar.cc/40" alt="Profile">
+        </div>
     </header>
 
     <div class="content">
-      <div class="search-container">
-        <form action="/admin/category" method="GET" class="search-box">
-          <i class="fas fa-search"></i>
-          <input type="text" name="search" value="{{search}}" style="border-radius: 20px;" placeholder="Search products...">
-           <button type="button" id="clearFilterBtn" class="clear-btn" title="Clear" onclick="window.location.href='/admin/category'">
-            <span style="font-weight: 600;">X</span>
-          </button>
-          
+        <div class="search-container">
+            <form action="/admin/category" method="GET" class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search" value="{{search}}" style="border-radius: 20px;"
+                    placeholder="Search products...">
+                <button type="button" id="clearFilterBtn" class="clear-btn" title="Clear"
+                    onclick="window.location.href='/admin/category'">
+                    <span style="font-weight: 600;">X</span>
+                </button>
 
-        </form>
 
-        <div class="d-flex gap-2 flex-wrap">
-          
-             <button id="refreshBtn" class="refresh-btn" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
-                &#43; Add Category
-            </button>
-        
-       
+            </form>
+
+            <div class="d-flex gap-2 flex-wrap">
+
+                <button id="refreshBtn" class="refresh-btn" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                    &#43; Add Category
+                </button>
+
+
+            </div>
         </div>
-      </div>
 
-      <div class="table-container" >
-        <table id="customerTable">
-          <thead>
-            <tr>
-                <th>No</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Offers</th>
-                <th>List Status</th>
-                <th>List/Unlist</th>
-                <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody >
-            {{#if categories.length}}
-                {{#each categories}}
-                <tr>
-                <th>{{this.serialNumber}}</th>
-                <td>{{this.name}}</td>
-                <td>{{this.description}}</td>
-                {{!-- <td>
-                    {{#if !this.categoryOffer}}
-                          <a href="/admin/category/offer/add/{{this._id}}" class="btn btn-sm btn-info">Add Offer</a>
-                        {{else}}
-                          <a href="/admin/category/offer/remove/{{this._id}}" class="btn btn-sm btn-info">Remove</a>
-                    {{/if}}
+        <div class="table-container">
+            <table id="customerTable">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Add offer</th>
+                        <th>Offer</th>
+                        <th>List Status</th>
+                        <th>List/Unlist</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#if categories.length}}
+                    {{#each categories}}
+                    <tr>
+                        <th>{{this.serialNumber}}</th>
+                        <td>{{this.name}}</td>
+                        <td>{{this.description}}</td>
 
-                  </td> --}} 
-                  <td>
-                    <div class="d-flex flex-column gap-1">
-                    <a href="/admin/category/offer/add/{{this._id}}" class="btn btn-sm btn-info" style="color: green;">Add Offer</a>
-                    <a href="/admin/category/offer/remove/{{this._id}}" class="btn btn-sm btn-info" style="color: red;">Remove</a>
-                    </div>
-                  </td>
-                  <td>
-                    {{#if this.isListed}}
-                        <span class="badge bg-success">Listed</span>
+                        <td>
+                            <div class="d-flex flex-column gap-1">
+                                {{#if (gt this.categoryOffer 0)}}
+                                <a href="#" class="btn btn-sm btn-info" style="color: red;"
+                                    onclick="openRemoveOfferModal('{{this._id}}')">Remove</a>
+                                {{else}}
+                                <a href="#" class="btn btn-sm btn-info" style="color: green;"
+                                    onclick="openAddOfferModal('{{this._id}}','{{this.name}}')">Add Offer</a>
+
+                                {{/if}}
+
+                            </div>
+                        </td>
+                        <td>{{this.categoryOffer}}%</td>
+                        <td>
+                            {{#if this.isListed}}
+                            <span class="badge bg-success">Listed</span>
+                            {{else}}
+                            <span class="badge bg-danger">Unlisted</span>
+                            {{/if}}
+                        </td>
+                        <td>
+                            {{#if this.isListed}}
+                            <form action="/admin/unlistCategory/{{this._id}}" method="post">
+                                <button type="submit" class="btn btn-sm" style="color:red">Unlist</button>
+                            </form>
+                            {{else}}
+                            <form action="/admin/listCategory/{{this._id}}" method="post">
+                                <button type="submit" class="btn btn-sm" style="color:green">List</button>
+                            </form>
+                            {{/if}}
+                        </td>
+                        <td class="d-flex gap-2 flex-wrap">
+                            <a href="#" class="btn edit" style="color:#1916b3"
+                                onclick="openEditModal('{{this._id}}', '{{this.name}}','{{this.description}}')">Edit</a>
+                            {{#if this.isDeleted}}
+                            <a href="#" class="btn delete" style="color: rgb(20, 119, 3);"
+                                onclick="openUndoDeleteModal('{{this._id}}')">Undo Delete</a>
+                            {{else}}
+                            <a href="#" class="btn delete" style="color: red;"
+                                onclick="openDeleteModal('{{this._id}}')">Delete</a>
+                            {{/if}}
+                        </td>
+                    </tr>
+                    {{/each}}
                     {{else}}
-                        <span class="badge bg-danger">Unlisted</span>
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 20px;">No Brands found</td>
+                    </tr>
                     {{/if}}
-                  </td>
-                  <td>
-                    {{#if this.isListed}}
-                        <form action="/admin/unlistCategory/{{this._id}}" method="post">
-                        <button type="submit" class="btn btn-sm" style="color:red">Unlist</button>
-                        </form>
-                    {{else}}
-                        <form action="/admin/listCategory/{{this._id}}" method="post">
-                        <button type="submit" class="btn btn-sm" style="color:green">List</button>
-                        </form>
-                    {{/if}}
-                   </td>
-                  <td class="d-flex gap-2 flex-wrap">
-                    <a href="#" class="btn edit" style="color:#1916b3" onclick="openEditModal('{{this._id}}', '{{this.name}}','{{this.description}}')">Edit</a>
-                    {{if this.isDeleted}}
-                    <a href="#" class="btn delete" style="color: red;" onclick="openDeleteModal('{{this._id}}')">Delete</a>
-                    {{else}}
-                    <a href="#" class="btn delete" style="color: red;" onclick="openDeleteModal('{{this._id}}')">Undo Delete</a>
-                    {{/if}}
-                  </td>
-                </tr>
-              {{/each}}
+                </tbody>
+            </table>
+        </div>
+
+        {{#if categories.length}}
+        <div class="pagination">
+            {{#ifCond currentPage '>' 1}}
+            <a href="?page={{decrement currentPage}}&search={{search}}" class="page-btn"><i
+                    class="fas fa-chevron-left"></i></a>
             {{else}}
-              <tr>
-                <td colspan="6" style="text-align: center; padding: 20px;">No Brands found</td>
-              </tr>
-            {{/if}}
-          </tbody>
-        </table>
-      </div>
+            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+            {{/ifCond}}
 
-      {{#if categories.length}}
-      <div class="pagination">
-        {{#ifCond currentPage '>' 1}}
-          <a href="?page={{decrement currentPage}}&search={{search}}" class="page-btn"><i class="fas fa-chevron-left"></i></a>
-        {{else}}
-          <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
-        {{/ifCond}}
-
-        {{#each (range 1 totalPages)}}
-          {{#ifCond this '===' ../currentPage}}
+            {{#each (range 1 totalPages)}}
+            {{#ifCond this '===' ../currentPage}}
             <span class="page-number current">{{this}}</span>
-          {{else}}
+            {{else}}
             <a href="?page={{this}}&search={{../search}}" class="page-number">{{this}}</a>
-          {{/ifCond}}
-        {{/each}}
+            {{/ifCond}}
+            {{/each}}
 
-        {{#ifCond currentPage '<' totalPages}}
-          <a href="?page={{increment currentPage}}&search={{search}}" class="page-btn"><i class="fas fa-chevron-right"></i></a>
-        {{else}}
-          <button class="page-btn" disabled><i class="fas fa-chevron-right"></i></button>
-        {{/ifCond}}
-      </div>
-      {{/if}}
-      
-    </div>
-  </main>
-
-  <!-- Edit category Modal -->
-    <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <form id="editCategoryForm">
-            <div class="modal-header">
-              <h5 class="modal-title">Edit Category</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
-            </div>
-            <div class="modal-body">
-              <input type="hidden" id="editCategoryId" />
-              <div class="mb-3">
-                <label class="form-label">Category Name</label>
-                <input type="text" id="editCategoryName" class="form-control" />
-              </div>
-              <div class="mb-3">
-              <label for="editDescription" class="form-label">Description</label>
-              <textarea id="editDescription" rows="4" class="form-control"></textarea>
-              <small id="edit-description-error" class="error-message" style="display: none;"></small>
-            </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary">Save Changes</button>
-            </div>
-          </form>
+            {{#ifCond currentPage '<' totalPages}} <a href="?page={{increment currentPage}}&search={{search}}"
+                class="page-btn"><i class="fas fa-chevron-right"></i></a>
+                {{else}}
+                <button class="page-btn" disabled><i class="fas fa-chevron-right"></i></button>
+                {{/ifCond}}
         </div>
-      </div>
-    </div>
+        {{/if}}
 
-  <!-- Delete Product Modal -->
-  <div class="modal fade" id="deleteCategoryModal" tabindex="-1">
+    </div>
+</main>
+
+<!-- Edit category Modal -->
+<div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog">
-      <div class="modal-content">
-        <form id="deleteCategoryForm">
-          <div class="modal-header">
-            <h5 class="modal-title">Delete Product</h5>
-            <input type="hidden" id="deleteCategoryId" />
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <p>Are you sure you want to delete this Category? This action cannot be undone.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-danger" >Delete</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-
-
-  
-  <!-- add category Modal -->
-    <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-    <div class="modal-content">
-          <form id="addCategoryForm">
-            <div class="modal-header">
-                <h5 class="modal-title">Add new Category</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal"  aria-label="Close">X</button>
-            </div>
-            <div class="modal-body">
-              <input type="hidden" id="addBrandId" />
-              <div class="mb-3">
-                <label class="form-label">Category Name</label>
-                <input type="text" id="addCategoryName" class="form-control" />
-                <small id="add-name-error" class="error-message" style="display: none;"></small>
-              </div>
-               <div class="mb-3">
-              <label for="createDescription" class="form-label">Description</label>
-              <textarea id="createDescription" rows="4" class="form-control"></textarea>
-              <small id="create-description-error" class="error-message" style="display: none;"></small>
-            </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"  aria-label="Close">Close</button>
-              <button type="submit" class="btn btn-primary">Add</button>
-            </div>
-          </form>
+        <div class="modal-content">
+            <form id="editCategoryForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editCategoryId" />
+                    <div class="mb-3">
+                        <label class="form-label">Category Name</label>
+                        <input type="text" id="editCategoryName" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="editDescription" class="form-label">Description</label>
+                        <textarea id="editDescription" rows="4" class="form-control"></textarea>
+                        <small id="edit-description-error" class="error-message" style="display: none;"></small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
         </div>
-      </div>
     </div>
+</div>
 
+<!-- Delete Product Modal -->
+<div class="modal fade" id="deleteCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="deleteCategoryForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Product</h5>
+                    <input type="hidden" id="deleteCategoryId" />
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this Category? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- undo delete Product Modal -->
+
+<div class="modal fade" id="undoDeleteCategoryModal" tabindex="-1" aria-labelledby="undoDeleteCategoryLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-3">
+            <form id="undoDeleteCategoryForm">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="undoDeleteCategoryLabel">
+                        <i class="fas fa-undo-alt me-2"></i>Undo Delete Category
+                    </h5>
+                    <input type="hidden" id="undoDeleteCategoryId" />
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="fs-6">
+                        Are you sure you want to <span class="fw-bold text-success">undo delete</span> this category?
+                    </p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success px-4">
+                        <i class="fas fa-undo-alt me-1"></i> Undo Delete
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- add category Modal -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="addCategoryForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add new Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="addBrandId" />
+                    <div class="mb-3">
+                        <label class="form-label">Category Name</label>
+                        <input type="text" id="addCategoryName" class="form-control" />
+                        <small id="add-name-error" class="error-message" style="display: none;"></small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="createDescription" class="form-label">Description</label>
+                        <textarea id="createDescription" rows="4" class="form-control"></textarea>
+                        <small id="create-description-error" class="error-message" style="display: none;"></small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                        aria-label="Close">Close</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- add offer Modal -->
+<div class="modal fade" id="addOfferModal" tabindex="-1" aria-labelledby="addOfferModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="addOfferForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addOfferModalLabel">Add Offer for: <span id="offerCategoryName"></span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="addOfferCategoryId" />
+                    <div class="mb-3">
+
+                        <label for="offerPercentage" class="form-label">Offer Percentage (%)</label>
+                        <input type="number" id="offerPercentage" class="form-control" />
+                        <small id="add-offer-error" class="error-message" style="display: none;"></small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Offer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- remove offer Modal -->
+<div class="modal fade" id="removeOfferModal" tabindex="-1" aria-labelledby="removeOfferModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="removeOfferForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="removeOfferModalLabel">Remove Category Offer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
+                </div>
+                <div class="modal-body text-center">
+                    <input type="hidden" id="removeOfferCategoryId" />
+                    <p>Are you sure you want to remove the offer from this category?</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Remove Offer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
   
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -1050,6 +1286,104 @@ $('#deleteCategoryForm').on('submit', function (e) {
   });
 });
 
+
+function openUndoDeleteModal(id) {
+  $('#undoDeleteCategoryId').val(id);
+  $('#undoDeleteCategoryModal').modal('show');
+}
+
+$('#undoDeleteCategoryForm').on('submit', function (e) {
+  e.preventDefault();
+  const id = $('#undoDeleteCategoryId').val();
+
+  fetch(`/admin/undoDeleteCategory/${id}`, {
+    method: 'PUT'
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      Swal.fire('Undo delete!', data.message, 'success').then(() => location.reload());
+    } else {
+      Swal.fire('Error', data.message, 'error');
+    }
+  });
+});
+
+
+function openAddOfferModal(id,name){
+   $('#addOfferCategoryId').val(id);
+   $('#offerCategoryName').text(name);
+   $('#add-offer-error').val("");
+   $('#addOfferModal').modal('show');
+   $('#add-offer-error').text("").hide();
+   $('#offerPercentage').val('')
+   console.log(id)
+   
+}
+
+$('#addOfferForm').on('submit',function(e){
+  e.preventDefault()
+  const id=$('#addOfferCategoryId').val()
+  const name=$('#offerCategoryName').text()
+  const percentage = Number($('#offerPercentage').val())
+
+  if(!percentage || percentage<0||percentage>100){
+    $('#add-offer-error').text("Enter valid percentage between 1 and 100").show();
+    return
+  }else{
+    $('#add-offer-error').text("").hide();
+  }
+
+   fetch("/admin/addCategoryOffer", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, percentage })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire('Offer Added!', data.message, 'success').then(() => location.reload());
+        } else {
+            Swal.fire('Error', data.message, 'error');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        Swal.fire('Error', 'Something went wrong!', 'error');
+    });
+})
+function openRemoveOfferModal(id){
+  $('#removeOfferCategoryId').val(id);
+  $('#removeOfferModal').modal('show');
+  console.log(id)
+}
+
+
+$('#removeOfferForm').on('submit',function(e){
+  e.preventDefault()
+  const id=$('#removeOfferCategoryId').val()
+  
+  fetch("/admin/removeCategoryOffer",{
+    method:"POST",
+    headers:{"Content-type":"application/json"},
+    body:JSON.stringify({id})
+  }).then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      Swal.fire('Offer Removed!', data.message, 'success').then(() => location.reload());
+    } else {
+      Swal.fire('Error', data.message, 'error');
+    }
+  });
+})
+
+
+
+
+
+
+
+
 // Block brand
 {{!-- $(document).on('submit', '.blockBrandForm', function (e) {
   e.preventDefault();
@@ -1072,3 +1406,5 @@ $('#deleteCategoryForm').on('submit', function (e) {
 
 
 </script>
+
+</body>

@@ -280,21 +280,42 @@
             /* green border on focus */
         }
 
-        /* Button styling */
-        button {
-            padding: 10px 20px;
-            border: none;
-            background-color: #4CAF50;
-            color: #fff;
-            font-size: 14px;
-            cursor: pointer;
-            border-radius: 0 5px 5px 0;
-            transition: background-color 0.3s;
-        }
+       
+      /* Apply button */
+      .apply-btn {
+        padding: 10px 20px;
+        border: none;
+        background-color: #4CAF50; /* green */
+        color: #fff;
+        font-size: 14px;
+        cursor: pointer;
+        border-radius: 0 5px 5px 0;
+        transition: background-color 0.3s;
+      }
 
-        button:hover {
-            background-color: #45a049;
-        }
+      .apply-btn:hover {
+        background-color: #45a049;
+      }
+
+      /* Remove button */
+      .remove-btn {
+        
+        margin-top: 10px;
+        padding: 10px 20px;
+        border: none;
+        background-color: #e53935; /* red */
+        color: #fff;
+        font-size: 14px;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+        display: none;
+        width: 100%;
+      }
+
+      .remove-btn:hover {
+        background-color: #d32f2f;
+      }
 
         /* Error message */
         #coupon-error {
@@ -370,14 +391,22 @@
             </div>
             <div class="couponDiv">
                 <input type="hidden" id="couponCode">
-                <input type="text" placeholder="APPLY A COUPON" class="coupon-input" id="coupon-input" />
-                <button onclick="applyCoupon(event)">Apply</button>
+                <input
+                type="text"
+                placeholder="APPLY A COUPON CODE -eg:COP101"
+                class="coupon-input"
+                id="coupon-input"
+                />
+                <button class="apply-btn" id="apply-btn" onclick="applyCoupon(event)">Apply</button>
                 <p id="coupon-error" style="color: red;"></p>
+                <button type="button" id="remove-btn" class="remove-btn" onclick="removeCoupon(event)">
+                Remove Coupon
+                </button>
                 <hr />
             </div>
             <div class="summary-line total">
                 <span>Total</span>
-                <span id="finalAmount">₹{{totalPrice}}</span>
+                <span>₹<span id="finalAmount">{{totalPrice}}</span></span>
             </div>
             <button type="button" id="checkout-btn" onclick="chekout(event,'{{item._id}}')">CONTINUE TO CHECKOUT</button>
         </div>
@@ -515,7 +544,7 @@
     }
 
 
-    async function applyCoupon(event) {
+    /*async function applyCoupon(event) {
         event.preventDefault()
         document.getElementById("coupon-error").innerHTML = ""
         let couponCode = document.getElementById("coupon-input").value
@@ -568,7 +597,131 @@
         }
 
     }
+*/
+    
+    
+async function applyCoupon(event) {
+    event.preventDefault();
+    const applyBtn = document.getElementById("apply-btn");
+    const removeBtn = document.getElementById("remove-btn");
 
+    if (!applyBtn) return;
+
+    document.getElementById("coupon-error").innerHTML = "";
+
+    let couponCode = document.getElementById("coupon-input")?.value.trim() || "";
+    let cartTotal = document.getElementById("finalAmount").innerText;
+    cartTotal = parseInt(cartTotal);
+
+    const quantityElement = document.getElementsByClassName("qty-display")[0];
+    const quantity = quantityElement ? parseInt(quantityElement.innerText, 10) : 1;
+
+    couponCode = couponCode.toUpperCase();
+
+    if (!couponCode) {
+        applyBtn.disabled = false;
+        return document.getElementById("coupon-error").innerHTML = "Enter coupon to get discount";
+    }
+
+    applyBtn.disabled = true;
+    if (removeBtn) removeBtn.disabled = false;
+
+    try {
+        const res = await fetch("/applyCoupon", {
+            method: "POST",
+            headers: { "Content-type": "application/json" },
+            body: JSON.stringify({ couponCode, cartTotal, quantity }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            Toastify({
+                text: data.message || "Coupon Applied",
+                duration: 3000,
+                close: true,
+                gravity: "bottom",
+                position: "center",
+                style: { background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)" },
+            }).showToast();
+
+            document.getElementById("finalAmount").innerText = `${data.finalAmount}`;
+            document.getElementById("totalDiscount").innerText = `₹${data.discountAmount}`;
+            document.getElementById("couponDiscount").innerText = `₹${data.discountAmount}`;
+            document.getElementById("couponCode").value = data.couponCode;
+
+            if (removeBtn) removeBtn.style.display = "block";
+        } else {
+            Toastify({
+                text: data.message || "Failed to apply coupon",
+                duration: 3000,
+                close: true,
+                gravity: "bottom",
+                position: "center",
+                style: { background: "linear-gradient(to right, #8B0000, #B22222, #DC143C)" },
+            }).showToast();
+            applyBtn.disabled = false;
+        }
+    } catch (err) {
+        console.error(err);
+        document.getElementById("coupon-error").innerText = "An error occurred. Please try again.";
+        applyBtn.disabled = false;
+    }
+}
+
+async function removeCoupon(event) {
+    event.preventDefault();
+    const applyBtn = document.getElementById("apply-btn");
+    const removeBtn = document.getElementById("remove-btn");
+
+    if (!removeBtn) return;
+
+    removeBtn.disabled = true;
+    document.getElementById("coupon-error").innerHTML = "";
+
+    let couponCode = document.getElementById("coupon-input")?.value.trim() || "";
+
+    try {
+        const res = await fetch("/removeCoupon", {
+            method: "POST",
+            headers: { "Content-type": "application/json" },
+            body: JSON.stringify({ coupon: couponCode }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            Toastify({
+                text: data.message || "Coupon removed",
+                duration: 3000,
+                close: true,
+                gravity: "bottom",
+                position: "center",
+                style: { background: "linear-gradient(to right, #8B0000, #B22222, #DC143C)" },
+            }).showToast();
+
+            document.getElementById("finalAmount").innerText = `${data.finalAmount}`;
+            document.getElementById("totalDiscount").innerText = 0;
+            document.getElementById("couponDiscount").innerText = 0;
+            document.getElementById("coupon-input").value = "";
+            if (removeBtn) removeBtn.style.display = "none";
+            if (applyBtn) applyBtn.disabled = false;
+        } else {
+            document.getElementById("coupon-error").innerText = data.message || "Failed to remove coupon";
+        }
+    } catch (err) {
+        console.error(err);
+        document.getElementById("coupon-error").innerText = "An error occurred. Please try again.";
+        removeBtn.disabled = false;
+    } finally {
+        if (removeBtn) removeBtn.disabled = false;
+    }
+}
+
+    
+    
+    
+    
     async function chekout(event,id) {
         event.preventDefault();
 

@@ -142,7 +142,6 @@ const loadmyCart = async (req, res) => {
   }
 };
 
-
 const cartOrderSummary = async (req, res) => {
   try {
     const userId = req.session.user || req.user;
@@ -201,21 +200,18 @@ const increaseQuantity = async (req, res) => {
     const userId = req.session.user;
     const { quantity, size } = req.body;
 
-    console.log("increaseQuantity",size)
-    
+    console.log("increaseQuantity", size);
 
-    if(quantity>=5){
+    if (quantity >= 5) {
       return res.status(400).json({
-        message: "!Sorry,quantity is limited to 5" ,
+        message: "!Sorry,quantity is limited to 5",
       });
     }
 
     const cart = await Cart.findOne(
-      { userId, "items._id": itemId ,"items.size":size},
+      { userId, "items._id": itemId, "items.size": size },
       { "items.$": 1 }
-    )
-      .populate("items.productId","variants salePrice")
-     
+    ).populate("items.productId", "variants salePrice");
 
     if (!cart || !cart.items.length) {
       return res.status(400).json({ message: "Item not found" });
@@ -223,7 +219,6 @@ const increaseQuantity = async (req, res) => {
 
     const item = cart.items[0];
     const stock = cart.items[0].productId.variants[cart.items[0].size];
-    
 
     if (item.quantity >= stock) {
       return res.status(httpStatus.BAD_REQUEST).json({
@@ -274,22 +269,26 @@ const decreaseQuantity = async (req, res) => {
     const { id: itemId } = req.params;
     const userId = req.session.user;
     const { size } = req.body;
-    console.log("decreaseQuantity+++++++++++++",size)
+    console.log("decreaseQuantity+++++++++++++", size);
 
     // Fetch current item first
     const cart = await Cart.findOne(
-      { userId, "items._id": itemId ,"items.size":size},
+      { userId, "items._id": itemId, "items.size": size },
       { "items.$": 1 }
     ).lean();
 
     if (!cart || !cart.items.length) {
-      return res.status(httpStatus.BAD_REQUEST).json({ message: "Item not found" });
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ message: "Item not found" });
     }
 
     const item = cart.items[0];
 
     if (item.quantity <= 1) {
-      return res.status(httpStatus.BAD_REQUEST).json({ message: "Minimum quantity is 1" });
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ message: "Minimum quantity is 1" });
     }
     // Decrease quantity
     await Cart.updateOne(
@@ -353,7 +352,10 @@ const removefromCart = async (req, res) => {
 const applyCoupon = async (req, res) => {
   try {
     const userId = req.session.user;
-    const { couponCode, cartTotal, quantity } = req.body;
+    const { couponCode, cartTotal } = req.body;
+
+    console.log(cartTotal)
+    console.log(couponCode)
 
     const coupon = await CouponSchema.findOne({
       code: couponCode,
@@ -376,9 +378,10 @@ const applyCoupon = async (req, res) => {
     }
 
     let finalAmount = cartTotal;
-    let discountAmount;
+    let discountAmount = 0;
 
     const cart = await Cart.findOne({ userId });
+
     if (coupon.discountType === "flat") {
       discountAmount = coupon.discountValue;
       finalAmount = cartTotal - coupon.discountValue;
@@ -386,7 +389,39 @@ const applyCoupon = async (req, res) => {
       discountAmount = (coupon.discountValue / 100) * cartTotal;
       finalAmount = cartTotal - discountAmount;
     }
-    if (finalAmount < 0) finalAmount = 0;
+
+    if (finalAmount < 0) {
+      discountAmount = cartTotal;
+      finalAmount = 0;
+    }
+
+    finalAmount = parseFloat(finalAmount.toFixed(1))
+    discountAmount = parseFloat(discountAmount.toFixed(1))
+    req.session.appliedCoupon = {
+      discountAmount,
+      finalAmount,
+      couponCode,
+      couponId: coupon._id,
+    };
+
+    //changing usageCount
+    let usage = await CouponUsageSchema.findOne({
+      couponId: coupon._id,
+      userId,
+    });
+    if (!usage) {
+      usage = await CouponUsageSchema.create({
+        couponId: coupon._id,
+        userId,
+        usageCount: 0,
+      });
+    }
+    if (usage.usageCount >= coupon.usageLimit) {
+      return res.status(400).json({ message: "Coupon usage limit reached" });
+    }
+
+    usage.usageCount += 1;
+    await usage.save();
 
     res.json({
       message: "Coupon applied successfully",
@@ -408,7 +443,32 @@ const applyCoupon = async (req, res) => {
 const removeCoupon = async (req, res) => {
   try {
     const userId = req.session.user;
-    const { couponId } = req.body;
+    const { coupon } = req.body;
+
+    if (!req.session.appliedCoupon) {
+      
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ message: "No coupon Applied" });
+    }
+
+    const { discountAmount, finalAmount, couponCode, couponId } =
+      req.session.appliedCoupon;
+
+    delete req.session.appliedCoupon;
+
+    if (couponId) {
+      await CouponUsageSchema.findOneAndUpdate(
+        { couponId, userId },
+        { $inc: { usageCount: -1 } }
+      );
+    }
+
+    return res.json({ message: "Coupon removed Successfully",
+      discountAmount,
+      finalAmount,
+     });
+
   } catch (error) {
     console.error("Error in removeCoupon:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({

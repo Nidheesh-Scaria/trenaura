@@ -1,7 +1,9 @@
 const categorySchema = require("../../models/categorySchema");
-const productSchema = require("../../models/productSchema");
+const ProductSchema = require("../../models/productSchema");
 const httpStatus = require("../../util/statusCodes");
 const { MESSAGES } = require("../../util/constants");
+const Category = require("../../models/categorySchema");
+const productSchema = require("../../models/productSchema");
 
 const categoryInfo = async (req, res) => {
   try {
@@ -184,9 +186,9 @@ const deleteCategory = async (req, res) => {
       $set: { isDeleted: true, isListed: false },
     });
 
-    await productSchema.updateMany(
+    await ProductSchema.updateMany(
       { category: id },
-      { $set: { isActive: false } } 
+      { $set: { isActive: false } }
     );
 
     res
@@ -210,16 +212,111 @@ const undoDeleteCategory = async (req, res) => {
       $set: { isDeleted: false, isListed: true },
     });
 
-    await productSchema.updateMany(
+    await ProductSchema.updateMany(
       { category: id },
-      { $set: { isActive: true } } 
+      { $set: { isActive: true } }
     );
 
     res
       .status(httpStatus.OK)
-      .json({ success: true, message: "Category deleted successfully!" });
+      .json({ success: true, message: "Category recovered successfully!" });
   } catch (error) {
     console.error("Delete error:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error",
+    });
+  }
+};
+
+const addCategoryOffer = async (req, res) => {
+  try {
+    let { id, percentage } = req.body;
+
+    if (!id || !percentage) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ success: false, message: "Percentage is mandatory" });
+    }
+
+    percentage = Number(percentage);
+
+    if (isNaN(percentage) || percentage < 1 || percentage > 100) {
+      return res.json({
+        success: false,
+        message: "Percentage must be a valid number between 1 and 100 ",
+      });
+    }
+
+    const category = await Category.findById(id);
+    if (!category) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ success: false, message: "Category not found" });
+    }
+
+    await Category.findByIdAndUpdate(id, {
+      $set: { categoryOffer: percentage },
+    });
+
+    const products = await ProductSchema.find({ category: id });
+
+    for (let product of products) {
+      const productOffer = product?.productOffer || 0;
+      const finalOfferPercentage = Math.max(productOffer, percentage);
+      const basePrice = product.regularPrice;
+      const discountAmount = (basePrice * finalOfferPercentage) / 100;
+      let finalSalePrice = basePrice - discountAmount;
+      finalSalePrice = Math.round(finalSalePrice);
+
+      await ProductSchema.findByIdAndUpdate(product._id, {
+        $set: {
+          appliedOffer: finalOfferPercentage,
+          salePrice: finalSalePrice,
+        },
+      });
+    }
+
+    return res
+      .status(httpStatus.OK)
+      .json({ success: true, message: "Offer added successfully" });
+  } catch (error) {
+    console.error("addOffer error:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error",
+    });
+  }
+};
+
+const removeCategoryOffer = async (req, res) => {
+  try {
+    const { id } = req.body;
+
+    const category = await Category.findByIdAndUpdate(id, {
+      $set: { categoryOffer: 0 },
+    });
+
+    const products = await ProductSchema.find({ category: id });
+
+    for (let product of products) {
+      const productOffer = product.productOffer || 0;
+      const basePrice = product.regularPrice || product.salePrice;
+
+      const discountAmount = (basePrice * productOffer) / 100;
+      let finalSalePrice = basePrice - discountAmount;
+      finalSalePrice = Math.round(finalSalePrice);
+
+      await ProductSchema.findByIdAndUpdate(product._id, {
+        $set: { salePrice: finalSalePrice, appliedOffer: productOffer },
+      });
+    }
+
+    return res
+      .status(httpStatus.OK)
+      .json({ success: true, message: "Offer removed successfully" });
+  } catch (error) {
+    console.error("removeOffer error:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error",
@@ -235,4 +332,6 @@ module.exports = {
   editCategory,
   deleteCategory,
   undoDeleteCategory,
+  removeCategoryOffer,
+  addCategoryOffer,
 };

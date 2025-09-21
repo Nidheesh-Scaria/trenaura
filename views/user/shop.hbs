@@ -292,6 +292,9 @@
                                 <h6>{{this.productName}}</h6>
                                 <a href="#" onclick="addWishlist(event,'{{this._id}}')" class="add-cart">+ Add to Wish
                                     list</a>
+                                {{#if (gt this.appliedOffer 0)}}
+                                    <p style="color: red; font-weight:900; font-size:large">{{this.appliedOffer}}% off</p> 
+                                {{/if}}
                                 <h5>
                                     ₹{{this.salePrice}}
                                     <span style="text-decoration: line-through; color: #888;">

@@ -21,9 +21,9 @@ const getProductPage = async (req, res) => {
       productName: { $regex: search, $options: "i" },
     };
 
-    const productData = await Product.find(query,)
+    const productData = await Product.find(query)
       .select(
-        "productName regularPrice salePrice category status isBlocked isDeleted productImages variants size quantity" 
+        "productName regularPrice salePrice category status isBlocked isDeleted productImages variants size quantity productOffer"
       )
       .populate("category", "name")
       .limit(limit)
@@ -57,12 +57,11 @@ const getProductPage = async (req, res) => {
 
       if (product.category?.name === "Beauty") {
         totalStock = Number(product.quantity) || 0;
-      } else {  
+      } else {
         totalStock = Object.values(product.variants || {}).reduce(
           (sum, qty) => sum + Number(qty || 0),
           0
         );
-
       }
 
       return {
@@ -76,6 +75,7 @@ const getProductPage = async (req, res) => {
         brandId: product.brand?._id || "",
         status: product.status,
         isBlocked: product.isBlocked,
+        productOffer: product.productOffer || 0,
         variants: Object.fromEntries(Object.entries(product.variants || {})),
         stock: totalStock,
         productImages: product.productImages || [],
@@ -178,7 +178,7 @@ const getEditProduct = async (req, res) => {
       hideFooter: true,
       product: {
         ...product,
-        isBeauty:false,
+        isBeauty: false,
         categoryName: product.category?.name,
         brandName: product.brand?.brandName,
         variants: Object.fromEntries(Object.entries(product.variants || {})),
@@ -313,7 +313,9 @@ const addProducts = async (req, res) => {
       color: productData.color,
       status: "Available",
       productImages: images,
-      quantity: productData.quantity ? parseInt(productData.quantity, 10) : null,
+      quantity: productData.quantity
+        ? parseInt(productData.quantity, 10)
+        : null,
     });
 
     console.log("Product created successfully:", newProduct._id);
@@ -484,12 +486,124 @@ const deleteProducts = async (req, res) => {
   try {
     const id = req.params.id;
     await Product.findByIdAndUpdate(id, { $set: { isDeleted: true } });
-    res.status(httpStatus.OK).json({
+    return res.status(httpStatus.OK).json({
       success: true,
       message: MESSAGES.PRODUCT_DELETED || "Product deleted successfully!",
     });
   } catch (error) {
     console.error("Delete error:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error",
+    });
+  }
+};
+
+const addProductOffer = async (req, res) => {
+  try {
+    let { id, percentage } = req.body;
+    console.log(id);
+    console.log(percentage);
+
+    if (!id || !percentage) {
+      return res.json({ success: false, message: "Percentage/id is required" });
+    }
+    percentage = Number(percentage);
+
+    if (isNaN(percentage) || percentage < 1 || percentage > 100) {
+      return res.json({
+        success: false,
+        message: "Percentage must be a valid number between 1 and 100",
+      });
+    }
+
+    const product = await Product.findById(id).populate(
+      "category",
+      "categoryOffer"
+    );
+
+    if (!product) {
+      return res.json({ success: false, message: "Product not found" });
+    }
+
+    const category = product.category;
+    console.log("*********************", category.categoryOffer);
+
+    const productOffer = percentage;
+    const categoryOffer = category?.categoryOffer || 0;
+
+    const finalOfferPercentage = Math.max(productOffer, categoryOffer);
+
+    const basePrice = product.regularPrice;
+    let discount = (basePrice * finalOfferPercentage) / 100;
+    let finalSalePrice = basePrice - discount;
+    finalSalePrice = Math.round(finalSalePrice);
+
+    await Product.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          productOffer,
+          appliedOffer: finalOfferPercentage,
+          salePrice: finalSalePrice,
+        },
+      },
+      { new: true }
+    );
+
+    return res.status(httpStatus.OK).json({
+      success: true,
+      message: "Offer Added successfully",
+    });
+  } catch (error) {
+    console.error("addOffer error:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error",
+    });
+  }
+};
+
+const removeProductOffer = async (req, res) => {
+  try {
+    const { id } = req.body;
+    const product = await Product.findById(id).populate(
+      "category",
+      "categoryOffer"
+    );
+
+    if (!product) {
+      return res.json({ message: "Product not found" });
+    }
+
+    const salePrice = product.regularPrice;
+
+    await Product.findByIdAndUpdate(id, {
+      $set: { productOffer: 0, salePrice: salePrice },
+    });
+
+    const category = product.category;
+    const categoryOffer = category?.categoryOffer || 0;
+
+    if (categoryOffer > 0) {
+      const basePrice = product.regularPrice || product.salePrice;
+      const discountAmount = (basePrice * categoryOffer) / 100;
+      let finalSalePrice = basePrice - discountAmount;
+      finalSalePrice = Math.round(finalSalePrice);
+
+      await Product.findByIdAndUpdate(id, {
+        $set: {
+          appliedOffer: categoryOffer,
+          salePrice: finalSalePrice,
+        },
+      });
+    }
+
+    return res
+      .status(httpStatus.OK)
+      .json({ success: true, messge: "Offer removed successfully" });
+  } catch (error) {
+    console.error("removeOffer error:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error",
@@ -504,4 +618,6 @@ module.exports = {
   addProducts,
   editProducts,
   deleteProducts,
+  addProductOffer,
+  removeProductOffer,
 };

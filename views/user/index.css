@@ -1,155 +1,403 @@
-/* Sidebar Container */
-.sidebar {
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-    position: sticky;
-    top: 5px;
-}
-
-/* Sidebar Items */
-.sidebar__item {
-    margin-bottom: 25px;
-}
-
-.sidebar__item h5 {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 15px;
-    color: #333;
-    border-bottom: 2px solid #f2f2f2;
-    padding-bottom: 8px;
-}
-
-/* Lists */
-.sidebar__item ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.sidebar__item ul li {
-    margin-bottom: 10px;
-}
-
-.sidebar__item ul li a {
-    color: #555;
-    text-decoration: none;
-    transition: all 0.2s;
-    display: inline-block;
-}
-
-.sidebar__item ul li a:hover {
-    color: #007bff;
-    padding-left: 4px;
-}
-
-/* Price Filter Links */
-.price-range ul li a {
-    font-size: 14px;
-}
-
-/* Checkbox Style */
-.sidebar__item input[type="checkbox"] {
-    margin-right: 6px;
-    accent-color: #007bff;
-    /* modern browsers */
-    cursor: pointer;
-}
-
-/* Dropdown (Sorting) */
-.sidebar__item select.form-control {
-    font-size: 14px;
-    padding: 6px 10px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    cursor: pointer;
-    transition: border-color 0.2s;
-}
-
-.sidebar__item select.form-control:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
-}
-
-/* Search Bar (inside sidebar for small screens) */
-#sidebarSearch {
-    border-radius: 6px;
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-    width: 100%;
-    transition: border-color 0.2s;
-}
-
-#sidebarSearch:focus {
-    border-color: #007bff;
-    outline: none;
-}
-
-/*pagination*/
-.pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    padding: 20px 0;
-    font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-}
-
-/* Base button and number styles */
-.page-btn, .page-number {
-    background: #1e1e1e;
-    color: #b0b0b0;
+.refresh-btn {
+    background-color: var(--primary-color);
+    color: white;
     border: none;
-    min-width: 42px;
-    height: 42px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s;
+    background-color: #1d1c8a;
+}
+
+.refresh-btn i {
+    margin-right: 5px;
+}
+
+.refresh-btn:hover {
+    background-color: #1916b3;
+}
+
+
+.table-container a {
+    text-decoration: none;
+}
+
+.edit {
+    color: #1916b3;
+}
+
+.delete {
+    color: red;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.9rem;
+    margin-top: 4px;
+}
+
+/* Delete Modal Styles - Fixed Centered Position */
+#deleteCategoryModal.modal {
+
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1050;
+    overflow-y: auto;
+}
+
+#deleteCategoryModal .modal-dialog {
+    position: relative;
+    width: auto;
+    max-width: 500px;
+    margin: 0 auto;
+    pointer-events: none;
+    transition: none !important;
+    transform: none !important;
+}
+
+#deleteCategoryModal .modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    pointer-events: auto;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 0.3rem;
+    outline: 0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border-top: 4px solid #dc3545;
+}
+
+/* Modal Header */
+#deleteCategoryModal .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+#deleteCategoryModal .modal-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #dc3545;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#deleteCategoryModal .modal-title::before {
+    content: "⚠";
+    font-size: 1.2em;
+}
+
+#deleteCategoryModal .btn-close {
+    padding: 0.5rem;
+    margin: -0.5rem -0.5rem -0.5rem auto;
+    background-color: transparent;
+    border: 0;
+    font-size: 1rem;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+#deleteCategoryModal .btn-close:hover {
+    opacity: 1;
+}
+
+/* Modal Body */
+#deleteCategoryModal .modal-body {
+    position: relative;
+    flex: 1 1 auto;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+#deleteCategoryModal .modal-body p {
+    margin: 0;
+    font-size: 1.05rem;
+    color: #6c757d;
+}
+
+/* Modal Footer */
+#deleteCategoryModal .modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    border-top: 1px solid #e9ecef;
+    gap: 1rem;
+}
+
+#deleteCategoryModal .btn {
+    display: inline-block;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    user-select: none;
+    border: 1px solid transparent;
+    padding: 0.5rem 1.25rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: 0.25rem;
+    transition: all 0.15s ease;
+    min-width: 100px;
+}
+
+#deleteCategoryModal .btn-secondary {
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+#deleteCategoryModal .btn-danger {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+    position: relative;
+    overflow: hidden;
+}
+
+#deleteCategoryModal .btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+/* Disable any movement animations */
+.modal.fade .modal-dialog {
+    transition: none !important;
+    transform: none !important;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    #deleteCategoryModal .modal-dialog {
+        max-width: 95%;
+        margin: 0.5rem auto;
+    }
+
+    #deleteCategoryModal .modal-footer {
+        flex-direction: column-reverse;
+        gap: 0.5rem;
+    }
+
+    #deleteCategoryModal .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    #deleteCategoryModal .modal-title {
+        font-size: 1.1rem;
+    }
+
+    #deleteCategoryModal .modal-body p {
+        font-size: 0.95rem;
+    }
+}
+
+
+/* --- Corrected Modal Styles --- */
+
+/* General Modal Appearance */
+#addOfferModal .modal-content {
+    border: none;
+    border-radius: 1.25rem;
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+/* Header Styling */
+#addOfferModal .modal-header {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    border-bottom: none;
+    padding: 1.5rem 2rem 1rem;
+    position: relative;
+}
+
+#addOfferModal .modal-title {
+    font-weight: 700;
+    color: #fff;
+}
+
+/*
+            Fixing the close button. Adding the 'btn-close' class
+            makes it a proper Bootstrap close button.
+        */
+#addOfferModal .btn-close {
+    filter: invert(1);
+    opacity: 0.8;
+    transition: opacity 0.2s ease-in-out;
+}
+
+#addOfferModal .btn-close:hover {
+    opacity: 1;
+}
+
+/* Body and Form Styling */
+#addOfferModal .modal-body {
+    background-color: #f9f9f9;
+    padding: 1.5rem 2rem 2rem;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 0.5rem;
+}
+
+/* Input Fields */
+.form-control {
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease-in-out;
+    border: 1px solid #e0e0e0;
+}
+
+.form-control:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
+    background-color: #fff;
+}
+
+#offerProductName {
+    background-color: #e9ecef !important;
+    color: #6c757d;
+}
+
+/* Button Container */
+.button-div {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+/* Submit Button */
+.btn-success {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #218838, #198754);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(33, 136, 56, 0.25);
+}
+
+/* Cancel Button */
+.btn-cancel {
+    background-color: transparent;
+    color: #6c757d;
+    border: 1px solid #ced4da;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+    background-color: #f1f3f5;
+    color: #495057;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Base Styles for the Remove Offer Modal */
+#removeOfferModal .modal-content {
+    border: none;
+    border-radius: 1.25rem;
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    border-top: 4px solid #dc3545;
+}
+
+/* Header Styling */
+#removeOfferModal .modal-header {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    border-bottom: none;
+    padding: 1.5rem 2rem 1rem;
+    position: relative;
+}
+
+#removeOfferModal .modal-title {
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+}
+
+#removeOfferModal .btn-close {
+    filter: invert(1);
+    opacity: 0.8;
+    transition: opacity 0.2s ease-in-out;
+}
+
+#removeOfferModal .btn-close:hover {
+    opacity: 1;
+}
+
+/* Body Styling */
+#removeOfferModal .modal-body {
+    background-color: #f9f9f9;
+    padding: 1.5rem 2rem 2rem;
+}
+
+/* Footer and Button Styling */
+#removeOfferModal .modal-footer {
     display: flex;
     justify-content: center;
-    align-items: center;
-    padding: 0 10px;
-    border-radius: 50%;
-    /* Make them circular */
-    font-size: 15px;
-    text-decoration: none;
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    cursor: pointer;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5), -2px -2px 5px rgba(50, 50, 50, 0.2);
+    gap: 1.5rem;
+    padding: 1rem 2rem;
+    background-color: #f9f9f9;
+    border-top: 1px solid #e9ecef;
 }
 
-.page-btn i {
-    font-size: 14px;
+#removeOfferModal .btn {
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
 }
 
-/* Hover & Focus Effects */
-.page-btn:hover, .page-number:hover {
-    background: #333;
+#removeOfferModal .btn-danger {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    border: none;
     color: #fff;
-    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.5), inset -2px -2px 5px rgba(50, 50, 50, 0.2);
-    transform: scale(1.05);
 }
 
-/* Current Page */
-.page-number.current {
-    background: linear-gradient(145deg, #333, #111);
-    color: #fff;
-    font-weight: bold;
-    pointer-events: none;
-    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.8), inset -2px -2px 5px rgba(50, 50, 50, 0.3);
+#removeOfferModal .btn-danger:hover {
+    background: linear-gradient(135deg, #c82333, #b51a24);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(220, 53, 69, 0.25);
 }
 
-/* Disabled buttons */
-.page-btn[disabled] {
-    opacity: 0.2;
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
+#removeOfferModal .btn-cancel {
+    background-color: transparent;
+    color: #6c757d;
+    border: 1px solid #ced4da;
 }
 
-/* Dots for ellipsis */
-.dots {
-    color: #666;
-    font-size: 20px;
-    line-height: 1;
+#removeOfferModal .btn-cancel:hover {
+    background-color: #f1f3f5;
+    color: #495057;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }

@@ -124,6 +124,7 @@ router.post("/verify-payment-wallet",userAuth.userBlocked,userAuth.checkSession,
 
 //coupon management
 router.post("/applyCoupon",userAuth.userBlocked,userAuth.checkSession, cartController.applyCoupon)
+router.post("/removeCoupon",userAuth.userBlocked,userAuth.checkSession, cartController.removeCoupon)
 router.get('/myCoupons',userAuth.userBlocked,userAuth.checkSession, couponController.loadMyCoupon)
 
 

@@ -154,7 +154,14 @@
                                 <i class="fa fa-star-o"></i>
                                 <i class="fa fa-star-o"></i>
                             </div> --}}
+    
+                                {{#if (gt this.appliedOffer 0)}}
+                                    <p style="color: red; font-weight:900; font-size:large">{{this.appliedOffer}}% off</p> 
+                                {{/if}}
+
+                           
                             <h5>&#x20b9;{{this.salePrice}} <span style="text-decoration: line-through; color: #888;">&#x20b9;{{this.regularPrice}}</span> </h5>
+                            
                         </div>
                     </div>
                 </div>

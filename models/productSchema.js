@@ -33,6 +33,10 @@ const productSchema = new Schema(
       type: Number,
       default: 0,
     },
+    appliedOffer:{
+      type: Number,
+      default: 0,
+    },
     variants: {
       type: Map,
       of: Number,

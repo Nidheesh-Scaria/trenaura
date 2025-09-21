@@ -343,7 +343,7 @@ const submitAddress = async (req, res) => {
     if (!productId) {
       return res.redirect(`/cartOrderSummary`);
     }
-    
+
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).send("Product not found");
@@ -553,7 +553,7 @@ const loadPaymentMethod = async (req, res) => {
 
     const item = cart.items[0];
     const grandTotal = item.totalPrice;
-    console.log("rendering paymentMethod");
+
     return res.render("user/paymentMethod", {
       title: "Payment method",
       adminHeader: true,
@@ -715,45 +715,25 @@ const orderSuccess = async (req, res) => {
         });
       }
       let discount = 0;
+      let couponApplied=false
+
+      const {discountAmount,lastAmount,couponCode,couponId}=req.session.appliedCoupon
 
       //cheking the coupon
       if (couponCode) {
         const coupon = await CouponSchema.findOne({
+          _id:couponId,
           code: couponCode,
           isActive: true,
         });
-        //cheking of coupon exists
-        if (!coupon) {
-          return res
-            .status(400)
-            .json({ message: "Invalid or inactive coupon" });
-        }
+  
         if (coupon.discountType === "flat") {
           discount = coupon.discountValue;
         } else if (coupon.discountType === "percentage") {
           discount = (coupon.discountValue / 100) * item.totalPrice;
         }
-
-        //changing usageCount
-        let usage = await CouponUsageSchema.findOne({
-          couponId: coupon._id,
-          userId,
-        });
-        if (!usage) {
-          usage = await CouponUsageSchema.create({
-            couponId: coupon._id,
-            userId,
-            usageCount: 0,
-          });
-        }
-        if (usage.usageCount >= coupon.usageLimit) {
-          return res
-            .status(400)
-            .json({ message: "Coupon usage limit reached" });
-        }
-
-        usage.usageCount += 1;
-        await usage.save();
+        couponApplied=true
+        
       }
 
       // const finalAmount = item.totalPrice - discount;
@@ -777,6 +757,8 @@ const orderSuccess = async (req, res) => {
         ],
         totalPrice: item.totalPrice,
         discount,
+        couponDisciunt:discount,
+        couponApplied,
         finalAmount,
         address: selectedAddress._id,
         paymentMethod,
@@ -803,6 +785,7 @@ const orderSuccess = async (req, res) => {
         0
       );
       let discount = 0;
+      let couponApplied=false
       //checking the coupons
       if (couponCode) {
         const coupon = await CouponSchema.findOne({
@@ -821,27 +804,7 @@ const orderSuccess = async (req, res) => {
         } else if (coupon.discountType === "percentage") {
           discount = (coupon.discountValue / 100) * totalPrice;
         }
-
-        //changing usageCount
-        let usage = await CouponUsageSchema.findOne({
-          couponId: coupon._id,
-          userId,
-        });
-        if (!usage) {
-          usage = await CouponUsageSchema.create({
-            couponId: coupon._id,
-            userId,
-            usageCount: 0,
-          });
-        }
-        if (usage.usageCount >= coupon.usageLimit) {
-          return res
-            .status(400)
-            .json({ message: "Coupon usage limit reached" });
-        }
-
-        usage.usageCount += 1;
-        await usage.save();
+        couponApplied=true
       }
 
       finalAmount = Math.max(totalPrice - discount, 0);
@@ -851,6 +814,8 @@ const orderSuccess = async (req, res) => {
         orderedItems,
         totalPrice,
         discount,
+        couponDisciunt:discount,
+        couponApplied,
         finalAmount,
         address: selectedAddress._id,
         paymentMethod,
@@ -862,40 +827,6 @@ const orderSuccess = async (req, res) => {
 
       savedOrder = await newOrder.save();
 
-      // // decrease stock for each item
-      // for (const item of orderedItems) {
-      //   // await Product.updateOne(
-      //   //   {
-      //   //     _id: item.productId,
-      //   //     [`variants.${item.size}`]: { $gte: item.quantity },
-      //   //   },
-      //   //   {
-      //   //     $inc: { [`variants.${item.size}`]: -item.quantity },
-      //   //   }
-      //   // );
-
-      //   // const product = await Product.findById(item.productId);
-
-      //   // product.size = [...product.variants.entries()]
-      //   //   .filter(([_, qty]) => qty > 0)
-      //   //   .map(([size]) => size);
-      //   // await product.save();
-
-      //   const product = await Product.findOneAndUpdate(
-      //     {
-      //       _id: item.productId,
-      //       [`variants.${item.size}`]: { $gte: item.quantity },
-      //     },
-      //     { $inc: { [`variants.${item.size}`]: -item.quantity } },
-      //     { new: true }
-      //   );
-      //   if (product) {
-      //     product.size = Object.entries(product.variants)
-      //       .filter(([_, qty]) => qty > 0)
-      //       .map(([size]) => size);
-      //     await product.save();
-      //   }
-      // }
     }
 
     orderId = savedOrder._id;
@@ -1342,6 +1273,7 @@ const confirmWalletPayment = async (req, res) => {
       item = cart.items.find((i) => i._id.toString() === itemId);
       console.log("itemid found confirmWalletPayment ", item);
       let discount = 0;
+      let couponApplied=false
 
       //cheking the coupon
       if (couponCode) {
@@ -1355,6 +1287,7 @@ const confirmWalletPayment = async (req, res) => {
         } else if (coupon.discountType === "percentage") {
           discount = (coupon.discountValue / 100) * item.totalPrice;
         }
+        couponApplied=true
 
         //changing usageCount
         let usage = await CouponUsageSchema.findOne({
@@ -1397,6 +1330,8 @@ const confirmWalletPayment = async (req, res) => {
         ],
         totalPrice: item.totalPrice,
         discount,
+        couponDiscount:discount,
+        couponApplied,
         finalAmount,
         address: selectedAddress._id,
         paymentMethod: "WALLET",

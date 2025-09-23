@@ -194,6 +194,153 @@ const cartOrderSummary = async (req, res) => {
   }
 };
 
+const removefromCart = async (req, res) => {
+  try {
+    const itemId = req.params.id;
+    const userId = req.session.user;
+
+    await Cart.updateOne({ userId }, { $pull: { items: { _id: itemId } } });
+
+    return res
+      .status(httpStatus.OK)
+      .json({ message: MESSAGES.CART.ITEM_DELETED || "item deleted" });
+  } catch (error) {
+    console.error("Error in removing item from cart:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "An error occurred. Please try again later.",
+    });
+  }
+};
+
+const applyCoupon = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const { couponCode, cartTotal } = req.body;
+
+    const coupon = await CouponSchema.findOne({
+      code: couponCode,
+      isActive: true,
+    });
+
+    if (!coupon)
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ message: "Invalid Coupon" });
+
+    if (coupon.expiryDate < new Date()) {
+      return res.status(400).json({ message: "Coupon expired" });
+    }
+
+    if (cartTotal < coupon.minOrderValue) {
+      return res.status(400).json({
+        message: `Minimum order value should be ${coupon.minOrderValue}`,
+      });
+    }
+
+    let finalAmount = cartTotal;
+    let discountAmount = 0;
+
+    const cart = await Cart.findOne({ userId });
+
+    if (coupon.discountType === "flat") {
+      discountAmount = coupon.discountValue;
+      finalAmount = cartTotal - coupon.discountValue;
+    } else if (coupon.discountType === "percentage") {
+      discountAmount = (coupon.discountValue / 100) * cartTotal;
+      finalAmount = cartTotal - discountAmount;
+    }
+
+    if (finalAmount < 0) {
+      discountAmount = cartTotal;
+      finalAmount = 0;
+    }
+
+    finalAmount = parseFloat(finalAmount.toFixed(1));
+    discountAmount = parseFloat(discountAmount.toFixed(1));
+    finalAmount = Math.round(finalAmount);
+    discountAmount = Math.round(discountAmount);
+    req.session.appliedCoupon = {
+      discountAmount,
+      finalAmount,
+      couponCode,
+      couponId: coupon._id,
+    };
+
+    //changing usageCount
+    let usage = await CouponUsageSchema.findOne({
+      couponId: coupon._id,
+      userId,
+    });
+    if (!usage) {
+      usage = await CouponUsageSchema.create({
+        couponId: coupon._id,
+        userId,
+        usageCount: 0,
+      });
+    }
+    if (usage.usageCount >= coupon.usageLimit) {
+      return res.status(400).json({ message: "Coupon usage limit reached" });
+    }
+
+    usage.usageCount += 1;
+    await usage.save();
+
+    res.json({
+      message: "Coupon applied successfully",
+      discountAmount,
+      finalAmount,
+      couponCode,
+    });
+  } catch (error) {
+    console.error("Error in applyCoupon:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "An error occurred. Please try again later.",
+      finalAmount,
+      discountAmount,
+    });
+  }
+};
+
+const removeCoupon = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const { coupon } = req.body;
+
+    if (!req.session.appliedCoupon) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ message: "No coupon Applied" });
+    }
+
+    const { discountAmount, finalAmount, couponCode, couponId } =
+      req.session.appliedCoupon;
+
+    delete req.session.appliedCoupon;
+
+    if (couponId) {
+      await CouponUsageSchema.findOneAndUpdate(
+        { couponId, userId },
+        { $inc: { usageCount: -1 } }
+      );
+    }
+
+    return res.json({
+      message: "Coupon removed Successfully",
+      discountAmount,
+      finalAmount,
+    });
+  } catch (error) {
+    console.error("Error in removeCoupon:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "An error occurred. Please try again later.",
+    });
+  }
+};
+
+
 const increaseQuantity = async (req, res) => {
   try {
     const { id: itemId } = req.params;
@@ -210,7 +357,7 @@ const increaseQuantity = async (req, res) => {
 
     const cart = await Cart.findOne(
       { userId, "items._id": itemId, "items.size": size },
-      { "items.$": 1 }
+      
     ).populate("items.productId", "variants salePrice");
 
     if (!cart || !cart.items.length) {
@@ -218,7 +365,7 @@ const increaseQuantity = async (req, res) => {
     }
 
     const item = cart.items[0];
-    const stock = cart.items[0].productId.variants[cart.items[0].size];
+    const stock = item.productId.variants[cart.items[0].size];
 
     if (item.quantity >= stock) {
       return res.status(httpStatus.BAD_REQUEST).json({
@@ -274,7 +421,7 @@ const decreaseQuantity = async (req, res) => {
     // Fetch current item first
     const cart = await Cart.findOne(
       { userId, "items._id": itemId, "items.size": size },
-      { "items.$": 1 }
+      
     ).lean();
 
     if (!cart || !cart.items.length) {
@@ -283,7 +430,7 @@ const decreaseQuantity = async (req, res) => {
         .json({ message: "Item not found" });
     }
 
-    const item = cart.items[0];
+    const item = cart.items;
 
     if (item.quantity <= 1) {
       return res
@@ -330,153 +477,8 @@ const decreaseQuantity = async (req, res) => {
   }
 };
 
-const removefromCart = async (req, res) => {
-  try {
-    const itemId = req.params.id;
-    const userId = req.session.user;
 
-    await Cart.updateOne({ userId }, { $pull: { items: { _id: itemId } } });
 
-    return res
-      .status(httpStatus.OK)
-      .json({ message: MESSAGES.CART.ITEM_DELETED || "item deleted" });
-  } catch (error) {
-    console.error("Error in removing item from cart:", error);
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: "An error occurred. Please try again later.",
-    });
-  }
-};
-
-const applyCoupon = async (req, res) => {
-  try {
-    const userId = req.session.user;
-    const { couponCode, cartTotal } = req.body;
-
-    console.log(cartTotal)
-    console.log(couponCode)
-
-    const coupon = await CouponSchema.findOne({
-      code: couponCode,
-      isActive: true,
-    });
-
-    if (!coupon)
-      return res
-        .status(httpStatus.BAD_REQUEST)
-        .json({ message: "Invalid Coupon" });
-
-    if (coupon.expiryDate < new Date()) {
-      return res.status(400).json({ message: "Coupon expired" });
-    }
-
-    if (cartTotal < coupon.minOrderValue) {
-      return res.status(400).json({
-        message: `Minimum order value should be ${coupon.minOrderValue}`,
-      });
-    }
-
-    let finalAmount = cartTotal;
-    let discountAmount = 0;
-
-    const cart = await Cart.findOne({ userId });
-
-    if (coupon.discountType === "flat") {
-      discountAmount = coupon.discountValue;
-      finalAmount = cartTotal - coupon.discountValue;
-    } else if (coupon.discountType === "percentage") {
-      discountAmount = (coupon.discountValue / 100) * cartTotal;
-      finalAmount = cartTotal - discountAmount;
-    }
-
-    if (finalAmount < 0) {
-      discountAmount = cartTotal;
-      finalAmount = 0;
-    }
-
-    finalAmount = parseFloat(finalAmount.toFixed(1))
-    discountAmount = parseFloat(discountAmount.toFixed(1))
-    req.session.appliedCoupon = {
-      discountAmount,
-      finalAmount,
-      couponCode,
-      couponId: coupon._id,
-    };
-
-    //changing usageCount
-    let usage = await CouponUsageSchema.findOne({
-      couponId: coupon._id,
-      userId,
-    });
-    if (!usage) {
-      usage = await CouponUsageSchema.create({
-        couponId: coupon._id,
-        userId,
-        usageCount: 0,
-      });
-    }
-    if (usage.usageCount >= coupon.usageLimit) {
-      return res.status(400).json({ message: "Coupon usage limit reached" });
-    }
-
-    usage.usageCount += 1;
-    await usage.save();
-
-    res.json({
-      message: "Coupon applied successfully",
-      discountAmount,
-      finalAmount,
-      couponCode,
-    });
-  } catch (error) {
-    console.error("Error in applyCoupon:", error);
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: "An error occurred. Please try again later.",
-      finalAmount,
-      discountAmount,
-    });
-  }
-};
-
-const removeCoupon = async (req, res) => {
-  try {
-    const userId = req.session.user;
-    const { coupon } = req.body;
-
-    if (!req.session.appliedCoupon) {
-      
-      return res
-        .status(httpStatus.BAD_REQUEST)
-        .json({ message: "No coupon Applied" });
-    }
-
-    const { discountAmount, finalAmount, couponCode, couponId } =
-      req.session.appliedCoupon;
-
-    delete req.session.appliedCoupon;
-
-    if (couponId) {
-      await CouponUsageSchema.findOneAndUpdate(
-        { couponId, userId },
-        { $inc: { usageCount: -1 } }
-      );
-    }
-
-    return res.json({ message: "Coupon removed Successfully",
-      discountAmount,
-      finalAmount,
-     });
-
-  } catch (error) {
-    console.error("Error in removeCoupon:", error);
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: "An error occurred. Please try again later.",
-    });
-  }
-};
 
 module.exports = {
   addToCart,

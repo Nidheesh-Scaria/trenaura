@@ -348,20 +348,22 @@ const submitAddress = async (req, res) => {
     if (!product) {
       return res.status(404).send("Product not found");
     }
+
     let quantity = 1;
     const price = product.salePrice;
     const totalPrice = price * quantity;
 
     //saving item to cart
-
     let cart = await Cart.findOne({ userId });
+
     if (!cart) {
+      //creating new cart if no cart
       cart = await Cart.create({
         userId,
         items: [
           {
             productId,
-            quantity,
+            quantity: 1,
             price,
             totalPrice,
             size,
@@ -373,13 +375,20 @@ const submitAddress = async (req, res) => {
         (item) =>
           item.productId.toString() === productId.toString() &&
           item.size === size
-      );
+      ); //returns -1 if no item found
       if (itemIndex > -1) {
-        cart.items[itemIndex].quantity += quantity;
+        let currentQuantity = cart.items[itemIndex].quantity;
+        //quantity limits to 5
+        if (currentQuantity >= 5) {
+          cart.items[itemIndex].quantity = 5;
+        } else {
+          cart.items[itemIndex].quantity += 1;
+        }
+
         cart.items[itemIndex].totalPrice =
           cart.items[itemIndex].quantity * price;
       } else {
-        cart.items.push({ productId, quantity, price, totalPrice, size });
+        cart.items.push({ productId, quantity: 1, price, totalPrice, size });
       }
     }
     //saving cart
@@ -387,12 +396,11 @@ const submitAddress = async (req, res) => {
 
     //getting cart items
     const updatedCart = await Cart.findOne({ userId })
-      .sort({ createdOn: -1 })
-      .limit(1)
       .populate({
         path: "items.productId",
         match: { isBlocked: false, isDeleted: false },
       })
+      .sort({ createdOn: -1 })
       .lean();
 
     const addedItem = updatedCart.items.find(
@@ -404,7 +412,9 @@ const submitAddress = async (req, res) => {
 
     const itemId = addedItem ? addedItem._id : null;
     const productSize = addedItem ? addedItem.size : null;
+
     console.log("At submit Addrees ", productSize);
+
     return res.redirect(`/orderSummary?cartId=${itemId}&size=${productSize}`);
   } catch (error) {
     console.error(
@@ -445,7 +455,12 @@ const loadOrderSummary = async (req, res) => {
     const item = cart.items[0];
 
     const totalPrice = item.totalPrice;
-    console.log("loadOrderSummary--item---", item);
+
+    if (!item.productId) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .send("Product not available for ordering");
+    }
 
     return res.render("user/orderSummary", {
       title: "Order Summary",
@@ -469,10 +484,11 @@ const loadPaymentMethod = async (req, res) => {
   try {
     const userId = req.session.user;
 
-    const { itemId, couponCode, amount, orderId } = req.query;
+    let { itemId, couponCode, amount, orderId } = req.query;
 
     console.log("loadPaymentMethod cartId::", itemId);
-    console.log("loadPaymentMethod Order Id::", orderId);
+    console.log("loadPaymentMethod amountd::", amount);
+    console.log("loadPaymentMethod amountd::", typeof amount);
     //for retry payments
     if (orderId) {
       const order = await Order.findById(orderId)
@@ -504,10 +520,14 @@ const loadPaymentMethod = async (req, res) => {
         });
       }
 
-      const grandTotal = activeItems.reduce(
+      let grandTotal = activeItems.reduce(
         (sum, item) => sum + item.totalPrice,
         0
       );
+
+      grandTotal = Number(grandTotal);
+      console.log("grandtotal if retry payment", grandTotal);
+      console.log(typeof grandTotal);
 
       return res.render("user/paymentMethod", {
         title: "Payment method",
@@ -536,10 +556,14 @@ const loadPaymentMethod = async (req, res) => {
         return total + item.totalPrice;
       }, 0);
 
+      grandTotal = Number(grandTotal);
+      console.log("grandtotal if whole cart", grandTotal);
+      console.log(typeof grandTotal);
+
       return res.render("user/paymentMethod", {
         title: "Payment method",
         adminHeader: true,
-        grandTotal: amount,
+        grandTotal,
         itemId,
         couponCode,
         orderId: null,
@@ -552,13 +576,17 @@ const loadPaymentMethod = async (req, res) => {
     ).populate("items.productId");
 
     const item = cart.items[0];
-    const grandTotal = item.totalPrice;
+    let grandTotal = item.totalPrice;
+
+    grandTotal = Number(grandTotal);
+    console.log("grandtotal if one product", grandTotal);
+    console.log(typeof grandTotal);
 
     return res.render("user/paymentMethod", {
       title: "Payment method",
       adminHeader: true,
       itemId,
-      grandTotal: amount,
+      grandTotal,
       couponCode,
     });
   } catch (error) {
@@ -705,6 +733,7 @@ const orderSuccess = async (req, res) => {
     }
 
     paymentMethod = paymentMethod.toUpperCase();
+
     //for single item
     if (itemId) {
       item = cart.items.find((i) => i._id.toString() === itemId);
@@ -715,29 +744,33 @@ const orderSuccess = async (req, res) => {
         });
       }
       let discount = 0;
-      let couponApplied=false
+      let couponApplied = false;
 
-      const {discountAmount,lastAmount,couponCode,couponId}=req.session.appliedCoupon
+      let discountAmount, lastAmount, couponCode, couponId;
 
+      if (req.session.appliedCoupon) {
+        ({ discountAmount, lastAmount, couponCode, couponId } =
+          req.session.appliedCoupon);
+      }
       //cheking the coupon
       if (couponCode) {
         const coupon = await CouponSchema.findOne({
-          _id:couponId,
+          _id: couponId,
           code: couponCode,
           isActive: true,
         });
-  
+
         if (coupon.discountType === "flat") {
           discount = coupon.discountValue;
         } else if (coupon.discountType === "percentage") {
           discount = (coupon.discountValue / 100) * item.totalPrice;
         }
-        couponApplied=true
-        
+        couponApplied = true;
       }
 
       // const finalAmount = item.totalPrice - discount;
-      const finalAmount = Math.max(item.totalPrice - discount, 0);
+      finalAmount = Math.max(item.totalPrice - discount, 0);
+      finalAmount = Math.round(finalAmount);
 
       newOrder = new Order({
         userId: userId,
@@ -748,6 +781,8 @@ const orderSuccess = async (req, res) => {
             price: item.price,
             variant: item.size,
             totalPrice: item.totalPrice,
+            discount,
+            finalPrice: finalAmount,
             statusHistory: [
               {
                 status: "Pending",
@@ -757,7 +792,7 @@ const orderSuccess = async (req, res) => {
         ],
         totalPrice: item.totalPrice,
         discount,
-        couponDisciunt:discount,
+        couponDiscount: discount,
         couponApplied,
         finalAmount,
         address: selectedAddress._id,
@@ -784,8 +819,9 @@ const orderSuccess = async (req, res) => {
         (sum, item) => sum + item.totalPrice,
         0
       );
+
       let discount = 0;
-      let couponApplied=false
+      let couponApplied = false;
       //checking the coupons
       if (couponCode) {
         const coupon = await CouponSchema.findOne({
@@ -804,17 +840,34 @@ const orderSuccess = async (req, res) => {
         } else if (coupon.discountType === "percentage") {
           discount = (coupon.discountValue / 100) * totalPrice;
         }
-        couponApplied=true
+        couponApplied = true;
       }
 
+      discount = Math.min(discount, totalPrice);
+
       finalAmount = Math.max(totalPrice - discount, 0);
+      finalAmount = Math.round(finalAmount);
+
+      if (discount > 0 && couponApplied) {
+        orderedItems.forEach((item) => {
+          const itemShare = item.totalPrice / totalPrice;
+          const perItemDiscount = Math.round(discount * itemShare);
+          item.discount = perItemDiscount;
+          item.finalPrice = Math.max(item.totalPrice - perItemDiscount, 0);
+        });
+      } else {
+        orderedItems.forEach((item) => {
+          item.discount = 0;
+          item.finalPrice = item.totalPrice;
+        });
+      }
 
       newOrder = new Order({
         userId,
         orderedItems,
         totalPrice,
         discount,
-        couponDisciunt:discount,
+        couponDiscount: discount,
         couponApplied,
         finalAmount,
         address: selectedAddress._id,
@@ -826,7 +879,6 @@ const orderSuccess = async (req, res) => {
       isWholeCart = true;
 
       savedOrder = await newOrder.save();
-
     }
 
     orderId = savedOrder._id;
@@ -991,6 +1043,7 @@ const cancelOrder = async (req, res) => {
 
     const { productId, quantity, updatedStatus, variant, amount } =
       productIds[0];
+
     //increasing the quantity after cancel order
     const product = await Product.findOneAndUpdate(
       {
@@ -1273,7 +1326,7 @@ const confirmWalletPayment = async (req, res) => {
       item = cart.items.find((i) => i._id.toString() === itemId);
       console.log("itemid found confirmWalletPayment ", item);
       let discount = 0;
-      let couponApplied=false
+      let couponApplied = false;
 
       //cheking the coupon
       if (couponCode) {
@@ -1287,7 +1340,7 @@ const confirmWalletPayment = async (req, res) => {
         } else if (coupon.discountType === "percentage") {
           discount = (coupon.discountValue / 100) * item.totalPrice;
         }
-        couponApplied=true
+        couponApplied = true;
 
         //changing usageCount
         let usage = await CouponUsageSchema.findOne({
@@ -1330,7 +1383,7 @@ const confirmWalletPayment = async (req, res) => {
         ],
         totalPrice: item.totalPrice,
         discount,
-        couponDiscount:discount,
+        couponDiscount: discount,
         couponApplied,
         finalAmount,
         address: selectedAddress._id,
@@ -1551,7 +1604,8 @@ const createRazorpayOrder = async (req, res) => {
         message: "Order not found",
       });
     }
-    const amount = order.finalAmount;
+    let amount = order.finalAmount;
+    amount = Math.round(amount);
 
     const options = {
       amount: amount * 100,

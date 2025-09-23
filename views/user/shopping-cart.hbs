@@ -343,6 +343,7 @@
         </div>
         <div class="cart-item-price">
           <span id="totalPrice-{{this._id}}">₹{{this.totalPrice}}</span>
+          <p>{{this.quantity}}</p>
           
           {{!-- removing an item --}}
           <a href="" data-itemid="{{this._id}}"  class="remove-item" id="removefromCart" onclick="removefromCart(event,'{{this._id}}')">✕</a>
@@ -433,15 +434,16 @@
 
 
 
-async function increaseQuantity(event, id,size) {
+/* async function increaseQuantity(event, id,size) {
   try {
     event.preventDefault();
 
     let quantityElem = document.getElementById(`quantity-display-${id}`);
-    let quantity = parseInt(quantityElem.textContent);
     let totalPriceOfItem=document.getElementById(`totalPrice-${id}`);
     let grandTotal=document.getElementById("grandTotal")
     let finalAmount=document.getElementById('finalAmount')
+
+    let quantity = parseInt(quantityElem.textContent);
 
     if(quantity>=5){
       return Toastify({
@@ -479,10 +481,10 @@ async function increaseQuantity(event, id,size) {
         className: "custom-toast",
       }).showToast();
 
-       quantityElem.textContent = data.quantity;
-       totalPriceOfItem.innerText=data.totalPrice;
-       grandTotal.innerText=data.grandTotal;
-       finalAmount.innerText=data.grandTotal;
+       if (data.quantity !== undefined) quantityElem.textContent = data.quantity;
+       if (data.totalPrice !== undefined) totalPriceOfItem.innerText=data.totalPrice;
+       if (data.grandTotal !== undefined) grandTotal.innerText=data.grandTotal;
+       if (data.grandTotal !== undefined) finalAmount.innerText=data.grandTotal;
 
      
     } else {
@@ -508,32 +510,22 @@ async function increaseQuantity(event, id,size) {
     console.error("Error increasing quantity:", err);
   }
 }
+*/
 
-async function decreaseQuantity(event, id,size) {
-  try {
-    event.preventDefault();
+async function increaseQuantity(event, id,size) {
+  event.preventDefault();
+  console.log(id)
 
     let quantityElem = document.getElementById(`quantity-display-${id}`);
-    let quantity = parseInt(quantityElem.textContent);
     let totalPriceOfItem=document.getElementById(`totalPrice-${id}`);
     let grandTotal=document.getElementById("grandTotal")
     let finalAmount=document.getElementById('finalAmount')
 
-    if(quantity<=1){
-      return removefromCart(event, id)
-    }
+    let quantity = parseInt(quantityElem.textContent);
 
-    const res = await fetch(`/decreaseQuantity/${id}`, {
-      method: "PATCH",
-      headers: { "Content-type": "application/json" },
-      body:JSON.stringify({quantity,size})
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      Toastify({
-        text: data.message,
+    if(quantity>=5){
+      return Toastify({
+        text: "Quantity should not be greater than Five",
         duration: 3000,
         close: true,
         gravity: "bottom",
@@ -543,16 +535,40 @@ async function decreaseQuantity(event, id,size) {
         },
         className: "custom-toast",
       }).showToast();
+    }
 
-      quantityElem.textContent = quantity - 1;
-      totalPriceOfItem.innerText=data.totalPrice
-      grandTotal.innerText=data.grandTotal
-      finalAmount.innerText=data.grandTotal;
+  try {
+    const res = await fetch(`/increaseQuantity/${id}`, {
+      method: "PATCH",
+      headers: { "Content-type": "application/json" },
+      body:JSON.stringify({quantity,size})
+    });
+
+  
+    const data = await res.json();
+    
+    if (res.ok) {
+      Toastify({
+        text: data.message||"Quantity increased",
+        duration: 3500,
+        close: true,
+        gravity: "bottom",
+        position: "center",
+        style: {
+          background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+        },
+        className: "custom-toast",
+      }).showToast();
+
+       if (data.quantity !== undefined) quantityElem.textContent = data.quantity;
+       if (data.totalPrice !== undefined) totalPriceOfItem.innerText=data.totalPrice;
+       if (data.grandTotal !== undefined) grandTotal.innerText=data.grandTotal;
+       if (data.grandTotal !== undefined) finalAmount.innerText=data.grandTotal;
 
      
     } else {
       Toastify({
-        text: "Failed to increase quantity",
+        text: data.message||"Failed to increase quantity",
         duration: 3000,
         close: true,
         gravity: "bottom",
@@ -565,6 +581,92 @@ async function decreaseQuantity(event, id,size) {
 
      
     }
+  } catch (err) {
+    console.error("Error increasing quantity:", err);
+    Toastify({
+      text: "Something went wrong",
+      duration: 3000,
+      close: true,
+      gravity: "bottom",
+      position: "center",
+      style: {
+        background: "linear-gradient(to right, #8B0000, #B22222, #DC143C)"
+      }
+    }).showToast();
+  }
+}
+
+
+
+async function decreaseQuantity(event, id,size) {
+  try {
+    event.preventDefault();
+
+    let quantityElem = document.getElementById(`quantity-display-${id}`);
+    let quantity = parseInt(quantityElem.textContent);
+    let totalPriceOfItem=document.getElementById(`totalPrice-${id}`);
+    let grandTotal=document.getElementById("grandTotal")
+    let finalAmount=document.getElementById('finalAmount')
+
+    if(quantity===1){
+      Toastify({
+        text: "Quantity should be greater one or more",
+        duration: 3000,
+        close: true,
+        gravity: "bottom",
+        position: "center",
+        style: {
+          background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+        },
+        className: "custom-toast",
+      }).showToast();
+    }else{
+      
+      const res = await fetch(`/decreaseQuantity/${id}`, {
+        method: "PATCH",
+        headers: { "Content-type": "application/json" },
+        body:JSON.stringify({quantity,size})
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        Toastify({
+          text: data.message,
+          duration: 3000,
+          close: true,
+          gravity: "bottom",
+          position: "center",
+          style: {
+            background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+          },
+          className: "custom-toast",
+        }).showToast();
+
+        quantityElem.textContent = quantity - 1;
+        totalPriceOfItem.innerText=data.totalPrice
+        grandTotal.innerText=data.grandTotal
+        finalAmount.innerText=data.grandTotal;
+
+      
+      } else {
+        Toastify({
+          text: data.message||"Failed to increase quantity",
+          duration: 3000,
+          close: true,
+          gravity: "bottom",
+          position: "center",
+          style: {
+            background: "linear-gradient(to right, #8B0000, #B22222, #DC143C)",
+          },
+          className: "custom-toast",
+        }).showToast();
+
+      
+      }
+
+    }
+
   } catch(err) {
     console.error("Error removing item:", err);
   }
@@ -670,8 +772,4 @@ async function loadPaymentMode(event){
 }
 
 
-
-
 </script>
-
-

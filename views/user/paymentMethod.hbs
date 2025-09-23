@@ -235,7 +235,7 @@
                             <div class="payment-info">
                                 <h6>RAZORPAY</h6>
                                 <small>Secure online payment gateway</small>
-                                <small>-Pay {{grandTotal}}</small>
+                                <small>-Pay ₹{{grandTotal}}</small>
                             </div>
                         </label>
                     </div>
@@ -249,12 +249,13 @@
                         <label class="payment-label form-check-label d-flex flex-column flex-grow-1" for="wallet">
                             <div class="payment-info">
                                 <h6>WALLETS</h6>
-                                <small>Use your Trenaura wallet to pay <span id="walletTotal">{{grandTotal}}</span></small>
+                                <small>Use your Trenaura wallet to pay ₹<span id="walletTotal">{{grandTotal}}</span></small>
                             </div>
                         </label>
                     </div>
                    
                     <!-- Cash on Delivery -->
+                    {{#if (lt grandTotal 1001)}}
                     <div class="form-check payment-option d-flex align-items-center" data-method="cod">
                         <input class="form-check-input me-3" type="radio" name="paymentMethod" id="cod" value="cod">
                         <div class="payment-icon">
@@ -263,10 +264,13 @@
                         <label class="payment-label form-check-label d-flex flex-column flex-grow-1" for="cod">
                             <div class="payment-info">
                                 <h6>CASH ON DELIVERY</h6>
-                                <small>Pay <span id="grandTotal">{{grandTotal}}</span> when you receive your order</small>
+                                <small>Pay ₹<span id="grandTotal">{{grandTotal}}</span> when you receive your order</small>
                             </div>
                         </label>
                     </div>
+                    {{else}}
+                    <p style="color: red; font-weight:900">Cash on Delivery (COD) is available exclusively for products with a price of ₹1000 or less</p>
+                    {{/if}}
                     
 
                 <div class="security-badge">
@@ -363,6 +367,21 @@
 
                 //if COD
                 if(paymentMethod==="cod"){ 
+                    
+                    if(grandTotal>=1000){
+                        return Toastify({
+                                    text: "Cash on Delivery (COD) is available exclusively for products with a price of ₹1000 or less",
+                                    duration: 3500,
+                                    close: true,
+                                    gravity: "top",
+                                    position: "center",
+                                    style: {
+                                        background: "linear-gradient(to right,#730202f2, #ba0d0d, #e00808e8)",
+                                    },
+                                    className: "custom-toast"
+                                }).showToast();
+                    }
+
                     //preventing from the button double click 
                     if (isSubmitting) return;
                     isSubmitting = true;

@@ -369,7 +369,7 @@
       <hr />
       <div class="summary-line">
         <span>Price ({{cartItems.length}} items)</span>
-        <span id="grandTotal">₹{{totalPrice}}</span>
+        <span id="grandTotal">₹<span id="finalAmount">{{totalPrice}}</span></span>
       </div>
       <div class="summary-line discount">
         <span>Discount</span>
@@ -413,7 +413,7 @@
 
       <div class="summary-line total">
         <span>Total</span>
-        <span>₹<span id="finalAmount">{{totalPrice}}</span></span>
+        <span>₹<span id="totalAmount">{{totalPrice}}</span></span>
       </div>
       <button onclick="loadPaymentMode(event)" id="checkout-btn">CONTINUE TO CHECKOUT</button>
       {{!-- <a href="/loadPaymentMode" id="checkout-btn">CONTINUE TO CHECKOUT</a> --}}
@@ -469,7 +469,7 @@ async function applyCoupon(event) {
       className: "custom-toast",
     }).showToast();
 
-    document.getElementById("finalAmount").innerText = `${data.finalAmount}`;
+    document.getElementById("totalAmount").innerText = `${data.finalAmount}`;
     document.getElementById("totalDiscount").innerText = `₹${data.discountAmount}`;
     document.getElementById("couponDiscount").innerText = `₹${data.discountAmount}`;
     document.getElementById("couponCode").value = data.couponCode;
@@ -523,7 +523,7 @@ async function removeCoupon(event) {
         className: "custom-toast",
       }).showToast();
 
-      document.getElementById("finalAmount").innerText = `${data.finalAmount}`;
+      document.getElementById("totalAmount").innerText = `${data.finalAmount}`;
       document.getElementById("totalDiscount").innerText = 0;
       document.getElementById("couponDiscount").innerText = 0;
       document.getElementById("coupon-input").value = "";

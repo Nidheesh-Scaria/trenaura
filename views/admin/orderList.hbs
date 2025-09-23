@@ -26,7 +26,7 @@
           <th>Order ID</th>
           <th>No. Items</th>
           <th>Date</th>
-          <th>Delivery Status</th>
+          {{!-- <th>Status</th> --}}
           <th>Price</th>
           <th>Paid Status</th>
           <th>Action</th>
@@ -45,8 +45,9 @@
             
             <td>{{formatDate this.createdAt}}</td>
 
-            <td>
-              {{!-- status --}}
+            {{!-- status --}}
+            {{!-- <td>
+              
               {{#if (eq this.currentStatus "Pending")}}
                     <span class="status status-pending">{{this.currentStatus}}</span>
                 {{else if (eq this.currentStatus "Shipped")}}
@@ -67,7 +68,7 @@
                 {{else}}
                     <span class="status">{{this.currentStatus}}</span>
                 {{/if}}
-            </td>
+            </td> --}}
             
             {{!-- <td>₹{{../finalAmount}}</td> --}}
             <td>₹{{this.finalAmount}}</td>

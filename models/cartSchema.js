@@ -29,7 +29,14 @@ const cartSchema = new Schema(
         },
         size: {
           type: String,
-          
+        },
+        discount: {
+          type: Number,
+          default: 0,
+        },
+        finalPrice: {
+          type: Number,
+          default: 0,
         },
         createdOn: {
           type: Date,

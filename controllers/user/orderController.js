@@ -435,6 +435,7 @@ const loadOrderSummary = async (req, res) => {
     const userId = req.session.user;
     const itemId = req.query.cartId;
     const size = req.query.size;
+    let deliveryCharge = 0;
 
     console.log("loadOrderSummary", itemId);
     console.log("loadOrderSummary size", size);
@@ -444,6 +445,8 @@ const loadOrderSummary = async (req, res) => {
     )
       .populate({
         path: "items.productId",
+        select:
+          "regularPrice salePrice productImages color productName appliedOffer",
         match: { isBlocked: false, isDeleted: false, isActive: true },
       })
       .lean();
@@ -454,7 +457,14 @@ const loadOrderSummary = async (req, res) => {
 
     const item = cart.items[0];
 
-    const totalPrice = item.totalPrice;
+    let totalPrice = item.totalPrice;
+    let discount = item.productId.regularPrice * item.quantity - totalPrice;
+    let finalAmount;
+
+    if (totalPrice < 2001) {
+      deliveryCharge = 54;
+      finalAmount = totalPrice + deliveryCharge;
+    }
 
     if (!item.productId) {
       return res
@@ -462,12 +472,28 @@ const loadOrderSummary = async (req, res) => {
         .send("Product not available for ordering");
     }
 
+    console.log(
+      `load order summary  for items ${item.quantity} totalPrice ${totalPrice}`
+    );
+    console.log("load order summary on item item.price:", item.price);
+    console.log("load order summary on discount:", discount);
+
+    console.log(
+      "load order summary item.productId.regularPrice:",
+      item.productId.regularPrice
+    );
+
+    finalAmount=totalPrice
+
     return res.render("user/orderSummary", {
       title: "Order Summary",
       adminHeader: true,
       hideFooter: false,
       item,
+      deliveryCharge,
       totalPrice,
+      finalAmount,
+      discount,
     });
   } catch (error) {
     console.error("Error in rendering loadOrderSummary:", error);
@@ -525,6 +551,8 @@ const loadPaymentMethod = async (req, res) => {
         0
       );
 
+      grandTotal = grandTotal + order.deliveryCharge;
+
       grandTotal = Number(grandTotal);
       console.log("grandtotal if retry payment", grandTotal);
       console.log(typeof grandTotal);
@@ -556,7 +584,13 @@ const loadPaymentMethod = async (req, res) => {
         return total + item.totalPrice;
       }, 0);
 
+      let deliveryCharge = 54;
       grandTotal = Number(grandTotal);
+
+      if (grandTotal < 2001) {
+        grandTotal = deliveryCharge + grandTotal;
+      }
+
       console.log("grandtotal if whole cart", grandTotal);
       console.log(typeof grandTotal);
 
@@ -610,6 +644,7 @@ const orderSuccess = async (req, res) => {
     let item;
     let savedOrder;
     let finalAmount;
+    let deliveryCharge=0;
     let isRetryPayment = false;
 
     let orderId = retryOrderId;
@@ -772,6 +807,11 @@ const orderSuccess = async (req, res) => {
       finalAmount = Math.max(item.totalPrice - discount, 0);
       finalAmount = Math.round(finalAmount);
 
+      if (finalAmount < 2001) {
+        deliveryCharge = 54;
+        finalAmount = finalAmount + deliveryCharge;
+      }
+
       newOrder = new Order({
         userId: userId,
         orderedItems: [
@@ -795,6 +835,7 @@ const orderSuccess = async (req, res) => {
         couponDiscount: discount,
         couponApplied,
         finalAmount,
+        deliveryCharge,
         address: selectedAddress._id,
         paymentMethod,
         paymentStatus: "Unpaid",
@@ -848,6 +889,11 @@ const orderSuccess = async (req, res) => {
       finalAmount = Math.max(totalPrice - discount, 0);
       finalAmount = Math.round(finalAmount);
 
+      if (finalAmount < 2001) {
+        deliveryCharge = 54;
+        finalAmount = finalAmount + deliveryCharge;
+      }
+
       if (discount > 0 && couponApplied) {
         orderedItems.forEach((item) => {
           const itemShare = item.totalPrice / totalPrice;
@@ -872,6 +918,7 @@ const orderSuccess = async (req, res) => {
         finalAmount,
         address: selectedAddress._id,
         paymentMethod,
+        deliveryCharge,
         paymentStatus: "Unpaid",
         isOrderPlaced: false,
       });

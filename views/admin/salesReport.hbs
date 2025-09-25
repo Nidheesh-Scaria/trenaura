@@ -253,10 +253,10 @@
             <tr>
               <td>{{this.user.name}}</td>
               <td>{{this.orderId}}</td>
-              <td>{{this.createdAt}}</td>
+              <td>{{this.date}}</td>
               <td>₹{{this.totalPrice}}</td>
-              <td>₹{{this.finalAmount}}</td>
-              <td>₹{{this.discount}}</td>
+              <td>₹{{this.finalAmounts}}</td>
+              <td>₹{{this.discounts}}</td>
               <td>{{#if this.coupon}}{{this.coupon.code}}{{else}}N/A{{/if}}</td>
             </tr>
           {{/each}}

@@ -59,23 +59,6 @@ const login = async (req, res) => {
 };
 
 
-const loadDashboard = async (req, res) => {
-  if (req.session.admin) {
-    try {
-      return res.render("admin/dashboard", {
-        title: "Admin Dashboard - Trenaura",
-        hideHeader: true,
-        hideFooter: true,
-        adminHeader: false,
-      });
-    } catch (error) {
-      console.error("Error rendering dashboard:", error);
-      return res.redirect("/pageNotFound");
-    }
-  } else {
-    return res.redirect("/admin/login");
-  }
-};
 
 
 const logout = async (req, res) => {
@@ -98,7 +81,6 @@ const logout = async (req, res) => {
 module.exports = {
   loadLogin,
   login,
-  loadDashboard,
   logout,
   
 };

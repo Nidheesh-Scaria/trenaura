@@ -73,6 +73,7 @@ router.get('/verify-otp-page',userAuth.userBlocked,userAuth.checkSession,userCon
 router.post('/addToCart/:id',userAuth.userBlocked,userAuth.checkSession, cartController.addToCart)
 router.post('/addToCarts/:id',userAuth.userBlocked,userAuth.checkSession, cartController.addToCart)
 router.get('/loadcartPage',userAuth.userBlocked,userAuth.checkSession, cartController.loadmyCart)
+router.get('/renderMyCart',userAuth.userBlocked,userAuth.checkSession, cartController.renderMyCart)
 router.patch('/increaseQuantity/:id',userAuth.userBlocked,userAuth.checkSession, cartController.increaseQuantity)
 router.patch('/decreaseQuantity/:id',userAuth.userBlocked,userAuth.checkSession, cartController.decreaseQuantity)
 router.delete("/removefromCart/:id",userAuth.userBlocked,userAuth.checkSession, cartController.removefromCart)

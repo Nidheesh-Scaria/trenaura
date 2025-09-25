@@ -95,16 +95,82 @@ const loadmyCart = async (req, res) => {
     const userId = req.session.user || req.user;
     const products = await Product.find().limit(8).lean();
 
+    const cart = await Cart.findOne({ userId }).populate({
+      path: "items.productId",
+      match: { isBlocked: false, isDeleted: false },
+    });
+
+    let totalPrice = 0;
+    let deliveryCharge = 0;
+    if (cart?.items?.length) {
+      // filter invalid products
+      cart.items = cart.items.filter((item) => item.productId !== null);
+
+      if (cart.items.length > 0) {
+        isCartEmpty = false;
+
+        // update prices in DB
+        cart.items.forEach((item) => {
+          const currentSalePrice = item.productId.salePrice;
+          item.price = currentSalePrice;
+          item.totalPrice = currentSalePrice * item.quantity;
+        });
+
+        // cart total
+        totalPrice = cart.items.reduce(
+          (total, item) => total + item.totalPrice,
+          0
+        );
+
+        if (totalPrice < 2000) {
+          deliveryCharge = 54;
+          totalPrice += deliveryCharge;
+        }
+
+        // save updated cart to DB
+        await cart.save();
+      }
+    }
+
+    return res.redirect("/renderMyCart");
+  } catch (error) {
+    console.error("Error in loadmyCart:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "An error occurred. Please try again later.",
+    });
+  }
+};
+
+const renderMyCart = async (req, res) => {
+  try {
+    const userId = req.session.user || req.user;
+    const products = await Product.find().limit(8).lean();
+
     const cart = await Cart.findOne({ userId })
       .populate({
         path: "items.productId",
         match: { isBlocked: false, isDeleted: false },
       })
       .lean();
+
     let totalPrice = 0;
+
     //sorting items with a valid productId .
     if (cart?.items?.length) {
       cart.items = cart.items.filter((item) => item.productId !== null);
+
+      cart.items = cart.items.map((item) => {
+        const currentSalePrice = item.productId.salePrice;
+        const updatedTotal = currentSalePrice * item.quantity;
+
+        // update the item
+        return {
+          ...item,
+          price: currentSalePrice,
+          totalPrice: updatedTotal,
+        };
+      });
 
       //total price of the cart items
       totalPrice = cart.items.reduce((total, item) => {
@@ -340,6 +406,161 @@ const removeCoupon = async (req, res) => {
   }
 };
 
+// const increaseQuantity = async (req, res) => {
+//   try {
+//     const { id: itemId } = req.params;
+//     const userId = req.session.user;
+//     const { quantity, size } = req.body;
+
+//     console.log("increaseQuantity", size);
+
+//     if (quantity >= 5) {
+//       return res.status(400).json({
+//         message: "!Sorry,quantity is limited to 5",
+//       });
+//     }
+
+//     const cart = await Cart.findOne({
+//       userId,
+//       "items._id": itemId,
+//       "items.size": size,
+//     }).populate("items.productId", "variants salePrice");
+
+//     if (!cart || !cart.items.length) {
+//       return res.status(400).json({ message: "Item not found" });
+//     }
+
+//     const item = cart.items.find((i) => i._id.toString() === itemId && i.size === size);
+//     const stock = item.productId.variants[cart.items[0].size];
+
+//     if (item.quantity >= stock) {
+//       return res.status(httpStatus.BAD_REQUEST).json({
+//         message: "Quantity should be less than the total stock of the product",
+//       });
+//     }
+
+//     // Increase quantity
+//     await Cart.updateOne(
+//       { userId, "items._id": itemId },
+//       { $inc: { "items.$.quantity": 1 } }
+//     );
+
+//     const updatedCart = await Cart.findOne({ userId })
+//       .populate("items.productId")
+//       .lean();
+
+//     const updatedItem = updatedCart.items.find(
+//       (i) => i._id.toString() === itemId && i.size === size
+//     );
+//     const totalPrice = updatedItem.quantity * updatedItem.price;
+//     let grandTotal = updatedCart.items.reduce((total, item) => {
+//       return total + item.price * item.quantity;
+//     }, 0);
+
+//     let deliveryCharge = 0;
+
+//     if (grandTotal < 2001) {
+//       deliveryCharge = 54;
+//       grandTotal += deliveryCharge;
+//     }
+//     //updating with new values
+//     await Cart.updateOne(
+//       { userId, "items._id": itemId },
+//       { $set: { "items.$.totalPrice": totalPrice } }
+//     );
+
+//     return res.status(httpStatus.OK).json({
+//       message: MESSAGES.CART.QUANTITY_INCREASE || "Increased by One",
+//       quantity: updatedItem.quantity,
+//       totalPrice,
+//       grandTotal,
+//       deliveryCharge,
+//     });
+//   } catch (error) {
+//     console.error("Error in increasing the quantity:", error);
+//     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+//       success: false,
+//       message: "An error occurred. Please try again later.",
+//     });
+//   }
+// };
+
+// const decreaseQuantity = async (req, res) => {
+//   try {
+//     const { id: itemId } = req.params;
+//     const userId = req.session.user;
+//     const { size } = req.body;
+//     console.log("decreaseQuantity+++++++++++++", size);
+
+//     // Fetch current item first
+//     const cart = await Cart.findOne({
+//       userId,
+//       "items._id": itemId,
+//       "items.size": size,
+//     }).lean();
+
+//     if (!cart || !cart.items.length) {
+//       return res
+//         .status(httpStatus.BAD_REQUEST)
+//         .json({ message: "Item not found" });
+//     }
+
+//     const item = cart.items;
+
+//     if (item.quantity <= 1) {
+//       return res
+//         .status(httpStatus.BAD_REQUEST)
+//         .json({ message: "Minimum quantity is 1" });
+//     }
+//     // Decrease quantity
+//     await Cart.updateOne(
+//       { userId, "items._id": itemId },
+//       { $inc: { "items.$.quantity": -1 } }
+//     );
+
+//     const updatedCart = await Cart.findOne({ userId })
+//       .populate("items.productId")
+//       .lean();
+
+//     const updatedItem = updatedCart.items.find(
+//       (i) => i._id.toString() === itemId && i.size === size
+//     );
+
+//     const totalPrice = updatedItem.quantity * updatedItem.price;
+//     const grandTotal = updatedCart.items.reduce((total, item) => {
+//       return total + item.quantity * item.price;
+//     }, 0);
+    
+//     let deliveryCharge = 0;
+
+//     if (grandTotal < 2001) {
+//       deliveryCharge = 54;
+//       grandTotal = grandTotal + deliveryCharge;
+//       console.log(deliveryCharge);
+//     }
+
+//     //updating with new values
+//     await Cart.updateOne(
+//       { userId, "items._id": itemId },
+//       { $set: { "items.$.totalPrice": totalPrice } }
+//     );
+
+//     return res.status(httpStatus.OK).json({
+//       message: MESSAGES.CART.QUANTITY_DECREASE || "Quantity decreased",
+//       quantity: updatedItem.quantity,
+//       totalPrice,
+//       grandTotal,
+//       deliveryCharge,
+//     });
+//   } catch (error) {
+//     console.error("Error in decreasing the quantity:", error);
+//     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+//       success: false,
+//       message: "An error occurred. Please try again later.",
+//     });
+//   }
+// };
+
 
 const increaseQuantity = async (req, res) => {
   try {
@@ -347,64 +568,61 @@ const increaseQuantity = async (req, res) => {
     const userId = req.session.user;
     const { quantity, size } = req.body;
 
-    console.log("increaseQuantity", size);
-
     if (quantity >= 5) {
-      return res.status(400).json({
-        message: "!Sorry,quantity is limited to 5",
-      });
+      return res.status(400).json({ message: "!Sorry, quantity is limited to 5" });
     }
 
-    const cart = await Cart.findOne(
-      { userId, "items._id": itemId, "items.size": size },
-      
-    ).populate("items.productId", "variants salePrice");
+    const cart = await Cart.findOne({
+      userId,
+      "items._id": itemId,
+      "items.size": size,
+    }).populate("items.productId");
 
-    if (!cart || !cart.items.length) {
+    if (!cart) {
       return res.status(400).json({ message: "Item not found" });
     }
 
-    const item = cart.items[0];
-    const stock = item.productId.variants[cart.items[0].size];
+    const item = cart.items.find((i) => i._id.toString() === itemId && i.size === size);
+    if (!item) {
+      return res.status(400).json({ message: "Item not found" });
+    }
 
+    const stock = item.productId.variants[item.size];
     if (item.quantity >= stock) {
-      return res.status(httpStatus.BAD_REQUEST).json({
+      return res.status(400).json({
         message: "Quantity should be less than the total stock of the product",
       });
     }
 
     // Increase quantity
-    await Cart.updateOne(
-      { userId, "items._id": itemId },
-      { $inc: { "items.$.quantity": 1 } }
-    );
+    item.quantity += 1;
 
-    const updatedCart = await Cart.findOne({ userId })
-      .populate("items.productId")
-      .lean();
+    // Recalculate price with latest salePrice
+    item.price = item.productId.salePrice;
+    item.totalPrice = item.price * item.quantity;
 
-    const updatedItem = updatedCart.items.find(
-      (i) => i._id.toString() === itemId && i.size === size
-    );
-    const totalPrice = updatedItem.quantity * updatedItem.price;
-    const grandTotal = updatedCart.items.reduce((total, item) => {
-      return total + item.price * item.quantity;
-    }, 0);
-    //updating with new values
-    await Cart.updateOne(
-      { userId, "items._id": itemId },
-      { $set: { "items.$.totalPrice": totalPrice } }
-    );
+    // Save
+    await cart.save();
 
-    return res.status(httpStatus.OK).json({
-      message: MESSAGES.CART.QUANTITY_INCREASE || "Increased by One",
-      quantity: updatedItem.quantity,
-      totalPrice,
+    // Recalculate grand total
+    let grandTotal = cart.items.reduce((total, i) => total + i.totalPrice, 0);
+    let deliveryCharge = 0;
+
+    if (grandTotal < 2000) {
+      deliveryCharge = 54;
+      grandTotal += deliveryCharge;
+    }
+
+    return res.status(200).json({
+      message: "Increased by One",
+      quantity: item.quantity,
+      totalPrice: item.totalPrice,
       grandTotal,
+      deliveryCharge,
     });
   } catch (error) {
     console.error("Error in increasing the quantity:", error);
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+    res.status(500).json({
       success: false,
       message: "An error occurred. Please try again later.",
     });
@@ -416,57 +634,51 @@ const decreaseQuantity = async (req, res) => {
     const { id: itemId } = req.params;
     const userId = req.session.user;
     const { size } = req.body;
-    console.log("decreaseQuantity+++++++++++++", size);
 
-    // Fetch current item first
-    const cart = await Cart.findOne(
-      { userId, "items._id": itemId, "items.size": size },
-      
-    ).lean();
+    const cart = await Cart.findOne({
+      userId,
+      "items._id": itemId,
+      "items.size": size,
+    }).populate("items.productId");
 
-    if (!cart || !cart.items.length) {
-      return res
-        .status(httpStatus.BAD_REQUEST)
-        .json({ message: "Item not found" });
+    if (!cart) {
+      return res.status(httpStatus.BAD_REQUEST).json({ message: "Item not found" });
     }
 
-    const item = cart.items;
+    const item = cart.items.find((i) => i._id.toString() === itemId && i.size === size);
+    if (!item) {
+      return res.status(httpStatus.BAD_REQUEST).json({ message: "Item not found" });
+    }
 
     if (item.quantity <= 1) {
-      return res
-        .status(httpStatus.BAD_REQUEST)
-        .json({ message: "Minimum quantity is 1" });
+      return res.status(httpStatus.BAD_REQUEST).json({ message: "Minimum quantity is 1" });
     }
+
     // Decrease quantity
-    await Cart.updateOne(
-      { userId, "items._id": itemId },
-      { $inc: { "items.$.quantity": -1 } }
-    );
+    item.quantity -= 1;
 
-    const updatedCart = await Cart.findOne({ userId })
-      .populate("items.productId")
-      .lean();
+    // Recalculate price with latest salePrice
+    item.price = item.productId.salePrice;
+    item.totalPrice = item.price * item.quantity;
 
-    const updatedItem = updatedCart.items.find(
-      (i) => i._id.toString() === itemId && i.size === size
-    );
+    // Save
+    await cart.save();
 
-    const totalPrice = updatedItem.quantity * updatedItem.price;
-    const grandTotal = updatedCart.items.reduce((total, item) => {
-      return total + item.quantity * item.price;
-    }, 0);
+    // Recalculate grand total
+    let grandTotal = cart.items.reduce((total, i) => total + i.totalPrice, 0);
+    let deliveryCharge = 0;
+    //setting the delivery charge if needed
+    if (grandTotal < 2000) {
+      deliveryCharge = 54;
+      grandTotal += deliveryCharge;
+    }
 
-    //updating with new values
-    await Cart.updateOne(
-      { userId, "items._id": itemId },
-      { $set: { "items.$.totalPrice": totalPrice } }
-    );
-
-    return res.status(httpStatus.OK).json({
-      message: MESSAGES.CART.QUANTITY_DECREASE || "Quantity decreased",
-      quantity: updatedItem.quantity,
-      totalPrice,
+    return res.status(200).json({
+      message: "Quantity decreased",
+      quantity: item.quantity,
+      totalPrice: item.totalPrice,
       grandTotal,
+      deliveryCharge,
     });
   } catch (error) {
     console.error("Error in decreasing the quantity:", error);
@@ -478,8 +690,6 @@ const decreaseQuantity = async (req, res) => {
 };
 
 
-
-
 module.exports = {
   addToCart,
   loadmyCart,
@@ -489,4 +699,5 @@ module.exports = {
   removefromCart,
   applyCoupon,
   removeCoupon,
+  renderMyCart,
 };

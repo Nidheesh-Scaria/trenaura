@@ -62,7 +62,7 @@
         }
 
         .cart-item img {
-            width: 100px;
+            width: 200px;
             height: auto;
             border-radius: 10%;
             object-fit: cover;
@@ -350,6 +350,7 @@
                     <h5>{{item.productId.productName}}</h5>
                     <p>Color: {{item.productId.color}}</p>
                     <p>Size: {{item.size}}</p>
+                    
                     <div class="quantity-selector">
                         <button type="button" class="qty-btn"
                             onclick="decreaseQuantity(event,'{{item._id}}','{{item.size}}')">&#8722;</button>
@@ -374,16 +375,12 @@
                 <p style="color:black" id="totalPrice-rightside">₹{{totalPrice}}</p>
             </div>
             <div class="summary-line discount">
-                <span>Discount</span>
+                <span>Discount(applied)</span>
                 <span id="totalDiscount">-₹{{discount}}</span>
             </div>
             <div class="summary-line">
                 <span>Delivery Charge</span>
-                <span>₹0</span>
-            </div>
-            <div class="summary-line">
-                <span>Platform Fee</span>
-                <span>₹0</span>
+                <span>₹<span id="deliveryCharge">{{deliveryCharge}}</span></span>
             </div>
             <div class="summary-line">
                 <span>Coupon Discount</span>
@@ -406,7 +403,7 @@
             </div>
             <div class="summary-line total">
                 <span>Total</span>
-                <span>₹<span id="finalAmount">{{totalPrice}}</span></span>
+                <span>₹<span id="finalAmount">{{finalAmount}}</span></span>
             </div>
             <button type="button" id="checkout-btn" onclick="chekout(event,'{{item._id}}')">CONTINUE TO CHECKOUT</button>
         </div>
@@ -451,10 +448,12 @@
                 }).showToast();
 
                 quantityElem.textContent = quantity + 1;
-                totalPriceElem.innerText = `₹${data.totalPrice}`;
-                document.getElementById("finalAmount").innerText = `${data.totalPrice}`;
+                totalPriceElem.innerText = `₹${data.totalPrice}`;   
+                console.log(data.deliveryCharge)
+                document.getElementById("finalAmount").innerText = `${data.grandTotal}`;
 
                 document.getElementById("totalPrice-rightside").innerText = `₹${data.totalPrice}`;
+                document.getElementById("deliveryCharge").innerText = `${data.deliveryCharge}`;
 
 
             } else {
@@ -519,9 +518,10 @@
 
                 quantityElem.textContent = quantity - 1;
                 totalPriceElem.innerText = `₹${data.totalPrice}`;
-                document.getElementById("finalAmount").innerText = `${data.totalPrice}`;
+                document.getElementById("finalAmount").innerText = `${data.grandTotal}`;
 
                 document.getElementById("totalPrice-rightside").innerText = `₹${data.totalPrice}`;
+                document.getElementById("deliveryCharge").innerText = `${data.deliveryCharge}`;
 
             } else {
                 Toastify({
@@ -544,62 +544,7 @@
     }
 
 
-    /*async function applyCoupon(event) {
-        event.preventDefault()
-        document.getElementById("coupon-error").innerHTML = ""
-        let couponCode = document.getElementById("coupon-input").value
-        let cartTotal = document.getElementById("finalAmount").innerText
-        const quantityElement = document.getElementsByClassName("qty-display")[0];
-        const quantity = parseInt(quantityElement.innerText, 10);
 
-        cartTotal = parseInt(cartTotal)
-        couponCode = couponCode.toUpperCase()
-
-        if (!couponCode) {
-            return document.getElementById("coupon-error").innerHTML = "Enter coupon to get discount"
-        }
-        const res = await fetch("/applyCoupon", {
-            method: "POST",
-            headers: { "Content-type": "application/json" },
-            body: JSON.stringify({ couponCode, cartTotal, quantity })
-        })
-
-        const data = await res.json()
-        if (res.ok) {
-            Toastify({
-                text: data.message || "item deleted",
-                duration: 3000,
-                close: true,
-                gravity: "bottom",
-                position: "center",
-                style: {
-                    background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
-                },
-                className: "custom-toast",
-            }).showToast();
-
-            document.getElementById("finalAmount").innerText = `${data.finalAmount}`
-            document.getElementById("totalDiscount").innerText = `₹${data.discountAmount}`
-            document.getElementById("couponDiscount").innerText = `₹${data.discountAmount}`
-            document.getElementById("couponCode").value = data.couponCode
-        } else {
-            Toastify({
-                text: data.message || "item deleted",
-                duration: 3000,
-                close: true,
-                gravity: "bottom",
-                position: "center",
-                style: {
-                    background: "linear-gradient(to right, #8B0000, #B22222, #DC143C)",
-                },
-                className: "custom-toast",
-            }).showToast();
-        }
-
-    }
-*/
-    
-    
 async function applyCoupon(event) {
     event.preventDefault();
     const applyBtn = document.getElementById("apply-btn");
@@ -722,7 +667,7 @@ async function removeCoupon(event) {
     
     
     
-    async function chekout(event,id) {
+async function chekout(event,id) {
         event.preventDefault();
 
         const cartIdInput = document.getElementById("cartId")
@@ -737,6 +682,6 @@ async function removeCoupon(event) {
         }
 
         window.location.href = url;
-    }
+}
 
 </script>

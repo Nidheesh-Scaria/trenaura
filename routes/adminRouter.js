@@ -13,13 +13,19 @@ const brandController = require("../controllers/admin/brandController");
 const orderController=require('../controllers/admin/orderController')
 const couponController=require("../controllers/admin/couponController")
 const salesReportController=require("../controllers/admin/salesReportController")
-
+const dashboardController=require("../controllers/admin/dashBoardController")
 
 
 router.post("/login", adminController.login);
 router.get("/logout", adminController.logout);
 router.get("/login", adminController.loadLogin);
-router.get("/dashboard", adminAuth.adminAuth, adminController.loadDashboard);
+
+//dashborad
+router.get("/dashboard",adminAuth.adminAuth,dashboardController.loadDashboard);
+router.get("/downloadLedger",adminAuth.adminAuth,dashboardController.downloadLedger)
+router.get("/getDashboardData",adminAuth.adminAuth,dashboardController.getDashboardData)
+
+
 
 //category
 router.post("/addCategory",adminAuth.adminAuth,categoryController.addCategory);
@@ -56,10 +62,7 @@ router.post("/unblockBrand/:id", adminAuth.adminAuth,brandController.unblockBran
 router.post("/blockBrand/:id", adminAuth.adminAuth,brandController.blockBrand);
 
 
-
-
 //order management
-
 router.get('/order',adminAuth.adminAuth,orderController.loadOrder)
 router.get('/orderMangement/:id',adminAuth.adminAuth,orderController.orderMangement) 
 router.post('/changeOrderStatus/:id',adminAuth.adminAuth,orderController.changeOrderStatus)

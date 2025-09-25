@@ -1,20 +1,786 @@
 <head>
-  <link rel="stylesheet" href="/css/adminDashboard.css" />
 
+    <link rel="stylesheet" href="/css/adminHeader.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #f5f6fa;
+            min-height: 100vh;
+            display: flex;
+        }
+
+
+        .container {
+            display: flex;
+            width: 100%;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Sidebar Styles */
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #132043;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            text-decoration: none;
+            color: #555;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .menu a:hover {
+            background: #eef2f6;
+            color: #132043;
+        }
+
+        .menu a.active,
+        .menu a.active:hover {
+            background: red;
+            color: white;
+            box-shadow: 0 4px 10px rgba(255, 0, 0, 0.2);
+        }
+
+        .menu a i {
+            font-size: 1rem;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.1rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #2c3e50, #000ea2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-icons i {
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .header-icons i:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: scale(1.1);
+        }
+
+        .header-icons img {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .header-icons img:hover {
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card h3 {
+            font-size: 1.1rem;
+            color: #6b7280;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .stat-count {
+            font-size: 0.95rem;
+            color: #6b7280;
+            font-weight: 500;
+            margin: 8px 0 0 0;
+            padding: 8px 12px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(102, 126, 234, 0.15);
+        }
+
+        .stat-card span {
+            display: inline-block;
+            font-size: 0.9rem;
+            color: #9ca3af;
+            font-weight: 500;
+            margin-top: 8px;
+            padding: 6px 12px;
+            background: rgba(156, 163, 175, 0.1);
+            border-radius: 6px;
+            border: 1px solid rgba(156, 163, 175, 0.15);
+            text-transform: lowercase;
+            letter-spacing: 0.3px;
+        }
+
+        /* Filters */
+        .filters {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .filters label {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 0.95rem;
+        }
+
+        .filters input[type="date"] {
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .filters input[type="date"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filters button {
+            background: linear-gradient(135deg, #031e9a, #110064);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .filters button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Charts */
+        .charts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .chart-card {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+
+
+        .chart-card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .chart-card canvas {
+            width: 100% !important;
+            height: auto !important;
+            max-height: 400px;
+        }
+
+        /* Ledger Form Styles */
+        #ledgerForm {
+            background: #f8f8f8;
+            border: 1px solid #eee;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        #ledgerForm label {
+            font-weight: normal;
+            color: #555;
+        }
+
+        #ledgerForm input[type="date"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        #ledgerForm button {
+            padding: 10px 20px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s ease;
+        }
+
+        #ledgerForm button:hover {
+            background: #b30000;
+        }
+
+
+        .chart-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 900px;
+            margin: 0 auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .chart-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .chart-card h2 {
+            color: #2d3748;
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #1b2d7d, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        thead {
+            background: linear-gradient(135deg, #02187e, #021a9d);
+        }
+
+        th {
+            padding: 18px 20px;
+            text-align: left;
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+        }
+
+        th:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 25%;
+            height: 50%;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        tbody tr:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        td {
+            padding: 16px 20px;
+            color: #4a5568;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        td:first-child {
+            font-weight: 700;
+            color: #091c6f;
+            font-size: 1.1rem;
+        }
+
+        td:nth-child(2) {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        td:nth-child(3) {
+            color: #38a169;
+            font-weight: 600;
+        }
+
+        td:nth-child(4) {
+            color: #d69e2e;
+            font-weight: 700;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .chart-card {
+                margin: 10px;
+                padding: 20px;
+                border-radius: 15px;
+            }
+
+            .chart-card h2 {
+                font-size: 1.5rem;
+                margin-bottom: 20px;
+            }
+
+            th,
+            td {
+                padding: 12px 10px;
+                font-size: 0.85rem;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Animation for loading effect */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chart-card {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        tbody tr {
+            animation: fadeInUp 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+
+        tbody tr:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        tbody tr:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        tbody tr:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        tbody tr:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        tbody tr:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        tbody tr:nth-child(6) {
+            animation-delay: 0.6s;
+        }
+
+        tbody tr:nth-child(7) {
+            animation-delay: 0.7s;
+        }
+
+        tbody tr:nth-child(8) {
+            animation-delay: 0.8s;
+        }
+
+        tbody tr:nth-child(9) {
+            animation-delay: 0.9s;
+        }
+
+        tbody tr:nth-child(10) {
+            animation-delay: 1s;
+        }
+    </style>
 </head>
 
+<body>
+    <div class="container">
+        <main class="main-content">
+            <header class="header">
+                <h1>Admin Dashboard</h1>
+                <div class="header-icons">
+                    <i class="fas fa-envelope"></i>
+                    <img src="https://i.pravatar.cc/40" alt="Profile">
+                </div>
+            </header>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Daily Sales</h3>
+                    <div class="stat-value" id="daily-sales"></div>
+                    <p class="stat-count" id="dailyCount"></p>
+                </div>
+                <div class="stat-card">
+                    <h3>Monthly Sales</h3>
+                    <div class="stat-value" id="monthly-sales"></div>
+                    <p class="stat-count" id="monthlyCount"></p>
+                </div>
+                <div class="stat-card">
+                    <h3>Cancelled Products </h3>
+                    <div class="stat-value" id="cancell-count"></div><span>Cancelled Products</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Returned Products</h3>
+                    <div class="stat-value" id="returned-count"></div><span>Returned Products</span>
+                </div>
+            </div>
+
+            {{!-- Filters for overview --}}
+            <div class="filters">
+                <label for="startDate">Start:</label>
+                <input type="date" id="startDate">
+                <label for="endDate">End:</label>
+                <input type="date" id="endDate">
+                <button id="applyFilter">Apply</button>
+            </div>
+
+            <div class="charts">
+                <div class="chart-card" style="grid-column: 1/-1;">
+                    <h2>Sales Overview</h2>
+                    <canvas id="salesOverviewChart"></canvas>
+                </div>
+                {{!-- <div class="chart-card">
+                    <h2>Top 10 Best Selling Products</h2>
+                    <canvas id="productChart"></canvas>
+                </div> --}}
+                <div class="chart-card">
+                    <h2>Top 10 Best Selling Categories</h2>
+                    <canvas id="categoryChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h2>Top 10 Best Selling Brands</h2>
+                    <canvas id="brandChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h2>Top 10 Best Selling Products</h2>
+                <table style="width:100%; border-collapse: collapse; margin-top: 10px;">
+                    <thead>
+                        <tr>
+                            <th style="padding:8px; text-align:left;">No</th>
+                            <th style="padding:8px; text-align:left;">Product Name</th>
+                            <th style="padding:8px; text-align:left;">Quantity Sold</th>
+                            <th style="padding:8px; text-align:left;">Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTableBody">
+
+                    </tbody>
+                </table>
+            </div>
 
 
-<main class="main-content">
-  <header class="header">
-    <h1>Admin Dashboard</h1>
-      <div class="header-icons">
-        {{!-- <input type="text" placeholder="Search...">
-        <button type="submit" class="btn btn-success " style="height:2.1rem; border-radius: 25px; color:white; background-color:rgba(10, 10, 117, 0.79)" id="searchUserButton">Search</button> --}}
-        <i class="fas fa-bell"></i>
-        <i class="fas fa-envelope"></i>
-        <img src="https://i.pravatar.cc/40" alt="Profile">
-      </div>
-  </header> 
-</main>
- 
+            {{!-- Ledger download --}}
+            <div class="chart-card" style="margin-top: 25px;">
+                <h2>General Ledger</h2>
+                <form id="ledgerForm" action="/admin/downloadLedger" method="GET"
+                    style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <label>Start Date: <input type="date" name="startDate" required></label>
+                    <label>End Date: <input type="date" name="endDate" required></label>
+                    <button type="submit"><i class="fas fa-download"></i> Download Ledger</button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+
+
+
+
+    <script>
+
+
+        let productChart, categoryChart, brandChart, salesOverviewChart;
+
+
+        function populateProductTable(labels, data, price) {
+            const tbody = document.getElementById("productTableBody");
+            tbody.innerHTML = "";
+
+            labels.forEach((name, index) => {
+
+                const tr = document.createElement("tr");
+                tr.style.borderBottom = "1px solid #ddd";
+
+                const tdNumber = document.createElement("td")
+                tdNumber.textContent = index + 1
+                tdNumber.style.padding = "8px"
+
+                const tdName = document.createElement("td");
+                tdName.textContent = name;
+                tdName.style.padding = "8px";
+
+                const tdQty = document.createElement("td");
+                tdQty.textContent = data[index];
+                tdQty.style.padding = "8px";
+
+                const tdPrice = document.createElement("td");
+                tdPrice.textContent = price[index];
+                tdPrice.style.padding = "8px";
+
+
+                tr.appendChild(tdNumber)
+                tr.appendChild(tdName);
+                tr.appendChild(tdQty);
+                tr.appendChild(tdPrice);
+                tbody.appendChild(tr);
+            });
+        }
+
+
+        function createBarChart(ctx, labels, data, color = "#132043") {
+            return new Chart(ctx, {
+                type: "bar",
+                data: { labels, datasets: [{ data, backgroundColor: color }] },
+                options: { responsive: true, plugins: { legend: { display: false } } },
+            });
+        }
+
+
+        function createLineChart(ctx, labels, data, color = "#132043") {
+            return new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            label: "Sales",
+                            data,
+                            fill: true,
+                            borderColor: color,
+                            backgroundColor: "rgba(19,32,67,0.2)",
+                        },
+                    ],
+                },
+                options: { responsive: true, plugins: { legend: { display: true } } },
+            });
+        }
+
+        async function fetchDashboardData(startDate, endDate) {
+            try {
+                const res = await fetch(
+                    `/admin/getDashboardData?startDate=${startDate}&endDate=${endDate}`
+                );
+
+                const data = await res.json();
+                if (productChart) productChart.destroy();
+                if (categoryChart) categoryChart.destroy();
+                if (brandChart) brandChart.destroy();
+                if (salesOverviewChart) salesOverviewChart.destroy();
+
+
+                const trimmedLabels = data.topProducts.labels.map(name => name.slice(0, 8));
+                /* productChart = createBarChart(
+                  document.getElementById("productChart"),
+                  data.topProducts.labels,
+                  data.topProducts.data
+                ); */
+                populateProductTable(
+                    data.topProducts.labels,
+                    data.topProducts.data,
+                    data.topProducts.price,
+                );
+
+                categoryChart = createBarChart(
+                    document.getElementById("categoryChart"),
+                    data.topCatgories.labels,
+                    data.topCatgories.data,
+                    "rgba(255,99,132,0.8)"
+                );
+                brandChart = createBarChart(
+                    document.getElementById("brandChart"),
+                    data.topBrands.labels,
+                    data.topBrands.data,
+                    "rgba(54,162,235,0.8)"
+                );
+                salesOverviewChart = createLineChart(
+                    document.getElementById("salesOverviewChart"),
+                    data.salesOverview.labels,
+                    data.salesOverview.data
+                );
+
+                //status card top
+                //daily sales
+                document.getElementById("daily-sales").innerHTML = `₹${data.dailySales.totalPrice}`
+                document.getElementById("dailyCount").innerHTML = `${data.dailySales.totalOrders} orders today`
+                //monthly sales
+                document.getElementById("monthly-sales").innerHTML = `₹${data.monthlySales.totalPrice}`
+                document.getElementById("monthlyCount").innerHTML = `${data.monthlySales.totalOrders} orders this month `
+                //cancel and returned products
+                document.getElementById("cancell-count").innerHTML = `${data.cancelledItems.totalCancelledItems}`
+                document.getElementById("returned-count").innerHTML = `${data.returnedItems.totalReturnedItems}`
+
+
+            } catch (err) {
+                console.error("Error fetching dashboard data:", err);
+            }
+        }
+
+        document.getElementById("applyFilter").addEventListener("click", () => {
+            const startDate = document.getElementById("startDate").value;
+            const endDate = document.getElementById("endDate").value;
+
+            if (!startDate || !endDate) {
+                Toastify({
+                    text: "Please select both start and end dates",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "center",
+                    style: {
+                        background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+                    },
+                    className: "custom-toast",
+                }).showToast();
+                return;
+            }
+
+            fetchDashboardData(startDate, endDate);
+        });
+
+        window.addEventListener("DOMContentLoaded", () => {
+            const today = new Date().toISOString().split("T")[0];
+            document.getElementById("endDate").value = today;
+
+            const past = new Date();
+            past.setDate(past.getDate() - 30);
+            const pastDate = past.toISOString().split("T")[0];
+            document.getElementById("startDate").value = pastDate;
+
+            fetchDashboardData(pastDate, today);
+        });
+
+    </script>
+</body>

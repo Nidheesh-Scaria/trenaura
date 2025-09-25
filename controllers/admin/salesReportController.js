@@ -38,7 +38,6 @@ const loadSalesReport = async (req, res) => {
       };
     }
 
-    
     let searchFilter = {};
     if (search) {
       searchFilter = { orderId: { $regex: search, $options: "i" } };
@@ -46,14 +45,12 @@ const loadSalesReport = async (req, res) => {
 
     const query = { ...dateFilter, ...searchFilter };
 
-    
     const orders = await OrderSchema.find(query)
       .populate("userId", "name email")
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
       .lean();
-
 
     let summary = await OrderSchema.aggregate([
       { $match: query },
@@ -81,11 +78,14 @@ const loadSalesReport = async (req, res) => {
       order: orders.map((o) => ({
         ...o,
         user: o.userId,
+        date:new Date(o.createdAt).toLocaleDateString(),
+        finalAmounts:Math.round(o.finalAmount),
+        discounts:Math.round(o.discount)
       })),
-      totalSales: summaryData.totalSales,
-      totalDiscount: summaryData.totalDiscount,
-      totalCoupon: summaryData.totalCoupon,
-      totalOrders: summaryData.totalOrders,
+      totalSales:Math.round(summaryData.totalSales) ,
+      totalDiscount: Math.round(summaryData.totalDiscount) ,
+      totalCoupon:Math.round(summaryData.totalCoupon),
+      totalOrders:Math.round(summaryData.totalOrders),
       startDate: startDate ? moment(startDate).format("YYYY-MM-DD") : "",
       endDate: endDate ? moment(endDate).format("YYYY-MM-DD") : "",
       filter,
@@ -99,7 +99,6 @@ const loadSalesReport = async (req, res) => {
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false });
   }
 };
-
 
 const salesReportDownload = async (req, res) => {
   try {
@@ -118,6 +117,7 @@ const salesReportDownload = async (req, res) => {
 
     const order = await OrderSchema.find(dateFilter)
       .populate("userId", "name")
+      .populate("orderedItems.productId", "productName")
       .sort({ createdAt: -1 })
       .lean();
 
@@ -126,24 +126,32 @@ const salesReportDownload = async (req, res) => {
       const worksheet = workbook.addWorksheet("Sales Report");
 
       worksheet.columns = [
+        { header: "Date", key: "createdAt", width: 20 },
         { header: "User Name", key: "user", width: 20 },
         { header: "Order ID", key: "orderId", width: 30 },
-        { header: "Date", key: "createdAt", width: 20 },
-        { header: "Total", key: "totalPrice", width: 15 },
+        { header: "Product", key: "productName", width: 30 },
+        { header: "Quantity", key: "quantity", width: 15 },
+        { header: "Total Price", key: "totalPrice", width: 15 },
         { header: "Final Amount", key: "finalAmount", width: 15 },
         { header: "Discount", key: "discount", width: 15 },
+        { header: "Coupon Discount", key: "couponDiscount", width: 15 },
         { header: "Coupon", key: "coupon", width: 15 },
       ];
 
       order.forEach((orders) => {
-        worksheet.addRow({
-          user: orders.userId.name || "N/A",
-          orderId: orders.orderId,
-          createdAt: orders.createdAt,
-          totalPrice: orders.totalPrice,
-          finalAmount: orders.finalAmount,
-          discount: orders.discount,
-          coupon: orders.couponApplied ? "Yes" : "No",
+        orders.orderedItems.forEach((item) => {
+          worksheet.addRow({
+            createdAt: new Date(orders.createdAt).toLocaleDateString(),
+            user: orders.userId.name || "N/A",
+            orderId: orders.orderId,
+            productName: item.productId.productName,
+            quantity: item.quantity,
+            totalPrice: item.totalPrice,
+            finalAmount: orders.finalAmount,
+            discount: orders.discount,
+            couponDiscount: orders.couponDiscount,
+            coupon: orders.couponApplied ? "Yes" : "No",
+          });
         });
       });
 
@@ -165,30 +173,145 @@ const salesReportDownload = async (req, res) => {
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
-        "attachement; filename=sales-report.pdf"
+        "attachment; filename=sales-report.pdf"
       );
 
       doc.pipe(res);
 
-      doc.fontSize(18).text("Sales Reportt", { align: "center" });
-      doc.moveDown();
+      // Title
+      doc.fontSize(18).text("Sales Report", { align: "center" });
+      doc.moveDown(1);
 
-      order.forEach((orders) => {
-        doc
-          .fontSize(12)
-          .text(
-            `User: ${orders.userId?.name || "N/A"} | OrderID: ${
-              orders.orderId
-            } | Date: ${new Date(
-              orders.createdAt
-            ).toLocaleDateString()} | Total: ₹${orders.totalPrice} | Final: ₹${
-              orders.finalAmount
-            } | Discount: ₹${orders.discount} | Coupon: ${
-              orders.couponApplied ? "Yes" : "No"
-            }`
-          );
-        doc.moveDown(0.5);
+      const tableTop = 100;
+      const itemX = 30;
+
+      // Column widths
+      const columnWidths = {
+        user: 100,
+        orderId: 100,
+        product: 150,
+        date: 60,
+        quantity: 50,
+        finalAmount: 70,
+        discount: 60,
+        coupon: 50,
+      };
+
+      const rowPadding = 5;
+
+      // Table header
+      doc
+        .fontSize(12)
+        .text("User", itemX, tableTop, { width: columnWidths.user });
+      doc.text("Order Id", itemX + columnWidths.user, tableTop, {
+        width: columnWidths.orderId,
       });
+      doc.text(
+        "Product",
+        itemX + columnWidths.user + columnWidths.orderId,
+        tableTop,
+        { width: columnWidths.product }
+      );
+      doc.text(
+        "Date",
+        itemX + columnWidths.user + columnWidths.orderId + columnWidths.product,
+        tableTop,
+        { width: columnWidths.date }
+      );
+      doc.text(
+        "Quantity",
+        itemX +
+          columnWidths.user +
+          columnWidths.orderId +
+          columnWidths.product +
+          columnWidths.date,
+        tableTop,
+        { width: columnWidths.quantity }
+      );
+      doc.text(
+        "Final Amount",
+        itemX +
+          columnWidths.user +
+          columnWidths.orderId +
+          columnWidths.product +
+          columnWidths.date +
+          columnWidths.quantity,
+        tableTop,
+        { width: columnWidths.finalAmount }
+      );
+      // doc.text("Discount", itemX + columnWidths.user + columnWidths.orderId + columnWidths.product + columnWidths.date + columnWidths.quantity + columnWidths.finalAmount, tableTop, { width: columnWidths.discount });
+      // doc.text("Coupon", itemX + columnWidths.user + columnWidths.orderId + columnWidths.product + columnWidths.date + columnWidths.quantity + columnWidths.finalAmount + columnWidths.discount, tableTop, { width: columnWidths.coupon });
+
+      let y = tableTop + 25;
+
+      order.forEach((order) => {
+        order.orderedItems.forEach((item) => {
+          // Calculate row height based on tallest cell
+          const userHeight = doc.heightOfString(order.userId?.name || "N/A", {
+            width: columnWidths.user,
+          });
+          const productHeight = doc.heightOfString(item.productId.productName, {
+            width: columnWidths.product,
+          });
+          const rowHeight = Math.max(userHeight, productHeight) + rowPadding;
+
+          // Page break if row exceeds page
+          if (y + rowHeight > doc.page.height - 40) {
+            doc.addPage();
+            y = 70;
+          }
+
+          // Row data
+          doc.text(order.userId?.name || "N/A", itemX, y, {
+            width: columnWidths.user,
+          });
+          doc.text(order.orderId, itemX + columnWidths.user, y, {
+            width: columnWidths.orderId,
+          });
+          doc.text(
+            item.productId.productName.slice(0, 20),
+            itemX + columnWidths.user + columnWidths.orderId,
+            y,
+            { width: columnWidths.product }
+          );
+          doc.text(
+            new Date(order.createdAt).toLocaleDateString(),
+            itemX +
+              columnWidths.user +
+              columnWidths.orderId +
+              columnWidths.product,
+            y,
+            { width: columnWidths.date }
+          );
+          doc.text(
+            item.quantity,
+            itemX +
+              columnWidths.user +
+              columnWidths.orderId +
+              columnWidths.product +
+              columnWidths.date,
+            y,
+            { width: columnWidths.quantity }
+          );
+          doc.text(
+            `₹${order.finalAmount}`,
+            itemX +
+              columnWidths.user +
+              columnWidths.orderId +
+              columnWidths.product +
+              columnWidths.date +
+              columnWidths.quantity,
+            y,
+            { width: columnWidths.finalAmount }
+          );
+          // doc.text(`₹${item.discount || 0}`, itemX + columnWidths.user + columnWidths.orderId + columnWidths.product + columnWidths.date + columnWidths.quantity + columnWidths.finalAmount, y, { width: columnWidths.discount });
+          // doc.text(order.couponApplied ? "Yes" : "No", itemX + columnWidths.user + columnWidths.orderId + columnWidths.product + columnWidths.date + columnWidths.quantity + columnWidths.finalAmount + columnWidths.discount, y, { width: columnWidths.coupon });
+
+          // Move y to next row
+          y += rowHeight;
+        });
+      });
+
       doc.end();
     } else {
       return res.json("Invaid Format");

@@ -12,6 +12,7 @@ const sessionMiddleware = require("./middleware/session");
 const localsMiddleware = require("./middleware/locals");
 const errorHandler = require("./middleware/errorHandler");
 
+
 const userRouter = require("./routes/userRouter");
 const adminRouter = require("./routes/adminRouter");
 

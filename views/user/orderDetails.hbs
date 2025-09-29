@@ -1398,8 +1398,8 @@ button[type="button"]:hover {
           <span>Total Price ({{orders.orderedItems.length}} items)</span>
           <span>₹ {{orders.totalPrice}}</span>
         </div>
-        <div class="price-item"><span>Delivery Charges</span><span class="free">FREE</span></div>
-        <div class="price-item"><span>Discount</span>₹<span> 0</span></div>
+        <div class="price-item"><span>Delivery Charges</span><span class="free">₹{{orders.deliveryCharge}}</span></div>
+        <div class="price-item"><span>Discount</span><span>₹{{orders.couponDiscount}}</span></div>
 
         <hr>
 

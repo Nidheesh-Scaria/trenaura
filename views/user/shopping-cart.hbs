@@ -368,9 +368,9 @@
       </div>
       <div class="summary-line">
         <span>Delivery Charge</span>
-        <span>₹0</span>
+        <span>₹<span id="deliveryCharge">{{deliveryCharge}}</span></span>
       </div>
-      <div class="summary-line">
+      {{!-- <div class="summary-line">
         <span>Platform Fee</span>
         <span>₹0</span>
       </div>
@@ -378,7 +378,7 @@
         <span>Coupon Discount</span>
         <span id="couponDiscount">₹0</span>
       </div>
-        {{!-- <div class="couponDiv">
+      <div class="couponDiv">
         <input type="hidden" id="couponCode">
         <input type="text" placeholder="APPLY A COUPON CODE -eg:COP101" class="coupon-input" id="coupon-input"/><button onclick="applyCoupon(event)">Apply</button>
         <p id="coupon-error" style="color: red;"></p>
@@ -386,9 +386,9 @@
       </div> --}}
       <div class="summary-line total">
         <span>Total</span>
-        <span>₹<span id="finalAmount">{{totalPrice}}</span></span>
+        <span>₹<span id="finalAmount">{{finalAmount}}</span></span>
       </div>
-      <button onclick="loadPaymentMode(event)" id="checkout-btn">PLACE ORDER</button>
+      <button onclick="loadAddressForOrder(event)" id="checkout-btn">PLACE ORDER</button>
       {{!-- <a href="/loadPaymentMode" id="checkout-btn">CONTINUE TO CHECKOUT</a> --}}
     </div>
   </div>
@@ -518,8 +518,10 @@ async function increaseQuantity(event, id,size) {
 
     let quantityElem = document.getElementById(`quantity-display-${id}`);
     let totalPriceOfItem=document.getElementById(`totalPrice-${id}`);
+    
     let grandTotal=document.getElementById("grandTotal")
     let finalAmount=document.getElementById('finalAmount')
+    let deliveryCharge=document.getElementById("deliveryCharge")
 
     let quantity = parseInt(quantityElem.textContent);
 
@@ -564,6 +566,7 @@ async function increaseQuantity(event, id,size) {
        if (data.totalPrice !== undefined) totalPriceOfItem.innerText=data.totalPrice;
        if (data.grandTotal !== undefined) grandTotal.innerText=data.grandTotal;
        if (data.grandTotal !== undefined) finalAmount.innerText=data.grandTotal;
+       if (data.deliveryCharge !== undefined) deliveryCharge.innerText=data.deliveryCharge
 
      
     } else {
@@ -607,6 +610,7 @@ async function decreaseQuantity(event, id,size) {
     let totalPriceOfItem=document.getElementById(`totalPrice-${id}`);
     let grandTotal=document.getElementById("grandTotal")
     let finalAmount=document.getElementById('finalAmount')
+    let deliveryCharge=document.getElementById("deliveryCharge")
 
     if(quantity===1){
       Toastify({
@@ -647,6 +651,7 @@ async function decreaseQuantity(event, id,size) {
         totalPriceOfItem.innerText=data.totalPrice
         grandTotal.innerText=data.grandTotal
         finalAmount.innerText=data.grandTotal;
+        if (data.deliveryCharge !== undefined) deliveryCharge.innerText=data.deliveryCharge
 
       
       } else {
@@ -764,7 +769,7 @@ async function addWishlist(event,id){
   url="/cartOrderSummary"
   window.location.href = url;
 } */
-async function loadPaymentMode(event){
+async function loadAddressForOrder(event){
   event.preventDefault()
   //let url="/cartOrderSummary" 
   let url="/loadAddressForOrder"

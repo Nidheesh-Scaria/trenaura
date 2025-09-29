@@ -14,7 +14,7 @@ const orderController=require('../controllers/admin/orderController')
 const couponController=require("../controllers/admin/couponController")
 const salesReportController=require("../controllers/admin/salesReportController")
 const dashboardController=require("../controllers/admin/dashBoardController")
-
+const settingsController=require("../controllers/admin/settingsController")
 
 router.post("/login", adminController.login);
 router.get("/logout", adminController.logout);
@@ -24,6 +24,10 @@ router.get("/login", adminController.loadLogin);
 router.get("/dashboard",adminAuth.adminAuth,dashboardController.loadDashboard);
 router.get("/downloadLedger",adminAuth.adminAuth,dashboardController.downloadLedger)
 router.get("/getDashboardData",adminAuth.adminAuth,dashboardController.getDashboardData)
+
+//settings
+router.get("/settings",settingsController.loadSettings);
+router.post("/delivery-charge",settingsController.setDeliveryCharge)
 
 
 

@@ -9,6 +9,7 @@ const Wallet = require("../../models/walletSchema");
 const WalletTopupOrder = require("../../models/walletTopupOrderSchema ");
 const CouponSchema = require("../../models/couponSchema");
 const CouponUsageSchema = require("../../models/couponUsageSchema ");
+const DeliveryCharge = require("../../models/deliveryChargeSchema");
 
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
@@ -21,6 +22,7 @@ const { default: mongoose } = require("mongoose");
 const razorpay = require("../../config/razorpay");
 const razorpayInstance = require("../../config/razorpay");
 const crypto = require("crypto");
+const { settings } = require("cluster");
 
 //order management
 
@@ -95,6 +97,30 @@ const crypto = require("crypto");
 //     });
 //   }
 // };
+
+const getDeliveryCharge = async (totalAmount) => {
+  const deliveryCharge = await DeliveryCharge.findOne();
+
+  if (
+    deliveryCharge.freeDeliveryAbove &&
+    totalAmount > deliveryCharge.freeDeliveryAbove
+  ) {
+    return 0;
+  }
+
+  if (deliveryCharge.type === "fixed") {
+    return deliveryCharge.fixedCharge;
+  }
+  // if (deliveryCharge.type === "location") {
+  //   let city = userAddress;
+
+  //   let locationCharge = deliveryCharge.locationCharges.find(
+  //     (lc) => lc.location.toLowerCase() === city.toLowerCase()
+  //   );
+  //   return locationCharge ? locationCharge.charge : 54; //if no city delivery charge 54
+  // }
+  return 0;
+};
 
 const debitWallet = async (userId, orderId, amount) => {
   return Wallet.findOneAndUpdate(
@@ -213,6 +239,8 @@ const orderDetails = async (req, res) => {
         couponApplied: 1,
         paymentStatus: 1,
         paymentDate: 1,
+        couponDiscount:1,
+        deliveryCharge:1,
         razorpayPaymentId: 1,
         orderId: 1,
         isOrderPlaced: 1,
@@ -459,31 +487,15 @@ const loadOrderSummary = async (req, res) => {
 
     let totalPrice = item.totalPrice;
     let discount = item.productId.regularPrice * item.quantity - totalPrice;
-    let finalAmount;
 
-    if (totalPrice < 2001) {
-      deliveryCharge = 54;
-      finalAmount = totalPrice + deliveryCharge;
-    }
+    deliveryCharge = await getDeliveryCharge(totalPrice);
+    let finalAmount = deliveryCharge + totalPrice;
 
     if (!item.productId) {
       return res
         .status(httpStatus.BAD_REQUEST)
         .send("Product not available for ordering");
     }
-
-    console.log(
-      `load order summary  for items ${item.quantity} totalPrice ${totalPrice}`
-    );
-    console.log("load order summary on item item.price:", item.price);
-    console.log("load order summary on discount:", discount);
-
-    console.log(
-      "load order summary item.productId.regularPrice:",
-      item.productId.regularPrice
-    );
-
-    finalAmount=totalPrice
 
     return res.render("user/orderSummary", {
       title: "Order Summary",
@@ -513,8 +525,8 @@ const loadPaymentMethod = async (req, res) => {
     let { itemId, couponCode, amount, orderId } = req.query;
 
     console.log("loadPaymentMethod cartId::", itemId);
-    console.log("loadPaymentMethod amountd::", amount);
-    console.log("loadPaymentMethod amountd::", typeof amount);
+    console.log("loadPaymentMethod amount::", amount);
+    console.log("loadPaymentMethod type of amount::", typeof amount);
     //for retry payments
     if (orderId) {
       const order = await Order.findById(orderId)
@@ -573,23 +585,22 @@ const loadPaymentMethod = async (req, res) => {
         .populate("items.productId", "productName productImages salePrice")
         .lean();
 
-      //cheking ifthe cart is empty
+      //cheking if the cart is empty
       if (!cart || !cart.items || cart.items.length === 0) {
         return res
           .status(httpStatus.BAD_REQUEST)
           .json({ message: MESSAGES.CART.CART_EMPTY || "Cart is empty" });
       }
 
-      const grandTotal = cart.items.reduce((total, item) => {
+      let grandTotal = cart.items.reduce((total, item) => {
         return total + item.totalPrice;
       }, 0);
 
-      let deliveryCharge = 54;
+      let deliveryCharge = await getDeliveryCharge(grandTotal);
+
       grandTotal = Number(grandTotal);
 
-      if (grandTotal < 2001) {
-        grandTotal = deliveryCharge + grandTotal;
-      }
+      grandTotal += deliveryCharge;
 
       console.log("grandtotal if whole cart", grandTotal);
       console.log(typeof grandTotal);
@@ -613,7 +624,11 @@ const loadPaymentMethod = async (req, res) => {
     let grandTotal = item.totalPrice;
 
     grandTotal = Number(grandTotal);
+    let deliveryCharge = await getDeliveryCharge(grandTotal);
+    grandTotal += deliveryCharge;
     console.log("grandtotal if one product", grandTotal);
+    console.log("deliveryCharge if one product", deliveryCharge);
+
     console.log(typeof grandTotal);
 
     return res.render("user/paymentMethod", {
@@ -644,7 +659,7 @@ const orderSuccess = async (req, res) => {
     let item;
     let savedOrder;
     let finalAmount;
-    let deliveryCharge=0;
+    let deliveryCharge = 0;
     let isRetryPayment = false;
 
     let orderId = retryOrderId;
@@ -667,8 +682,6 @@ const orderSuccess = async (req, res) => {
     //       : `/order-placed?itemId=${itemId}&isWholeCart=${isWholeCart}`,
     //   });
     // }
-
-    //getting address
 
     if (orderId) {
       const order = await Order.findById(orderId);
@@ -800,17 +813,19 @@ const orderSuccess = async (req, res) => {
         } else if (coupon.discountType === "percentage") {
           discount = (coupon.discountValue / 100) * item.totalPrice;
         }
+        discount=Math.round(discount)
         couponApplied = true;
       }
+      deliveryCharge = await getDeliveryCharge(item.totalPrice);
+      let totalDiscount =Math.round(discount) || 0;
 
-      // const finalAmount = item.totalPrice - discount;
-      finalAmount = Math.max(item.totalPrice - discount, 0);
+      totalDiscount = Math.min(totalDiscount,item.totalPrice);
+      let finalAmount = Math.max(
+        (item.totalPrice) - totalDiscount,
+        0
+      );
+      finalAmount += deliveryCharge;
       finalAmount = Math.round(finalAmount);
-
-      if (finalAmount < 2001) {
-        deliveryCharge = 54;
-        finalAmount = finalAmount + deliveryCharge;
-      }
 
       newOrder = new Order({
         userId: userId,
@@ -860,6 +875,7 @@ const orderSuccess = async (req, res) => {
         (sum, item) => sum + item.totalPrice,
         0
       );
+      console.log("order success totalPrice", totalPrice);
 
       let discount = 0;
       let couponApplied = false;
@@ -881,18 +897,20 @@ const orderSuccess = async (req, res) => {
         } else if (coupon.discountType === "percentage") {
           discount = (coupon.discountValue / 100) * totalPrice;
         }
+        discount=MAth.round(discount)
         couponApplied = true;
       }
 
       discount = Math.min(discount, totalPrice);
+      
 
       finalAmount = Math.max(totalPrice - discount, 0);
       finalAmount = Math.round(finalAmount);
-
-      if (finalAmount < 2001) {
-        deliveryCharge = 54;
-        finalAmount = finalAmount + deliveryCharge;
-      }
+      console.log("finalAmount", discount);
+      deliveryCharge = await getDeliveryCharge(totalPrice);
+      console.log("delivery", deliveryCharge);
+      finalAmount += deliveryCharge;
+      console.log("finalAmount+delivery ", finalAmount);
 
       if (discount > 0 && couponApplied) {
         orderedItems.forEach((item) => {
@@ -1652,7 +1670,7 @@ const createRazorpayOrder = async (req, res) => {
       });
     }
     let amount = order.finalAmount;
-    amount = Math.round(amount);
+    amount = amount;
 
     const options = {
       amount: amount * 100,

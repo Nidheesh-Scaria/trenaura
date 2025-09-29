@@ -377,15 +377,11 @@
       </div>
       <div class="summary-line">
         <span>Delivery Charge</span>
-        <span>₹0</span>
-      </div>
-      <div class="summary-line">
-        <span>Platform Fee</span>
-        <span>₹0</span>
+        <span>₹<span>{{deliveryCharge}}</span></span>
       </div>
       <div class="summary-line">
         <span>Coupon Discount</span>
-        <span id="couponDiscount">₹0</span>
+        <span id="couponDiscount">-₹{{couponDiscount}}</span>
       </div>
         {{!-- <div class="couponDiv">
         <input type="hidden" id="couponCode">
@@ -413,7 +409,7 @@
 
       <div class="summary-line total">
         <span>Total</span>
-        <span>₹<span id="totalAmount">{{totalPrice}}</span></span>
+        <span>₹<span id="totalAmount">{{finalAmount}}</span></span>
       </div>
       <button onclick="loadPaymentMode(event)" id="checkout-btn">CONTINUE TO CHECKOUT</button>
       {{!-- <a href="/loadPaymentMode" id="checkout-btn">CONTINUE TO CHECKOUT</a> --}}
@@ -470,7 +466,6 @@ async function applyCoupon(event) {
     }).showToast();
 
     document.getElementById("totalAmount").innerText = `${data.finalAmount}`;
-    document.getElementById("totalDiscount").innerText = `₹${data.discountAmount}`;
     document.getElementById("couponDiscount").innerText = `₹${data.discountAmount}`;
     document.getElementById("couponCode").value = data.couponCode;
     document.getElementById("remove-btn").style.display = "block";
@@ -493,6 +488,7 @@ async function applyCoupon(event) {
 }
 
 async function removeCoupon(event) {
+
   event.preventDefault();
   const removeBtn = event.target;
   removeBtn.disabled = true;
@@ -524,7 +520,7 @@ async function removeCoupon(event) {
       }).showToast();
 
       document.getElementById("totalAmount").innerText = `${data.finalAmount}`;
-      document.getElementById("totalDiscount").innerText = 0;
+      /*document.getElementById("totalDiscount").innerText = 0;*/
       document.getElementById("couponDiscount").innerText = 0;
       document.getElementById("coupon-input").value = "";
       document.getElementById("remove-btn").style.display = "none";
@@ -548,7 +544,7 @@ async function removeCoupon(event) {
 async function loadPaymentMode(event){
   event.preventDefault()
   const couponCode=document.getElementById("couponCode").value
-  const finalAmount=document.getElementById("finalAmount").innerText
+  const finalAmount=document.getElementById("totalAmount").innerText
   let url = `/loadPaymentMode?amount=${finalAmount}`;
    if (couponCode) {
     url += `&couponCode=${couponCode}`;

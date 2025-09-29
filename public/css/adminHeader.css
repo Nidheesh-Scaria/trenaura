@@ -50,11 +50,15 @@ body {
   margin-bottom: 10px;
 }
 
-.menu a.active, .menu a:hover {
+.menu a.active{
   background: red;
   color: white;
 }
 
+.menu a:hover {
+  background:rgba(255, 0, 0, 0.728) !important;
+  color: rgb(255, 255, 255);
+}
 .main-content {
   flex: 1;
   padding: 30px;

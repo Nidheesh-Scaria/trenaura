@@ -1,0 +1,475 @@
+<head>
+    <style>
+        /* Main Heading */
+        h2 {
+            color: #1a202c;
+            margin-bottom: 24px;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #132043 0%, #1e3a5f 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Form Container */
+        form {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 8px 32px rgba(0, 0, 0, 0.06);
+            max-width: 800px;
+            border: 1px solid rgba(19, 32, 67, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        form:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1), 0 10px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Form Sections */
+        form div {
+            margin-bottom: 20px;
+        }
+
+        /* Form Labels */
+        form label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #132043;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Form Inputs */
+        form input[type="number"],
+        form input[type="text"],
+        form select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background-color: #fafafa;
+            color: #1a202c;
+            font-weight: 500;
+        }
+
+        form input[type="number"]:focus,
+        form input[type="text"]:focus,
+        form select:focus {
+            outline: none;
+            border-color: #132043;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(19, 32, 67, 0.1);
+            transform: translateY(-1px);
+        }
+
+        form input[type="number"]:disabled,
+        form input[type="text"]:disabled,
+        form select:disabled {
+            background-color: #f3f4f6;
+            color: #6b7280;
+            cursor: not-allowed;
+            border-color: #d1d5db;
+        }
+
+        /* Select Dropdown */
+        form select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23132043' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
+        }
+
+        form select:disabled {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        }
+
+        /* Table Styles */
+        form table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        form table th,
+        form table td {
+            padding: 14px 16px;
+            border: 1px solid #e5e7eb;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        form table th {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            font-weight: 700;
+            color: #132043;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 13px;
+        }
+
+        form table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        form table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Primary Action Buttons */
+        form button {
+            padding: 12px 28px;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        form button:hover {
+            background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+        }
+
+        form button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+        }
+
+        /* Add Row Button */
+        form button[type="button"] {
+            background: linear-gradient(135deg, #132043 0%, #1e3a5f 100%);
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(19, 32, 67, 0.3);
+        }
+
+        form button[type="button"]:hover {
+            background: linear-gradient(135deg, #0f1a33 0%, #152847 100%);
+            box-shadow: 0 6px 16px rgba(19, 32, 67, 0.4);
+        }
+
+        /* Save Button (Hidden by Default) */
+        #saveButton {
+            display: none;
+        }
+
+        /* Edit Button */
+        #editButton {
+            background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+            color: #1a202c;
+            box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3);
+        }
+
+        #editButton:hover {
+            background: linear-gradient(135deg, #ca8a04 0%, #a16207 100%);
+            box-shadow: 0 6px 16px rgba(234, 179, 8, 0.4);
+        }
+
+        /* Table Input Fields */
+        form input.loc-input,
+        form input.charge-input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background-color: #fafafa;
+        }
+
+        form input.loc-input:focus,
+        form input.charge-input:focus {
+            outline: none;
+            border-color: #132043;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(19, 32, 67, 0.1);
+        }
+
+        /* Horizontal Rule */
+        hr {
+            border: none;
+            border-top: 2px solid #e5e7eb;
+            margin: 24px 0;
+            background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+        }
+
+        /* Error Message */
+        #error {
+            color: #dc2626;
+            font-weight: 700;
+            margin: 12px 0;
+            padding: 12px 16px;
+            background-color: #fee2e2;
+            border-left: 4px solid #dc2626;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+
+        #error:not(:empty) {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Section Heading (for Location Charges) */
+        h3 {
+            color: #132043;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            margin-top: 24px;
+            letter-spacing: -0.3px;
+        }
+
+        /* Remove Button in Table */
+        form table button {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            padding: 8px 16px;
+            font-size: 13px;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(220, 38, 38, 0.25);
+        }
+
+        form table button:hover {
+            background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(220, 38, 38, 0.35);
+        }
+
+        /*RESPONSIVE DESIGN*/
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 26px;
+                margin-bottom: 20px;
+            }
+
+            form {
+                padding: 24px 20px;
+                border-radius: 12px;
+            }
+
+            form button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            form table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            form table th,
+            form table td {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+        }
+
+        /* ================================
+   UTILITY CLASSES
+   ================================ */
+        .main-content {
+            padding: 24px;
+            max-width: 900px;
+        }
+
+        /* Spacing adjustments */
+        br+br {
+            display: block;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+
+<div class="main-content">
+    <h2>Delivery Charge Settings</h2>
+
+    <form id="deliveryChargeForm">
+        <!-- Charge type, fixed charge, freeAbove inputs -->
+        <div>
+            <label for="type">Charge Type:</label>
+            <select name="type" id="type" disabled>
+                <option value="fixed" {{#if (eq deliveryCharge.type "fixed" )}}selected{{/if}}>Fixed</option>
+                {{!-- <option value="location" {{#if (eq deliveryCharge.type "location" )}}selected{{/if}}>
+                    Location-based
+                </option> --}}
+            </select>
+        </div>
+
+        <div>
+            <label for="fixedCharge">Fixed Charge (₹):</label>
+            <input type="number" name="fixedCharge" id="fixedCharge" value="{{deliveryCharge.fixedCharge}}" disabled>
+        </div>
+
+        <div>
+            <label for="freeAbove">Free Delivery Above (₹):</label>
+            <input type="number" name="freeAbove" id="freeAbove" value="{{deliveryCharge.freeDeliveryAbove}}" disabled>
+        </div>
+        <p id="error" style="color: red; font-weight:600"></p>
+
+        <hr>
+        {{!--
+        <!-- Location charges table -->
+        <h3>Location Charges</h3>
+        <table id="locationTable">
+            <thead>
+                <tr>
+                    <th>Location</th>
+                    <th>Charge (₹)</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each deliveryCharge.locationCharges}}
+                <tr>
+                    <td><input type="text" value="{{this.location}}" class="loc-input"></td>
+                    <td><input type="number" value="{{this.charge}}" class="charge-input" min="0"></td>
+                    <td><button type="button" onclick="removeRow(this)">Remove</button></td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        <button type="button" onclick="addRow()">+ Add Location</button>
+        <input type="hidden" name="locationCharges" id="locationCharges"> --}}
+
+        <br><br>
+        <button type="button" id="editButton" onclick="editDeliveryCharges()">Edit</button>
+        <button type="button" id="saveButton" onclick="prepareDeliveryCharges(event)">Save</button>
+
+    </form>
+</div>
+
+<script>
+
+    async function prepareDeliveryCharges(e) {
+        e.preventDefault()
+        const selectElement = document.getElementById("type");
+        const type = selectElement.value;
+        const fixedCharge = document.getElementById("fixedCharge").value
+        const freeAbove = document.getElementById("freeAbove").value
+        document.getElementById("error").innerHTML = ""
+
+        console.log(type)
+
+        if (!type || !fixedCharge || !freeAbove) {
+            document.getElementById("error").innerHTML = "All fields are mandatory"
+        }
+
+
+        const res = await fetch("/admin/delivery-charge", {
+            method: "POST",
+            headers: { "Content-type": "application/json" },
+            body: JSON.stringify({ type, fixedCharge, freeAbove })
+        })
+
+        const data = await res.json()
+        if (res.ok) {
+
+            Toastify({
+                text: data.message || "updated",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "center",
+                style: {
+                    background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+                },
+                className: "custom-toast",
+                onClick: () => {
+                    alert("Toast clicked!");
+                }
+            }).showToast();
+            setTimeout(() => {
+                window.location.reload()
+            }, 1000)
+
+
+
+        } else {
+            Toastify({
+                text: data.message || "updated",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "center",
+                style: {
+                    background: " linear-gradient(to right, #ff0000, #432020)",
+                },
+                className: "custom-toast",
+                onClick: () => {
+                    alert("Toast clicked!");
+                }
+            }).showToast();
+        }
+    }
+
+    async function editDeliveryCharges() {
+        document.getElementById("saveButton").style.display = "block"
+        document.getElementById("editButton").style.display = "none"
+        const selectElement = document.getElementById("type");
+        const fixedCharge = document.getElementById("fixedCharge")
+        const freeAbove = document.getElementById("freeAbove")
+        selectElement.disabled = false
+        fixedCharge.disabled = false
+        freeAbove.disabled = false
+    }
+
+
+    function addRow() {
+        const table = document.getElementById("locationTable").querySelector("tbody");
+        const row = document.createElement("tr");
+        row.innerHTML = `
+      <td><input type="text" class="loc-input"></td>
+      <td><input type="number" class="charge-input" min="0"></td>
+      <td><button type="button" onclick="removeRow(this)">Remove</button></td>
+    `;
+        table.appendChild(row);
+    }
+
+    function removeRow(button) {
+        button.closest("tr").remove();
+    }
+
+    function prepareData() {
+        const locations = [];
+        document.querySelectorAll("#locationTable tbody tr").forEach((row) => {
+            const loc = row.querySelector(".loc-input").value;
+            const charge = row.querySelector(".charge-input").value;
+            if (loc && charge) {
+                locations.push({ location: loc, charge: parseInt(charge) });
+            }
+        });
+        document.getElementById("locationCharges").value = JSON.stringify(locations);
+    }
+</script>

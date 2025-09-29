@@ -1,173 +1,171 @@
-
 <head>
-    
+
     <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
-    <style>
-            
-    .orders-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    
-    }
+    {{!-- <style>
+        .orders-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
 
-    .orders-header h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    }
+        }
 
-    .actions {
-    display: flex;
-    gap: 10px;
-    }
+        .orders-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
 
-    .actions input {
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    }
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
 
-    .actions .btn {
-    background: #f0f0f0;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    }
+        .actions input {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
 
-    .actions .btn.export {
-    background: #003cff;
-    color: white;
-    }
+        .actions .btn {
+            background: #f0f0f0;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
 
-    /* ================================
+        .actions .btn.export {
+            background: #003cff;
+            color: white;
+        }
+
+        /* ================================
     TABLE STYLES
     ================================ */
-    .orders-table {
-    width: 100%;
-    border-collapse: collapse;
-    }
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-    .orders-table thead tr {
-    background: #eceaea;
-    color: #181717;
-    text-align: left;
-    }
+        .orders-table thead tr {
+            background: #eceaea;
+            color: #181717;
+            text-align: left;
+        }
 
-    .orders-table th,
-    .orders-table td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #eee;
-    }
+        .orders-table th,
+        .orders-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
 
-    /* ================================
+        /* ================================
     ORDER ITEMS
     ================================ */
-    .order-items {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    }
+        .order-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
 
-    .order-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    color: #333;
-    }
+        .order-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #333;
+        }
 
-    .order-img {
-    width: 40px;
-    height: 40px;
-    object-fit: cover;
-    border-radius: 6px;
-    border: 1px solid #ddd;
-    }
+        .order-img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
 
-    .order-item .qty {
-    color: #888;
-    font-size: 13px;
-    }
+        .order-item .qty {
+            color: #888;
+            font-size: 13px;
+        }
 
-    /* ================================
+        /* ================================
     STATUS BADGES
     ================================ */
-    .status {
-    padding: 5px 10px;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    font-weight: bold;
-    display: inline-block;
-    text-align: center;
-    min-width: 100px;
-    }
+        .status {
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: inline-block;
+            text-align: center;
+            min-width: 100px;
+        }
 
-    /* return Status */
-    .status-pending {
-    background: #f0ad4e;
-    color: #fff;
-    }
+        /* return Status */
+        .status-pending {
+            background: #f0ad4e;
+            color: #fff;
+        }
 
-    .status-accepted {
-    background: #0275d8;
-    color: #fff;
-    }
+        .status-accepted {
+            background: #0275d8;
+            color: #fff;
+        }
 
-    .status-rejected {
-    background: #f81e1e;
-    color: #fff;
-    }
+        .status-rejected {
+            background: #f81e1e;
+            color: #fff;
+        }
 
 
-    
-    /* ============================
+
+        /* ============================
    REFUND STATUS STYLES
    ============================ */
 
-    
-    .refund-status {
-        display: inline-block;
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        text-align: center;
-        min-width: 90px;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
 
-    /* Paid - green */
-    .refund-paid {
-        background-color: #28a745;
-        color: #fff;
-        border: 1px solid #1e7e34;
-    }
+        .refund-status {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+            min-width: 90px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
 
-
-
-    /* Unpaid - red */
-    .refund-unpaid {
-        background-color: #e00d22;
-        color: #fff;
-        border: 1px solid #bd2130;
-    }
-
-    /* Pending - yellow/orange */
-    .refund-pending {
-        background-color: #ffc107;
-        color: #212529;
-        border: 1px solid #e0a800;
-    }
+        /* Paid - green */
+        .refund-paid {
+            background-color: #28a745;
+            color: #fff;
+            border: 1px solid #1e7e34;
+        }
 
 
-    /* ================================
+
+        /* Unpaid - red */
+        .refund-unpaid {
+            background-color: #e00d22;
+            color: #fff;
+            border: 1px solid #bd2130;
+        }
+
+        /* Pending - yellow/orange */
+        .refund-pending {
+            background-color: #ffc107;
+            color: #212529;
+            border: 1px solid #e0a800;
+        }
+
+
+        /* ================================
     BUTTONS
     ================================ */
-    .action-btn {
+        .action-btn {
             padding: 8px 14px;
             border-radius: 6px;
             border: none;
@@ -176,7 +174,8 @@
             margin: 0 4px;
             transition: 0.3s;
         }
-    .btn-approve {
+
+        .btn-approve {
             background: #28a745;
             color: #fff;
         }
@@ -203,50 +202,455 @@
             background: #0069d9;
         }
 
-    /* ================================
+        /* ================================
     PAGINATION
     ================================ */
 
 
 
         .pagination {
-        display: flex;
-        justify-content: center;
-        gap: 6px;
-        margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 20px;
         }
 
         .page-btn,
         .page-number {
-        display: inline-block;
-        padding: 6px 12px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        color: #333;
-        text-decoration: none;
-        cursor: pointer;
-        transition: 0.2s;
+            display: inline-block;
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            color: #333;
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.2s;
         }
 
         .page-btn:hover,
         .page-number:hover {
-        background: #f0f0f0;
+            background: #f0f0f0;
         }
 
         .page-number.current {
-        background: #007bff;
-        color: white;
-        border-color: #007bff;
-        font-weight: bold;
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+            font-weight: bold;
         }
 
         .page-btn[disabled] {
-        opacity: 0.5;
-        cursor: not-allowed;
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style> --}}
+
+
+    <style>
+        /* HEADER SECTION */
+        .orders-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f0f0f0;
         }
 
-       
+        .orders-header h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
 
+        /* ACTIONS & SEARCH*/
+        .actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .actions form {
+            margin: 0;
+        }
+
+        .actions input {
+            padding: 10px 16px;
+            padding-left: 2.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            width: 320px;
+            transition: all 0.3s ease;
+            background-color: #fafafa;
+            color: #333;
+        }
+
+        .actions input:focus {
+            outline: none;
+            border-color: #007bff;
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.08);
+        }
+
+        .actions input::placeholder {
+            color: #9ca3af;
+        }
+
+        .actions .btn {
+            background: #f5f5f5;
+            border: 2px solid #e5e7eb;
+            padding: 10px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #4b5563;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .actions .btn:hover {
+            background: #e5e7eb;
+            border-color: #d1d5db;
+            transform: translateY(-1px);
+        }
+
+        .actions .btn.export {
+            background: linear-gradient(135deg, #0061ff 0%, #0047cc 100%);
+            color: white;
+            border-color: #0047cc;
+            box-shadow: 0 4px 12px rgba(0, 97, 255, 0.25);
+        }
+
+        .actions .btn.export:hover {
+            background: linear-gradient(135deg, #0047cc 0%, #003399 100%);
+            box-shadow: 0 6px 16px rgba(0, 97, 255, 0.35);
+        }
+
+        /*TABLE STYLES*/
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .orders-table thead tr {
+            background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #2c3e50;
+            text-align: left;
+        }
+
+        .orders-table th {
+            padding: 16px 20px;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 700;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #495057;
+        }
+
+        .orders-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f3f5;
+            font-size: 0.95rem;
+            color: #495057;
+            vertical-align: middle;
+        }
+
+        .orders-table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .orders-table tbody tr:hover {
+            background-color: #f8f9fa;
+            transform: scale(1.002);
+        }
+
+        .orders-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /*ORDER ITEMS (PRODUCT DISPLAY)*/
+        .order-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .order-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .order-img {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .order-img:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .order-item .qty {
+            color: #6b7280;
+            font-size: 13px;
+            font-weight: 600;
+            background: #f3f4f6;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        /*STATUS BADGES (RETURN STATUS)*/
+        .status {
+            padding: 7px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: inline-block;
+            text-align: center;
+            min-width: 100px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .status:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Pending - Orange/Yellow */
+        .status-pending {
+            background: linear-gradient(135deg, #ff9f1c 0%, #f0ad4e 100%);
+            color: #fff;
+            border: 2px solid #e09600;
+        }
+
+        /* Accepted/Approved - Blue */
+        .status-accepted {
+            background: linear-gradient(135deg, #0d6efd 0%, #0275d8 100%);
+            color: #fff;
+            border: 2px solid #0056b3;
+        }
+
+        /* Rejected - Red */
+        .status-rejected {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: #fff;
+            border: 2px solid #bd2130;
+        }
+
+        /*REFUND STATUS STYLES*/
+        .refund-status {
+            display: inline-block;
+            padding: 7px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-align: center;
+            min-width: 100px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .refund-status:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+        }
+
+        /* Paid - Green */
+        .refund-paid {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: #fff;
+            border: 2px solid #1e7e34;
+        }
+
+        /* Unpaid - Red */
+        .refund-unpaid {
+            background: linear-gradient(135deg, #dc3545 0%, #e00d22 100%);
+            color: #fff;
+            border: 2px solid #bd2130;
+        }
+
+        /* Pending - Yellow/Orange */
+        .refund-pending {
+            background: linear-gradient(135deg, #ffc107 0%, #ffca2c 100%);
+            color: #212529;
+            border: 2px solid #e0a800;
+            font-weight: 700;
+        }
+
+        /* ================================
+   ACTION BUTTONS
+   ================================ */
+        .action-btn {
+            padding: 9px 18px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin: 0 4px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        }
+
+        .btn-approve {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: #fff;
+        }
+
+        .btn-reject {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: #fff;
+        }
+
+        .btn-view {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: #fff;
+        }
+
+        .btn-approve:hover {
+            background: linear-gradient(135deg, #218838 0%, #1abc9c 100%);
+        }
+
+        .btn-reject:hover {
+            background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+        }
+
+        .btn-view:hover {
+            background: linear-gradient(135deg, #0069d9 0%, #004085 100%);
+        }
+
+        /*PAGINATION*/
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 28px;
+            padding: 20px 0;
+        }
+
+        .page-btn,
+        .page-number {
+            display: inline-block;
+            padding: 8px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            color: #4b5563;
+            background: #fff;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            font-size: 0.9rem;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .page-btn:hover,
+        .page-number:hover {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        .page-number.current {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border-color: #0056b3;
+            font-weight: 700;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+        }
+
+        .page-btn[disabled] {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: #f9fafb;
+            border-color: #e5e7eb;
+        }
+
+        .page-btn[disabled]:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ================================
+   RESPONSIVE DESIGN
+   ================================ */
+        @media (max-width: 768px) {
+            .orders-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .actions {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .actions input {
+                width: 100%;
+            }
+
+            .orders-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .orders-table th,
+            .orders-table td {
+                padding: 12px 14px;
+                font-size: 0.875rem;
+            }
+
+            .action-btn {
+                padding: 7px 12px;
+                font-size: 0.8rem;
+                margin: 2px;
+            }
+
+            .pagination {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+        }
     </style>
 </head>
 
@@ -265,7 +669,7 @@
     </div>
 
     <table class="orders-table">
-        
+
         <thead>
             <tr>
                 <th>Product</th>
@@ -279,7 +683,7 @@
 
         <tbody>
             {{#each orders}}
-             {{#each this.orderedItems}}
+            {{#each this.orderedItems}}
             <tr>
                 <td>
                     <img src="/images/{{this.productImages.[1]}}" alt="Product" class="order-img">
@@ -297,7 +701,7 @@
                 {{else}}
                 <td><span class="status status-rejected">Rejected</span></td>
                 {{/if}}
-                
+
                 {{!-- refund status --}}
                 {{#if (eq this.refundStatus true)}}
                 <td><span class="refund-status refund-paid">Paid</span></td>
@@ -306,11 +710,13 @@
                 {{else}}
                 <td><span class="refund-status refund-pending">Pending</span></td>
                 {{/if}}
-               
+
                 <td>
                     <button class="action-btn btn-view btn-View" onclick="viewReturn(event,'{{this.id}}')">View</button>
-                    {{!-- <button class="action-btn btn-approve btn-approve" onclick="acceptReturn(event,'{{this.id}}')">Approve</button>
-                    <button class="action-btn btn-reject btn-reject" onclick="rejectReturn(event,'{{this.id}}')">Reject</button> --}}
+                    {{!-- <button class="action-btn btn-approve btn-approve"
+                        onclick="acceptReturn(event,'{{this.id}}')">Approve</button>
+                    <button class="action-btn btn-reject btn-reject"
+                        onclick="rejectReturn(event,'{{this.id}}')">Reject</button> --}}
                 </td>
                 </td>
             </tr>
@@ -365,18 +771,18 @@
 <script src="/js/bootstrap.min.js"></script>
 
 <script>
-    function viewReturn(event,id){
+    function viewReturn(event, id) {
         console.log(id)
         event.preventDefault();
-         try {
-        window.location.href = `/admin/reviewReturn/${id}`;
+        try {
+            window.location.href = `/admin/reviewReturn/${id}`;
         } catch (error) {
             console.error("Error navigating to order management:", error);
         }
     }
 
 
-async function acceptReturn(event, id) {
+    async function acceptReturn(event, id) {
         event.preventDefault();
         console.log("acceptReturn id:", id);
 
@@ -392,30 +798,30 @@ async function acceptReturn(event, id) {
             const data = await res.json();
 
             if (res.ok) {
-               Toastify({
-                text: data.message,
-                duration: 3000,
-                close: true,
-                gravity: "top",
-                position: "center",
-                style: {
-                background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
-                },
-                className: "custom-toast"
-            }).showToast();
-                
+                Toastify({
+                    text: data.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "center",
+                    style: {
+                        background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+                    },
+                    className: "custom-toast"
+                }).showToast();
+
             } else {
                 Toastify({
-                text: data.message,
-                duration: 3000,
-                close: true,
-                gravity: "top",
-                position: "center",
-                style: {
-                background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
-                },
-                className: "custom-toast"
-            }).showToast();
+                    text: data.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "center",
+                    style: {
+                        background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+                    },
+                    className: "custom-toast"
+                }).showToast();
             }
 
         } catch (error) {
@@ -428,12 +834,12 @@ async function acceptReturn(event, id) {
         }
     }
 
-    async function rejectReturn(event,id){
+    async function rejectReturn(event, id) {
         event.preventDefault();
         console.log("acceptReturn id:", id);
 
         try {
-            const isRejected=true
+            const isRejected = true
             const res = await fetch(`/admin/changeReturnStatus/${id}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -443,30 +849,30 @@ async function acceptReturn(event, id) {
             const data = await res.json();
 
             if (res.ok) {
-               Toastify({
-                text: data.message,
-                duration: 3000,
-                close: true,
-                gravity: "top",
-                position: "center",
-                style: {
-                background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
-                },
-                className: "custom-toast"
-            }).showToast();
-                
+                Toastify({
+                    text: data.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "center",
+                    style: {
+                        background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+                    },
+                    className: "custom-toast"
+                }).showToast();
+
             } else {
                 Toastify({
-                text: data.message,
-                duration: 3000,
-                close: true,
-                gravity: "top",
-                position: "center",
-                style: {
-                background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
-                },
-                className: "custom-toast"
-            }).showToast();
+                    text: data.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "center",
+                    style: {
+                        background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+                    },
+                    className: "custom-toast"
+                }).showToast();
             }
 
         } catch (error) {
@@ -478,7 +884,7 @@ async function acceptReturn(event, id) {
             });
         }
     }
-       
-       
-       
+
+
+
 </script>

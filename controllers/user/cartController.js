@@ -9,6 +9,7 @@ const WalletTopupOrder = require("../../models/walletTopupOrderSchema ");
 const CouponUsageSchema = require("../../models/couponUsageSchema ");
 const CouponSchema = require("../../models/couponSchema");
 const Wishlist = require("../../models/wishlistSchema");
+const DeliveryChargeSchema = require("../../models/deliveryChargeSchema");
 
 const env = require("dotenv").config();
 const httpStatus = require("../../util/statusCodes");
@@ -16,6 +17,29 @@ const { MESSAGES } = require("../../util/constants");
 const { default: mongoose } = require("mongoose");
 
 // cart management
+const getDeliveryCharge = async (totalAmount) => {
+  const deliveryCharge = await DeliveryChargeSchema.findOne();
+
+  if (
+    deliveryCharge.freeDeliveryAbove &&
+    totalAmount > deliveryCharge.freeDeliveryAbove
+  ) {
+    return 0;
+  }
+
+  if (deliveryCharge.type === "fixed") {
+    return deliveryCharge.fixedCharge;
+  }
+  // if (deliveryCharge.type === "location") {
+  //   let city = userAddress;
+
+  //   let locationCharge = deliveryCharge.locationCharges.find(
+  //     (lc) => lc.location.toLowerCase() === city.toLowerCase()
+  //   );
+  //   return locationCharge ? locationCharge.charge : 54; //if no city delivery charge 54
+  // }
+  return 0;
+};
 
 const addToCart = async (req, res) => {
   try {
@@ -122,10 +146,8 @@ const loadmyCart = async (req, res) => {
           0
         );
 
-        if (totalPrice < 2000) {
-          deliveryCharge = 54;
-          totalPrice += deliveryCharge;
-        }
+        deliveryCharge = await getDeliveryCharge(totalPrice);
+        totalPrice += deliveryCharge;
 
         // save updated cart to DB
         await cart.save();
@@ -146,6 +168,7 @@ const renderMyCart = async (req, res) => {
   try {
     const userId = req.session.user || req.user;
     const products = await Product.find().limit(8).lean();
+    let deliveryCharge=0
 
     const cart = await Cart.findOne({ userId })
       .populate({
@@ -178,6 +201,9 @@ const renderMyCart = async (req, res) => {
       }, 0);
     }
 
+    deliveryCharge = await getDeliveryCharge(totalPrice);
+    let finalAmount = deliveryCharge + totalPrice;
+
     //if cart is empty
     if (!cart || cart.items.length === 0) {
       return res.render("user/shopping-cart", {
@@ -198,6 +224,8 @@ const renderMyCart = async (req, res) => {
       isCartEmpty: cart.items.length === 0,
       products,
       totalPrice,
+      deliveryCharge,
+      finalAmount,
     });
   } catch (error) {
     console.error("Error in loadmyCart:", error);
@@ -230,6 +258,9 @@ const cartOrderSummary = async (req, res) => {
       }, 0);
     }
 
+    let deliveryCharge=await getDeliveryCharge(totalPrice)
+    let finalAmount=deliveryCharge+totalPrice
+
     //if cart is empty
     if (!cart || cart.items.length === 0) {
       return res.render("user/cartOrderSummary", {
@@ -250,6 +281,8 @@ const cartOrderSummary = async (req, res) => {
       isCartEmpty: cart.items.length === 0,
       products,
       totalPrice,
+      finalAmount,
+      deliveryCharge,
     });
   } catch (error) {
     console.error("Error in loadmyCart:", error);
@@ -304,33 +337,36 @@ const applyCoupon = async (req, res) => {
       });
     }
 
-    let finalAmount = cartTotal;
+    let finalAmount = 0;
     let discountAmount = 0;
+    let deliveryCharge=await getDeliveryCharge(cartTotal)
+    
 
     const cart = await Cart.findOne({ userId });
 
     if (coupon.discountType === "flat") {
       discountAmount = coupon.discountValue;
-      finalAmount = cartTotal - coupon.discountValue;
+    
     } else if (coupon.discountType === "percentage") {
       discountAmount = (coupon.discountValue / 100) * cartTotal;
-      finalAmount = cartTotal - discountAmount;
+      
     }
 
-    if (finalAmount < 0) {
-      discountAmount = cartTotal;
-      finalAmount = 0;
-    }
+    discountAmount = Math.min(discountAmount, cartTotal);
 
-    finalAmount = parseFloat(finalAmount.toFixed(1));
-    discountAmount = parseFloat(discountAmount.toFixed(1));
-    finalAmount = Math.round(finalAmount);
+    finalAmount = cartTotal - discountAmount;
+    finalAmount += deliveryCharge;
     discountAmount = Math.round(discountAmount);
+    
+    finalAmount = Math.round(finalAmount);
+    
+
     req.session.appliedCoupon = {
       discountAmount,
       finalAmount,
       couponCode,
       couponId: coupon._id,
+      cartTotal,
     };
 
     //changing usageCount
@@ -363,8 +399,7 @@ const applyCoupon = async (req, res) => {
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: "An error occurred. Please try again later.",
-      finalAmount,
-      discountAmount,
+      
     });
   }
 };
@@ -380,7 +415,7 @@ const removeCoupon = async (req, res) => {
         .json({ message: "No coupon Applied" });
     }
 
-    const { discountAmount, finalAmount, couponCode, couponId } =
+    let { discountAmount, finalAmount, couponCode, couponId ,cartTotal} =
       req.session.appliedCoupon;
 
     delete req.session.appliedCoupon;
@@ -392,10 +427,13 @@ const removeCoupon = async (req, res) => {
       );
     }
 
+    let deliveryCharge=await getDeliveryCharge(cartTotal)
+    cartTotal+=deliveryCharge
+
     return res.json({
       message: "Coupon removed Successfully",
       discountAmount,
-      finalAmount,
+      finalAmount:cartTotal,
     });
   } catch (error) {
     console.error("Error in removeCoupon:", error);
@@ -530,7 +568,7 @@ const removeCoupon = async (req, res) => {
 //     const grandTotal = updatedCart.items.reduce((total, item) => {
 //       return total + item.quantity * item.price;
 //     }, 0);
-    
+
 //     let deliveryCharge = 0;
 
 //     if (grandTotal < 2001) {
@@ -561,7 +599,6 @@ const removeCoupon = async (req, res) => {
 //   }
 // };
 
-
 const increaseQuantity = async (req, res) => {
   try {
     const { id: itemId } = req.params;
@@ -569,7 +606,9 @@ const increaseQuantity = async (req, res) => {
     const { quantity, size } = req.body;
 
     if (quantity >= 5) {
-      return res.status(400).json({ message: "!Sorry, quantity is limited to 5" });
+      return res
+        .status(400)
+        .json({ message: "!Sorry, quantity is limited to 5" });
     }
 
     const cart = await Cart.findOne({
@@ -582,7 +621,9 @@ const increaseQuantity = async (req, res) => {
       return res.status(400).json({ message: "Item not found" });
     }
 
-    const item = cart.items.find((i) => i._id.toString() === itemId && i.size === size);
+    const item = cart.items.find(
+      (i) => i._id.toString() === itemId && i.size === size
+    );
     if (!item) {
       return res.status(400).json({ message: "Item not found" });
     }
@@ -605,16 +646,16 @@ const increaseQuantity = async (req, res) => {
     await cart.save();
 
     // Recalculate grand total
-    let grandTotal = cart.items.reduce((total, i) => total + i.totalPrice, 0);
-    let deliveryCharge = 0;
+    // let grandTotal = cart.items.reduce((total, i) => total + i.totalPrice, 0);
+    let grandTotal = item.totalPrice;
 
-    if (grandTotal < 2000) {
-      deliveryCharge = 54;
-      grandTotal += deliveryCharge;
-    }
+    console.log("increase grandtotal:::", grandTotal);
+    let deliveryCharge = await getDeliveryCharge(grandTotal);
+    console.log("increase deliveryCharge:::", deliveryCharge);
+    grandTotal += deliveryCharge;
 
     return res.status(200).json({
-      message: "Increased by One",
+      message: "Qunatity increased by One",
       quantity: item.quantity,
       totalPrice: item.totalPrice,
       grandTotal,
@@ -642,16 +683,24 @@ const decreaseQuantity = async (req, res) => {
     }).populate("items.productId");
 
     if (!cart) {
-      return res.status(httpStatus.BAD_REQUEST).json({ message: "Item not found" });
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ message: "Item not found" });
     }
 
-    const item = cart.items.find((i) => i._id.toString() === itemId && i.size === size);
+    const item = cart.items.find(
+      (i) => i._id.toString() === itemId && i.size === size
+    );
     if (!item) {
-      return res.status(httpStatus.BAD_REQUEST).json({ message: "Item not found" });
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ message: "Item not found" });
     }
 
     if (item.quantity <= 1) {
-      return res.status(httpStatus.BAD_REQUEST).json({ message: "Minimum quantity is 1" });
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ message: "Minimum quantity is 1" });
     }
 
     // Decrease quantity
@@ -665,13 +714,9 @@ const decreaseQuantity = async (req, res) => {
     await cart.save();
 
     // Recalculate grand total
-    let grandTotal = cart.items.reduce((total, i) => total + i.totalPrice, 0);
-    let deliveryCharge = 0;
-    //setting the delivery charge if needed
-    if (grandTotal < 2000) {
-      deliveryCharge = 54;
-      grandTotal += deliveryCharge;
-    }
+    let grandTotal = item.totalPrice;
+    let deliveryCharge = await getDeliveryCharge(grandTotal);
+    grandTotal += deliveryCharge;
 
     return res.status(200).json({
       message: "Quantity decreased",
@@ -688,7 +733,6 @@ const decreaseQuantity = async (req, res) => {
     });
   }
 };
-
 
 module.exports = {
   addToCart,

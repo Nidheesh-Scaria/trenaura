@@ -372,7 +372,7 @@
             <hr />
             <div class="summary-line">
                 <span>Price</span>
-                <p style="color:black" id="totalPrice-rightside">₹{{totalPrice}}</p>
+                <p style="color:black" id="totalPrice-rightside">₹<span id="totalAmount">{{totalPrice}}</span></p>
             </div>
             <div class="summary-line discount">
                 <span>Discount(applied)</span>
@@ -408,7 +408,7 @@
             <button type="button" id="checkout-btn" onclick="chekout(event,'{{item._id}}')">CONTINUE TO CHECKOUT</button>
         </div>
 
-    </div> <!-- END cart-wrapper -->
+    </div> 
 </main>
 
 
@@ -555,8 +555,9 @@ async function applyCoupon(event) {
     document.getElementById("coupon-error").innerHTML = "";
 
     let couponCode = document.getElementById("coupon-input")?.value.trim() || "";
-    let cartTotal = document.getElementById("finalAmount").innerText;
-    cartTotal = parseInt(cartTotal);
+    let cartTotal = document.getElementById("totalAmount").innerText;
+    cartTotal = Math.round(cartTotal);
+    console.log(cartTotal)
 
     const quantityElement = document.getElementsByClassName("qty-display")[0];
     const quantity = quantityElement ? parseInt(quantityElement.innerText, 10) : 1;
@@ -672,10 +673,9 @@ async function chekout(event,id) {
 
         const cartIdInput = document.getElementById("cartId")
         const itemId = cartIdInput ? cartIdInput.value : null;
-        console.log(itemId)
-        console.log(id)
         const finalAmount = document.getElementById("finalAmount").innerText;
         const couponCode = document.getElementById("couponCode").value.trim()
+        console.log(finalAmount)
         let url = `/loadPaymentMode?itemId=${id}&amount=${finalAmount}`;
         if (couponCode) {
             url += `&couponCode=${couponCode}`;

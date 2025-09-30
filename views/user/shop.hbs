@@ -290,8 +290,12 @@
                             </a>
                             <div class="product__item__text">
                                 <h6>{{this.productName}}</h6>
-                                <a href="#" onclick="addWishlist(event,'{{this._id}}')" class="add-cart">+ Add to Wish
+                                {{#if (includes ../wishlistProducts this._id)}}
+                                <a id="wishlist-{{this._id}}" class="add-cart">❤️ Wishlisted</a>
+                                {{else}}
+                                <a href="#" id="wishlist-{{this._id}}" onclick="addWishlist(event,'{{this._id}}')" class="add-cart">+ Add to Wish
                                     list</a>
+                                {{/if}}
                                 {{#if (gt this.appliedOffer 0)}}
                                     <p style="color: red; font-weight:900; font-size:large">{{this.appliedOffer}}% off</p> 
                                 {{/if}}
@@ -399,6 +403,11 @@ async function addWishlist(event,id){
                 alert("Toast clicked!");
         }
         }).showToast();
+    document.getElementById(`wishlist-${id}`).innerHTML="❤️ Wishlisted"
+    wishlistBtn.onclick = null;
+    wishlistBtn.removeAttribute("onclick");
+    wishlistBtn.style.pointerEvents = "none";
+
     }else{
         alert("Something wrong in adding wishlist")
     }

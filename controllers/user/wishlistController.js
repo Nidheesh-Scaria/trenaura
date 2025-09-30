@@ -106,6 +106,14 @@ const addWishlist = async (req, res) => {
         products: [{ productsId: productId }],
       });
     } else {
+      //checking the product already exists
+      const alreadyExists = wishlist.products.some(
+        (p) => p.productsId.toString() === productId
+      );
+      if (alreadyExists) {
+        return 
+      }
+
       let productIndex = wishlist.products.findIndex(
         (product) => product.productsId.toString() === productId
       );

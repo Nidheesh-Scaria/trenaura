@@ -35,10 +35,15 @@
         <input type="text" name="referralCode" placeholder="Referral Code (optional)" />
         <div class="error" id="referralError"></div>
 
-        <input type="password" id="password" name="password" placeholder="Password" />
+        {{!-- <input type="password" id="password" name="password" placeholder="Password" /> --}}
+        <div class="password-wrapper">
+          <input type="password" id="password" name="password" placeholder="Password" />
+          <span class="toggle-password" onclick="togglePassword()">👁️</span>
+        </div>
+                
         <div class="error" id="passwordError"></div>
 
-        <input type="text" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" />
+        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" />
         <div class="error" id="confirmError"></div>
       
         <button type="submit" class="signup-btn">SignUp</button>
@@ -52,3 +57,17 @@
 
   <script src="js/userSignUp.js"></script>
 
+  <script>
+    function togglePassword() {
+      const passwordField = document.getElementById("password");
+      const toggleBtn = document.querySelector(".toggle-password");
+
+      if (passwordField.type === "password") {
+        passwordField.type = "text";
+        toggleBtn.textContent = "🙈"; 
+      } else {
+        passwordField.type = "password";
+        toggleBtn.textContent = "👁️"; 
+      }
+    }
+</script>

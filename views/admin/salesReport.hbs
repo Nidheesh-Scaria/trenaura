@@ -240,8 +240,8 @@
                     <th>Date</th>
                     <th>Total</th>
                     <th>Final Amount</th>
-                    <th>Discount</th>
-                    <th>Coupon</th>
+                    <th>Coupon Discount</th>
+                    
                 </tr>
             </thead>
             <tbody>
@@ -253,8 +253,8 @@
                     <td>{{this.date}}</td>
                     <td>₹{{this.totalPrice}}</td>
                     <td>₹{{this.finalAmounts}}</td>
-                    <td>₹{{this.discounts}}</td>
-                    <td>{{#if this.coupon}}{{this.coupon.code}}{{else}}N/A{{/if}}</td>
+                    <td>₹{{this.couponDiscount}}</td>
+                    {{!-- <td>{{#if this.couponDiscount}}{{this.coupon.code}}{{else}}N/A{{/if}}</td> --}}
                 </tr>
                 {{/each}}
                 {{else}}

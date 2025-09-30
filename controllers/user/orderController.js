@@ -897,7 +897,7 @@ const orderSuccess = async (req, res) => {
         } else if (coupon.discountType === "percentage") {
           discount = (coupon.discountValue / 100) * totalPrice;
         }
-        discount=MAth.round(discount)
+        discount=Math.round(discount)
         couponApplied = true;
       }
 

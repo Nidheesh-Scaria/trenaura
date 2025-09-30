@@ -210,9 +210,108 @@
                 height: 35px;
             }
         }
+        .site-container {
+            max-width: 1200px;  /* Same max width as header/footer content */
+            margin: 0 auto;
+            padding: 2rem 5%;   /* Same padding as header/footer */
+            font-family: 'Arial', sans-serif;
+            background-color: #fff;
+        }
+
+        .payment-container {
+            max-width: 600px;
+            margin: 2rem auto;  /* Center the payment card */
+            padding: 0;
+        }
+
+        .payment-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .payment-title {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 700;
+            color: #1a237e;  /* Same primary color as header */
+        }
+
+        .payment-option {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            padding: 1.2rem;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .payment-option.selected {
+            border-color: #667eea;
+            background: rgba(102,126,234,0.1);
+        }
+
+        .payment-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            color: #667eea;
+            background: rgba(102,126,234,0.1);
+            border-radius: 8px;
+        }
+
+        .payment-info h6 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .payment-info small {
+            color: #718096;
+        }
+
+        .continue-btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 50px;
+            background: #667eea;
+            border: none;
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+
+        .continue-btn:hover {
+            background: #764ba2;
+            box-shadow: 0 8px 25px rgba(102,126,234,0.5);
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: #718096;
+        }
+        .security-badge i {
+            margin-right: 0.5rem;
+            color: #48bb78;
+        }
+
     </style>
 </head>
 <body>
+    <div class="site-container">
     <div class="payment-container">
         <div class="payment-card">
             <h5 class="payment-title">SELECT PAYMENT METHOD</h5>
@@ -291,6 +390,7 @@
                 </div>
             </form>
         </div>
+    </div>
     </div>
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>

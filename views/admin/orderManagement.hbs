@@ -660,9 +660,9 @@
           <h4>Price Details</h4>
           <hr>
           <p>Items Total <span>₹ {{orders.totalPrice}}</span></p>
-          <p>Coupon <span>₹ {{orders.discount}}</span></p>
-          <p>Total Discount <span>₹ {{orders.discount}}</span></p>
-          <p>Delivery Charges <span class="free">₹ 0{{orders.deliveryCharge}}</span></p>
+          <p>Coupon Applied<span>{{#if (eq orders.couponApplied true)}}Yes{{else}}No{{/if}}</span></p>
+          <p>Coupon discount <span>-₹ {{orders.couponDiscount}}</span></p>
+          <p>Delivery Charges <span class="free">₹ {{orders.deliveryCharge}}</span></p>
           <hr>
           <p><strong>Final Amount</strong> 
              <span><strong>₹ {{orders.finalAmount}}</strong></span>

@@ -44,8 +44,10 @@ const orderMangement = async (req, res) => {
         createdAt: 1,
         paymentMethod: 1,
         couponApplied: 1,
+        couponDiscount:1,
         paymentStatus: 1,
         paymentDate: 1,
+        deliveryCharge:1,
         razorpayPaymentId: 1,
         orderId: 1,
       }

@@ -10,6 +10,7 @@ const WalletTopupOrder = require("../../models/walletTopupOrderSchema ");
 const Coupon = require("../../models/couponSchema");
 const Brand = require("../../models/brandSchema");
 
+
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const nodeMailer = require("nodemailer");
@@ -322,11 +323,21 @@ const loadHomepage = async (req, res) => {
       return images[randomIndex];
     };
 
+    //cheking wishlist
+    let wishlistProducts=[]
+    if(user){
+      const wishlist=await Wishlist.findOne({userId:user})
+      if(wishlist){
+        wishlistProducts=wishlist.products.map((p)=>p.productsId.toString())
+      }
+    }
+
     return res.render("user/home", {
       title: "Trenaura - Home page",
       isLoggedIn: !!user,
       adminHeader: true,
       products: productData,
+      wishlistProducts,
       mensImg: mensProduct?.productImages?.[0]
         ? `/images/${randomImages(mensProduct.productImages)}`
         : "default.jpg",
@@ -440,7 +451,16 @@ const loadShop = async (req, res) => {
 
     const categories = await Category.find({ isListed: true }).lean();
     const brands = await Brand.find({ isBlocked: false }).lean();
+    //cheking wishlist
+    let wishlistProducts=[]
+    if(user){
+      const wishlist=await Wishlist.findOne({userId:user})
+      if(wishlist){
+        wishlistProducts=wishlist.products.map((p)=>p.productsId.toString())
+      }
+    }
 
+  
     return res.render("user/shop", {
       title: "Trenaura - Shop page",
       isLoggedIn: !!user,
@@ -456,6 +476,7 @@ const loadShop = async (req, res) => {
       currentPage: parseInt(page),
       totalPages,
       isFilter,
+      wishlistProducts,
     });
   } catch (error) {
     console.error("Error in rendering shop page:", error);

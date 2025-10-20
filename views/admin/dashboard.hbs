@@ -607,8 +607,8 @@
                 <h2>General Ledger</h2>
                 <form id="ledgerForm" action="/admin/downloadLedger" method="GET"
                     style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                    <label>Start Date: <input type="date" name="startDate" required></label>
-                    <label>End Date: <input type="date" name="endDate" required></label>
+                    <label>Start Date: <input type="date" name="startDate" id="ledgerStartDate" required></label>
+                    <label>End Date: <input type="date" name="endDate" id="ledgerEndDate" required></label>
                     <button type="submit"><i class="fas fa-download"></i> Download Ledger</button>
                 </form>
             </div>
@@ -781,6 +781,38 @@
 
             fetchDashboardData(pastDate, today);
         });
+
+    document.addEventListener("DOMContentLoaded",()=>{
+        const startDateInput=document.getElementById("startDate")
+        const endDateInput=document.getElementById("endDate")
+
+        startDateInput.addEventListener('change',()=>{
+            const startDateValue=startDateInput.value;
+
+            endDateInput.min=startDateValue;
+
+             if (endDateInput.value && endDateInput.value < startDateValue) {
+                endDateInput.value = startDateValue;
+            }
+        })
+
+    })
+
+    document.addEventListener("DOMContentLoaded",()=>{
+        const startDateInput=document.getElementById("ledgerStartDate")
+        const endDateInput=document.getElementById("ledgerEndDate")
+
+        startDateInput.addEventListener('change',()=>{
+            const startDateValue=startDateInput.value;
+
+            endDateInput.min=startDateValue;
+
+             if (endDateInput.value && endDateInput.value < startDateValue) {
+                endDateInput.value = startDateValue;
+            }
+        })
+
+    })
 
     </script>
 </body>

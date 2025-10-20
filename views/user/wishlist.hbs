@@ -233,7 +233,7 @@
       <div class="wishlist-empty-icon">💔</div>
       <h2 class="wishlist-empty-title">Your Wishlist is Empty</h2>
       <p class="wishlist-empty-text">Looks like you haven't added anything yet.</p>
-      <a href="/products" class="wishlist-empty-button">Start Shopping</a>
+      <a href="/shop" class="wishlist-empty-button">Start Shopping</a>
     </div>
   {{/if}}
 
@@ -300,6 +300,7 @@
   
   async function removeFromWishlist(event, id) {
     event.preventDefault();
+    const wishlistCount=document.getElementById("wishlist-count")
 
     const res = await fetch(`/removeFromWishlist/${id}`, {
       method: "DELETE",
@@ -326,6 +327,22 @@
         },
       }).showToast();
       document.getElementById(`wishlist-item-${id}`)?.remove();
+      wishlistCount.innerHTML=data.wishlistCount
+      if (data.wishlistCount === 0) {
+      const container = document.querySelector(".wishlist-container");
+
+      // Clear existing items
+      container.innerHTML = `
+        <div class="wishlist-heading">WISHLIST</div>
+        <div class="wishlist-subtext">ONE CLICK CLOSER TO YOUR WISH</div>
+        <div class="wishlist-empty-container">
+          <div class="wishlist-empty-icon">💔</div>
+          <h2 class="wishlist-empty-title">Your Wishlist is Empty</h2>
+          <p class="wishlist-empty-text">Looks like you haven't added anything yet.</p>
+          <a href="/products" class="wishlist-empty-button">Start Shopping</a>
+        </div>
+      `;
+    }
     } else {
       console.log("error deleting wishlist");
     }

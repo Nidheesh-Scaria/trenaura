@@ -26,8 +26,8 @@ router.get("/downloadLedger",adminAuth.adminAuth,dashboardController.downloadLed
 router.get("/getDashboardData",adminAuth.adminAuth,dashboardController.getDashboardData)
 
 //settings
-router.get("/settings",settingsController.loadSettings);
-router.post("/delivery-charge",settingsController.setDeliveryCharge)
+router.get("/settings",adminAuth.adminAuth,settingsController.loadSettings);
+router.post("/delivery-charge",adminAuth.adminAuth,settingsController.setDeliveryCharge)
 
 
 
@@ -54,6 +54,7 @@ router.post("/addProducts",adminAuth.adminAuth,upload.array("images", 4),product
 router.get("/editProducts/:id", adminAuth.adminAuth, productController.getEditProduct);
 router.post("/editProducts/:id",upload.array('images'),adminAuth.adminAuth,productController.editProducts );
 router.delete("/deleteProducts/:id", adminAuth.adminAuth, productController.deleteProducts);
+router.put("/undoDeleteProducts/:id", adminAuth.adminAuth, productController.undoDeleteProducts);
 router.post("/addOffer",adminAuth.adminAuth, productController.addProductOffer)
 router.post("/removeOffer",adminAuth.adminAuth, productController.removeProductOffer)
 

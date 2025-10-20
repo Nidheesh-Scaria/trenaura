@@ -356,7 +356,7 @@
             <input type="hidden" id="amount-{{_id}}" value="{{finalAmount}}">
             <p><strong>Total Amount:</strong> ₹{{finalAmount}}</p>
             <p><strong>Payment Method:</strong> {{paymentMethod}}</p>
-            <p><strong>Status:</strong>
+            <p><strong>Payment Status:</strong>
                 <span class="status {{paymentStatus}}">
                     {{paymentStatus}}
                 </span>
@@ -366,6 +366,9 @@
               {{#if (or (eq paymentStatus "Pending") (eq paymentStatus "Unpaid"))}}
                 <button type="button" class="payment" onclick="retryPayment(event,'{{_id}}')">Retry Payment</button>
               {{/if}}
+            {{/if}}
+            {{#if (eq returnRequest true)}}
+            <button class="payment" onclick="retryPayment(event,'{{_id}}')" disabled>Return Initiated</button>
             {{/if}}
             <button type="button" class="details" onclick="viewOrderDetails(event,'{{_id}}')">View Details</button>
         </div>

@@ -238,6 +238,7 @@
 async function addWishlist(event,id){
     event.preventDefault();
     console.log('addWishlist loaded with id   :::::::',id)
+    const wishlistCount=document.getElementById("wishlist-count")
     const res=await fetch(`/addWishlist/${id}`,{
         method:"POST",
         headers:{"Content-type":"application/json"}
@@ -262,9 +263,11 @@ async function addWishlist(event,id){
         }
         }).showToast();
         document.getElementById(`wishlist-${id}`).innerHTML="❤️ Wishlisted"
-        wishlistBtn.onclick = null;
+        /*wishlistBtn.onclick = null;
         wishlistBtn.removeAttribute("onclick");
-        wishlistBtn.style.pointerEvents = "none";
+        wishlistBtn.style.pointerEvents = "none";*/
+        wishlistCount.innerHTML=data.wishlistCount
+        console.log(data.wishlistCount)
     }
 }
 

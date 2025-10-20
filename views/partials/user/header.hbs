@@ -1,7 +1,8 @@
   <head>
       <link rel="stylesheet" href="/css/header-style.css">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
   </head>
 
   <header>
@@ -12,10 +13,13 @@
             {{#if isLoggedIn}}
               {{!-- <a href="#" ><i class="fas fa-search"></i></a> --}}
               <a href="/myAccount" class="cart-icon-link"><i class="fas fa-user"></i></a>
+              {{!-- cart --}}
               <a href="/loadcartPage" class="cart-icon-link"><i class="fas fa-shopping-bag"></i>
                 <span id="cart-count" class="cart-badge">{{cartLength}}</span>
               </a>
-              <a href="/loadWishlist" class="cart-icon-link" ><i class="fas fa-heart"></i></a>
+        
+             {{!-- wishlist --}}
+              <a href="/loadWishlist" class="cart-icon-link" ><i class="fas fa-heart"></i><span id="wishlist-count" class="cart-badge">{{wishlistCount}}</span></a>
             {{else}}
               <a href="/login" style="color: #0d0d0d; font-size: 15px; font-weight:600; ">Login</a>
               <a href="/signup" style="color: #0d0d0d; font-size: 15px;font-weight:600;">Signup</i></a>

@@ -19,6 +19,7 @@ const razorpay = require("../../config/razorpay");
 const razorpayInstance = require("../../config/razorpay");
 const crypto = require("crypto");
 
+const GOOGLEMAP_API_KEY = process.env.GOOGLE_MAP_KEY;
 
 //address management
 const loadmyAddress = async (req, res) => {
@@ -92,7 +93,7 @@ const addAddress = async (req, res) => {
       pincode: Number(pincode),
       phone: Number(phone),
       altPhone: altPhone ? Number(altPhone) : undefined,
-      selected:true,
+      selected: true,
     };
 
     const userAddress = await Address.findOne({ userId });
@@ -251,10 +252,62 @@ const deleteAddress = async (req, res) => {
   }
 };
 
+const getLocationDetails = async (req, res) => {
+  try {
+    const { pincode } = req.params;
+    console.log("pincode----",pincode)
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${pincode}&key=${GOOGLEMAP_API_KEY}`;
+
+    const response = await fetch(url);
+    const data = await response.json();
+    console.log("data",data)
+    const components = data.results[0].address_components;
+    console.log(components)
+
+    let locality,district,state
+    components.forEach((loc) => {
+      if (loc.types.includes("administrative_area_level_1"))
+        state = loc.long_name;
+      if (loc.types.includes("administrative_area_level_3")) district = loc.long_name;
+      if (loc.types.includes("locality")) locality = loc.long_name;
+    });
+
+  
+    return res.json({ state, district, locality })
+
+  } catch (error) {
+    console.error("Error in fetching location details:", error);
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
+  }
+};
+
+const getAddAddress=async(req,res)=>{
+  try {
+    
+    const userId=req.session.user
+    return res.render("user/addAddress", {
+      title: "Add Address",
+      hideHeader: false,
+      hideFooter: false,
+      adminHeader: true,
+      userId
+    });
+  } catch (error) {
+    console.error("Error in rendering add address:", error);
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
+  }
+}
+
 module.exports = {
   loadmyAddress,
   addAddress,
   loadEditAddress,
   editAddress,
   deleteAddress,
+  getLocationDetails,
+  getAddAddress,
 };

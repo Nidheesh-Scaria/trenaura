@@ -42,6 +42,10 @@ const orderSchema = new Schema({
         type: Number,
         default: 0,
       },
+      finalAmount:{
+        type: Number,
+        default: 0,
+      },
       variant: {
         type: String,
         default: null,

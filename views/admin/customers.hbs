@@ -2,7 +2,8 @@
 
 <head>
     <link rel="stylesheet" href="/css/adminCustomers.css">
-    <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
 </head>
 
 <main class="main-content">
@@ -139,96 +140,6 @@
 
 <!-- Toast Notification -->
 <div id="toast" class="toast"></div>
-
-
-
-{{!-- <script>
-let customerIdToUpdate = null;
-let actionType = null;
-let currentButton = null;
-
-// Show toast
-function showToast(message) {
-  const toast = document.getElementById("toast");
-  toast.textContent = message;
-  toast.className = "toast show";
-  setTimeout(() => {
-    toast.className = toast.className.replace("show", "");
-  }, 3000);
-}
-
-// Handle button click
-document.addEventListener("click", function (e) {
-  const btn = e.target.closest(".toggle-block");
-  if (btn) {
-    customerIdToUpdate = btn.getAttribute("data-id");
-    actionType = btn.getAttribute("data-status") === "blocked" ? "unblock" : "block";
-    currentButton = btn;
-
-    document.getElementById("modalMessage").textContent =
-      `Are you sure you want to ${actionType} this customer?`;
-
-    document.getElementById("confirmationModal").style.display = "flex";
-  }
-});
-
-// Cancel Modal
-document.getElementById("cancelAction").addEventListener("click", () => {
-  document.getElementById("confirmationModal").style.display = "none";
-  customerIdToUpdate = null;
-  actionType = null;
-  currentButton = null;
-});
-
-// Close Modal X
-document.querySelector(".close-modal").addEventListener("click", () => {
-  document.getElementById("confirmationModal").style.display = "none";
-  customerIdToUpdate = null;
-  actionType = null;
-  currentButton = null;
-});
-
-// Confirm Action
-document.getElementById("confirmAction").addEventListener("click", async () => {
-  if (!customerIdToUpdate || !actionType) return;
-
-  try {
-    const res = await fetch(`/admin/customer${actionType === 'block' ? 'Block' : 'Unblock'}/${customerIdToUpdate}`, {
-      method: "PATCH",
-    });
-
-    if (res.ok) {
-      const newStatus = actionType === "block" ? "blocked" : "active";
-      const newAction = actionType === "block" ? "unblock" : "block";
-      const iconClass = actionType === "block" ? "fa-check" : "fa-ban";
-
-      // Update button
-      currentButton.setAttribute("data-status", newStatus);
-      currentButton.innerHTML = `<i class="fas ${iconClass}"></i> ${actionType === "block" ? "Unblock" : "Block"}`;
-
-      // Update status text in row
-      const row = currentButton.closest("tr");
-      const statusSpan = row.querySelector(".status");
-      if (statusSpan) {
-        statusSpan.className = `status ${newStatus}`;
-        statusSpan.textContent = newStatus === "blocked" ? "Blocked" : "Active";
-      }
-
-      showToast(`Customer ${actionType}ed successfully`);
-    } else {
-      alert("Something went wrong.");
-    }
-  } catch (err) {
-    console.error("Error:", err);
-    alert("Server error. Try again.");
-  } finally {
-    document.getElementById("confirmationModal").style.display = "none";
-    customerIdToUpdate = null;
-    actionType = null;
-    currentButton = null;
-  }
-});
-</script> --}}
 
 <script>
 

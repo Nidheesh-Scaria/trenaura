@@ -45,7 +45,6 @@
 
 // module.exports = hbs;
 
-
 const exphbs = require("express-handlebars");
 const path = require("path");
 
@@ -68,19 +67,27 @@ const hbs = exphbs.create({
     // Conditional Helper
     ifCond(v1, operator, v2, options) {
       switch (operator) {
-        case "===": return v1 === v2 ? options.fn(this) : options.inverse(this);
-        case "!==": return v1 !== v2 ? options.fn(this) : options.inverse(this);
-        case ">": return v1 > v2 ? options.fn(this) : options.inverse(this);
-        case "<": return v1 < v2 ? options.fn(this) : options.inverse(this);
-        case ">=": return v1 >= v2 ? options.fn(this) : options.inverse(this);
-        case "<=": return v1 <= v2 ? options.fn(this) : options.inverse(this);
-        default: return options.inverse(this);
+        case "===":
+          return v1 === v2 ? options.fn(this) : options.inverse(this);
+        case "!==":
+          return v1 !== v2 ? options.fn(this) : options.inverse(this);
+        case ">":
+          return v1 > v2 ? options.fn(this) : options.inverse(this);
+        case "<":
+          return v1 < v2 ? options.fn(this) : options.inverse(this);
+        case ">=":
+          return v1 >= v2 ? options.fn(this) : options.inverse(this);
+        case "<=":
+          return v1 <= v2 ? options.fn(this) : options.inverse(this);
+        default:
+          return options.inverse(this);
       }
     },
 
     // Range for loops
     range(start, end) {
-      const s = Number(start), e = Number(end);
+      const s = Number(start),
+        e = Number(end);
       return Array.from({ length: e - s + 1 }, (_, i) => s + i);
     },
 
@@ -95,9 +102,14 @@ const hbs = exphbs.create({
     or: (...args) => args.slice(0, -1).some(Boolean),
 
     // Date Formatting
-    formatDate: (date) => date ? new Date(date).toLocaleDateString("en-GB", {
-      day: "2-digit", month: "short", year: "numeric"
-    }) : "",
+    formatDate: (date) =>
+      date
+        ? new Date(date).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })
+        : "",
 
     // Array Includes
     includes: (array, value) =>
@@ -115,6 +127,11 @@ const hbs = exphbs.create({
 
     // Uppercase labels (useful in charts for categories/brands)
     uppercase: (str) => (str || "").toUpperCase(),
+
+    //helper to print objects clearly in HBS
+    json: function (context) {
+      return JSON.stringify(context, null, 2);
+    },
   },
 });
 

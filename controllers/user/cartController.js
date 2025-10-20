@@ -77,13 +77,26 @@ const addToCart = async (req, res) => {
       });
     } else {
       const itemIndex = cart.items.findIndex(
-        (item) => item.productId.toString() === productId
+        (item) => item.productId.toString() === productId && ((item.size || null) === (size || null))
       );
 
       if (itemIndex > -1) {
-        cart.items[itemIndex].quantity += quantity;
+        //cart.items[itemIndex].quantity += quantity;
+        const quantity=cart.items[itemIndex].quantity
+        const availableStock=product.variants.get(size) || 0
+
+        if(quantity>=5){
+          cart.items[itemIndex].quantity=5
+        }else if(availableStock>=quantity){
+           cart.items[itemIndex].quantity=availableStock
+        }else{
+          cart.items[itemIndex].quantity += quantity;
+        
+        }
+
         cart.items[itemIndex].totalPrice =
           cart.items[itemIndex].quantity * price;
+
       } else {
         cart.items.push({ productId, quantity, price, totalPrice, size });
       }
@@ -92,6 +105,9 @@ const addToCart = async (req, res) => {
     await cart.save();
     const cartCount = await Cart.findOne({ userId }).lean();
     const cartLength = cartCount?.items?.length || 0;
+    // let cartLength=cartCount.items.map((q)=>q.quantity)
+    // cartLength=cartLength.reduce((total,q)=>total+q,0)
+    // console.log(cartLength)
 
     if (fromWishList) {
       await Wishlist.updateOne(
@@ -168,7 +184,7 @@ const renderMyCart = async (req, res) => {
   try {
     const userId = req.session.user || req.user;
     const products = await Product.find().limit(8).lean();
-    let deliveryCharge=0
+    let deliveryCharge = 0;
 
     const cart = await Cart.findOne({ userId })
       .populate({
@@ -179,11 +195,13 @@ const renderMyCart = async (req, res) => {
 
     let totalPrice = 0;
 
-    //sorting items with a valid productId .
+    //sorting items with a valid productId
     if (cart?.items?.length) {
       cart.items = cart.items.filter((item) => item.productId !== null);
 
       cart.items = cart.items.map((item) => {
+        let stock = item.productId.variants;
+        stock = stock[item.size];
         const currentSalePrice = item.productId.salePrice;
         const updatedTotal = currentSalePrice * item.quantity;
 
@@ -192,6 +210,7 @@ const renderMyCart = async (req, res) => {
           ...item,
           price: currentSalePrice,
           totalPrice: updatedTotal,
+          stock,
         };
       });
 
@@ -203,6 +222,11 @@ const renderMyCart = async (req, res) => {
 
     deliveryCharge = await getDeliveryCharge(totalPrice);
     let finalAmount = deliveryCharge + totalPrice;
+
+    const cartLength = cart?.items?.length || 0;
+    // let cartLength=cart.items.map((q)=>q.quantity)
+    // cartLength=cartLength.reduce((total,q)=>total+q,0)
+    // console.log(cartLength)
 
     //if cart is empty
     if (!cart || cart.items.length === 0) {
@@ -226,6 +250,7 @@ const renderMyCart = async (req, res) => {
       totalPrice,
       deliveryCharge,
       finalAmount,
+      cartLength,
     });
   } catch (error) {
     console.error("Error in loadmyCart:", error);
@@ -258,8 +283,8 @@ const cartOrderSummary = async (req, res) => {
       }, 0);
     }
 
-    let deliveryCharge=await getDeliveryCharge(totalPrice)
-    let finalAmount=deliveryCharge+totalPrice
+    let deliveryCharge = await getDeliveryCharge(totalPrice);
+    let finalAmount = deliveryCharge + totalPrice;
 
     //if cart is empty
     if (!cart || cart.items.length === 0) {
@@ -300,9 +325,16 @@ const removefromCart = async (req, res) => {
 
     await Cart.updateOne({ userId }, { $pull: { items: { _id: itemId } } });
 
+    const cart = await Cart.findOne({ userId }).lean();
+
+    const cartLength = cart ? cart.items.length : 0;
+
     return res
       .status(httpStatus.OK)
-      .json({ message: MESSAGES.CART.ITEM_DELETED || "item deleted" });
+      .json({
+        message: MESSAGES.CART.ITEM_DELETED || "item deleted",
+        cartLength: cartLength,
+      });
   } catch (error) {
     console.error("Error in removing item from cart:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -339,17 +371,14 @@ const applyCoupon = async (req, res) => {
 
     let finalAmount = 0;
     let discountAmount = 0;
-    let deliveryCharge=await getDeliveryCharge(cartTotal)
-    
+    let deliveryCharge = await getDeliveryCharge(cartTotal);
 
     const cart = await Cart.findOne({ userId });
 
     if (coupon.discountType === "flat") {
       discountAmount = coupon.discountValue;
-    
     } else if (coupon.discountType === "percentage") {
       discountAmount = (coupon.discountValue / 100) * cartTotal;
-      
     }
 
     discountAmount = Math.min(discountAmount, cartTotal);
@@ -357,9 +386,8 @@ const applyCoupon = async (req, res) => {
     finalAmount = cartTotal - discountAmount;
     finalAmount += deliveryCharge;
     discountAmount = Math.round(discountAmount);
-    
+
     finalAmount = Math.round(finalAmount);
-    
 
     req.session.appliedCoupon = {
       discountAmount,
@@ -399,7 +427,6 @@ const applyCoupon = async (req, res) => {
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: "An error occurred. Please try again later.",
-      
     });
   }
 };
@@ -415,7 +442,7 @@ const removeCoupon = async (req, res) => {
         .json({ message: "No coupon Applied" });
     }
 
-    let { discountAmount, finalAmount, couponCode, couponId ,cartTotal} =
+    let { discountAmount, finalAmount, couponCode, couponId, cartTotal } =
       req.session.appliedCoupon;
 
     delete req.session.appliedCoupon;
@@ -427,13 +454,13 @@ const removeCoupon = async (req, res) => {
       );
     }
 
-    let deliveryCharge=await getDeliveryCharge(cartTotal)
-    cartTotal+=deliveryCharge
+    let deliveryCharge = await getDeliveryCharge(cartTotal);
+    cartTotal += deliveryCharge;
 
     return res.json({
       message: "Coupon removed Successfully",
       discountAmount,
-      finalAmount:cartTotal,
+      finalAmount: cartTotal,
     });
   } catch (error) {
     console.error("Error in removeCoupon:", error);
@@ -627,8 +654,10 @@ const increaseQuantity = async (req, res) => {
     if (!item) {
       return res.status(400).json({ message: "Item not found" });
     }
+    //getting stock
+    let stock = item.productId.variants;
+    stock = stock.get(size);
 
-    const stock = item.productId.variants[item.size];
     if (item.quantity >= stock) {
       return res.status(400).json({
         message: "Quantity should be less than the total stock of the product",
@@ -649,9 +678,8 @@ const increaseQuantity = async (req, res) => {
     // let grandTotal = cart.items.reduce((total, i) => total + i.totalPrice, 0);
     let grandTotal = item.totalPrice;
 
-    console.log("increase grandtotal:::", grandTotal);
     let deliveryCharge = await getDeliveryCharge(grandTotal);
-    console.log("increase deliveryCharge:::", deliveryCharge);
+
     grandTotal += deliveryCharge;
 
     return res.status(200).json({

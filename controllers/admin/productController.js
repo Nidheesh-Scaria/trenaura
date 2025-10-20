@@ -17,7 +17,6 @@ const getProductPage = async (req, res) => {
 
     const query = {
       isBlocked: false,
-      isDeleted: false,
       productName: { $regex: search, $options: "i" },
     };
 
@@ -75,6 +74,7 @@ const getProductPage = async (req, res) => {
         brandId: product.brand?._id || "",
         status: product.status,
         isBlocked: product.isBlocked,
+        isDeleted: product.isDeleted,
         productOffer: product.productOffer || 0,
         variants: Object.fromEntries(Object.entries(product.variants || {})),
         stock: totalStock,
@@ -498,6 +498,22 @@ const deleteProducts = async (req, res) => {
     });
   }
 };
+const undoDeleteProducts = async (req, res) => {
+  try {
+    const id = req.params.id;
+    await Product.findByIdAndUpdate(id, { $set: { isDeleted: false } });
+    return res.status(httpStatus.OK).json({
+      success: true,
+      message: MESSAGES.PRODUCT_DELETED || "Product deleted successfully!",
+    });
+  } catch (error) {
+    console.error("Delete error:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error",
+    });
+  }
+};
 
 const addProductOffer = async (req, res) => {
   try {
@@ -620,4 +636,5 @@ module.exports = {
   deleteProducts,
   addProductOffer,
   removeProductOffer,
+  undoDeleteProducts,
 };

@@ -11,7 +11,8 @@ const { MESSAGES } = require("../../util/constants");
 
 const loadOrder = async (req, res) => {
   try {
-    const orders = await OrderSchema.find({isOrderPlaced:true}).sort({createdAt:-1})
+    const orders = await OrderSchema.find({ isOrderPlaced: true })
+      .sort({ createdAt: -1 })
       .populate("userId", "name email")
       .populate("orderedItems.productId", "productName productImages")
       .lean();
@@ -44,10 +45,10 @@ const orderMangement = async (req, res) => {
         createdAt: 1,
         paymentMethod: 1,
         couponApplied: 1,
-        couponDiscount:1,
+        couponDiscount: 1,
         paymentStatus: 1,
         paymentDate: 1,
-        deliveryCharge:1,
+        deliveryCharge: 1,
         razorpayPaymentId: 1,
         orderId: 1,
       }
@@ -89,7 +90,9 @@ const orderMangement = async (req, res) => {
         latestStatusDate: new Date(latestStatusDate).toLocaleString(),
         returnRequest,
         isAdminCancelled: latestStatus ? latestStatus.isAdminCancelled : false,
-        cancellationReason: latestStatus ? latestStatus.cancellationReason : null,
+        cancellationReason: latestStatus
+          ? latestStatus.cancellationReason
+          : null,
       };
     });
 
@@ -115,6 +118,34 @@ const changeOrderStatus = async (req, res) => {
       formattedReason = reason.replace(/_/g, " ");
       foramttedDate =
         formattedReason.charAt(0).toUpperCase() + formattedReason.slice(1);
+    }
+
+    //cheking for refund if paid
+    if (status == 'Cancelled') {
+      const order = await OrderSchema.findOne({
+        "orderedItems._id": itemId,
+      }).lean();
+      console.log("orders if cancelled",order);
+      if (order.paymentStatus === "Paid") {
+        const userId = order.userId._id;
+        const item = order.orderedItems[0];
+
+        const updateWallet = await WalletSchema.findOneAndUpdate(
+          { userId },
+          {
+            $inc: { balance: item.finalAmount },
+            $push: {
+              transactions: {
+                orderId: order._id,
+                type: "credit",
+                amount: item.finalAmount,
+                description: `Refund for the order ${order.orderId} - item name:${order.itemName}`,
+              },
+            },
+          },
+          { new: true, upsert: true, setDefaultsOnInsert: true }
+        );
+      }
     }
 
     const updatedOrder = await OrderSchema.findOneAndUpdate(
@@ -420,20 +451,15 @@ const initiateRefund = async (req, res) => {
     order.itemName = item.productId.productName;
     const userId = order.userId._id;
 
-    console.log("productname:", order.itemName);
-    console.log("initiateRefund price:", order.totalPrice);
-
-    console.log("initiateRefund userId:", userId);
-
     const updateWallet = await WalletSchema.findOneAndUpdate(
       { userId },
       {
-        $inc: { balance: order.totalPrice },
+        $inc: { balance: item.finalAmount },
         $push: {
           transactions: {
             orderId: order._id,
             type: "credit",
-            amount: order.totalPrice,
+            amount: item.finalAmount,
             description: `Refund for the order ${order.orderId} - item name:${order.itemName}`,
           },
         },

@@ -320,7 +320,7 @@
           <img src="https://cdn-icons-png.flaticon.com/512/2038/2038854.png" alt="Empty Cart" />
           <h2>Your cart is empty</h2>
           <p>Looks like you haven't added anything yet.</p>
-          <a href="/" id="shop-now-btn">Shop Now</a>
+          <a href="/shop" id="shop-now-btn">Shop Now</a>
         </div>
       {{/if}}
 
@@ -332,6 +332,7 @@
         <div class="cart-item-details">
           <h5>{{this.productId.productName}}</h5>
           <p>Color: {{this.productId.color}}</p>
+          <p>Stock:{{this.stock}}</p>
           <p>Size: {{this.size}}</p>
           <div class="quantity-selector">
              {{!-- decrease quantity --}}
@@ -354,7 +355,9 @@
     </div>
 
     <!-- Right: Price Details -->
-
+  {{#if isCartEmpty}}
+  <div id="empty-price"></div>
+  {{else}}
     <div class="cart-summary">
       <h5 id="price_details">PRICE DETAILS</h5>
       <hr />
@@ -391,6 +394,7 @@
       <button onclick="loadAddressForOrder(event)" id="checkout-btn">PLACE ORDER</button>
       {{!-- <a href="/loadPaymentMode" id="checkout-btn">CONTINUE TO CHECKOUT</a> --}}
     </div>
+  {{/if}}
   </div>
 
   <section class="product spad">
@@ -684,7 +688,8 @@ async function removefromCart(event, id) {
   try {
     event.preventDefault();
     const cartItem=document.getElementById(`cart-item-${id}`)
-   
+    const cartCountElem=document.getElementById("cart-count")
+
 
     const res = await fetch(`/removefromCart/${id}`, {
       method: "DELETE",
@@ -709,15 +714,21 @@ async function removefromCart(event, id) {
       }).showToast();
 
       cartItem.style.display="none"
-      {{!-- setTimeout(() => {
-        window.location.reload();
-      }, 2000); --}}
+      
+      cartCountElem.innerHTML=data.cartLength
+      
+      if(data.cartLength===0){
+        const cartContainer = document.querySelector(".cart-wrapper");
+        cartContainer.innerHTML = `
+            <div class="empty-cart-message">
+              <img src="https://cdn-icons-png.flaticon.com/512/2038/2038854.png" alt="Empty Cart" />
+              <h2>Your cart is empty</h2>
+              <p>Looks like you haven't added anything yet.</p>
+              <a href="/" id="shop-now-btn">Shop Now</a>
+            </div>`;
+      }
+      window.location.reload()
 
-
-      {{!-- const itemElememt = document.getElementById(`cart-item-${id}`);
-      if (itemElememt) {
-        itemElememt.remove(); 
-      }--}}
     } else {
       console.error("failed in deleteing item");
     }
@@ -757,18 +768,6 @@ async function addWishlist(event,id){
     }
 }
 
-
-/* async function loadPaymentMode(event){
-  event.preventDefault()
-  const couponCode=document.getElementById("couponCode").value
-  const finalAmount=document.getElementById("finalAmount").innerText
-  let url = `/loadPaymentMode?amount=${finalAmount}`;
-   if (couponCode) {
-    url += `&couponCode=${couponCode}`;
-  }
-  url="/cartOrderSummary"
-  window.location.href = url;
-} */
 async function loadAddressForOrder(event){
   event.preventDefault()
   //let url="/cartOrderSummary" 

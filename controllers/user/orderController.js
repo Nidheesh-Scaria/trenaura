@@ -239,8 +239,8 @@ const orderDetails = async (req, res) => {
         couponApplied: 1,
         paymentStatus: 1,
         paymentDate: 1,
-        couponDiscount:1,
-        deliveryCharge:1,
+        couponDiscount: 1,
+        deliveryCharge: 1,
         razorpayPaymentId: 1,
         orderId: 1,
         isOrderPlaced: 1,
@@ -354,8 +354,6 @@ const submitAddress = async (req, res) => {
     const addressId = req.body.selectedAddress;
     const userId = req.session.user;
     const { productId, size } = req.body;
-    console.log("submitAddress---------------", size);
-    console.log("submitAddress---------------productId-------", productId);
 
     //submitting address
     await Address.updateOne(
@@ -405,10 +403,18 @@ const submitAddress = async (req, res) => {
           item.size === size
       ); //returns -1 if no item found
       if (itemIndex > -1) {
+
         let currentQuantity = cart.items[itemIndex].quantity;
+        const availableStock = product.variants.get(size) || 0;
+        
         //quantity limits to 5
         if (currentQuantity >= 5) {
           cart.items[itemIndex].quantity = 5;
+          //checking stock before increasing quantity
+        } else if (currentQuantity >= availableStock) {
+          cart.items[itemIndex].quantity = availableStock;
+
+          //increasing quantity
         } else {
           cart.items[itemIndex].quantity += 1;
         }
@@ -441,8 +447,6 @@ const submitAddress = async (req, res) => {
     const itemId = addedItem ? addedItem._id : null;
     const productSize = addedItem ? addedItem.size : null;
 
-    console.log("At submit Addrees ", productSize);
-
     return res.redirect(`/orderSummary?cartId=${itemId}&size=${productSize}`);
   } catch (error) {
     console.error(
@@ -465,8 +469,6 @@ const loadOrderSummary = async (req, res) => {
     const size = req.query.size;
     let deliveryCharge = 0;
 
-    console.log("loadOrderSummary", itemId);
-    console.log("loadOrderSummary size", size);
     const cart = await Cart.findOne(
       { userId },
       { items: { $elemMatch: { _id: itemId, size: size } } }
@@ -524,9 +526,6 @@ const loadPaymentMethod = async (req, res) => {
 
     let { itemId, couponCode, amount, orderId } = req.query;
 
-    console.log("loadPaymentMethod cartId::", itemId);
-    console.log("loadPaymentMethod amount::", amount);
-    console.log("loadPaymentMethod type of amount::", typeof amount);
     //for retry payments
     if (orderId) {
       const order = await Order.findById(orderId)
@@ -602,9 +601,6 @@ const loadPaymentMethod = async (req, res) => {
 
       grandTotal += deliveryCharge;
 
-      console.log("grandtotal if whole cart", grandTotal);
-      console.log(typeof grandTotal);
-
       return res.render("user/paymentMethod", {
         title: "Payment method",
         adminHeader: true,
@@ -626,11 +622,8 @@ const loadPaymentMethod = async (req, res) => {
     grandTotal = Number(grandTotal);
     let deliveryCharge = await getDeliveryCharge(grandTotal);
     grandTotal += deliveryCharge;
-    console.log("grandtotal if one product", grandTotal);
-    console.log("deliveryCharge if one product", deliveryCharge);
 
-    console.log(typeof grandTotal);
-
+  
     return res.render("user/paymentMethod", {
       title: "Payment method",
       adminHeader: true,
@@ -651,7 +644,7 @@ const loadPaymentMethod = async (req, res) => {
 
 const orderSuccess = async (req, res) => {
   try {
-    console.log("*******************orderSuccess reached****************");
+    
     const userId = req.session.user;
     let { itemId, paymentMethod, couponCode, retryOrderId } = req.body;
     let newOrder;
@@ -682,7 +675,7 @@ const orderSuccess = async (req, res) => {
     //       : `/order-placed?itemId=${itemId}&isWholeCart=${isWholeCart}`,
     //   });
     // }
-
+    //Retry Payment
     if (orderId) {
       const order = await Order.findById(orderId);
 
@@ -813,17 +806,14 @@ const orderSuccess = async (req, res) => {
         } else if (coupon.discountType === "percentage") {
           discount = (coupon.discountValue / 100) * item.totalPrice;
         }
-        discount=Math.round(discount)
+        discount = Math.round(discount);
         couponApplied = true;
       }
       deliveryCharge = await getDeliveryCharge(item.totalPrice);
-      let totalDiscount =Math.round(discount) || 0;
+      let totalDiscount = Math.round(discount) || 0;
 
-      totalDiscount = Math.min(totalDiscount,item.totalPrice);
-      let finalAmount = Math.max(
-        (item.totalPrice) - totalDiscount,
-        0
-      );
+      totalDiscount = Math.min(totalDiscount, item.totalPrice);
+      let finalAmount = Math.max(item.totalPrice - totalDiscount, 0);
       finalAmount += deliveryCharge;
       finalAmount = Math.round(finalAmount);
 
@@ -837,7 +827,7 @@ const orderSuccess = async (req, res) => {
             variant: item.size,
             totalPrice: item.totalPrice,
             discount,
-            finalPrice: finalAmount,
+            finalAmount,
             statusHistory: [
               {
                 status: "Pending",
@@ -870,12 +860,15 @@ const orderSuccess = async (req, res) => {
         totalPrice: item.totalPrice,
         statusHistory: [{ status: "Pending" }],
       }));
+      const numberOfItems=cart.items.length
+      console.log("Number of items in cart:", numberOfItems);
+      
 
       const totalPrice = orderedItems.reduce(
         (sum, item) => sum + item.totalPrice,
         0
       );
-      console.log("order success totalPrice", totalPrice);
+      console.log("order success totalPrice of whole cart", totalPrice);
 
       let discount = 0;
       let couponApplied = false;
@@ -897,32 +890,32 @@ const orderSuccess = async (req, res) => {
         } else if (coupon.discountType === "percentage") {
           discount = (coupon.discountValue / 100) * totalPrice;
         }
-        discount=Math.round(discount)
+        discount = Math.round(discount);
         couponApplied = true;
       }
 
       discount = Math.min(discount, totalPrice);
-      
 
       finalAmount = Math.max(totalPrice - discount, 0);
       finalAmount = Math.round(finalAmount);
-      console.log("finalAmount", discount);
+      
       deliveryCharge = await getDeliveryCharge(totalPrice);
-      console.log("delivery", deliveryCharge);
+      
       finalAmount += deliveryCharge;
-      console.log("finalAmount+delivery ", finalAmount);
+      
 
       if (discount > 0 && couponApplied) {
         orderedItems.forEach((item) => {
           const itemShare = item.totalPrice / totalPrice;
           const perItemDiscount = Math.round(discount * itemShare);
           item.discount = perItemDiscount;
-          item.finalPrice = Math.max(item.totalPrice - perItemDiscount, 0);
+          
+          item.finalAmount = Math.max(item.totalPrice - perItemDiscount, 0);
         });
       } else {
         orderedItems.forEach((item) => {
           item.discount = 0;
-          item.finalPrice = item.totalPrice;
+          item.finalAmount = item.totalPrice;
         });
       }
 
@@ -1102,13 +1095,13 @@ const cancelOrder = async (req, res) => {
       productId: item.productId,
       quantity: item.quantity,
       variant: item.variant,
-      amount: item.totalPrice,
+      amount: item.finalAmount,
       updatedStatus: item.statusHistory[item.statusHistory.length - 1].status,
     }));
 
     const { productId, quantity, updatedStatus, variant, amount } =
       productIds[0];
-
+    
     //increasing the quantity after cancel order
     const product = await Product.findOneAndUpdate(
       {
@@ -1799,8 +1792,9 @@ const verifyPayment = async (req, res) => {
 const failedPayment = async (req, res) => {
   try {
     const orderId = req.query.id;
-    const message = req.query.message;
-    console.log(orderId);
+    let message = req.query.message;
+    message=JSON.stringify(message, null, 2);
+    console.log(message);
     return res.render("user/paymentFailure", {
       adminHeader: true,
       orderId,

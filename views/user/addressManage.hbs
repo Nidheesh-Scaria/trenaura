@@ -315,7 +315,8 @@
       <div class="address-section">
         <div class="address-header">
           <h2>Manage Addresses</h2>
-          <button class="add-address-btn" onclick=openAddModal(event,'{{userId}}')>+ Add New Address</button>
+          {{!-- <button class="add-address-btn" onclick=openAddModal(event,'{{userId}}')>+ Add New Address</button> --}}
+          <button class="add-address-btn" onclick=addAddress(event)>+ Add New Address</button>
         </div>
 
        {{#if addresses.length}}
@@ -359,11 +360,12 @@
         <input type="text" placeholder="Enter your Mobile number" id="phone" name="phone">
       </div>
       <div class="row">
-        <input type="text" placeholder="Enter your pincode" name="pincode" id="pincode">
+        <input type="text" placeholder="Enter your pincode" name="pincode" id="pincode" onblur="handlePincodeBlur(event)">
         <input type="text" placeholder="Enter your locality" name="locality" id="locality" >
       </div>
-      <textarea placeholder="Address (Area, City,Post)" rows="3" name="address" id="address" ></textarea>
+      <textarea placeholder="Address (House number,Area, City)" rows="3" name="address" id="address" ></textarea>
        <div class="row">
+        <input type="text" placeholder="Post" name="post" id="post">
         <input type="text" placeholder="City/District/Town" name="cityOrTown" id="cityOrTown">
         <input type="text" placeholder="Enter your State" name="state" id="state" >
         {{!-- <select name="state" id="states">
@@ -466,6 +468,7 @@
 
 <script>
 
+
     //delete Modal
 function deleteAddress(id) {
   document.getElementById("deleteModal").style.display = "block";
@@ -503,11 +506,37 @@ async function confirmDeleteAddress() {
 
 //add modal
 function openAddModal(event, id) {
-  document.getElementById("addressModal").style.display = "block";
-  document.getElementById("addressModal").dataset.userId = id;
+  const modal=document.getElementById("addressModal")
+  modal.style.display = "block";
+  modal.dataset.userId = id;
   const errorElement = document.getElementById("addressError");
   errorElement.textContent = "";
+
 }
+
+
+async function handlePincodeBlur(event) {
+  console.log("reached handlePincodeBlur")
+  const pincode = document.getElementById("pincode").value.trim()
+  console.log("Blur triggered for pincode:", pincode);
+  if (!pincode) return;
+
+  try {
+    const addressDetails = await getAddressDetails(pincode);
+
+    if (addressDetails) {
+      document.getElementById("cityOrTown").value = addressDetails.district || "";
+      document.getElementById("state").value = addressDetails.state || "";
+      document.getElementById("post").value = addressDetails.post || "";
+    } else {
+      alert("Invalid pincode or could not fetch details");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Error verifying pincode");
+  }
+}
+
 
 async function submitAddress(event) {
   event.preventDefault();
@@ -520,6 +549,7 @@ async function submitAddress(event) {
   const address = document.getElementById("address").value.trim();
   const cityOrTown = document.getElementById("cityOrTown").value.trim();
   const selectedState = document.getElementById("state").value.trim();
+  const post=document.getElementById("post").value.trim()
   const addressTypeInput = document.querySelector(
     "input[name=addressType]:checked"
   );
@@ -539,7 +569,8 @@ async function submitAddress(event) {
     !selectedState ||
     !addressType ||
     !locality ||
-    !cityOrTown
+    !cityOrTown||
+    !post
   ) {
     errorElement.textContent = "Please fill all the fields";
     return;
@@ -579,6 +610,7 @@ async function submitAddress(event) {
       addressType,
       landmark,
       altPhone,
+      post,
     }),
   });
   const data = await res.json();
@@ -740,13 +772,17 @@ function closeModal() {
   modal.style.display = "none";
   modal.dataset.userId = "";
 
-  document
-    .querySelectorAll("#addressModal input, #addressModal textarea")
-    .forEach((el) => (el.value = ""));
-  document
-    .querySelectorAll('input[name="addressType"]')
-    .forEach((el) => (el.checked = false));
+  // Clear fields
+  modal.querySelectorAll("input, textarea").forEach((el) => (el.value = ""));
+  modal.querySelectorAll('input[name="addressType"]').forEach((el) => (el.checked = false));
   document.getElementById("addressError").textContent = "";
+
+
+  const pincodeInput = document.getElementById("pincode");
+  if (pincodeInput && pincodeInput.dataset.listenerAdded) {
+    pincodeInput.removeEventListener("blur", handlePincodeBlur);
+    delete pincodeInput.dataset.listenerAdded;
+  }
 }
 
 function closeDeleteModal() {
@@ -766,6 +802,30 @@ window.onclick = function (event) {
 
 
 
+
+   
+ async function getAddressDetails(pincode){
+  try{
+
+    const res=await fetch(`/verifyPincode/${pincode}`)
+    const data=await res.json()
+    if(res.ok){
+      return data
+    }else{
+      console.log("Error in getAddressDetails")
+    }
+
+
+  }catch(err){
+    console.error(err);
+     
+  }
+ }
+
+ async function addAddress(event){
+  event.preventDefault()
+  window.location.href = "/addAddress";
+ }
+
+
 </script>
-
-

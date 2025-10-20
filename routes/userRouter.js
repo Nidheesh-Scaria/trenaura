@@ -27,8 +27,6 @@ router.get("/pageNotFound", userController.pageNotFound);
 router.get("/logout", userAuth.isLoggedIn, userController.loadLogout);
 
 
-
-
 //profile info
 router.get("/myAccount",userAuth.userBlocked,userAuth.checkSession, userController.loadmyAccount);
 router.put('/profileInfo/:id',userAuth.checkSession,userController.editProfileInfo)
@@ -56,6 +54,8 @@ router.post('/addAddress/:id',userAuth.userBlocked,userAuth.checkSession,address
 router.get('/editAddress/:id',userAuth.userBlocked,userAuth.checkSession, addressController.loadEditAddress)
 router.put('/submitEditAddress/:id',userAuth.userBlocked,userAuth.checkSession, addressController.editAddress)
 router.delete('/deleteAddress/:id',userAuth.userBlocked,userAuth.checkSession, addressController.deleteAddress)
+router.get('/verifyPincode/:pincode',userAuth.userBlocked,userAuth.checkSession, addressController.getLocationDetails)
+router.get('/addAddress',userAuth.userBlocked,userAuth.checkSession, addressController.getAddAddress)
 
 
 //changePassword
@@ -91,10 +91,7 @@ router.get('/loadMyOrder',userAuth.userBlocked,userAuth.checkSession, orderContr
 router.get('/loadAddressForOrder',userAuth.userBlocked,userAuth.checkSession, orderController.loadAddressForOrder)
 router.get('/loadAddressForOrder/:id',userAuth.userBlocked,userAuth.checkSession, orderController.loadAddressForOrder)
 router.post('/submit-address',userAuth.userBlocked,userAuth.checkSession, orderController.submitAddress)
-
 router.get("/orderSummary",userAuth.userBlocked,userAuth.checkSession, orderController.loadOrderSummary)
-
-
 router.get('/loadPaymentMode',userAuth.userBlocked,userAuth.checkSession, orderController.loadPaymentMethod)
 router.post('/orderSuccess',userAuth.userBlocked,userAuth.checkSession, orderController.orderSuccess)
 router.get('/order-placed',userAuth.userBlocked,userAuth.checkSession, orderController.orderPlaced)
@@ -103,6 +100,7 @@ router.get('/orderDetails/:id',userAuth.userBlocked,userAuth.checkSession,orderC
 router.get('/loadReturnOrder/:id',userAuth.userBlocked,userAuth.checkSession,orderController.loadReturnOrder)
 router.post('/returnOrder/:id',userAuth.userBlocked,userAuth.checkSession,orderController.returnOrder)
 router.get('/orderPlaced',userAuth.userBlocked,userAuth.checkSession,orderController.getOrderPlaced)
+
 //wallet payment
 router.get("/walletPayment",userAuth.userBlocked,userAuth.checkSession, orderController.walletPayment)
 router.post("/confirmWalletPayment",userAuth.userBlocked,userAuth.checkSession, orderController.confirmWalletPayment)

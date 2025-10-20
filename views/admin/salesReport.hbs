@@ -224,8 +224,8 @@
 
         {{!-- Download Buttons --}}
         <form id="downloadForm" method="POST" action="/admin/sales-report/download">
-            <input type="hidden" name="startDate" value="{{startDate}}">
-            <input type="hidden" name="endDate" value="{{endDate}}">
+            <input type="hidden" name="startDate" id="startDate" value="{{startDate}}">
+            <input type="hidden" name="endDate" id="endDate"     value="{{endDate}}">
             <button class="btn btn-danger" name="format" value="pdf">Download PDF</button>
             <button class="btn btn-success" name="format" value="excel">Download Excel</button>
             <p id="downloadError" style="color: rgb(238, 86, 86); display: none; margin-top: 10px;"></p>
@@ -278,3 +278,23 @@
         {{/if}}
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+
+        startDateInput.addEventListener('change', () => {
+            // Get the value of the start date
+            const startDateValue = startDateInput.value;
+
+            // Set the 'min' attribute of the end date field to prevents the user from selecting any date earlier than the start date
+            endDateInput.min = startDateValue;
+
+            // Reset the end date if it was previously set to an invalid date
+            if (endDateInput.value && endDateInput.value < startDateValue) {
+                endDateInput.value = startDateValue;
+            }
+        });
+    });
+</script>

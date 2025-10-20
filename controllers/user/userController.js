@@ -10,7 +10,6 @@ const WalletTopupOrder = require("../../models/walletTopupOrderSchema ");
 const Coupon = require("../../models/couponSchema");
 const Brand = require("../../models/brandSchema");
 
-
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const nodeMailer = require("nodemailer");
@@ -324,11 +323,13 @@ const loadHomepage = async (req, res) => {
     };
 
     //cheking wishlist
-    let wishlistProducts=[]
-    if(user){
-      const wishlist=await Wishlist.findOne({userId:user})
-      if(wishlist){
-        wishlistProducts=wishlist.products.map((p)=>p.productsId.toString())
+    let wishlistProducts = [];
+    if (user) {
+      const wishlist = await Wishlist.findOne({ userId: user });
+      if (wishlist) {
+        wishlistProducts = wishlist.products.map((p) =>
+          p.productsId.toString()
+        );
       }
     }
 
@@ -451,16 +452,18 @@ const loadShop = async (req, res) => {
 
     const categories = await Category.find({ isListed: true }).lean();
     const brands = await Brand.find({ isBlocked: false }).lean();
+    
     //cheking wishlist
-    let wishlistProducts=[]
-    if(user){
-      const wishlist=await Wishlist.findOne({userId:user})
-      if(wishlist){
-        wishlistProducts=wishlist.products.map((p)=>p.productsId.toString())
+    let wishlistProducts = [];
+    if (user) {
+      const wishlist = await Wishlist.findOne({ userId: user });
+      if (wishlist) {
+        wishlistProducts = wishlist.products.map((p) =>
+          p.productsId.toString()
+        );
       }
     }
 
-  
     return res.render("user/shop", {
       title: "Trenaura - Shop page",
       isLoggedIn: !!user,
@@ -797,14 +800,16 @@ const productDetails = async (req, res) => {
   try {
     const productId = req.query.id;
     let isOutOfStock = false;
-    const productDoc = await Product.findById(productId)
+    const productDoc = await Product.findOne({
+      _id: productId,
+      isBlocked: false,
+      isDeleted: false,
+    })
       .populate("category", "name")
       .lean();
-
-    if (!productDoc) {
-      return res
-        .status(httpStatus.NOT_FOUND)
-        .render("user/page-404", { title: "Product Not Found" });
+    
+    if (!productDoc || productDoc === null) {
+      return res.redirect("/pageNotFound")
     }
 
     const product = {
@@ -833,6 +838,7 @@ const productDetails = async (req, res) => {
 
     let productData = await Product.find({
       isBlocked: false,
+      isDeleted: false,
       category: { $in: categories.map((category) => category._id) },
       brand: { $in: brand.map((brand) => brand._id) },
       size: { $ne: [] },

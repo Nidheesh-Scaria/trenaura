@@ -400,6 +400,7 @@ async function addToCart(event, id) {
 event.preventDefault();
 document.getElementById("error").innerText=""
 const selectedBtn = document.querySelector(".size-btn.selected");
+const cartLength=document.getElementById("cart-count")
 
 if (!selectedBtn) {
     document.getElementById("error").innerText="Please select a size before adding to cart."
@@ -434,7 +435,7 @@ const size=selectedBtn.value
         }).showToast();
 
 
-        
+  cartLength.innerHTML=data.cartCount
     
   } else {
     console.error("Failed to add item:", data.message || "Unknown error");
@@ -445,6 +446,7 @@ const size=selectedBtn.value
 async function addWishlist(event,id){
     event.preventDefault();
     console.log('addWishlist loaded with id   :::::::',id)
+    const wishlistCount=document.getElementById("wishlist-count")
     const res=await fetch(`/addWishlist/${id}`,{
         method:"POST",
         headers:{"Content-type":"application/json"}
@@ -469,9 +471,12 @@ async function addWishlist(event,id){
         }
         }).showToast();
         document.getElementById(`wishlist-${id}`).innerHTML="❤️ Wishlisted"
-        wishlistBtn.onclick = null;
+        /* wishlistBtn.onclick = null;
         wishlistBtn.removeAttribute("onclick");
-        wishlistBtn.style.pointerEvents = "none";
+        wishlistBtn.style.pointerEvents = "none"; */
+        wishlistCount.innerHTML=data.wishlistCount
+        console.log("Count::::",data.wishlistCount)
+
 
     }
 }

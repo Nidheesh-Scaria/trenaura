@@ -187,6 +187,7 @@ const monthlySalesCount = async () => {
   startOfMonth.setHours(0, 0, 0, 0);
 
   const endOfMonth = new Date();
+  // endOfMonth.setMonth(11, 31);
   endOfMonth.setMonth(endOfMonth.getMonth() + 1, 0);
   endOfMonth.setHours(23, 59, 59, 999);
 
@@ -294,6 +295,8 @@ const getDashboardData = async (req, res) => {
     const topBrands = await getTopBrands(startDate, endDate);
     const salesOverview = await getSalesOverview(startDate, endDate);
 
+
+    
     return res.status(httpStatus.OK).json({
       success: true,
       dailySales,

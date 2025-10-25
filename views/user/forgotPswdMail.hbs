@@ -1,97 +1,103 @@
 
 <head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
 <style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+  }
 
-    body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f5f5f5;
-}
+  .container {
+    max-width: 800px;
+    margin: 80px auto;
+    background: white;
+    display: flex;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    align-items: center;
+    justify-content: space-between;
+  }
 
-.container {
-  max-width: 800px;
-  margin: 80px auto;
-  background: white;
-  display: flex;
-  padding: 40px;
-  border-radius: 16px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  align-items: center;
-  justify-content: space-between;
-}
+  .logo-section {
+    flex: 1;
+    text-align: center;
+  }
 
-.logo-section {
-  flex: 1;
-  text-align: center;
-}
+  .logo {
+    font-size: 40px;
+    color: #1c2b6c;
+    margin: 0;
+    font-weight: bold;
+  }
 
-.logo {
-  font-size: 40px;
-  color: #1c2b6c;
-  margin: 0;
-  font-weight: bold;
-}
-
-.logoImg {
-  height:15rem;
-  width:20rem;
-  margin-bottom: 2px;
-}
+  .logoImg {
+    height:15rem;
+    width:20rem;
+    margin-bottom: 2px;
+  }
 
 
-.tagline {
-  font-size: 14px;
-  color: #4e5d9d;
-  margin-top: 8px;
-  letter-spacing: 1px;
-}
+  .tagline {
+    font-size: 14px;
+    color: #4e5d9d;
+    margin-top: 8px;
+    letter-spacing: 1px;
+  }
 
-.form-section {
-  flex: 1;
-  padding-left: 40px;
-}
+  .form-section {
+    flex: 1;
+    padding-left: 40px;
+  }
 
-.form-section h2 {
-  margin-bottom: 10px;
-}
+  .form-section h2 {
+    margin-bottom: 10px;
+  }
 
-.form-section p {
-  font-size: 14px;
-  margin-bottom: 10px;
-}
+  .form-section p {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
 
-input[type="email"] {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-}
+  input[type="email"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+  }
 
-button {
-  background-color: #1c2b6c;
-  color: white;
-  border: none;
-  padding: 10px 24px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-}
+  button {
+    background-color: #1c2b6c;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
 
-button:hover {
-  background-color: #16225a;
-}
+  button:hover {
+    background-color: #16225a;
+  }
 
-a {
-  font-size: 13px;
-  color: #333;
-  text-decoration: none;
-}
+  a {
+    font-size: 13px;
+    color: #e11414;
+    text-decoration: none;
+  }
 
-a:hover {
-  text-decoration: underline;
-}
+  a:hover {
+    text-decoration: underline;
+    
+  }
+  .error-message{
+    color:red
+  }
 
 </style>
 </head>
@@ -106,30 +112,86 @@ a:hover {
       <h2>Forgot Password ?</h2>
       <p>Please confirm your mail address</p>
       
-      <form id="forgotForm" onsubmit="return validateEmail()" method="POST" action="/forgotPasswordVerifyOtp">
+       <form id="forgotForm">
         <input type="email" id="email" name="email" placeholder="Email address"  />
-        <button type="submit">Send Email</button>
+        <button type="submit" id="sendBtn">Send Email</button>
         {{#if messages.length}}
           <p class="error-message" id="error-message">{{messages.[0]}}</p>
+        {{else}}
+          <p class="error-message" id="error-message"></p>
         {{/if}}
         <p><a href="/login">Go back to Login page</a></p>
-
       </form>
     </div>
   </div>
 
   <script>
-    function validateEmail() {
-      const email = document.getElementById("email").value;
-      const errorMessage=document.getElementById('error-message')
-      
+   
+    document.getElementById("forgotForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const errorMessage = document.getElementById("error-message");
+      const sendBtn = document.getElementById("sendBtn");
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)||!email) {
-        errorMessage.textContent="Please enter a valid email address."
-        return false;
+
+      // Clear old errors
+      errorMessage.textContent = "";
+
+      // Validate email
+      if (!emailRegex.test(email) || !email) {
+        errorMessage.textContent = "Please enter a valid email address.";
+        return;
       }
-      return true;
-    }
+
+      // Disable button while sending
+      sendBtn.disabled = true;
+      sendBtn.textContent = "Sending...";
+
+      try {
+        const response = await fetch("/forgotPasswordVerifyOtp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+
+        const result = await response.json();
+
+        // Show toast
+        Toastify({
+          text: result.message,
+          duration: 3000,
+          close: true,
+          gravity: "top",
+          position: "center",
+          backgroundColor: result.success
+            ? "linear-gradient(to right, #2151b0, #0c53e1 )" 
+            : "linear-gradient(to right, #c40303, #820606)", 
+        }).showToast();
+
+        // Redirect on success
+        if (result.success && result.redirectUrl) {
+          setTimeout(() => {
+            window.location.href = result.redirectUrl;
+          }, 1500);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        Toastify({
+          text: "Network error. Please try again later.",
+          duration: 3000,
+          close: true,
+          gravity: "top",
+          position: "center",
+          backgroundColor: "linear-gradient(to right, #9a0808, #411f1f)",
+        }).showToast();
+      } finally {
+        // Re-enable button
+        sendBtn.disabled = false;
+        sendBtn.textContent = "Send Email";
+      }
+    });
   </script>
+
 </body>
 

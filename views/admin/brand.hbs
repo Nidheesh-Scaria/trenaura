@@ -651,6 +651,125 @@ textarea.form-control {
     padding: 1rem;
   }
 }
+.btn {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+/* Edit Button (Blue) */
+.edit-btn {
+  background: linear-gradient(135deg, #1e90ff, #0c7cd5);
+  color: #fff;
+}
+.edit-btn:hover {
+  background: linear-gradient(135deg, #3399ff, #0a66b0);
+  transform: translateY(-1px);
+}
+
+/* Delete Button (Red) */
+.delete-btn {
+  background: linear-gradient(135deg, #ff4d4f, #d62828);
+  color: #fff;
+}
+.delete-btn:hover {
+  background: linear-gradient(135deg, #ff6b6b, #e63946);
+  transform: translateY(-1px);
+}
+.undo-delete-btn {
+  background: linear-gradient(135deg, #20a405, #37851e);
+  color: #fff;
+}
+.undo-delete-btn:hover {
+  background: linear-gradient(135deg, #26be07dc, #37851e);
+  transform: translateY(-1px);
+}
+
+/* Click / Active effect */
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn:focus {
+  outline: 2px solid rgba(0,0,0,0.2);
+  outline-offset: 2px;
+}
+
+/* Modal box */
+.undo-delete-modal {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  border: 1px solid #e0e0e0;
+}
+
+/* Modal header */
+.undo-delete-modal .modal-header {
+  background: #f8f9fa;
+  padding: 15px 20px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.undo-delete-modal .modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #343a40;
+}
+
+/* Modal body */
+.undo-delete-modal .modal-body p {
+  font-size: 15px;
+  color: #495057;
+  margin-bottom: 0;
+}
+
+/* Modal footer buttons */
+.undo-delete-modal .modal-footer {
+  border-top: 1px solid #dee2e6;
+  padding: 12px 20px;
+}
+
+/* Cancel button */
+.undo-delete-modal .btn-secondary {
+  background: #adb5bd;
+  color: #fff;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.undo-delete-modal .btn-secondary:hover {
+  background: #868e96;
+  transform: translateY(-1px);
+}
+
+/* Undo Delete button */
+.undo-delete-modal .undo-btn {
+  background: linear-gradient(135deg, #28a745, #1e7e34);
+  color: #fff;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  box-shadow: 0 3px 6px rgba(30,126,52,0.2);
+}
+
+.undo-delete-modal .undo-btn:hover {
+  background: linear-gradient(135deg, #45c055, #138d75);
+  transform: translateY(-1px);
+}
+
+.undo-delete-modal .undo-btn:active {
+  transform: scale(0.97);
+}
+
+
 
   </style>
 
@@ -726,8 +845,33 @@ textarea.form-control {
 
                   </td>
                   <td class="d-flex gap-2 flex-wrap">
-                    <a href="#" class="btn edit" style="color:#1916b3" onclick="openEditModal('{{this._id}}', '{{this.brandName}}')">Edit</a>
-                    <a href="#" class="btn delete" style="color: red;" onclick="openDeleteModal('{{this._id}}')">Delete</a>
+                    {{!-- <a href="#" class="btn edit" style="color:#1916b3" onclick="openEditModal('{{this._id}}', '{{this.brandName}}')">Edit</a>
+                    <a href="#" class="btn delete" style="color: red;" onclick="openDeleteModal('{{this._id}}')">Delete</a> --}}
+                    <button 
+                      type="button" 
+                      class="btn edit-btn" 
+                      onclick="openEditModal('{{this._id}}', '{{this.brandName}}')"
+                    >
+                      Edit
+                    </button>
+                    
+                    {{#if isDeleted}}
+                    <button 
+                      type="button" 
+                      class="btn undo-delete-btn" 
+                      onclick="openUndoDeleteModal('{{this._id}}')"
+                    >
+                      Undo Delete
+                    </button>
+                    {{else}}
+                    <button 
+                      type="button" 
+                      class="btn delete-btn" 
+                      onclick="openDeleteModal('{{this._id}}')"
+                    >
+                      Delete
+                    </button>
+                    {{/if}}
                   </td>
                 </tr>
               {{/each}}
@@ -797,12 +941,12 @@ textarea.form-control {
       <div class="modal-content">
         <form id="deleteBrandForm">
           <div class="modal-header">
-            <h5 class="modal-title">Delete Product</h5>
+            <h5 class="modal-title">Delete brand</h5>
             <input type="hidden" id="deleteBrandId" />
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <p>Are you sure you want to delete this Brand? This action cannot be undone.</p>
+            <p>Are you sure you want to delete this Brand? </p>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -812,6 +956,30 @@ textarea.form-control {
       </div>
     </div>
   </div>
+
+  <!-- Undo Delete Brand Modal -->
+<div class="modal fade" id="undoDeleteBrandModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content undo-delete-modal">
+      <form id="undoDeleteBrandForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Undo Delete Brand</h5>
+          <input type="hidden" id="undoDeleteBrandId" />
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to undo delete this brand?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn undo-btn">Undo Delete</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
 
 
 
@@ -1006,7 +1174,7 @@ $('#deleteBrandForm').on('submit', function (e) {
   const id = $('#deleteBrandId').val();
 
   fetch(`/admin/deleteBrand/${id}`, {
-    method: 'DELETE'
+    method: 'PATCH'
   })
   .then(res => res.json())
   .then(data => {
@@ -1017,13 +1185,39 @@ $('#deleteBrandForm').on('submit', function (e) {
     }
   });
 });
+
+
+function openUndoDeleteModal(id) {
+  $('#undoDeleteBrandId').val(id);
+  $('#undoDeleteBrandModal').modal('show');
+}
+
+$('#undoDeleteBrandForm').on('submit', function (e) {
+  e.preventDefault();
+  const id = $('#undoDeleteBrandId').val();
+
+  fetch(`/admin/undoDeleteBrand/${id}`, {
+    method: 'PATCH'
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      Swal.fire('Undo deleted', data.message, 'success').then(() => location.reload());
+    } else {
+      Swal.fire('Error', data.message, 'error');
+    }
+  });
+});
+
+
+
 // Block brand
 $(document).on('submit', '.blockBrandForm', function (e) {
   e.preventDefault();
   const id = $(this).data('id');
 
   fetch(`/admin/blockBrand/${id}`, {
-    method: 'POST'
+    method: 'PATCH'
   }).then(() => location.reload());
 });
 
@@ -1033,7 +1227,7 @@ $(document).on('submit', '.unblockBrandForm', function (e) {
   const id = $(this).data('id');
 
   fetch(`/admin/unblockBrand/${id}`, {
-    method: 'POST'
+    method: 'PATCH'
   }).then(() => location.reload());
 });
 

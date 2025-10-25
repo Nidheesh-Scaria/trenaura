@@ -1,1070 +1,1698 @@
-
 <head>
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css"/>
-  
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css" />
+    
+    <style>
+        .content {
+            padding: 20px;
+            flex: 1;
+            background-color: #f5f6fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fc;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
 
 
-  
-  <link rel="stylesheet" href="/css/adminCustomers.css">
-<style>
-  .refresh-btn {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    transition: all 0.3s;
-    background-color: #1d1c8a;
-  }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
 
-  .refresh-btn i {
-    margin-right: 5px;
-  }
+        .header h1 {
+            font-size: 1.5rem;
+            color: #2c3e50;
+        }
 
-  .refresh-btn:hover {
-    background-color: #1916b3;
-  }
+        .header-icons {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
 
+        .header-icons input {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
 
-  .table-container a {
-    text-decoration: none;
-  }
+        .header-icons i {
+            color: #7f8c8d;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
 
-  .edit {
-    color: #1916b3;
-  }
-
-  .delete {
-    color: red;
-  }
-
-  .error-message {
-    color: red;
-    font-size: 0.9rem;
-    margin-top: 4px;
-  }
-
-  /* Delete Modal Styles - Fixed Centered Position */
-  #deleteCategoryModal.modal {
-
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(0, 0, 0, 0.5);
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1050;
-    overflow-y: auto;
-  }
-
-  #deleteCategoryModal .modal-dialog {
-    position: relative;
-    width: auto;
-    max-width: 500px;
-    margin: 0 auto;
-    pointer-events: none;
-    transition: none !important;
-    transform: none !important;
-  }
-
-  #deleteCategoryModal .modal-content {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    pointer-events: auto;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    border-radius: 0.3rem;
-    outline: 0;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    border-top: 4px solid #dc3545;
-  }
-
-  /* Modal Header */
-  #deleteCategoryModal .modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem;
-    border-bottom: 1px solid #e9ecef;
-  }
-
-  #deleteCategoryModal .modal-title {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 500;
-    color: #dc3545;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  #deleteCategoryModal .modal-title::before {
-    content: "⚠";
-    font-size: 1.2em;
-  }
-
-  #deleteCategoryModal .btn-close {
-    padding: 0.5rem;
-    margin: -0.5rem -0.5rem -0.5rem auto;
-    background-color: transparent;
-    border: 0;
-    font-size: 1rem;
-    cursor: pointer;
-    opacity: 0.7;
-  }
-
-  #deleteCategoryModal .btn-close:hover {
-    opacity: 1;
-  }
-
-  /* Modal Body */
-  #deleteCategoryModal .modal-body {
-    position: relative;
-    flex: 1 1 auto;
-    padding: 1.5rem;
-    text-align: center;
-  }
-
-  #deleteCategoryModal .modal-body p {
-    margin: 0;
-    font-size: 1.05rem;
-    color: #6c757d;
-  }
-
-  /* Modal Footer */
-  #deleteCategoryModal .modal-footer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    border-top: 1px solid #e9ecef;
-    gap: 1rem;
-  }
-
-  #deleteCategoryModal .btn {
-    display: inline-block;
-    font-weight: 500;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: middle;
-    user-select: none;
-    border: 1px solid transparent;
-    padding: 0.5rem 1.25rem;
-    font-size: 1rem;
-    line-height: 1.5;
-    border-radius: 0.25rem;
-    transition: all 0.15s ease;
-    min-width: 100px;
-  }
-
-  #deleteCategoryModal .btn-secondary {
-    color: #fff;
-    background-color: #6c757d;
-    border-color: #6c757d;
-  }
-
-  #deleteCategoryModal .btn-danger {
-    color: #fff;
-    background-color: #dc3545;
-    border-color: #dc3545;
-    position: relative;
-    overflow: hidden;
-  }
-
-  #deleteCategoryModal .btn-danger:hover {
-    background-color: #c82333;
-    border-color: #bd2130;
-  }
-
-  /* Disable any movement animations */
-  .modal.fade .modal-dialog {
-    transition: none !important;
-    transform: none !important;
-  }
-
-  /* Responsive Adjustments */
-  @media (max-width: 768px) {
-    #deleteCategoryModal .modal-dialog {
-      max-width: 95%;
-      margin: 0.5rem auto;
-    }
-
-    #deleteCategoryModal .modal-footer {
-      flex-direction: column-reverse;
-      gap: 0.5rem;
-    }
-
-    #deleteCategoryModal .btn {
-      width: 100%;
-    }
-  }
-
-  @media (max-width: 576px) {
-    #deleteCategoryModal .modal-title {
-      font-size: 1.1rem;
-    }
-
-    #deleteCategoryModal .modal-body p {
-      font-size: 0.95rem;
-    }
-  }
-
-  /* General Modal Styles (consistent with your existing styles) */
-  .modal.fade {
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(0, 0, 0, 0.5);
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1050;
-    overflow-y: auto;
-  }
-
-  .modal-dialog {
-    position: relative;
-    width: auto;
-    max-width: 500px;
-    margin: 0 auto;
-    pointer-events: none;
-    transition: none !important;
-    transform: none !important;
-  }
-
-  .modal-content {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    pointer-events: auto;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    border-radius: 0.3rem;
-    outline: 0;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  }
-
-  /* Specific Styles for Add Offer Modal */
-  #addOfferModal .modal-header {
-    border-top: 4px solid #058c22;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem;
-    border-bottom: 1px solid #e9ecef;
-  }
-
-  #addOfferModal .modal-title {
-    color: #058c22;
-  }
-
-  /* Specific Styles for Remove Offer Modal */
-  #removeOfferModal .modal-header {
-    border-top: 4px solid #dc3545;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem;
-    border-bottom: 1px solid #e9ecef;
-  }
-
-  #removeOfferModal .modal-title {
-    color: #dc3545;
-  }
-
-  /* Reused Button and Form Styles */
-  .btn-primary {
-    color: #fff;
-    background-color: #30b316;
-    border-color: #16b319;
-  }
-
-  .btn-primary:hover {
-    background-color: #308a1c;
-    border-color: #2b8a1c;
-  }
-
-  .btn-danger {
-    color: #fff;
-    background-color: #dc3545;
-    border-color: #dc3545;
-  }
-
-  .btn-danger:hover {
-    background-color: #c82333;
-    border-color: #bd2130;
-  }
-
-  .btn-secondary {
-    color: #fff;
-    background-color: #6c757d;
-    border-color: #6c757d;
-  }
-
-  .btn-secondary:hover {
-    background-color: #5a6268;
-    border-color: #545b62;
-  }
-
-  .form-control {
-    display: block;
-    width: 100%;
-    padding: 0.375rem 0.75rem;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.5;
-    color: #212529;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid #ced4da;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    border-radius: 0.25rem;
-    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-  }
-
-  .invalid-feedback {
-    display: none;
-    width: 100%;
-    margin-top: 0.25rem;
-    font-size: .875em;
-    color: #dc3545;
-  }
-
-  .is-invalid+.invalid-feedback {
-    display: block;
-  }
-
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .modal-dialog {
-      max-width: 95%;
-      margin: 0.5rem auto;
-    }
-  }
+        .header-icons img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
 
 
 
-  /* General Modal Appearance */
-  #addOfferModal .modal-content {
-    border: none;
-    border-radius: 1.25rem;
-    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.15);
-    overflow: hidden;
-  }
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
 
-  /* Header Styling */
-  #addOfferModal .modal-header {
-    background: linear-gradient(135deg, #28a745, #20c997);
-    border-bottom: none;
-    padding: 1.5rem 2rem 1rem;
-    position: relative;
-  }
 
-  #addOfferModal .modal-title {
-    font-weight: 700;
-    color: #fff;
-  }
+        .header {
+            background-color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
 
-  /*
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info span {
+            margin-right: 15px;
+            font-weight: 600;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content {
+            padding: 20px;
+            flex: 1;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--dark-color);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 1px solid #d1d3e2;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+
+        .clear-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #b7b9cc;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .clear-btn:hover {
+            color: var(--dark-color);
+        }
+
+        .refresh-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .refresh-btn i {
+            margin-right: 5px;
+        }
+
+        .refresh-btn:hover {
+            background-color: #3a5bd9;
+        }
+
+        .table-container {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e3e6f0;
+        }
+
+        th {
+            background-color: #f8f9fc;
+            color: var(--dark-color);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+        }
+
+        tr:hover {
+            background-color: #f8f9fc;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status.active {
+            background-color: rgba(28, 200, 138, 0.1);
+            color: var(--success-color);
+        }
+
+        .status.blocked {
+            background-color: rgba(231, 74, 59, 0.1);
+            color: var(--danger-color);
+        }
+
+        .btn {
+            padding: 5px 10px;
+            border: 2px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn i {
+            margin-right: 5px;
+        }
+
+        .btn-block {
+            background-color: #f01f07;
+            color: white;
+        }
+
+        .btn-unblock {
+            background-color: #0cd029;
+            color: white;
+        }
+
+        .btn-red {
+            background-color: #dc3545;
+            /* red for block */
+            color: white;
+        }
+
+
+        /* //gg */
+        .btn-green {
+            background-color: #28a745;
+            /* green for unblock */
+            color: white;
+        }
+
+        .btn-red:hover {
+            background-color: #c30808;
+            color: rgb(51, 49, 49);
+        }
+
+        .btn-green:hover {
+            background-color: #119b26c5;
+            color: rgb(51, 49, 49);
+        }
+
+        /* //gg */
+
+        .btn-block:hover {
+            background-color: #c30808;
+            color: rgb(51, 49, 49);
+        }
+
+        .btn-unblock:hover {
+            background-color: #119b26c5;
+            color: rgb(51, 49, 49);
+        }
+
+
+        .pagination {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .page-btn,
+        .page-number {
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: white;
+            color: #333;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .page-number.current {
+            background: #007bff;
+            color: white;
+            font-weight: bold;
+
+        }
+
+        .page-btn[disabled],
+        .page-number.disabled {
+            background: #eee;
+            cursor: not-allowed;
+        }
+
+        /* Modal styles new */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 5px;
+            width: 400px;
+            max-width: 90%;
+            position: relative;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.3);
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .confirm-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .cancel-btn {
+            background-color: #ccc;
+            color: #333;
+        }
+
+        /* Toast Notification */
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #28a745;
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1001;
+            left: 50%;
+            bottom: 30px;
+            font-size: 16px;
+            transition: visibility 0s, opacity 0.5s linear;
+            opacity: 0;
+        }
+
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                overflow: hidden;
+            }
+
+            .logo span,
+            .menu li a span {
+                display: none;
+            }
+
+            .menu li {
+                text-align: center;
+            }
+
+            .menu li i {
+                margin-right: 0;
+                font-size: 1.2rem;
+            }
+
+            .search-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .refresh-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        .refresh-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+            background-color: #1d1c8a;
+        }
+
+        .refresh-btn i {
+            margin-right: 5px;
+        }
+
+        .refresh-btn:hover {
+            background-color: #1916b3;
+        }
+
+
+        .table-container a {
+            text-decoration: none;
+        }
+
+        .edit {
+            color: #1916b3;
+        }
+
+        .delete {
+            color: red;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        /* Delete Modal Styles - Fixed Centered Position */
+        #deleteCategoryModal.modal {
+
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1050;
+            overflow-y: auto;
+        }
+
+        #deleteCategoryModal .modal-dialog {
+            position: relative;
+            width: auto;
+            max-width: 500px;
+            margin: 0 auto;
+            pointer-events: none;
+            transition: none !important;
+            transform: none !important;
+        }
+
+        #deleteCategoryModal .modal-content {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            pointer-events: auto;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 0.3rem;
+            outline: 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border-top: 4px solid #dc3545;
+        }
+
+        /* Modal Header */
+        #deleteCategoryModal .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        #deleteCategoryModal .modal-title {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: #dc3545;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #deleteCategoryModal .modal-title::before {
+            content: "⚠";
+            font-size: 1.2em;
+        }
+
+        #deleteCategoryModal .btn-close {
+            padding: 0.5rem;
+            margin: -0.5rem -0.5rem -0.5rem auto;
+            background-color: transparent;
+            border: 0;
+            font-size: 1rem;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        #deleteCategoryModal .btn-close:hover {
+            opacity: 1;
+        }
+
+        /* Modal Body */
+        #deleteCategoryModal .modal-body {
+            position: relative;
+            flex: 1 1 auto;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        #deleteCategoryModal .modal-body p {
+            margin: 0;
+            font-size: 1.05rem;
+            color: #6c757d;
+        }
+
+        /* Modal Footer */
+        #deleteCategoryModal .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            border-top: 1px solid #e9ecef;
+            gap: 1rem;
+        }
+
+        #deleteCategoryModal .btn {
+            display: inline-block;
+            font-weight: 500;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            user-select: none;
+            border: 1px solid transparent;
+            padding: 0.5rem 1.25rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            border-radius: 0.25rem;
+            transition: all 0.15s ease;
+            min-width: 100px;
+        }
+
+        #deleteCategoryModal .btn-secondary {
+            color: #fff;
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+        #deleteCategoryModal .btn-danger {
+            color: #fff;
+            background-color: #dc3545;
+            border-color: #dc3545;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #deleteCategoryModal .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+
+        /* Disable any movement animations */
+        .modal.fade .modal-dialog {
+            transition: none !important;
+            transform: none !important;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            #deleteCategoryModal .modal-dialog {
+                max-width: 95%;
+                margin: 0.5rem auto;
+            }
+
+            #deleteCategoryModal .modal-footer {
+                flex-direction: column-reverse;
+                gap: 0.5rem;
+            }
+
+            #deleteCategoryModal .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            #deleteCategoryModal .modal-title {
+                font-size: 1.1rem;
+            }
+
+            #deleteCategoryModal .modal-body p {
+                font-size: 0.95rem;
+            }
+        }
+
+        /* General Modal Styles (consistent with your existing styles) */
+        .modal.fade {
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1050;
+            overflow-y: auto;
+        }
+
+        .modal-dialog {
+            position: relative;
+            width: auto;
+            max-width: 500px;
+            margin: 0 auto;
+            pointer-events: none;
+            transition: none !important;
+            transform: none !important;
+        }
+
+        .modal-content {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            pointer-events: auto;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 0.3rem;
+            outline: 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Specific Styles for Add Offer Modal */
+        #addOfferModal .modal-header {
+            border-top: 4px solid #058c22;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        #addOfferModal .modal-title {
+            color: #058c22;
+        }
+
+        /* Specific Styles for Remove Offer Modal */
+        #removeOfferModal .modal-header {
+            border-top: 4px solid #dc3545;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        #removeOfferModal .modal-title {
+            color: #dc3545;
+        }
+
+        /* Reused Button and Form Styles */
+        .btn-primary {
+            color: #fff;
+            background-color: #30b316;
+            border-color: #16b319;
+        }
+
+        .btn-primary:hover {
+            background-color: #308a1c;
+            border-color: #2b8a1c;
+        }
+
+        .btn-danger {
+            color: #fff;
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+
+        .btn-secondary {
+            color: #fff;
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+
+        .form-control {
+            display: block;
+            width: 100%;
+            padding: 0.375rem 0.75rem;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #212529;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            border-radius: 0.25rem;
+            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        }
+
+        .invalid-feedback {
+            display: none;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: .875em;
+            color: #dc3545;
+        }
+
+        .is-invalid+.invalid-feedback {
+            display: block;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .modal-dialog {
+                max-width: 95%;
+                margin: 0.5rem auto;
+            }
+        }
+
+
+
+        /* General Modal Appearance */
+        #addOfferModal .modal-content {
+            border: none;
+            border-radius: 1.25rem;
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        /* Header Styling */
+        #addOfferModal .modal-header {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border-bottom: none;
+            padding: 1.5rem 2rem 1rem;
+            position: relative;
+        }
+
+        #addOfferModal .modal-title {
+            font-weight: 700;
+            color: #fff;
+        }
+
+        /*
                 Fixing the close button. Adding the 'btn-close' class
                 makes it a proper Bootstrap close button.
             */
-  #addOfferModal .btn-close {
-    filter: invert(1);
-    opacity: 0.8;
-    transition: opacity 0.2s ease-in-out;
-  }
+        #addOfferModal .btn-close {
+            filter: invert(1);
+            opacity: 0.8;
+            transition: opacity 0.2s ease-in-out;
+        }
 
-  #addOfferModal .btn-close:hover {
-    opacity: 1;
-  }
+        #addOfferModal .btn-close:hover {
+            opacity: 1;
+        }
 
-  /* Body and Form Styling */
-  #addOfferModal .modal-body {
-    background-color: #f9f9f9;
-    padding: 1.5rem 2rem 2rem;
-  }
+        /* Body and Form Styling */
+        #addOfferModal .modal-body {
+            background-color: #f9f9f9;
+            padding: 1.5rem 2rem 2rem;
+        }
 
-  .form-label {
-    font-weight: 600;
-    color: #555;
-    margin-bottom: 0.5rem;
-  }
+        .form-label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 0.5rem;
+        }
 
-  /* Input Fields */
-  .form-control {
-    border-radius: 0.75rem;
-    padding: 0.75rem 1rem;
-    transition: all 0.2s ease-in-out;
-    border: 1px solid #e0e0e0;
-  }
+        /* Input Fields */
+        .form-control {
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #e0e0e0;
+        }
 
-  .form-control:focus {
-    border-color: #28a745;
-    box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
-    background-color: #fff;
-  }
+        .form-control:focus {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
+            background-color: #fff;
+        }
 
-  #offerProductName {
-    background-color: #e9ecef !important;
-    color: #6c757d;
-  }
+        #offerProductName {
+            background-color: #e9ecef !important;
+            color: #6c757d;
+        }
 
-  /* Button Container */
-  .button-div {
-    display: flex;
-    gap: 1.5rem;
-    justify-content: flex-end;
-    margin-top: 1rem;
-  }
+        /* Button Container */
+        .button-div {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
 
-  /* Submit Button */
-  .btn-success {
-    background: linear-gradient(135deg, #28a745, #20c997);
-    border: none;
-    color: #fff;
-    font-weight: 600;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.75rem;
-    transition: all 0.3s ease;
-  }
+        /* Submit Button */
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+        }
 
-  .btn-success:hover {
-    background: linear-gradient(135deg, #218838, #198754);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(33, 136, 56, 0.25);
-  }
+        .btn-success:hover {
+            background: linear-gradient(135deg, #218838, #198754);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(33, 136, 56, 0.25);
+        }
 
-  /* Cancel Button */
-  .btn-cancel {
-    background-color: transparent;
-    color: #6c757d;
-    border: 1px solid #ced4da;
-    padding: 0.75rem 1.5rem;
-    font-weight: 500;
-    border-radius: 0.75rem;
-    transition: all 0.3s ease;
-  }
+        /* Cancel Button */
+        .btn-cancel {
+            background-color: transparent;
+            color: #6c757d;
+            border: 1px solid #ced4da;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+        }
 
-  .btn-cancel:hover {
-    background-color: #f1f3f5;
-    color: #495057;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
+        .btn-cancel:hover {
+            background-color: #f1f3f5;
+            color: #495057;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
 
-  /* Base Styles for the Remove Offer Modal */
-  #removeOfferModal .modal-content {
-    border: none;
-    border-radius: 1.25rem;
-    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.15);
-    overflow: hidden;
-    border-top: 4px solid #dc3545;
-  }
+        /* Base Styles for the Remove Offer Modal */
+        #removeOfferModal .modal-content {
+            border: none;
+            border-radius: 1.25rem;
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            border-top: 4px solid #dc3545;
+        }
 
-  /* Header Styling */
-  #removeOfferModal .modal-header {
-    background: linear-gradient(135deg, #dc3545, #c82333);
-    border-bottom: none;
-    padding: 1.5rem 2rem 1rem;
-    position: relative;
-  }
+        /* Header Styling */
+        #removeOfferModal .modal-header {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            border-bottom: none;
+            padding: 1.5rem 2rem 1rem;
+            position: relative;
+        }
 
-  #removeOfferModal .modal-title {
-    font-weight: 700;
-    color: #fff;
-    display: flex;
-    align-items: center;
-  }
+        #removeOfferModal .modal-title {
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+        }
 
-  #removeOfferModal .btn-close {
-    filter: invert(1);
-    opacity: 0.8;
-    transition: opacity 0.2s ease-in-out;
-  }
+        #removeOfferModal .btn-close {
+            filter: invert(1);
+            opacity: 0.8;
+            transition: opacity 0.2s ease-in-out;
+        }
 
-  #removeOfferModal .btn-close:hover {
-    opacity: 1;
-  }
+        #removeOfferModal .btn-close:hover {
+            opacity: 1;
+        }
 
-  /* Body Styling */
-  #removeOfferModal .modal-body {
-    background-color: #f9f9f9;
-    padding: 1.5rem 2rem 2rem;
-  }
+        /* Body Styling */
+        #removeOfferModal .modal-body {
+            background-color: #f9f9f9;
+            padding: 1.5rem 2rem 2rem;
+        }
 
-  /* Footer and Button Styling */
-  #removeOfferModal .modal-footer {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    padding: 1rem 2rem;
-    background-color: #f9f9f9;
-    border-top: 1px solid #e9ecef;
-  }
+        /* Footer and Button Styling */
+        #removeOfferModal .modal-footer {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            padding: 1rem 2rem;
+            background-color: #f9f9f9;
+            border-top: 1px solid #e9ecef;
+        }
 
-  #removeOfferModal .btn {
-    font-weight: 600;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.75rem;
-    transition: all 0.3s ease;
-  }
+        #removeOfferModal .btn {
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+        }
 
-  #removeOfferModal .btn-danger {
-    background: linear-gradient(135deg, #dc3545, #c82333);
-    border: none;
-    color: #fff;
-  }
+        #removeOfferModal .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            border: none;
+            color: #fff;
+        }
 
-  #removeOfferModal .btn-danger:hover {
-    background: linear-gradient(135deg, #c82333, #b51a24);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(220, 53, 69, 0.25);
-  }
+        #removeOfferModal .btn-danger:hover {
+            background: linear-gradient(135deg, #c82333, #b51a24);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(220, 53, 69, 0.25);
+        }
 
-  #removeOfferModal .btn-cancel {
-    background-color: transparent;
-    color: #6c757d;
-    border: 1px solid #ced4da;
-  }
+        #removeOfferModal .btn-cancel {
+            background-color: transparent;
+            color: #6c757d;
+            border: 1px solid #ced4da;
+        }
 
-  #removeOfferModal .btn-cancel:hover {
-    background-color: #f1f3f5;
-    color: #495057;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-/* ==========================
+        #removeOfferModal .btn-cancel:hover {
+            background-color: #f1f3f5;
+            color: #495057;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ==========================
    Undo Delete Product Modal
    ========================== */
 
-#undoDeleteProductModal .modal-content {
-  border-radius: 16px;
-  border: none;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-  animation: slideIn 0.3s ease;
-}
+        #undoDeleteProductModal .modal-content {
+            border-radius: 16px;
+            border: none;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            animation: slideIn 0.3s ease;
+        }
 
-#undoDeleteProductModal .modal-header {
-  background-color: #28a745; /* Green success tone */
-  color: #fff;
-  border-bottom: none;
-  padding: 1rem 1.25rem;
-}
+        #undoDeleteProductModal .modal-header {
+            background-color: #28a745;
+            /* Green success tone */
+            color: #fff;
+            border-bottom: none;
+            padding: 1rem 1.25rem;
+        }
 
-#undoDeleteProductModal .modal-header .modal-title {
-  font-weight: 600;
-  font-size: 1.1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
+        #undoDeleteProductModal .modal-header .modal-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
 
-#undoDeleteProductModal .modal-body {
-  background-color: #f9f9f9;
-  padding: 1.5rem;
-  text-align: center;
-  color: #333;
-}
+        #undoDeleteProductModal .modal-body {
+            background-color: #f9f9f9;
+            padding: 1.5rem;
+            text-align: center;
+            color: #333;
+        }
 
-#undoDeleteProductModal .modal-body p {
-  font-size: 1rem;
-  margin-bottom: 0;
-}
+        #undoDeleteProductModal .modal-body p {
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
 
-#undoDeleteProductModal .modal-footer {
-  background-color: #f1f1f1;
-  border-top: none;
-  padding: 1rem;
-  justify-content: center;
-}
+        #undoDeleteProductModal .modal-footer {
+            background-color: #f1f1f1;
+            border-top: none;
+            padding: 1rem;
+            justify-content: center;
+        }
 
-/* Buttons */
-#undoDeleteProductModal .btn-success {
-  background-color: #28a745;
-  border: none;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
+        /* Buttons */
+        #undoDeleteProductModal .btn-success {
+            background-color: #28a745;
+            border: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
 
-#undoDeleteProductModal .btn-success:hover {
-  background-color: #218838;
-  transform: translateY(-1px);
-}
+        #undoDeleteProductModal .btn-success:hover {
+            background-color: #218838;
+            transform: translateY(-1px);
+        }
 
-#undoDeleteProductModal .btn-outline-secondary {
-  color: #555;
-  border-color: #ccc;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
+        #undoDeleteProductModal .btn-outline-secondary {
+            color: #555;
+            border-color: #ccc;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
 
-#undoDeleteProductModal .btn-outline-secondary:hover {
-  background-color: #e0e0e0;
-  color: #000;
-}
+        #undoDeleteProductModal .btn-outline-secondary:hover {
+            background-color: #e0e0e0;
+            color: #000;
+        }
 
-/* Entry Animation */
-@keyframes slideIn {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
+        /* Entry Animation */
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
 
-</style>
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .variant-cell {
+          vertical-align: top;
+          padding: 10px;
+        }
+
+        .variant-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+
+        .variant-item {
+          background: #f8f9fa;
+          margin: 4px 0;
+          padding: 6px 10px;
+          border-radius: 8px;
+          font-size: 14px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border: 1px solid #e0e0e0;
+          transition: background 0.2s ease;
+        }
+
+        .variant-item .qty {
+          font-weight: bold;
+          color: #2c7be5; /* soft blue */
+        }
+
+        /*Add offer and remover offer buttons*/
+       .add-offer-btn {
+          background: linear-gradient(135deg, #0cbf43, #058c22);
+          color: #fff;
+          border: none;
+          border-radius: 8px;
+          padding: 8px 16px;
+          font-size: 12px;
+          font-weight: 600;
+          letter-spacing: 0.3px;
+          cursor: pointer;
+          transition: all 0.25s ease;
+          box-shadow: 0 3px 6px rgba(5, 140, 34, 0.2);
+        }
+
+        .add-offer-btn:hover {
+          background: linear-gradient(135deg, #11d34c, #06a82b);
+          box-shadow: 0 4px 10px rgba(5, 140, 34, 0.3);
+          transform: translateY(-1px);
+        }
+
+        .add-offer-btn:active {
+          transform: scale(0.98);
+        }
+
+        .add-offer-btn:focus {
+          outline: 2px solid #b6ffbf;
+          outline-offset: 2px;
+        }
+
+        .remove-btn {
+          background: linear-gradient(135deg, #ff5252, #d62828); /* red gradient */
+          color: #fff;
+          border: none;
+          border-radius: 6px;
+          padding: 6px 14px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.25s ease;
+          box-shadow: 0 3px 6px rgba(214, 40, 40, 0.2); /* subtle shadow */
+        }
+
+        .remove-btn:hover {
+          background: linear-gradient(135deg, #ff6b6b, #e63946);
+          box-shadow: 0 4px 10px rgba(214, 40, 40, 0.3);
+          transform: translateY(-1px); /* slight lift on hover */
+        }
+
+        .remove-btn:active {
+          transform: scale(0.97); /* click feedback */
+        }
+
+        .remove-btn:focus {
+          outline: 2px solid #ff 9999; /* focus outline for accessibility */
+          outline-offset: 2px;
+        }
+
+        /*Action buttons*/
+        /*edit button*/
+        .btn.edit {
+          background: linear-gradient(135deg, #1e90ff, #0c7cd5); /* blue gradient */
+          color: #fff;
+          border: none;
+          border-radius: 6px;
+          padding: 6px 14px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.25s ease;
+          box-shadow: 0 3px 6px rgba(12, 124, 213, 0.2);
+        }
+
+        .btn.edit:hover {
+          background: linear-gradient(135deg, #3399ff, #0a66b0);
+          box-shadow: 0 4px 10px rgba(12, 124, 213, 0.3);
+          transform: translateY(-1px);
+        }
+
+        .btn.edit:active {
+          transform: scale(0.97);
+        }
+
+        .btn.edit:focus {
+          outline: 2px solid #99cfff;
+          outline-offset: 2px;
+        }
+        /*undo delete button*/
+        .undo-delete-btn {
+          background: linear-gradient(135deg, #28a745, #1e7e34); /* green gradient */
+          color: #fff;
+          border: none;
+          border-radius: 6px;
+          padding: 6px 14px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.25s ease;
+          box-shadow: 0 3px 6px rgba(30, 126, 52, 0.2); /* subtle shadow */
+        }
+
+        .undo-delete-btn:hover {
+          background: linear-gradient(135deg, #45c055, #1e7e34);
+          box-shadow: 0 4px 10px rgba(30, 126, 52, 0.3);
+          transform: translateY(-1px);
+        }
+
+        .undo-delete-btn:active {
+          transform: scale(0.97); /* click feedback */
+        }
+
+        .undo-delete-btn:focus {
+          outline: 2px solid #9fffbe;
+          outline-offset: 2px;
+        }
+
+        /* delete button*/
+        .delete-btn {
+          background: linear-gradient(135deg, #ff4d4f, #d62828); /* red gradient */
+          color: #fff;
+          border: none;
+          border-radius: 6px;
+          padding: 6px 14px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.25s ease;
+          box-shadow: 0 3px 6px rgba(214, 40, 40, 0.2); /* subtle shadow */
+        }
+
+        .delete-btn:hover {
+          background: linear-gradient(135deg, #ff6b6b, #e63946);
+          box-shadow: 0 4px 10px rgba(214, 40, 40, 0.3);
+          transform: translateY(-1px); /* slight lift on hover */
+        }
+
+        .delete-btn:active {
+          transform: scale(0.97); /* click feedback */
+        }
+
+        .delete-btn:focus {
+          outline: 2px solid #ff9999; /* focus outline */
+          outline-offset: 2px;
+        }
+
+    </style>
 
 </head>
+
 <body>
-  <main class="main-content">
-      <header class="header">
-        <h1>Product Management</h1>
-        <div class="header-icons">
-          <img src="https://i.pravatar.cc/40" alt="Profile">
-        </div>
-      </header>
+    <main class="main-content">
+        <header class="header">
+            <h1>Product Management</h1>
+            <div class="header-icons">
+                <img src="https://i.pravatar.cc/40" alt="Profile">
+            </div>
+        </header>
 
-      <div class="content">
-        <div class="search-container">
-          <form action="/admin/products" method="GET" class="search-box">
-            <i class="fas fa-search"></i>
-            <input type="text" name="search" value="{{search}}" style="border-radius: 20px;" placeholder="Search products...">
-            <button type="button" class="clear-btn" title="Clear" onclick="window.location.href='/admin/products'">
-              <span style="font-weight: 600;">X</span>
-            </button>
-          </form>
+        <div class="content">
+            <div class="search-container">
+                <form action="/admin/products" method="GET" class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="search" value="{{search}}" style="border-radius: 20px;"
+                        placeholder="Search products...">
+                    <button type="button" class="clear-btn" title="Clear"
+                        onclick="window.location.href='/admin/products'">
+                        <span style="font-weight: 600;">X</span>
+                    </button>
+                </form>
 
-          <div class="d-flex gap-2 flex-wrap">
-            <form method="GET" action="/admin/addProducts">
-              <button id="refreshBtn" class="refresh-btn">
-                &#43 Add Products
-              </button>
-            </form>
-        
-          </div>
-          
-        </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <form method="GET" action="/admin/addProducts">
+                        <button id="refreshBtn" class="refresh-btn">
+                            &#43 Add Products
+                        </button>
+                    </form>
 
-        <div class="table-container" >
-          <table id="customerTable">
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Image</th>
-                <th>Products</th>
-                <th>Category</th>
-                <th>Status</th>
-                <th>Stock</th>
-                <th>Add Offer</th>
-                <th>Offer</th>
-                <th>Sale Price</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody >
-              {{#if products.length}}
-                {{#each products}}
-                  <tr>
+                </div>
 
-                    <td>{{this.serialNumber}}</td>
-                    <td>
-                      {{#if this.firstImage}}
-                        <img src="/images/{{this.firstImage}}" alt="{{this.productName}}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
-                      {{else}}
-                        <div style="width: 50px; height: 50px; background-color: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #999;">
-                          No Image
-                        </div>
-                      {{/if}}
-                    </td>
-                    <td>{{this.productName}}</td>
-                    <td>{{this.category}}</td>
-                    
-                    <td>{{this.status}}</td>
-                    {{#if (eq this.stock 0)}}
-                      <td><span style="color: rgb(200, 6, 6);">Out of Stock</span></td>
-                    {{else}}
-                      <td><span style="color: rgb(6, 200, 6);">In Stock</span></td>
-                    {{/if}}
-                    
-                  
+            </div>
 
-                    <td>
-                      {{#if (gt this.productOffer 0)}}
-                        <a href="#" style="color: red; font-weight:500"
-                          onclick="openRemoveOfferModal('{{this._id}}')">
-                          Remove
-                        </a>
-                    
-                      {{else}}
-                        <a href="#" 
-                          class="btn delete add-offer-btn"
-                          data-id="{{this._id}}"
-                          style="color: #058c22; font-weight:500;"
-                          data-name="{{this.productName}}">
-                          Add
-                        </a>
-                      {{/if}}
+            <div class="table-container">
+                <table id="customerTable">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Image</th>
+                            <th>Product Name</th>
+                            <th>Category</th>
+                            <th>Brand</th>
+                            <th>Size <span style="font-size: 11px;">&</span> Stock</th>
+                            <th>Offer</th>
+                            <th>Sale Price</th>
+                            <th>Add Offer</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#if products.length}}
+                        {{#each products}}
+                        <tr>
+
+                            <td>{{this.serialNumber}}</td>
+                            <td>
+                                {{#if this.firstImage}}
+                                <img src="/images/{{this.firstImage}}" alt="{{this.productName}}"
+                                    style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                                {{else}}
+                                <div
+                                    style="width: 50px; height: 50px; background-color: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #999;">
+                                    No Image
+                                </div>
+                                {{/if}}
+                            </td>
+                            <td>{{this.productName}}</td>
+                            <td>{{this.category}}</td>
+
+                            <td>{{this.brand}}</td>
+                            
+                            <td class="variant-cell">
+                              <ul class="variant-list">
+                                {{#each this.variants}}
+                                  <li class="variant-item">{{size}}: <span class="qty">{{qty}}</span></li>
+                                {{/each}}
+                              </ul>
+                            </td>
                       
-                    </td> 
-                    <td>{{this.productOffer}}%</td>
-                    <td>{{this.salePrice}}</td>
-                    
+                            <td>{{this.productOffer}}%</td>
+                            <td>{{this.salePrice}}</td>
 
-                    
-                    
-                    <td class="d-flex gap-2 flex-wrap">
-                        <a href="/admin/editProducts/{{this._id}}" class="btn edit">Edit</a>
-                      {{#if (eq this.isDeleted true)}}
-                      
-                      <a href="#" class="btn delete" style="color:green;" onclick="openUndoDeleteProductModal('{{this._id}}')">Undo Delete</a>
-                      {{else}}
-                      
-                      <a href="#" class="btn delete" onclick="openDeleteModal('{{this._id}}')">Delete</a>
-                      {{/if}}
-                      
-                      
-                    </td>
-                  </tr>
+                            <td>
+                                {{#if (gt this.productOffer 0)}}
+                               
+                                  <button type="button" class="remove-btn" onclick="openRemoveOfferModal('{{this._id}}')">
+                                    Remove Offer
+                                  </button>
+
+                                {{else}}
+                                <button 
+                                    type="button" 
+                                    class="add-offer-btn" 
+                                    data-id="{{this._id}}" 
+                                    data-name="{{this.productName}}"
+                                  >
+                                    Add Offer
+                                  </button>
+                                {{/if}}
+
+                            </td>
+
+                            <td class="d-flex gap-2 flex-wrap">
+                                {{!-- <a href="/admin/editProducts/{{this._id}}" class="btn edit">Edit</a> --}}
+                                <button 
+                                  type="button" 
+                                  class="btn edit" 
+                                  onclick="window.location.href='/admin/editProducts/{{this._id}}'"
+                                >
+                                  Edit
+                                </button>
+                                {{#if (eq this.isDeleted true)}}
+
+                                {{!-- <a href="#" class="btn delete" style="color:green;"
+                                    onclick="openUndoDeleteProductModal('{{this._id}}')">Undo Delete</a> --}}
+                                <button 
+                                  type="button" 
+                                  class="btn undo-delete-btn" 
+                                  onclick="openUndoDeleteProductModal('{{this._id}}')"
+                                >
+                                  Undo Delete
+                                </button>
+                                {{else}}
+
+                                {{!-- <a href="#" class="btn delete" onclick="openDeleteModal('{{this._id}}')">Delete</a> --}}
+                                <button 
+                                  type="button" 
+                                  class="btn delete-btn" 
+                                  onclick="openDeleteModal('{{this._id}}')"
+                                >
+                                  Delete
+                                </button>
+                                {{/if}}
+
+
+                            </td>
+                        </tr>
+                        {{/each}}
+                        {{else}}
+                        <tr>
+                            <td colspan="9" style="text-align: center; padding: 20px;">No products found</td>
+                        </tr>
+                        {{/if}}
+                    </tbody>
+                </table>
+            </div>
+
+            {{#if products.length}}
+            <div class="pagination">
+                {{#ifCond currentPage '>' 1}}
+                <a href="?page={{decrement currentPage}}&search={{search}}" class="page-btn"><i
+                        class="fas fa-chevron-left"></i></a>
+                {{else}}
+                <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+                {{/ifCond}}
+
+                {{#each (range 1 totalPages)}}
+                {{#ifCond this '===' ../currentPage}}
+                <span class="page-number current">{{this}}</span>
+                {{else}}
+                <a href="?page={{this}}&search={{../search}}" class="page-number">{{this}}</a>
+                {{/ifCond}}
                 {{/each}}
-              {{else}}
-                <tr>
-                  <td colspan="9" style="text-align: center; padding: 20px;">No products found</td>
-                </tr>
-              {{/if}}
-            </tbody>
-          </table>
+
+                {{#ifCond currentPage '<' totalPages}} <a href="?page={{increment currentPage}}&search={{search}}"
+                    class="page-btn"><i class="fas fa-chevron-right"></i></a>
+                    {{else}}
+                    <button class="page-btn" disabled><i class="fas fa-chevron-right"></i></button>
+                    {{/ifCond}}
+            </div>
+            {{/if}}
+
+
         </div>
-
-        {{#if products.length}}
-        <div class="pagination">
-          {{#ifCond currentPage '>' 1}}
-            <a href="?page={{decrement currentPage}}&search={{search}}" class="page-btn"><i class="fas fa-chevron-left"></i></a>
-          {{else}}
-            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
-          {{/ifCond}}
-
-          {{#each (range 1 totalPages)}}
-            {{#ifCond this '===' ../currentPage}}
-              <span class="page-number current">{{this}}</span>
-            {{else}}
-              <a href="?page={{this}}&search={{../search}}" class="page-number">{{this}}</a>
-            {{/ifCond}}
-          {{/each}}
-
-          {{#ifCond currentPage '<' totalPages}}
-            <a href="?page={{increment currentPage}}&search={{search}}" class="page-btn"><i class="fas fa-chevron-right"></i></a>
-          {{else}}
-            <button class="page-btn" disabled><i class="fas fa-chevron-right"></i></button>
-          {{/ifCond}}
-        </div>
-        {{/if}}
-
-      
-      </div>
-  </main>
+    </main>
 
 
-  <!-- Delete Product Modal -->
-  <div class="modal fade" id="deleteCategoryModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <form id="deleteCategoryForm">
-          <div class="modal-header">
-            <h5 class="modal-title">Delete Product</h5>
-            <input type="hidden" id="deleteCategoryId" />
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <p>Are you sure you want to delete this product? This action cannot be undone.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-danger">Delete</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-<!-- add offer Modal -->
-<div class="modal fade" id="addOfferModal" tabindex="-1" aria-labelledby="addOfferModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form id="addOfferForm">
-                <div class="modal-header">
-                    <h1 class="modal-title" id="addOfferModalLabel">Add Offer</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">x</button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="offerProductId" name="offerProductId" />
-                    <div class="mb-3">
-                        <label for="offerProductName" class="form-label">Product Name</label>
-                        <input type="text" class="form-control" id="offerProductName" name="offerProductName" disabled />
+    <!-- Delete Product Modal -->
+    <div class="modal fade" id="deleteCategoryModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="deleteCategoryForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Delete Product</h5>
+                        <input type="hidden" id="deleteCategoryId" />
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="mb-3">
-                        <label for="offerPercentage" class="form-label">Offer Percentage (%)</label>
-                        <input type="number" class="form-control" id="offerPercentage" name="offerPercentage" />
-                        <div class="invalid-feedback error-message" id="offerError"></div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete this product? This action cannot be undone.</p>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Offer</button>
-                </div>
-            </form>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
-<!-- remove offer Modal -->
-<div class="modal fade" id="removeOfferModal" tabindex="-1" aria-labelledby="removeOfferModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form id="removeOfferForm">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="removeOfferModalLabel">Remove Offer</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="removeOfferId" name="removeOfferId" />
-                    <p>Are you sure you want to remove the offer from this product?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-danger">Remove Offer</button>
-                </div>
-            </form>
+
+    <!-- add offer Modal -->
+    <div class="modal fade" id="addOfferModal" tabindex="-1" aria-labelledby="addOfferModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="addOfferForm">
+                    <div class="modal-header">
+                        <h1 class="modal-title" id="addOfferModalLabel">Add Offer</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">x</button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="offerProductId" name="offerProductId" />
+                        <div class="mb-3">
+                            <label for="offerProductName" class="form-label">Product Name</label>
+                            <input type="text" class="form-control" id="offerProductName" name="offerProductName"
+                                disabled />
+                        </div>
+                        <div class="mb-3">
+                            <label for="offerPercentage" class="form-label">Offer Percentage (%)</label>
+                            <input type="number" class="form-control" id="offerPercentage" name="offerPercentage" />
+                            <div class="invalid-feedback error-message" id="offerError"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Offer</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
-
-
-<!-- Undo Delete Product Modal -->
-<div class="modal fade" id="undoDeleteProductModal" tabindex="-1" aria-labelledby="undoDeleteProductLabel"
-  aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg rounded-3">
-      <form id="undoDeleteProductForm">
-        <div class="modal-header bg-success text-white">
-          <h5 class="modal-title" id="undoDeleteProductLabel">
-            <i class="fas fa-undo-alt me-2"></i>Undo Delete Product
-          </h5>
-          <input type="hidden" id="undoDeleteProductId" />
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <!-- remove offer Modal -->
+    <div class="modal fade" id="removeOfferModal" tabindex="-1" aria-labelledby="removeOfferModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="removeOfferForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="removeOfferModalLabel">Remove Offer</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="removeOfferId" name="removeOfferId" />
+                        <p>Are you sure you want to remove the offer from this product?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Remove Offer</button>
+                    </div>
+                </form>
+            </div>
         </div>
-        <div class="modal-body text-center">
-          <p class="fs-6">
-            Are you sure you want to <span class="fw-bold text-success">undo delete</span> this product?
-          </p>
-        </div>
-        <div class="modal-footer justify-content-center">
-          <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-success px-4">
-            <i class="fas fa-undo-alt me-1"></i> Undo Delete
-          </button>
-        </div>
-      </form>
     </div>
-  </div>
-</div>
 
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-
-{{#if successMessage}}
-<script>
-  Swal.fire({
-    icon: 'success',
-    title: 'Success!',
-    text: '{{successMessage}}',
-    confirmButtonColor: '#3085d6',
-    timer: 2000,
-    timerProgressBar: true
-  });
-</script>
-{{/if}}
-
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-
-<script>
-
-    function openDeleteModal(id) {
-        $("#deleteCategoryId").val(id);
-        $("#deleteCategoryModal").modal("show");
-    }
-
-    $("#deleteCategoryForm").on("submit", function (e) {
-        e.preventDefault();
-        const id = $("#deleteCategoryId").val();
-
-        fetch(`/admin/deleteProducts/${id}`, {
-            method: "DELETE",
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.success) {
-                  
-                    Swal.fire("Deleted!", data.message, "success").then(() =>
-                        location.reload()
-                    );
-                } else {
-                    Swal.fire("Error", data.message, "error");
-                }
-            });
-    });
+    <!-- Undo Delete Product Modal -->
+    <div class="modal fade" id="undoDeleteProductModal" tabindex="-1" aria-labelledby="undoDeleteProductLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-3">
+                <form id="undoDeleteProductForm">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title" id="undoDeleteProductLabel">
+                            <i class="fas fa-undo-alt me-2"></i>Undo Delete Product
+                        </h5>
+                        <input type="hidden" id="undoDeleteProductId" />
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <p class="fs-6">
+                            Are you sure you want to <span class="fw-bold text-success">undo delete</span> this product?
+                        </p>
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                        <button type="button" class="btn btn-outline-secondary px-4"
+                            data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success px-4">
+                            <i class="fas fa-undo-alt me-1"></i> Undo Delete
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
 
-    $(document).on('click', '.add-offer-btn', function (e) {
-        e.preventDefault();
-        const id = $(this).data('id');
-        const name = $(this).data('name');
-        openAddOfferModal(id, name);
-    });
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
-    function openAddOfferModal(id, name) {
-        $('#addOfferModal').modal('show');
-        $('#offerProductId').val(id);
-        $('#offerProductName').val(name);
-        $('#offerPercentage').val('');
-        $('#offerError').hide();
-        $('#offerPercentage').removeClass('is-invalid');
+    {{#if successMessage}}
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: '{{successMessage}}',
+            confirmButtonColor: '#3085d6',
+            timer: 2000,
+            timerProgressBar: true
+        });
+    </script>
+    {{/if}}
 
-        console.log(id)
-        console.log(name)
-    }
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    // Attach submit handler to the form, not modal
-    $('#addOfferForm').on('submit', function (e) {
-        e.preventDefault();
 
-        const id = $('#offerProductId').val();
-        const percentage = $('#offerPercentage').val();
+    <script>
 
-        // Validation
-        if (!percentage || isNaN(percentage) || percentage < 1 || percentage > 100) {
-            $('#offerError').text('Please enter a valid offer percentage between 1 and 100.').show();
-            $('#offerPercentage').addClass('is-invalid');
-            return;
+        function openDeleteModal(id) {
+            $("#deleteCategoryId").val(id);
+            $("#deleteCategoryModal").modal("show");
         }
 
-        $('#offerError').hide();
-        $('#offerPercentage').removeClass('is-invalid');
+        $("#deleteCategoryForm").on("submit", function (e) {
+            e.preventDefault();
+            const id = $("#deleteCategoryId").val();
 
-        fetch(`/admin/addOffer`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, percentage })
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Yes!",
-                        text: data.message,
-                        showConfirmButton: false,
-                        timer: 1500
-                    }).then(() => location.reload());
-                } else {
-                    Swal.fire("Error", data.message, "error");
-                    setTimeout(() => location.reload(), 1000)
-                }
+            fetch(`/admin/deleteProducts/${id}`, {
+                method: "PATCH",
             })
-            .catch(err => {
-                Swal.fire("Error", "Something went wrong!", "error");
-                console.error(err);
-            });
-    });
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.success) {
+
+                        Swal.fire("Deleted!", data.message, "success").then(() =>
+                            location.reload()
+                        );
+                    } else {
+                        Swal.fire("Error", data.message, "error");
+                    }
+                });
+        });
 
 
+        $(document).on('click', '.add-offer-btn', function (e) {
+            e.preventDefault();
+            const id = $(this).data('id');
+            const name = $(this).data('name');
+            openAddOfferModal(id, name);
+        });
 
-    function openRemoveOfferModal(id) {
-        $("#removeOfferId").val(id);
-        $("#removeOfferModal").modal("show");
-    }
+        function openAddOfferModal(id, name) {
+            $('#addOfferModal').modal('show');
+            $('#offerProductId').val(id);
+            $('#offerProductName').val(name);
+            $('#offerPercentage').val('');
+            $('#offerError').hide();
+            $('#offerPercentage').removeClass('is-invalid');
 
-    $("#removeOfferForm").on('submit', function (e) {
-        e.preventDefault();
-        const id = $('#removeOfferId').val();
-
-        fetch("/admin/removeOffer", {
-            method: "POST",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id })
-        }).then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Removed!",
-                        text: data.message,
-                        showConfirmButton: false,
-                        timer: 1500
-                    }).then(() => location.reload());
-                } else {
-                    Swal.fire("Error", data.message, "error");
-                    setTimeout(() => location.reload(), 1000)
-                }
-            })
-            .catch(err => {
-                Swal.fire("Error", "Something went wrong!", "error");
-                console.error(err);
-            });
-    })
-
-
-    // Open Undo Delete Product Modal
-    function openUndoDeleteProductModal(id) {
-      $('#undoDeleteProductId').val(id);
-      $('#undoDeleteProductModal').modal('show');
-    }
-
-    // Handle Undo Delete Product Form Submission
-    $('#undoDeleteProductForm').on('submit', function (e) {
-      e.preventDefault();
-      const id = $('#undoDeleteProductId').val();
-
-      fetch(`/admin/undoDeleteProducts/${id}`, {
-        method: 'PUT'
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          Swal.fire('Undo Successful!', data.message, 'success').then(() => location.reload());
-        } else {
-          Swal.fire('Error', data.message, 'error');
+            console.log(id)
+            console.log(name)
         }
-      })
-      .catch(() => {
-        Swal.fire('Error', 'Something went wrong. Please try again later.', 'error');
-      });
-    });
 
-</script>
+        // Attach submit handler to the form, not modal
+        $('#addOfferForm').on('submit', function (e) {
+            e.preventDefault();
 
-  
+            const id = $('#offerProductId').val();
+            const percentage = $('#offerPercentage').val();
+
+            // Validation
+            if (!percentage || isNaN(percentage) || percentage < 1 || percentage > 100) {
+                $('#offerError').text('Please enter a valid offer percentage between 1 and 100.').show();
+                $('#offerPercentage').addClass('is-invalid');
+                return;
+            }
+
+            $('#offerError').hide();
+            $('#offerPercentage').removeClass('is-invalid');
+
+            fetch(`/admin/addOffer`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, percentage })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Yes!",
+                            text: data.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => location.reload());
+                    } else {
+                        Swal.fire("Error", data.message, "error");
+                        setTimeout(() => location.reload(), 1000)
+                    }
+                })
+                .catch(err => {
+                    Swal.fire("Error", "Something went wrong!", "error");
+                    console.error(err);
+                });
+        });
+
+
+
+        function openRemoveOfferModal(id) {
+            $("#removeOfferId").val(id);
+            $("#removeOfferModal").modal("show");
+        }
+
+        $("#removeOfferForm").on('submit', function (e) {
+            e.preventDefault();
+            const id = $('#removeOfferId').val();
+
+            fetch("/admin/removeOffer", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            }).then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Removed!",
+                            text: data.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => location.reload());
+                    } else {
+                        Swal.fire("Error", data.message, "error");
+                        setTimeout(() => location.reload(), 1000)
+                    }
+                })
+                .catch(err => {
+                    Swal.fire("Error", "Something went wrong!", "error");
+                    console.error(err);
+                });
+        })
+
+
+        // Open Undo Delete Product Modal
+        function openUndoDeleteProductModal(id) {
+            $('#undoDeleteProductId').val(id);
+            $('#undoDeleteProductModal').modal('show');
+        }
+
+        // Handle Undo Delete Product Form Submission
+        $('#undoDeleteProductForm').on('submit', function (e) {
+            e.preventDefault();
+            const id = $('#undoDeleteProductId').val();
+
+            fetch(`/admin/undoDeleteProducts/${id}`, {
+                method: 'PATCH'
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Undo Successful!', data.message, 'success').then(() => location.reload());
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                })
+                .catch(() => {
+                    Swal.fire('Error', 'Something went wrong. Please try again later.', 'error');
+                });
+        });
+
+    </script>
+
+
 </body>

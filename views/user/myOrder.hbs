@@ -330,6 +330,12 @@
           height: 120px;
       }
   }
+  #returnRequested{
+    background-color: rgba(240, 69, 17, 0.615);
+    color: rgb(110, 4, 4);
+    border-radius:10px;
+    border-color: rgb(255, 60, 0);
+  }
 </style>
 
 
@@ -367,7 +373,7 @@
                 <button type="button" class="payment" onclick="retryPayment(event,'{{_id}}')">Retry Payment</button>
               {{/if}}
             {{/if}}
-            {{#if (eq returnRequest true)}}
+            {{#if (eq isUserRequested true)}}
             <button class="payment" onclick="retryPayment(event,'{{_id}}')" disabled>Return Initiated</button>
             {{/if}}
             <button type="button" class="details" onclick="viewOrderDetails(event,'{{_id}}')">View Details</button>
@@ -394,6 +400,9 @@
                       Status: <span class="order-status {{latestStatus}}">{{latestStatus}}</span> 
                       <small>on {{latestStatusDate}}</small>
                     </p>
+                     {{#if (eq isUserRequested true)}}
+                        <button id="returnRequested"  disabled>Return Initiated</button>
+                    {{/if}}
                 </div>
             </div>
             {{/each}}

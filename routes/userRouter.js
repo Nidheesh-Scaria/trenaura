@@ -9,6 +9,7 @@ const orderController=require("../controllers/user/orderController")
 const walletController=require("../controllers/user/walletController")
 const addressController=require("../controllers/user/addressController")
 const couponController=require("../controllers/user/couponController")
+const consumerPolicy=require("../controllers/user/consumerPolicyController")
 
 
 
@@ -31,7 +32,7 @@ router.get("/logout", userAuth.isLoggedIn, userController.loadLogout);
 router.get("/myAccount",userAuth.userBlocked,userAuth.checkSession, userController.loadmyAccount);
 router.put('/profileInfo/:id',userAuth.checkSession,userController.editProfileInfo)
 
-
+router.get('/verifyOtpPswd',userController.renderOtpForPswrdChange)
 router.get('/forgotPassword',userAuth.isLoggedIn,userController.forgotPassword);
 router.post("/forgotPasswordVerifyOtp", userAuth.isLoggedIn, userController.forgotPasswordOtp);
 router.post('/verifyForgotPasswordOtp',userController.verifyForgotPasswordOtp)
@@ -41,11 +42,7 @@ router.post('/resendPswrdOtp',userController.resendPswrdOtp)
 
 //product
 router.get('/shop',userAuth.userBlocked,userController.loadShop)
-router.get('/mensCategory',userAuth.userBlocked,userController.mensCategory);
-router.get('/womensCategory',userAuth.userBlocked,userController.womensCategory);
-router.get('/beautyCategory',userAuth.userBlocked,userController.beautyCategory);
-//router.get('/filter',userAuth.userBlocked,userController.filter);
-router.get('/productDetails',userAuth.userBlocked,userAuth.checkSession, userController.productDetails)
+router.get('/productDetails', userController.productDetails)
 
 
 // adreess mangement
@@ -126,14 +123,12 @@ router.post("/applyCoupon",userAuth.userBlocked,userAuth.checkSession, cartContr
 router.post("/removeCoupon",userAuth.userBlocked,userAuth.checkSession, cartController.removeCoupon)
 router.get('/myCoupons',userAuth.userBlocked,userAuth.checkSession, couponController.loadMyCoupon)
 
+//consumer policy mangement
 
-
-
-
-
-
-
-
+router.get("/privacyAndPolicy",consumerPolicy.privacyAndPolicy)
+router.get("/shoppingPolicy",consumerPolicy.shoppingPolicy)
+router.get("/termsAndConditions",consumerPolicy.termsAndConditions)
+router.get("/aboutUs",consumerPolicy.aboutUs)
 
 
 

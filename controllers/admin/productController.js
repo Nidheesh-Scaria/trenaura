@@ -25,6 +25,7 @@ const getProductPage = async (req, res) => {
         "productName regularPrice salePrice category status isBlocked isDeleted productImages variants size quantity productOffer"
       )
       .populate("category", "name")
+      .populate("brand", "brandName")
       .limit(limit)
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
@@ -52,17 +53,12 @@ const getProductPage = async (req, res) => {
 
     const products = productData.map((product, index) => {
       // Total stock calculation
-      let totalStock = 0;
-
-      if (product.category?.name === "Beauty") {
-        totalStock = Number(product.quantity) || 0;
-      } else {
-        totalStock = Object.values(product.variants || {}).reduce(
-          (sum, qty) => sum + Number(qty || 0),
-          0
-        );
-      }
-
+      const variantArray = Object.entries(product.variants || {})
+        .map(([size, qty]) => ({
+          size,
+          qty,
+        }))
+        .filter((item) => item.qty > 0);
       return {
         _id: product._id,
         productName: product.productName,
@@ -76,8 +72,7 @@ const getProductPage = async (req, res) => {
         isBlocked: product.isBlocked,
         isDeleted: product.isDeleted,
         productOffer: product.productOffer || 0,
-        variants: Object.fromEntries(Object.entries(product.variants || {})),
-        stock: totalStock,
+        variants: variantArray,
         productImages: product.productImages || [],
         firstImage: product.productImages?.[0] || null,
         serialNumber: (page - 1) * limit + index + 1,
@@ -142,8 +137,7 @@ const getEditProduct = async (req, res) => {
       .lean();
 
     if (!product) {
-      console.log("Product not found");
-      return res.status(404).json({
+      return res.status(httpStatus.BAD_REQUEST).json({
         success: false,
         message: MESSAGES.PRODUCT_NOT_FOUND || "PRODUCT NOT FOUND",
       });
@@ -151,27 +145,6 @@ const getEditProduct = async (req, res) => {
 
     const categories = await Category.find().lean();
     const brand = await Brand.find().lean();
-
-    //for edit modal in product page
-    // const responseData = {
-    //   success: true,
-    //   product: {
-    //     _id: product._id,
-    //     productName: product.productName,
-    //     regularPrice: product.regularPrice,
-    //     salePrice: product.salePrice,
-    //     variants: Object.fromEntries(Object.entries(product.variants || {})),
-    //     size: product.size,
-    //     quantity:product.quantity,
-    //     category: product.category?._id,
-    //     brand: product.brand?._id,
-    //     isBeauty:isBeauty,
-    //     categoryName: product.category?.name,
-    //     productImages: product.productImages || [],
-    //   },
-    // };
-
-    //  res.json(responseData);
 
     return res.render("admin/editProduct", {
       hideHeader: true,
@@ -212,7 +185,7 @@ const addProducts = async (req, res) => {
       if (!productData.description) missingFields.push("Description");
       if (!productData.category) missingFields.push("Category");
 
-      return res.status(400).json({
+      return res.status(httpStatus.BAD_REQUEST).json({
         success: false,
         message:
           `${MESSAGES.MISSING_FIELDS}: ${missingFields.join(", ")}` ||
@@ -267,7 +240,7 @@ const addProducts = async (req, res) => {
           });
           images.push(filename);
         } catch (error) {
-          console.log(`error uploading ${filename}:`, error);
+          console.error(`error uploading ${filename}:`, error);
         }
       }
     } else {
@@ -282,9 +255,8 @@ const addProducts = async (req, res) => {
     // Find category
 
     const category = await Category.findOne({ name: productData.category });
-    console.log("Found category in addProducts:", category);
+
     const brand = await Brand.findOne({ brandName: productData.brand });
-    console.log("Found category in addProducts:", brand);
 
     if (!category) {
       return res.status(httpStatus.BAD_REQUEST).json({
@@ -318,9 +290,7 @@ const addProducts = async (req, res) => {
         : null,
     });
 
-    console.log("Product created successfully:", newProduct._id);
-
-    return res.status(200).json({
+    return res.status(httpStatus.OK).json({
       success: true,
       message: MESSAGES.PRODUCT_ADDED_SUCCESS || "Product added successfully",
     });
@@ -338,7 +308,6 @@ const addProducts = async (req, res) => {
       });
     }
 
-    console.log(error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message:
@@ -417,9 +386,6 @@ const editProducts = async (req, res) => {
       }
     }
 
-    console.log(category);
-    console.log(typeof category);
-
     let variants;
     let availableSizes;
 
@@ -438,7 +404,8 @@ const editProducts = async (req, res) => {
       if (availableSizes.length === 0) {
         return res.status(httpStatus.BAD_REQUEST).json({
           success: false,
-          message: "At least one size must have stock",
+          message:
+            MESSAGES.PRODUCT.STOCK_ERR || "At least one size must have stock",
         });
       }
     } else {
@@ -518,8 +485,6 @@ const undoDeleteProducts = async (req, res) => {
 const addProductOffer = async (req, res) => {
   try {
     let { id, percentage } = req.body;
-    console.log(id);
-    console.log(percentage);
 
     if (!id || !percentage) {
       return res.json({ success: false, message: "Percentage/id is required" });
@@ -529,7 +494,9 @@ const addProductOffer = async (req, res) => {
     if (isNaN(percentage) || percentage < 1 || percentage > 100) {
       return res.json({
         success: false,
-        message: "Percentage must be a valid number between 1 and 100",
+        message:
+          MESSAGES.PRODUCT.PERCENTAGE_ERR ||
+          "Percentage must be a valid number between 1 and 100",
       });
     }
 
@@ -539,11 +506,13 @@ const addProductOffer = async (req, res) => {
     );
 
     if (!product) {
-      return res.json({ success: false, message: "Product not found" });
+      return res.json({
+        success: false,
+        message: MESSAGES.PRODUCT.NOT_FOUND || "Product not found",
+      });
     }
 
     const category = product.category;
-    console.log("*********************", category.categoryOffer);
 
     const productOffer = percentage;
     const categoryOffer = category?.categoryOffer || 0;
@@ -569,7 +538,7 @@ const addProductOffer = async (req, res) => {
 
     return res.status(httpStatus.OK).json({
       success: true,
-      message: "Offer Added successfully",
+      message: MESSAGES.PRODUCT.OFFER_ADDED || "Offer Added successfully",
     });
   } catch (error) {
     console.error("addOffer error:", error);
@@ -589,7 +558,9 @@ const removeProductOffer = async (req, res) => {
     );
 
     if (!product) {
-      return res.json({ message: "Product not found" });
+      return res.json({
+        message: MESSAGES.PRODUCT.NOT_FOUND || "Product not found",
+      });
     }
 
     const salePrice = product.regularPrice;
@@ -617,7 +588,10 @@ const removeProductOffer = async (req, res) => {
 
     return res
       .status(httpStatus.OK)
-      .json({ success: true, messge: "Offer removed successfully" });
+      .json({
+        success: true,
+        messge: MESSAGES.PRODUCT.OFFER_REMVD || "Offer removed successfully",
+      });
   } catch (error) {
     console.error("removeOffer error:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({

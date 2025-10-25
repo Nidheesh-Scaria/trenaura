@@ -35,6 +35,7 @@ const loadmyAddress = async (req, res) => {
     const plainAddresses = addresses.map((address) =>
       address.toObject ? address.toObject() : address
     );
+
     res.render("user/addressManage", {
       title: "Address management",
       adminHeader: true,
@@ -96,6 +97,7 @@ const addAddress = async (req, res) => {
       selected: true,
     };
 
+    //getting address of particular user
     const userAddress = await Address.findOne({ userId });
 
     if (userAddress) {
@@ -121,11 +123,12 @@ const loadEditAddress = async (req, res) => {
     const addressId = req.params.id;
     const userId = req.session.user || req.user;
 
+    //getting address of particular user
     const userAddresses = await Address.findOne({ userId });
 
     if (!userAddresses) {
       return res.status(httpStatus.NOT_FOUND).json({
-        message: "No addresses found",
+        message: MESSAGES.ADD_ADDRESS.ADDRESS_NOT_FOUND || "No address found",
       });
     }
 
@@ -135,7 +138,7 @@ const loadEditAddress = async (req, res) => {
 
     if (!address) {
       return res.status(httpStatus.NOT_FOUND).json({
-        message: "Address not found",
+        message: MESSAGES.ADD_ADDRESS.ADDRESS_NOT_FOUND || "Address not found",
       });
     }
 
@@ -178,7 +181,7 @@ const editAddress = async (req, res) => {
       !city
     ) {
       return res.status(httpStatus.BAD_REQUEST).json({
-        message: "Please fill all required fields",
+        message: MESSAGES.FILL_ALL_FIELDS || "Fill all required fields",
       });
     }
 
@@ -187,7 +190,7 @@ const editAddress = async (req, res) => {
 
     if (!userAddresses) {
       return res.status(httpStatus.NOT_FOUND).json({
-        message: "No addresses found",
+        message: MESSAGES.ADD_ADDRESS.ADDRESS_NOT_FOUND || "No addresses found",
       });
     }
 
@@ -202,7 +205,7 @@ const editAddress = async (req, res) => {
 
     if (addressIndex === -1) {
       return res.status(httpStatus.NOT_FOUND).json({
-        message: "Address not found",
+        message: MESSAGES.ADD_ADDRESS.ADDRESS_NOT_FOUND || "Address not found",
       });
     }
 
@@ -221,6 +224,7 @@ const editAddress = async (req, res) => {
       altPhone: altPhone ? Number(altPhone) : null,
     };
 
+    //saving address
     await userAddresses.save();
 
     return res.status(httpStatus.OK).json({
@@ -237,6 +241,8 @@ const editAddress = async (req, res) => {
 const deleteAddress = async (req, res) => {
   try {
     const id = req.params.id;
+
+    //removing address from array
     await Address.updateOne(
       { "address._id": id },
       { $pull: { address: { _id: id } } }
@@ -255,26 +261,26 @@ const deleteAddress = async (req, res) => {
 const getLocationDetails = async (req, res) => {
   try {
     const { pincode } = req.params;
-    console.log("pincode----",pincode)
+
+    //setting url for accesing data from Goole API
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${pincode}&key=${GOOGLEMAP_API_KEY}`;
 
     const response = await fetch(url);
+    //getting data
     const data = await response.json();
-    console.log("data",data)
-    const components = data.results[0].address_components;
-    console.log(components)
 
-    let locality,district,state
+    const components = data.results[0].address_components;
+
+    let locality, district, state;
     components.forEach((loc) => {
       if (loc.types.includes("administrative_area_level_1"))
         state = loc.long_name;
-      if (loc.types.includes("administrative_area_level_3")) district = loc.long_name;
+      if (loc.types.includes("administrative_area_level_3"))
+        district = loc.long_name;
       if (loc.types.includes("locality")) locality = loc.long_name;
     });
 
-  
-    return res.json({ state, district, locality })
-
+    return res.json({ state, district, locality });
   } catch (error) {
     console.error("Error in fetching location details:", error);
     res
@@ -283,16 +289,15 @@ const getLocationDetails = async (req, res) => {
   }
 };
 
-const getAddAddress=async(req,res)=>{
+const getAddAddress = async (req, res) => {
   try {
-    
-    const userId=req.session.user
+    const userId = req.session.user;
     return res.render("user/addAddress", {
       title: "Add Address",
       hideHeader: false,
       hideFooter: false,
       adminHeader: true,
-      userId
+      userId,
     });
   } catch (error) {
     console.error("Error in rendering add address:", error);
@@ -300,7 +305,7 @@ const getAddAddress=async(req,res)=>{
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
   }
-}
+};
 
 module.exports = {
   loadmyAddress,

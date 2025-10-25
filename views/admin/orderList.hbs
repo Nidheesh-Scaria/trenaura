@@ -13,9 +13,6 @@
         <form action="/admin/order"method="GET">
           <input type="text" name="search" placeholder="🔍 Search here" value="{{search}}">
         </form>
-        {{!-- <button class="btn export"><i class="fas fa-download"></i> Export</button>
-        <button class="btn"><i class="fas fa-sort"></i> Sort By</button>
-        <button class="btn"><i class="fas fa-filter"></i> Filters</button> --}}
       </div>
     </div>
 
@@ -27,9 +24,8 @@
           <th>Order ID</th>
           <th>No. Items</th>
           <th>Date</th>
-          {{!-- <th>Status</th> --}}
           <th>Price</th>
-          <th>Paid Status</th>
+          <th>Payment Status</th>
           <th>Action</th>
         </tr>
       </thead>
@@ -45,38 +41,11 @@
             <td>{{this.orderedItems.length}}</td>
             
             <td>{{formatDate this.createdAt}}</td>
-
-            {{!-- status --}}
-            {{!-- <td>
-              
-              {{#if (eq this.currentStatus "Pending")}}
-                    <span class="status status-pending">{{this.currentStatus}}</span>
-                {{else if (eq this.currentStatus "Shipped")}}
-                    <span class="status status-shipped">{{this.currentStatus}}</span>
-                {{else if (eq this.currentStatus "Delivered")}}
-                    <span class="status status-delivered">{{this.currentStatus}}</span>
-                {{else if (eq this.currentStatus "Cancelled")}}
-                    <span class="status status-cancelled">{{this.currentStatus}}</span>
-                {{else if (eq this.currentStatus "Returned")}}
-                    <span class="status status-returned">{{this.currentStatus}}</span>
-                    {{#unless this.refundStatus}}
-                      <p class="return-initiated" >Refund pending </p>
-                    {{/unless}}
-                {{else if (eq this.currentStatus "OutForDelivery")}}
-                    <span class="status status-OutForDelivery">{{this.currentStatus}}</span>
-                {{else if (eq this.currentStatus "Processing")}}
-                    <span class="status status-processing">{{this.currentStatus}}</span>
-                {{else}}
-                    <span class="status">{{this.currentStatus}}</span>
-                {{/if}}
-            </td> --}}
-            
-            {{!-- <td>₹{{../finalAmount}}</td> --}}
             <td>₹{{this.finalAmount}}</td>
             <td>
               {{#if (eq this.currentStatus "Cancelled")}}
               <span class="status cancelled">
-                N/A
+                Cancelled
               </span>
               {{else}}
               <span class="status {{this.paymentStatus}}">
@@ -138,8 +107,8 @@
 <script>
 
  function orderManagement(event,id){
+      
       event.preventDefault();
-      console.log("id",id)
       try {
             window.location.href = `/admin/orderMangement/${id}`;
         } catch (error) {

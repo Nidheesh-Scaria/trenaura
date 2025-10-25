@@ -144,7 +144,7 @@
 <body>
   
  <div class="container my-5">
-    <h4 class="address-header">Select Delivery Address</h4>
+    
 
     {{#unless addresses.length}}
       <div class="no-address-card card text-center border-0 shadow-sm p-4 mt-4">
@@ -152,7 +152,7 @@
           <i class="fas fa-map-marker-alt fa-2x text-primary mb-3"></i>
           <h5 class="card-title text-muted">No addresses found</h5>
           <p class="card-text">You haven’t added any delivery addresses yet. Add one to proceed with your order.</p>
-          <a href="/add-address" class="add-address-btn mt-3">
+          <a href="/addAddress" class="add-address-btn mt-3">
             <i class="fas fa-plus-circle me-2"></i> Add Address
           </a>
         </div>
@@ -160,8 +160,9 @@
     {{/unless}}
 
     {{#if addresses.length}}
+    <h4 class="address-header">Select Delivery Address</h4>
       <div class="text-end mb-4">
-        <a href="/add-address" class="add-address-btn">
+        <a href="/addAddress" class="add-address-btn">
           <i class="fas fa-plus-circle me-2"></i> Add New Address
         </a>
       </div>

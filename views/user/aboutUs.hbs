@@ -1,0 +1,1012 @@
+
+<head>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated gradient background */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #000000, #0a0a0a, #1a1a2e, #0a0a0a, #000000);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            z-index: -2;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Animated grid background */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(35, 60, 121, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(35, 60, 121, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header Section */
+        .header {
+            text-align: center;
+            padding: 80px 0;
+            position: relative;
+        }
+
+        .logo {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 40px;
+            border-radius: 50%;
+            border: 4px solid #233c79;
+            padding: 15px;
+            background: radial-gradient(circle, #000, #1a1a2e);
+            position: relative;
+            animation: logoRotate 20s linear infinite;
+            box-shadow: 0 0 40px rgba(35, 60, 121, 0.5),
+                        0 0 80px rgba(35, 60, 121, 0.3),
+                        inset 0 0 20px rgba(35, 60, 121, 0.2);
+        }
+
+        .logo::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #233c79, transparent, #233c79);
+            animation: borderPulse 3s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes logoRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        @keyframes borderPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .logo:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 60px rgba(35, 60, 121, 0.8),
+                        0 0 120px rgba(35, 60, 121, 0.5);
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 50%;
+            filter: brightness(1.1);
+        }
+
+        .main-title {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #233c79 0%, #4a6fb5 50%, #233c79 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleShine 3s linear infinite;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 40px rgba(35, 60, 121, 0.5);
+        }
+
+        @keyframes titleShine {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .subtitle {
+            font-size: 1.4rem;
+            color: #aaaaaa;
+            margin-bottom: 40px;
+            animation: fadeInUp 1.5s ease-out 0.5s both;
+            letter-spacing: 2px;
+        }
+
+        /* About Section */
+        .about-section {
+            padding: 100px 0;
+            position: relative;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 70px;
+            color: #233c79;
+            position: relative;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            animation: slideInDown 1s ease-out;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #233c79, transparent);
+            transform: translateY(-50%);
+            z-index: -1;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #233c79, #4a6fb5);
+            animation: expandLine 1.5s ease-out 0.5s both;
+            box-shadow: 0 0 20px #233c79;
+        }
+
+        @keyframes expandLine {
+            0% { width: 0; }
+            100% { width: 150px; }
+        }
+
+        @keyframes slideInDown {
+            0% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            margin-bottom: 100px;
+        }
+
+        .text-content {
+            animation: fadeInLeft 1.2s ease-out 0.8s both;
+            position: relative;
+        }
+
+        .text-content h3 {
+            font-size: 2.5rem;
+            color: #233c79;
+            margin-bottom: 30px;
+            position: relative;
+            display: inline-block;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .text-content p {
+            font-size: 1.15rem;
+            line-height: 2;
+            margin-bottom: 25px;
+            color: #cccccc;
+            opacity: 0;
+            animation: fadeInText 0.8s ease-out forwards;
+        }
+
+        .text-content p:nth-child(2) { animation-delay: 1s; }
+        .text-content p:nth-child(3) { animation-delay: 1.2s; }
+        .text-content p:nth-child(4) { animation-delay: 1.4s; }
+
+        @keyframes fadeInText {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+        }
+
+        .highlight {
+            color: #4a6fb5;
+            font-weight: bold;
+            position: relative;
+            text-shadow: 0 0 10px rgba(35, 60, 121, 0.5);
+        }
+
+        .image-container {
+            position: relative;
+            animation: fadeInRight 1.2s ease-out 0.8s both;
+            perspective: 1000px;
+        }
+
+        .clothing-image {
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+            border-radius: 20px;
+            border: 3px solid #233c79;
+            transition: all 0.5s ease;
+            box-shadow: 0 20px 60px rgba(35, 60, 121, 0.3);
+            transform-style: preserve-3d;
+        }
+
+        .clothing-image:hover {
+            transform: scale(1.05) rotateY(5deg);
+            box-shadow: 0 30px 80px rgba(35, 60, 121, 0.6),
+                        0 0 40px rgba(35, 60, 121, 0.4);
+            border-color: #4a6fb5;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background: linear-gradient(135deg, #233c79 0%, #1a2e5c 50%, #233c79 100%);
+            padding: 80px 0;
+            margin: 100px 0;
+            border-radius: 30px;
+            position: relative;
+            overflow: hidden;
+            animation: slideInUp 1s ease-out 1.2s both;
+            box-shadow: 0 30px 80px rgba(35, 60, 121, 0.4),
+                        inset 0 0 100px rgba(0, 0, 0, 0.3);
+        }
+
+        .stats-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            animation: rotatePattern 30s linear infinite;
+        }
+
+        @keyframes rotatePattern {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 50px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-item {
+            color: #fff;
+            transition: all 0.4s ease;
+            position: relative;
+            padding: 20px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 15px;
+            padding: 2px;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: borderRotate 3s linear infinite;
+        }
+
+        @keyframes borderRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stat-item:hover {
+            transform: translateY(-15px) scale(1.05);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-number {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #fff 0%, #4a6fb5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: countAnimation 2s ease-out 1.5s both;
+        }
+
+        @keyframes countAnimation {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .stat-label {
+            font-size: 1.3rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        /* Locations Section */
+        .locations-section {
+            padding: 100px 0;
+        }
+
+        .locations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            margin-top: 70px;
+        }
+
+        .location-card {
+            background: linear-gradient(135deg, #0a0a0a, #1a1a2e);
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid #233c79;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease;
+            animation: fadeInUp 1s ease-out calc(1.5s + var(--delay)) both;
+        }
+
+        .location-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(35, 60, 121, 0.1), transparent);
+            animation: cardGlow 4s ease-in-out infinite;
+        }
+
+        @keyframes cardGlow {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(10%, 10%); }
+        }
+
+        .location-card:nth-child(1) { --delay: 0s; }
+        .location-card:nth-child(2) { --delay: 0.3s; }
+        .location-card:nth-child(3) { --delay: 0.6s; }
+
+        .location-card:hover {
+            transform: translateY(-15px) scale(1.03);
+            box-shadow: 0 30px 60px rgba(35, 60, 121, 0.4),
+                        0 0 40px rgba(35, 60, 121, 0.3);
+            border-color: #4a6fb5;
+        }
+
+        .location-card h4 {
+            font-size: 2rem;
+            color: #4a6fb5;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .location-card p {
+            color: #cccccc;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            width: 3px;
+            height: 3px;
+            background: #233c79;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 8s infinite ease-in-out;
+            z-index: 0;
+            box-shadow: 0 0 10px #233c79;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(100vh) translateX(0) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px) scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* General animations */
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInLeft {
+            0% {
+                opacity: 0;
+                transform: translateX(-40px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInRight {
+            0% {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(60px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2.5rem;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 50px;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .logo {
+                width: 140px;
+                height: 140px;
+            }
+
+            .locations-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-number {
+                font-size: 3rem;
+            }
+        }
+        .offerings {
+            list-style: none; /* remove default bullets */
+            padding: 0;
+            margin: 0;
+        }
+    
+        .mission-list {
+            list-style: none;
+            padding: 0;
+        }
+
+    
+        /* Brand Philosophy Section */
+        .brand-philosophy {
+            padding: 100px 0;
+            position: relative;
+        }
+
+        .brand-philosophy .text-content {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .brand-philosophy .text-content h3 {
+            font-size: 2.5rem;
+            color: #233c79;
+            margin-bottom: 30px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .brand-philosophy .text-content p {
+            font-size: 1.15rem;
+            line-height: 2;
+            margin-bottom: 25px;
+            color: #cccccc;
+        }
+
+        /* What Makes Different Section */
+        .what-makes-different {
+            padding: 100px 0;
+            position: relative;
+            background: linear-gradient(135deg, rgba(35, 60, 121, 0.05), rgba(26, 26, 46, 0.05));
+            border-radius: 30px;
+            margin: 50px 0;
+        }
+
+        .what-makes-different .text-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        .what-makes-different .text-content h3 {
+            font-size: 2.5rem;
+            color: #233c79;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .what-makes-different .offerings {
+            display: grid;
+            gap: 25px;
+        }
+
+        .what-makes-different .offerings li {
+            background: rgba(35, 60, 121, 0.1);
+            padding: 20px 25px;
+            border-radius: 12px;
+            border-left: 4px solid #4a6fb5;
+            transition: all 0.3s ease;
+        }
+
+        .what-makes-different .offerings li:hover {
+            background: rgba(35, 60, 121, 0.2);
+            transform: translateX(10px);
+            border-left-color: #233c79;
+        }
+
+        .what-makes-different .offerings li p {
+            margin: 0;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        /* Vision Mission Section */
+        .vision-mission {
+            padding: 100px 0;
+            position: relative;
+        }
+
+        .vision-mission .text-content {
+            max-width: 1000px;
+            margin: 0 auto 60px;
+            padding: 40px;
+            background: linear-gradient(135deg, #0a0a0a, #1a1a2e);
+            border-radius: 20px;
+            border: 2px solid #233c79;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vision-mission .text-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #233c79, #4a6fb5, #233c79);
+            background-size: 200% 100%;
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .vision-mission .text-content h3 {
+            font-size: 2.2rem;
+            color: #4a6fb5;
+            margin-bottom: 25px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .vision-mission .text-content p {
+            font-size: 1.1rem;
+            line-height: 2;
+            margin-bottom: 20px;
+            color: #cccccc;
+            text-align: center;
+        }
+
+        .vision-mission .mission-list {
+            margin-top: 20px;
+        }
+
+        .vision-mission .mission-list li {
+            background: rgba(35, 60, 121, 0.05);
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .vision-mission .mission-list li:hover {
+            background: rgba(35, 60, 121, 0.15);
+            transform: translateX(8px);
+        }
+
+        .vision-mission .mission-list li p {
+            margin: 0;
+            text-align: left;
+            font-size: 1.05rem;
+        }
+
+        .vision-mission .mission-list li::before {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .vision-mission .mission-list li:hover::before {
+            transform: translateX(5px);
+        }
+
+        /* Responsive adjustments for new sections */
+        @media (max-width: 768px) {
+            .brand-philosophy,
+            .what-makes-different,
+            .vision-mission {
+                padding: 60px 0;
+            }
+
+            .brand-philosophy .text-content h3,
+            .what-makes-different .text-content h3,
+            .vision-mission .text-content h3 {
+                font-size: 1.8rem;
+            }
+
+            .what-makes-different .text-content,
+            .vision-mission .text-content {
+                padding: 30px 20px;
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    <div class="grid-bg"></div>
+
+    <!-- Floating particles -->
+    <div class="particle" style="left: 5%; animation-delay: 0s;"></div>
+    <div class="particle" style="left: 15%; animation-delay: 1s;"></div>
+    <div class="particle" style="left: 25%; animation-delay: 2s;"></div>
+    <div class="particle" style="left: 35%; animation-delay: 3s;"></div>
+    <div class="particle" style="left: 45%; animation-delay: 4s;"></div>
+    <div class="particle" style="left: 55%; animation-delay: 5s;"></div>
+    <div class="particle" style="left: 65%; animation-delay: 2.5s;"></div>
+    <div class="particle" style="left: 75%; animation-delay: 1.5s;"></div>
+    <div class="particle" style="left: 85%; animation-delay: 3.5s;"></div>
+    <div class="particle" style="left: 95%; animation-delay: 4.5s;"></div>
+
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="logo">
+                <a href="/">
+                    <img src="/img/logo.png" alt="Trenaura Logo">
+                </a>
+            </div>
+            <h1 class="main-title">The Aura of Trend</h1>
+            <p class="subtitle">Defining Style, Delivering Excellence</p>
+        </header>
+
+        <!-- About Section -->
+        <section class="about-section">
+            <h2 class="section-title">About Us</h2>
+            
+            <div class="content-grid">
+                <div class="text-content">
+                    <h3>Our Story</h3>
+                    <p>
+                        At Trenaura, we believe fashion is more than just what you wear - it’s a reflection of who you are.<br>
+                        Our journey began with a simple idea: to create a space where style meets self-expression. <br>
+                        
+                    <p>
+                        We wanted to build a brand that doesn’t just follow trends, but creates an aura of individuality - and that’s how Trenaura was born.
+                    </p>
+                    </p>
+                    <p>
+                        What started as a small idea has grown into a passionate community of creators, dreamers, and everyday people who believe in expressing themselves boldly. Every design we offer carries a story, crafted with creativity, comfort, and care.
+                    </p>
+                    
+                </div>
+                
+                <div class="image-container">
+                    <img src="https://world-arabia.com/storage/images/news/crops/news-promo/f2sgWTiESHbH6hDH1EHvQscWdSypTaBg1hlhCdNV.webp"
+                         alt="Premium Men's Clothing" class="clothing-image">
+                </div>
+                
+            </div>
+        </section>
+        <section class="brand-philosophy">
+            <div class="text-content">
+                    <h3>Our Brand Philosophy</h3>
+                    <p>
+                        We believe in authenticity, creativity, and comfort.Our philosophy is to make fashion accessible, expressive, and sustainable - one outfit at a time.<br>
+                        
+                        
+                    <p>
+                        At Trenaura, we combine modern design, premium materials, and thoughtful craftsmanship to deliver products that feel good, look great, and last longer.
+                    </p>
+                    </p>
+                    <p>
+                        What started as a small idea has grown into a passionate community of creators, dreamers, and everyday people who believe in expressing themselves boldly. Every design we offer carries a story, crafted with creativity, comfort, and care.
+                    </p>
+                    
+                </div>
+
+        </section>
+        <section class="what-makes-different">
+            <div class="text-content">
+                    <h3>What Makes Trenaura Different</h3>
+                    <ul class="offerings">
+                    <li><p>
+                        Personalized Touch: We let you design your own apparel - from custom T-shirts to merch that truly represents your personality.
+                    </p> </li>
+                    <li><p>Uncompromised Quality: Every product is made using premium fabrics, vibrant prints, and long-lasting finishes.</p> </li>
+                    <li><p>Affordable Creativity: We bring you stylish, high-quality products without breaking the bank.</p></li>
+                    <li><p>Customer-First Experience: From order to delivery, we focus on seamless service, fast shipping, and hassle-free returns.</p></li>
+                    <li><p>Made with Purpose: Our products are designed and printed with care in India - supporting local craftsmanship and eco-conscious practices.</p></li>
+                     </ul>   
+                   
+                    
+                </div> 
+
+        </section>
+        <section class="vision-mission">
+            <h2 class="section-title">Our Vision & Mission</h2>
+            <div class="text-content">
+                    <h3>Vision</h3>
+                    <p>At Trenaura, our vision is to empower every individual to express themselves confidently through fashion and lifestyle products.</p>
+                    <p>We aim to create a platform where creativity, style, and self-expression merge seamlessly - offering products that are trendy, sustainable, and meaningful.</p> 
+                    <p>We see a future where everyone can showcase their unique personality without compromise, and where fashion becomes a medium of self-expression rather than just a trend.</p>
+                   
+                    
+                </div> 
+                <div class="text-content">
+                    <h3>Mission</h3>
+                    <ul class="mission-list">
+                    <li><p>Deliver Creativity: Provide a wide range of customizable and trendy apparel, accessories, and merchandise that inspire self-expression.</p></li>
+                    <li><p>Ensure Quality & Comfort: Use premium materials and craftsmanship to create products that look great, feel comfortable, and last long.</p> </li>
+                    <li><p>Offer a Seamless Experience: Make shopping simple, secure, and enjoyable - from browsing to doorstep delivery.</p></li>
+                    <li><p>Promote Sustainability: Support eco-conscious practices, local artisans, and responsible sourcing</p></li>
+                    <li><p>Celebrate Individuality: Help our customers express their personality, passion, and style through every product.</p></li>
+                   </ul>
+                    
+                </div> 
+        </section>
+
+
+        <!-- Stats Section -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">6+</div>
+                    <div class="stat-label">Years of Excellence</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">500+</div>
+                    <div class="stat-label">Store Locations</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">2000+</div>
+                    <div class="stat-label">Happy Customers</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">1000+</div>
+                    <div class="stat-label">Premium Products</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Locations Section -->
+        <section class="locations-section">
+            <h2 class="section-title">Our Offerings</h2>
+            
+            <div class="locations-grid">
+                <div class="location-card">
+                    <h4>Fashion & Apparel</h4>
+                    <ul class="offerings">
+                        <li><p>Trendy clothings</p></li>
+                        <li><p>Casuals, formals, and seasonal collections</p></li>
+                        <li><p>Limited-edition fashion drops</p></li>
+                        <li><p>Comfortable, high-quality fabrics</p></li>
+                    </ul>
+                </div>
+                
+                <div class="location-card">
+                    <h4>Sustainability & Quality</h4>
+                    <ul class="offerings">
+                        <li><p>Ethically sourced materials</p></li>
+                        <li><p>Minimal packaging waste</p></li>
+                        <li><p>Long-lasting, quality-first designs</p></li>
+                        <li><p>Supporting local artisans and Indian craftsmanship</p></li>
+                    </ul>
+                </div>
+                
+                <div class="location-card">
+                    <h4>Customer Experience</h4>
+                    <ul class="offerings">
+                        <li><p>Seamless shopping experience</p></li>
+                        <li><p>Fast and reliable shipping (currently across India 🇮🇳)</p></li>
+                        <li><p>Easy returns & exchanges</p></li>
+                        <li><p>24/7 customer support</p></li>
+                        <li><p>Secure payment options (Razorpay, UPI, etc.)</p></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('[class*="fade"], [class*="slide"]').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Dynamic particle generation
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 8 + 's';
+            particle.style.animationDuration = (6 + Math.random() * 4) + 's';
+            document.body.appendChild(particle);
+            
+            setTimeout(() => {
+                particle.remove();
+            }, 10000);
+        }
+
+        setInterval(createParticle, 1500);
+
+        // Mouse movement parallax effect
+        document.addEventListener('mousemove', (e) => {
+            const moveX = (e.clientX - window.innerWidth / 2) * 0.01;
+            const moveY = (e.clientY - window.innerHeight / 2) * 0.01;
+            
+            document.querySelectorAll('.location-card, .stat-item').forEach(card => {
+                card.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            });
+        });
+
+        // Enhanced hover effects
+        document.querySelectorAll('.stat-item').forEach(stat => {
+            stat.addEventListener('mouseenter', function() {
+                this.style.transition = 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            });
+        });
+
+        // Image tilt effect
+        document.querySelectorAll('.clothing-image').forEach(img => {
+            img.addEventListener('mousemove', (e) => {
+                const rect = img.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 20;
+                const rotateY = (centerX - x) / 20;
+                
+                img.style.transform = `scale(1.05) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+            
+            img.addEventListener('mouseleave', () => {
+                img.style.transform = 'scale(1) rotateX(0) rotateY(0)';
+            });
+        });
+    </script>
+</body>
+

@@ -1,18 +1,18 @@
 const Brand = require("../../models/brandSchema");
+const httpStatus = require("../../util/statusCodes");
+const { MESSAGES } = require("../../util/constants");
 
 const getBrandPage = async (req, res) => {
   try {
     const search = req.query.search || "";
     const page = parseInt(req.query.page) || 1;
-    const limit = 10
-    ;
-
+    const limit = 10;
     const query = {
       brandName: { $regex: search, $options: "i" },
     };
 
     const brandData = await Brand.find(query)
-      .select("brandName isBlocked createdAt")
+      .select("brandName isBlocked createdAt isDeleted")
       .limit(limit)
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
@@ -22,6 +22,7 @@ const getBrandPage = async (req, res) => {
       _id: brand._id,
       brandName: brand.brandName,
       status: brand.isBlocked,
+      isDeleted: brand.isDeleted,
       createdAt: brand.createdAt.toISOString().split("T")[0],
       serialNumber: (page - 1) * limit + index + 1,
     }));
@@ -38,7 +39,9 @@ const getBrandPage = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Internal Server Error");
   }
 };
 
@@ -49,7 +52,8 @@ const addBrandPage = async (req, res) => {
     if (!name) {
       return res.status(400).json({
         success: false,
-        error: "Name and description are required",
+        error:
+          MESSAGES.BRAND.NAME_REQUIRED || "Name and description are required",
       });
     }
 
@@ -59,9 +63,9 @@ const addBrandPage = async (req, res) => {
       name: { $regex: new RegExp(`^${trimmedName}$`, "i") },
     });
     if (isExists) {
-      return res.status(400).json({
+      return res.status(httpStatus.BAD_REQUEST).json({
         success: false,
-        error: "Category already exists",
+        error: MESSAGES.BRAND.CATEGORY_EXISTS || "Category already exists",
       });
     }
 
@@ -72,9 +76,9 @@ const addBrandPage = async (req, res) => {
     });
 
     await newBrand.save();
-    return res.status(201).json({
+    return res.status(httpStatus.OK).json({
       success: true,
-      message: "Brand added successfully",
+      message: MESSAGES.BRAND.BRAND_ADDED || "Brand added successfully",
       brand: {
         id: newBrand._id,
         name: newBrand.name,
@@ -82,9 +86,9 @@ const addBrandPage = async (req, res) => {
     });
   } catch (error) {
     console.error("Error adding brand:", error);
-    return res.status(500).json({
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      error: "Internal server error",
+      error: MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error",
       details:
         process.env.NODE_ENV === "development" ? error.message : undefined,
     });
@@ -98,36 +102,79 @@ const editBrand = async (req, res) => {
 
     await Brand.findByIdAndUpdate(id, { $set: { brandName } });
     res
-      .status(200)
-      .json({ success: true, message: "Brand updated successfully" });
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({
+        success: true,
+        message: MESSAGES.BRAND.BRAND_UPDATED || "Brand updated successfully",
+      });
   } catch (error) {
     console.error("Edit error:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error",
+      });
   }
 };
 
 const deleteBrand = async (req, res) => {
   try {
     const id = req.params.id;
-    console.log("Deleting Category ID:", id);
-
-    await Brand.findByIdAndDelete(id);
-    res.status(200).json({ success: true, message: "Brand deleted" });
+    await Brand.findByIdAndUpdate(id, { $set: { isDeleted: true } });
+    res
+      .status(httpStatus.OK)
+      .json({
+        success: true,
+        message: MESSAGES.BRAND.BRAND_DELETED || "Brand deleted",
+      });
   } catch (error) {
     console.error("Delete error:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({
+        success: false,
+        message: MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error",
+      });
+  }
+};
+
+const undoDeleteBrand = async (req, res) => {
+  try {
+    const id = req.params.id;
+    await Brand.findByIdAndUpdate(id, { $set: { isDeleted: false } });
+    res
+      .status(httpStatus.OK)
+      .json({
+        success: true,
+        message: MESSAGES.BRAND.BRAND_UNDO_DELETED || "Undo deleted",
+      });
+  } catch (error) {
+    console.error("undo Delete error:", error);
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({
+        success: false,
+        message:
+          MESSAGES.BRAND.INTERNAL_SERVER_ERROR || "Internal server error",
+      });
   }
 };
 
 const unblockBrand = async (req, res) => {
   try {
     const id = req.params.id;
-    console.log("block Category ID:", id);
+
     await Brand.findByIdAndUpdate({ _id: id }, { $set: { isBlocked: false } });
-    res.status(200).json({ success: true });
+    res.status(httpStatus.OK).json({ success: true });
   } catch (error) {
     console.error("Delete error:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({
+        success: false,
+        message: MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error",
+      });
   }
 };
 
@@ -135,19 +182,24 @@ const blockBrand = async (req, res) => {
   try {
     const id = req.params.id;
     await Brand.findByIdAndUpdate({ _id: id }, { $set: { isBlocked: true } });
-    res.status(200).json({ success: true });
+    res.status(httpStatus.OK).json({ success: true });
   } catch (error) {
     console.error("Delete error:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({
+        success: false,
+        message: MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error",
+      });
   }
 };
-
 
 module.exports = {
   getBrandPage,
   addBrandPage,
   editBrand,
   deleteBrand,
+  undoDeleteBrand,
   unblockBrand,
   blockBrand,
 };

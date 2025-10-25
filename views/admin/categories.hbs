@@ -7,7 +7,7 @@
   
   <link rel="stylesheet" href="/css/adminCustomers.css">
 
-  <style>
+<style>
     .refresh-btn {
         background-color: var(--primary-color);
         color: white;
@@ -802,9 +802,128 @@
         background-color: #5c636a;
         border-color: #565e64;
     }
+
+
+    /* Action button style*/
+
+    .btn {
+        border: none;
+        border-radius: 6px;
+        padding: 6px 14px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    }
+
+    /* Remove Offer (Red) */
+    .remove-offer-btn {
+        background: linear-gradient(135deg, #ff4d4f, #d62828);
+        color: #fff;
+    }
+    .remove-offer-btn:hover {
+        background: linear-gradient(135deg, #ff6b6b, #e63946);
+        transform: translateY(-1px);
+    }
+
+    /* Add Offer (Green) */
+    .add-offer-btn {
+        background: linear-gradient(135deg, #28a745, #1e7e34);
+        color: #fff;
+    }
+    .add-offer-btn:hover {
+        background: linear-gradient(135deg, #45c055, #1e7e34);
+        transform: translateY(-1px);
+    }
+
+    /* Edit (Blue) */
+    .edit-btn {
+        background: linear-gradient(135deg, #1e90ff, #0c7cd5);
+        color: #fff;
+    }
+    .edit-btn:hover {
+        background: linear-gradient(135deg, #3399ff, #0a66b0);
+        transform: translateY(-1px);
+    }
+
+    /* Undo Delete (Teal/Green) */
+    .undo-delete-btn {
+        background: linear-gradient(135deg, #20c997, #138d75);
+        color: #fff;
+    }
+    .undo-delete-btn:hover {
+        background: linear-gradient(135deg, #38d9a9, #138d75);
+        transform: translateY(-1px);
+    }
+
+    /* Delete (Red) */
+    .delete-btn {
+        background: linear-gradient(135deg, #ff4d4f, #d62828);
+        color: #fff;
+    }
+    .delete-btn:hover {
+        background: linear-gradient(135deg, #ff6b6b, #e63946);
+        transform: translateY(-1px);
+    }
+
+    /* Active / Click effect */
+    .btn:active {
+        transform: scale(0.97);
+    }
+    .btn:focus {
+        outline: 2px solid rgba(0,0,0,0.2);
+        outline-offset: 2px;
+    }
+
+    /*List and unlist*/
+
+        /* Base small button */
+    .btn-sm {
+        border: none;
+        border-radius: 5px;
+        padding: 4px 10px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Unlist Button (Red) */
+    .unlist-btn {
+        background: linear-gradient(135deg, #ff4d4f, #d62828);
+        color: #fff;
+    }
+    .unlist-btn:hover {
+        background: linear-gradient(135deg, #ff6b6b, #e63946);
+        transform: translateY(-1px);
+    }
+
+    /* List Button (Green) */
+    .list-btn {
+        background: linear-gradient(135deg, #28a745, #1e7e34);
+        color: #fff;
+    }
+    .list-btn:hover {
+        background: linear-gradient(135deg, #45c055, #1e7e34);
+        transform: translateY(-1px);
+    }
+
+    /* Click / Active effect */
+    .btn-sm:active {
+        transform: scale(0.97);
+    }
+    .btn-sm:focus {
+        outline: 2px solid rgba(0,0,0,0.2);
+        outline-offset: 2px;
+    }
+
+
 </style>
 
 </head>
+
 <body>
 <main class="main-content">
     <header class="header">
@@ -845,10 +964,10 @@
                         <th>No</th>
                         <th>Name</th>
                         <th>Description</th>
-                        <th>Add offer</th>
                         <th>Offer</th>
                         <th>List Status</th>
                         <th>List/Unlist</th>
+                        <th>Add/Remove Offer</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -860,19 +979,7 @@
                         <td>{{this.name}}</td>
                         <td>{{this.description}}</td>
 
-                        <td>
-                            <div class="d-flex flex-column gap-1">
-                                {{#if (gt this.categoryOffer 0)}}
-                                <a href="#" class="btn btn-sm btn-info" style="color: red;"
-                                    onclick="openRemoveOfferModal('{{this._id}}')">Remove</a>
-                                {{else}}
-                                <a href="#" class="btn btn-sm btn-info" style="color: green;"
-                                    onclick="openAddOfferModal('{{this._id}}','{{this.name}}')">Add Offer</a>
-
-                                {{/if}}
-
-                            </div>
-                        </td>
+                        
                         <td>{{this.categoryOffer}}%</td>
                         <td>
                             {{#if this.isListed}}
@@ -884,30 +991,58 @@
                         <td>
                             {{#if this.isListed}}
                             <form action="/admin/unlistCategory/{{this._id}}" method="post">
-                                <button type="submit" class="btn btn-sm" style="color:red">Unlist</button>
+                                <button type="submit" class="btn btn-sm unlist-btn">Unlist</button>
                             </form>
                             {{else}}
                             <form action="/admin/listCategory/{{this._id}}" method="post">
-                                <button type="submit" class="btn btn-sm" style="color:green">List</button>
+                                <button type="submit" class="btn btn-sm list-btn">List</button>
                             </form>
                             {{/if}}
                         </td>
+                        <td>
+                            <div class="d-flex flex-column gap-1">
+                                {{#if (gt this.categoryOffer 0)}}
+                                {{!-- <a href="#" class="btn btn-sm btn-info" style="color: red;"
+                                    onclick="openRemoveOfferModal('{{this._id}}')">Remove</a> --}}
+                                    <button type="button" class="btn remove-offer-btn" onclick="openRemoveOfferModal('{{this._id}}')">
+                                     Remove
+                                    </button>
+                                {{else}}
+                                {{!-- <a href="#" class="btn btn-sm btn-info" style="color: green;"
+                                    onclick="openAddOfferModal('{{this._id}}','{{this.name}}')">Add Offer</a> --}}
+                                    <button type="button" class="btn add-offer-btn" onclick="openAddOfferModal('{{this._id}}','{{this.name}}')">
+                                    Add Offer
+                                    </button>
+
+                                {{/if}}
+
+                            </div>
+                        </td>
                         <td class="d-flex gap-2 flex-wrap">
-                            <a href="#" class="btn edit" style="color:#1916b3"
-                                onclick="openEditModal('{{this._id}}', '{{this.name}}','{{this.description}}')">Edit</a>
+                            {{!-- <a href="#" class="btn edit" style="color:#1916b3"
+                                onclick="openEditModal('{{this._id}}', '{{this.name}}','{{this.description}}')">Edit</a> --}}
+                                <button type="button" class="btn edit-btn" onclick="openEditModal('{{this._id}}', '{{this.name}}','{{this.description}}')">
+                                Edit
+                                </button>
                             {{#if this.isDeleted}}
-                            <a href="#" class="btn delete" style="color: rgb(20, 119, 3);"
-                                onclick="openUndoDeleteModal('{{this._id}}')">Undo Delete</a>
+                            {{!-- <a href="#" class="btn delete" style="color: rgb(20, 119, 3);"
+                                onclick="openUndoDeleteModal('{{this._id}}')">Undo Delete</a> --}}
+                                <button type="button" class="btn undo-delete-btn" onclick="openUndoDeleteModal('{{this._id}}')">
+                                Undo Delete
+                                </button>
                             {{else}}
-                            <a href="#" class="btn delete" style="color: red;"
-                                onclick="openDeleteModal('{{this._id}}')">Delete</a>
+                            {{!-- <a href="#" class="btn delete" style="color: red;"
+                                onclick="openDeleteModal('{{this._id}}')">Delete</a> --}}
+                                <button type="button" class="btn delete-btn" onclick="openDeleteModal('{{this._id}}')">
+                                Delete
+                                </button>
                             {{/if}}
                         </td>
                     </tr>
                     {{/each}}
                     {{else}}
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 20px;">No Brands found</td>
+                        <td colspan="6" style="text-align: center; padding: 20px;">No categories found</td>
                     </tr>
                     {{/if}}
                 </tbody>
@@ -1153,7 +1288,7 @@ function createBrandModal(brandName = '', description = '') {
 
 // Form submission handler
 
-  $('#addCategoryForm').on('submit', function (e) {
+$('#addCategoryForm').on('submit', function (e) {
     e.preventDefault();
 
     const categoryName = $('#addCategoryName').val().trim();
@@ -1180,7 +1315,6 @@ function createBrandModal(brandName = '', description = '') {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-       
       },
       body: JSON.stringify({ name:categoryName,
        description:categoryDescription
@@ -1215,9 +1349,7 @@ function createBrandModal(brandName = '', description = '') {
       .finally(() => {
         submitBtn.prop('disabled', false).text('Add');
       });
-  });
-
-
+});
 
 // Clear validation errors when user starts typing
 $('#addCategoryName, #addDescription').on('input', function() {
@@ -1227,14 +1359,13 @@ $('#addCategoryName, #addDescription').on('input', function() {
   }
 });
 
-
- // Open edit modal
+// Open edit modal
 function openEditModal(id, name, description) {
-      $('#editCategoryId').val(id);
-      $('#editCategoryName').val(name);
-      $('#editDescription').val(description);
-      $('#editCategoryModal').modal('show');
-    }
+    $('#editCategoryId').val(id);
+    $('#editCategoryName').val(name);
+    $('#editDescription').val(description);
+    $('#editCategoryModal').modal('show');
+}
 
 $('#editCategoryForm').on('submit', function (e) {
   e.preventDefault();
@@ -1263,7 +1394,6 @@ $('#editCategoryForm').on('submit', function (e) {
 });
 
 
-
 function openDeleteModal(id) {
   $('#deleteCategoryId').val(id);
   $('#deleteCategoryModal').modal('show');
@@ -1274,7 +1404,7 @@ $('#deleteCategoryForm').on('submit', function (e) {
   const id = $('#deleteCategoryId').val();
 
   fetch(`/admin/deleteCategory/${id}`, {
-    method: 'DELETE'
+    method: 'PATCH'
   })
   .then(res => res.json())
   .then(data => {
@@ -1297,7 +1427,7 @@ $('#undoDeleteCategoryForm').on('submit', function (e) {
   const id = $('#undoDeleteCategoryId').val();
 
   fetch(`/admin/undoDeleteCategory/${id}`, {
-    method: 'PUT'
+    method: 'PATCH'
   })
   .then(res => res.json())
   .then(data => {
@@ -1318,7 +1448,6 @@ function openAddOfferModal(id,name){
    $('#add-offer-error').text("").hide();
    $('#offerPercentage').val('')
    console.log(id)
-   
 }
 
 $('#addOfferForm').on('submit',function(e){
@@ -1352,6 +1481,7 @@ $('#addOfferForm').on('submit',function(e){
         Swal.fire('Error', 'Something went wrong!', 'error');
     });
 })
+
 function openRemoveOfferModal(id){
   $('#removeOfferCategoryId').val(id);
   $('#removeOfferModal').modal('show');
@@ -1376,12 +1506,6 @@ $('#removeOfferForm').on('submit',function(e){
     }
   });
 })
-
-
-
-
-
-
 
 
 // Block brand

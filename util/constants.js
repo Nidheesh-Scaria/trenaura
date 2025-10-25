@@ -1,6 +1,6 @@
 const MESSAGES = {
   INTERNAL_SERVER_ERROR: "Something went wrong. Please try again later.",
-  USER_NOT_FOUND:"User not found",
+  USER_NOT_FOUND: "User not found",
   PRODUCT_ADDED_SUCCESS: "Product added successfully",
   PRODUCT_EXISTS: "Product already exists, please try another name",
   MISSING_FIELDS: "Missing required fields",
@@ -11,53 +11,131 @@ const MESSAGES = {
   PRODUCT_NOT_FOUND: "Product not found",
   PRODUCT_UPDATED_SUCCESS: "Product updated successfully!",
   PRODUCT_DELETED: "Product deleted successfully!",
-
-  ALREADY_EXISTS:"Email or phone number already in use. Please use a different one.",
-  NO_REFERRAL_CODE:"No referral code found try valid one",
+  FILL_ALL_FIELDS: "Please fill all required fields",
+  STRT_END_DATE: "Start date and end date are required",
+  ALREADY_EXISTS:
+    "Email or phone number already in use. Please use a different one.",
+  NO_REFERRAL_CODE: "No referral code found try valid one",
   INVALID_OTP: "Invalid OTP, please try again",
   EXPIRED_SESSION: "Session expired. Please login again.",
 
   USERINFO: {
     EDIT_WITH_NEW_VALUE: "Please update with new values.",
     EDIT_SUCCESS: "Updated successfully",
-
   },
-  ADD_ADDRESS:{
-    SUCCESS:"Address added successfully",
+  ADD_ADDRESS: {
+    SUCCESS: "Address added successfully",
     MISSING_FIELDS: "Missing required fields",
-    ADDRESS_NOT_FOUND:"No address found, please add address",
+    ADDRESS_NOT_FOUND: "No address found, please add address",
   },
-  EDIT_ADDRESS:{
-    SUCCESS:"Address edited successfully",
+  EDIT_ADDRESS: {
+    SUCCESS: "Address edited successfully",
     MISSING_FIELDS: "Missing required fields",
-    DELETE_ADDRESS:"Deleted Successfully",
+    DELETE_ADDRESS: "Deleted Successfully",
   },
-  CHANGE_PASSWORD:{
-    MISMATCH:"New password and confirm password do not match",
+  CHANGE_PASSWORD: {
+    MISMATCH: "New password and confirm password do not match",
     INVALID_CURRENT_PASSWORD: "Current password is incorrect",
     SUCCESS: "Password changed successfully",
     SAME_PASSWORD: "New password cannot be the same as current password",
     INVALID_EMAIL: "Invalid email for the current user",
-    EMAIL_REQUIRED: "Email is required"
+    EMAIL_REQUIRED: "Email is required",
   },
-  CART:{
-    CART_EMPTY:"Cart is empty",
-    QUANTITY_INCREASE:"Quantity incresed by one",
-    QUANTITY_DECREASE:"Quantity decresed by one",
-    ITEM_DELETED:"Item removed from your shopping bag",
-    IREM_NOT_FOUND:"Item not found in cart",
-    CART_NOT_FOUND:"Cart not found"
+  CART: {
+    CART_EMPTY: "Cart is empty",
+    QUANTITY_INCREASE: "Quantity incresed by one",
+    QUANTITY_DECREASE: "Quantity decresed by one",
+    ITEM_DELETED: "Item removed from your shopping bag",
+    ITEM_NOT_FOUND: "Item not found in cart",
+    CART_NOT_FOUND: "Cart not found",
+    QUANTITY_LIMIT: "Sorry, quantity is limited to 5",
+    LESS_THAN_STOCK:
+      "Quantity should be less than the total stock of the product",
+    MINIMUM_QTY: "Minimum quantity is 1",
   },
-  WISHLIST:{
-    WISHLIST_EMPTY:"Wishlist is empty",
-    ITEM_DELETED:"Item removed from your wishlist",
-    WISHLISTED:"Product added to wishlist"
+  WISHLIST: {
+    WISHLIST_EMPTY: "Wishlist is empty",
+    ITEM_DELETED: "Item removed from your wishlist",
+    WISHLISTED: "Product added to wishlist",
+    ALREADY_EXISTS: "Already in wishlist",
   },
-  PAYMENT:{
-    PAYMENT_METHOD_INVALID:"Invalid payment method",
-
+  PAYMENT: {
+    PAYMENT_METHOD_INVALID: "Invalid payment method",
   },
-
+  COUPON: {
+    INVALID_COUPON: "Invalid coupon or inactive coupon",
+    COUPON_EXPIRED: "Sorry the coupon expired",
+    USAGE_LIMIT: "Coupon usage limit reached",
+    NO_COUPON: "No coupon Applied",
+    COUPON_REMOVED: "Coupon removed Successfully",
+    COUPON_EXISTS: "Coupon already exists",
+    COUPON_ADDED: "Coupon addedd successfuly",
+    COUPON_DLTD: "Coupon deleted successfuly",
+    COUPON_UPDTD: "Coupon updated successfuly",
+  },
+  ORDER: {
+    NOT_FOUND: "Order not found",
+    RETURN_INITIATED: "Return request initiated",
+    ORDER_PLACED: "Order placed successfully",
+    STATS_CHNGD: "Status changed",
+    PYMNT_CHNG_ERR: "Something wrong in payment change (payment keyword)",
+    PYMNT_CHNG_SCSS: "Payment status changed",
+    RTRN_ACCPTD: "Return request accepted",
+    RTRN_RJCTD: "Return request rejected",
+    REFND_SCSS: "Refund successfull",
+  },
+  WALLET: {
+    INSUFFICIENT_BALANCE: "Insufficient wallet balance",
+  },
+  RAZORPAY: {
+    NOT_FOUND_AT_VERIFICATION: "Order not found while verifying payment",
+    VERIFIED: "Payment verified successfully",
+    VERIFICATION_FAILED: "Payment verification failed",
+    INVALID_SIGN: "Invalid payment signature",
+  },
+  LOGIN: {
+    OTP_SENT: "OTP sent successfully. Redirecting to verification page...",
+    OTP_RESENT: "OTP resent successfully",
+    OTP_RESENT_FAILED: "Failed to resend OTP. Please try again",
+    OTP_EXPIRED: "OTP expired. Please resend OTP",
+    OTP_INVALID: "Invalid OTP. Please try again.",
+    NO_REFERRAL_CODE: "No referral code found",
+    NO_MAIL_ID: "Email not found",
+    NO_ACCOUNT: "No account found with this email address.",
+    FAILED_SENT_EMAIL: "Failed to send email. Try again later.",
+    PASSWORD_MISMATCH: "Passwords do not match.",
+    SESSION_EXPIRED: "User session expired. Please log in again.",
+    PASSWORD_CHANGE_SUCCESS: "Password changed successfully.",
+    PASSWORD_CHANGE_FAILURE: "Password not updated. Try a new password.",
+  },
+  BRAND: {
+    NAME_REQUIRED: "Name and description are required",
+    CATEGORY_EXISTS: "Category already exist",
+    BRAND_ADDED: "Brand added successfully",
+    BRAND_UPDATED: "Brand updated successfully",
+    BRAND_DELETED: "Brand deleted successfully",
+    BRAND_UNDO_DELETED: "Brand recovered successfully",
+  },
+  CATEGORY: {
+    CATEGORY_ADDED: "Category added successfully",
+    CATEGORY_UPDATED: "Category updated successfully",
+    CATEGORY_DELETED: "Category deleted successfully",
+    CATEGORY_UNDO_DELETED: "Category recovered successfully",
+    CATEGORY_EXISTS: "Category already exist",
+    UPDATED: "Category updated successfully!",
+    PERCENTAGE: "Percentage is mandatory",
+    CATEGORY_NOT_FOUND: "Category not found",
+    PERCENTAGE_ERROR: "Percentage must be a valid number between 1 and 100",
+    OFFER_ADDED: "Offer added successfully",
+    OFFER_REMVD: "Offer removed successfully",
+  },
+  PRODUCT: {
+    STOCK_ERR: "At least one size must have stock",
+    PERCENTAGE_ERR: "Percentage must be a valid number between 1 and 100",
+    NOT_FOUND: "Product not found",
+    OFFER_ADDED: "Offer added successfully",
+    OFFER_REMVD: "Offer removed successfully",
+  },
 };
 
 module.exports = { MESSAGES };

@@ -112,7 +112,7 @@ const addWishlist = async (req, res) => {
       );
       if (alreadyExists) {
         return res.status(httpStatus.OK).json({
-          message: "Already in wishlist",
+          message: MESSAGES.WISHLIST.ALREADY_EXISTS || "Already in wishlist",
           wishlistCount: wishlist.products.length,
         });
       }
@@ -128,10 +128,12 @@ const addWishlist = async (req, res) => {
     await wishlist.save();
 
     const wishlistCount = wishlist.products.length;
-    console.log(wishlistCount);
-    return res
-      .status(httpStatus.OK)
-      .json({ message: MESSAGES.WISHLIST.WISHLISTED, wishlistCount });
+
+    return res.status(httpStatus.OK).json({
+      success: true,
+      message: MESSAGES.WISHLIST.WISHLISTED,
+      wishlistCount,
+    });
   } catch (error) {
     console.error("Error in adding wishlist:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -156,9 +158,10 @@ const removeFromWishlist = async (req, res) => {
     const wishlist = await Wishlist.findOne({ userId }).lean();
     const wishlistCount = wishlist ? wishlist.products.length : 0;
 
-    return res
-      .status(httpStatus.OK)
-      .json({ message: MESSAGES.WISHLIST.ITEM_DELETED || "Deleted", wishlistCount});
+    return res.status(httpStatus.OK).json({
+      message: MESSAGES.WISHLIST.ITEM_DELETED || "Deleted",
+      wishlistCount,
+    });
   } catch (error) {
     console.error("Error in deleting wishlist item:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({

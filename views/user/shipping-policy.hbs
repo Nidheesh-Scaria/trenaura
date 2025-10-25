@@ -1,0 +1,263 @@
+<head>
+
+<style>
+    /* Base Reset */
+    * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    }
+
+    /* Primary Styles */
+    body {
+    font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif; /* Clean, professional font */
+    background-color: #f8f9fa; /* Very light gray background */
+    color: #343a40; /* Dark text for high readability */
+    line-height: 1.7;
+    font-size: 16px;
+    }
+
+    /* Shipping Policy Wrapper */
+    .shipping-policy {
+    padding: 40px 20px;
+    }
+
+    /* Container */
+    .shipping-policy .container {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: #ffffff; /* White card background */
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Subtle, modern shadow */
+    padding: 30px 40px;
+    }
+
+    /* Headings */
+    .shipping-policy h1 {
+    font-size: 2.5rem;
+    margin-bottom: 25px;
+    text-align: center;
+    color: #233c79; /* Primary brand color */
+    font-weight: 700;
+    border-bottom: 2px solid #e9ecef; /* Light separator */
+    padding-bottom: 15px;
+    }
+
+    .shipping-policy h2 {
+    margin-top: 2.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #212529;
+    border-bottom: 2px solid #233c79; /* Highlighted section separator */
+    padding-bottom: 8px;
+    margin-bottom: 1rem;
+    }
+
+    /* Paragraphs */
+    .shipping-policy p {
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+    color: #495057;
+    }
+
+    /* Tables - Professional & Clean */
+    .shipping-policy table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+    border-radius: 6px;
+    overflow: hidden; /* Ensures rounded corners work for the table */
+    }
+
+    .shipping-policy th,
+    .shipping-policy td {
+    border: none; /* Remove default table borders */
+    padding: 12px 15px;
+    text-align: left;
+    font-size: 0.95rem;
+    }
+
+    .shipping-policy th {
+    background-color: #233c79; /* Primary color background for header */
+    color: #ffffff;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    }
+
+    .shipping-policy tr:nth-child(even) {
+    background-color: #f8f9fa; /* Zebra striping for readability */
+    }
+
+    .shipping-policy td {
+    border-bottom: 1px solid #dee2e6;
+    }
+
+    /* Lists - Custom Styling for better visual appeal */
+    .shipping-policy ul {
+    list-style-type: none; /* Remove default marker */
+    padding-left: 0;
+    margin-bottom: 2rem;
+    }
+
+    .shipping-policy ul li {
+    position: relative;
+    padding-left: 25px;
+    margin-bottom: 10px;
+    color: #495057;
+    font-size: 1rem;
+    }
+
+    .shipping-policy ul li::before {
+    content: "•"; /* Custom bullet */
+    color: #233c79; /* Primary color */
+    font-weight: bold;
+    display: inline-block;
+    position: absolute;
+    left: 0;
+    font-size: 1.2em;
+    line-height: 1;
+    }
+
+    /* Links */
+    .shipping-policy a {
+    color: #1575ce;
+    text-decoration: none;
+    transition: color 0.3s;
+    }
+
+    .shipping-policy a:hover {
+    color: #233c79;
+    text-decoration: underline;
+    }
+
+    /* Thank You Message */
+    .shipping-policy .thank-you {
+    text-align: center;
+    font-weight: 700;
+    margin-top: 4rem;
+    font-size: 1.25rem;
+    color: #233c79; /* Success/positive color */
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+    .shipping-policy .container {
+        padding: 20px;
+        margin: 0 10px;
+    }
+
+    .shipping-policy h1 {
+        font-size: 2rem;
+    }
+
+    .shipping-policy h2 {
+        font-size: 1.3rem;
+    }
+
+    .shipping-policy th,
+    .shipping-policy td {
+        padding: 10px;
+    }
+    }
+
+    @media (max-width: 480px) {
+    .shipping-policy h1 {
+        font-size: 1.6rem;
+    }
+    .shipping-policy h2 {
+        font-size: 1.2rem;
+    }
+    }
+</style>
+</head>
+
+<section class="shipping-policy">
+  <div class="container">
+    <h1>Shipping Policy</h1>
+    <p>At TRENAURA, we ensure a smooth shopping experience. Please review our shipping policy for details on procedures and timelines.</p>
+
+    <h2>Domestic Shipping</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Accept</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Processing Time</td>
+          <td>Orders are processed within 1–3 working days.</td>
+        </tr>
+        <tr>
+          <td>Processing Days</td>
+          <td>No processing is done on weekends or public holidays.</td>
+        </tr>
+        <tr>
+          <td>Delay Notifications</td>
+          <td>We will notify you of any unforeseen delays.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Tracking Your Order</h2>
+    <ul>
+      <li>You will receive a shipping confirmation with a tracking ID once dispatched.</li>
+      <li>Track your order via your account or the link sent through WhatsApp.</li>
+    </ul>
+
+    <h2>Damages & Lost Shipments</h2>
+    <ul>
+      <li>For damaged products, contact our support team to file a claim.</li>
+      <li>Keep all packaging materials for verification.</li>
+    </ul>
+
+    <h2>Out of Stock</h2>
+    <ul>
+      <li>If an item is unavailable, we will contact you within 2 business days to discuss options.</li>
+      <li>Refunds for cancellations will be processed within 7 business days.</li>
+    </ul>
+
+    <h2>Return Policy</h2>
+    <ul>
+      <li>All products undergo quality checks and are guaranteed to be genuine and new.</li>
+      <li>We offer a 7-day return policy for manufacturing defects or dissatisfaction.</li>
+      <li>No replacements are provided except in out-of-stock situations.</li>
+    </ul>
+
+    <h2>Conditions for Product Return</h2>
+    <ul>
+      <li>Products must be in original condition with all accessories.</li>
+      <li>No scratches or modifications are allowed.</li>
+    </ul>
+
+    <h2>Non-Returnable Items</h2>
+    <ul>
+      <li>Items damaged due to misuse or mishandling are not returnable.</li>
+    </ul>
+
+    <h2>Refund Process</h2>
+    <ul>
+      <li>Refunds will be processed within 7 business days after the return is received.</li>
+      <li>Refunds will be issued to the original payment method.</li>
+    </ul>
+
+    <h2>Pricing & Taxes</h2>
+    <ul>
+      <li>Prices may change without notice.</li>
+      <li>Orders are billed at the price at the time of purchase.</li>
+      <li>All products are subject to GST as per Indian tax regulations.</li>
+    </ul>
+
+    <h2>International Shipping</h2>
+    <ul>
+      <li>We currently do not offer international shipping.</li>
+      <li>For inquiries, contact our support team at <a href="mailto:support@trenaura.com">support@trenaura.com</a>.</li>
+    </ul>
+
+    <p class="thank-you">Thank you for shopping with TRENAURA!</p>
+  </div>
+</section>
+
+

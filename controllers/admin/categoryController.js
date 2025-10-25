@@ -75,7 +75,8 @@ const addCategory = async (req, res) => {
   if (!name || !description) {
     return res.status(httpStatus.BAD_REQUEST).json({
       success: false,
-      error: "Name and description are required",
+      error:
+        MESSAGES.BRAND.NAME_REQUIRED || "Name and description are required",
     });
   }
 
@@ -90,7 +91,7 @@ const addCategory = async (req, res) => {
     if (existingCategory) {
       return res.status(httpStatus.BAD_REQUEST).json({
         success: false,
-        error: "Category already exists",
+        error: MESSAGES.BRAND.CATEGORY_EXISTS || "Category already exists",
       });
     }
 
@@ -106,7 +107,8 @@ const addCategory = async (req, res) => {
 
     return res.status(httpStatus.OK).json({
       success: true,
-      message: "Category added successfully",
+      message:
+        MESSAGES.CATEGORY.CATEGORY_ADDED || "Category added successfully",
       category: {
         id: newCategory._id,
         name: newCategory.name,
@@ -116,7 +118,7 @@ const addCategory = async (req, res) => {
     console.error("Error adding category:", error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      error: "Internal server error",
+      error: MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error",
       details:
         process.env.NODE_ENV === "development" ? error.message : undefined,
     });
@@ -159,21 +161,24 @@ const editCategory = async (req, res) => {
     const sameName = await categorySchema.find({ name, _id: { $ne: id } });
 
     if (sameName.length > 0) {
-      res
-        .status(httpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: "Category already exists" });
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: MESSAGES.CATEGORY.CATEGORY_EXISTS || "Category already exists",
+      });
     }
 
     await categorySchema.findByIdAndUpdate(id, { $set: { name, description } });
 
-    res
-      .status(200)
-      .json({ success: true, message: "Category updated successfully!" });
+    res.status(200).json({
+      success: true,
+      message: MESSAGES.CATEGORY.UPDATED || "Category updated successfully!",
+    });
   } catch (error) {
     console.error("Edit error:", error);
-    res
-      .status(httpStatus.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: "Internal server error" });
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error",
+    });
   }
 };
 
@@ -193,7 +198,12 @@ const deleteCategory = async (req, res) => {
 
     res
       .status(httpStatus.OK)
-      .json({ success: true, message: "Category deleted successfully!" });
+      .json({
+        success: true,
+        message:
+          MESSAGES.CATEGORY.CATEGORY_DELETED ||
+          "Category deleted successfully!",
+      });
   } catch (error) {
     console.error("Delete error:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -219,7 +229,12 @@ const undoDeleteCategory = async (req, res) => {
 
     res
       .status(httpStatus.OK)
-      .json({ success: true, message: "Category recovered successfully!" });
+      .json({
+        success: true,
+        message:
+          MESSAGES.CATEGORY.CATEGORY_UNDO_DELETED ||
+          "Category recovered successfully!",
+      });
   } catch (error) {
     console.error("Delete error:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -236,7 +251,11 @@ const addCategoryOffer = async (req, res) => {
     if (!id || !percentage) {
       return res
         .status(httpStatus.BAD_REQUEST)
-        .json({ success: false, message: "Percentage is mandatory" });
+        .json({
+          success: false,
+          message:
+            MESSAGES.CATEGORY.PERCENTAGE_ERROR || "Percentage is mandatory",
+        });
     }
 
     percentage = Number(percentage);
@@ -244,7 +263,9 @@ const addCategoryOffer = async (req, res) => {
     if (isNaN(percentage) || percentage < 1 || percentage > 100) {
       return res.json({
         success: false,
-        message: "Percentage must be a valid number between 1 and 100 ",
+        message:
+          MESSAGES.CATEGORY.PERCENTAGE_ERROR ||
+          "Percentage must be a valid number between 1 and 100 ",
       });
     }
 
@@ -252,7 +273,10 @@ const addCategoryOffer = async (req, res) => {
     if (!category) {
       return res
         .status(httpStatus.BAD_REQUEST)
-        .json({ success: false, message: "Category not found" });
+        .json({
+          success: false,
+          message: MESSAGES.CATEGORY.CATEGORY_NOT_FOUND || "Category not found",
+        });
     }
 
     await Category.findByIdAndUpdate(id, {
@@ -279,7 +303,10 @@ const addCategoryOffer = async (req, res) => {
 
     return res
       .status(httpStatus.OK)
-      .json({ success: true, message: "Offer added successfully" });
+      .json({
+        success: true,
+        message: MESSAGES.CATEGORY.OFFER_ADDED || "Offer added successfully",
+      });
   } catch (error) {
     console.error("addOffer error:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -314,7 +341,10 @@ const removeCategoryOffer = async (req, res) => {
 
     return res
       .status(httpStatus.OK)
-      .json({ success: true, message: "Offer removed successfully" });
+      .json({
+        success: true,
+        message: MESSAGES.CATEGORY.OFFER_REMVD || "Offer removed successfully",
+      });
   } catch (error) {
     console.error("removeOffer error:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({

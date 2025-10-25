@@ -1347,12 +1347,17 @@ button[type="button"]:hover {
             <h3 style="color: #209f00;">
               <strong>{{this.status}}</strong> on {{this.date}}
             </h3>
-            
-            {{#if (and (eq ../returnRequest.isUserRequested true) (eq ../returnRequest.isAdminApproved false))}}
-              <h3 style="color: red;">Return initiated</h3>
-
-            {{else if ../returnRequest.isAdminApproved}}
-              <h3 style="color: red;">Return accepted by admin</h3>
+          
+            {{!-- {{#if (and (eq this.returnRequest.isUserRequested true) (eq this.returnRequest.isAdminApproved false))}} --}}
+            {{#if (eq ../returnRequest.isUserRequested true)}}
+              <h3 style="color: red; font-weight: 700;">Return initiated</h3>
+             
+              <h5 style="color: red;">Reason for Return :{{../returnRequest.reason}}</h5>
+            {{else}}
+              <button class="btn-return" onclick="returnOrder(event,'{{../_id}}')">Return</button>
+            {{/if}}
+            {{#if (eq ../returnRequest.isAdminApproved true)}}
+              <h3 style="color: red; font-weight: 700;">Return accepted by admin</h3>
 
               {{#if (eq ../returnRequest.refundStatus true)}}
                 <h5 style="color: red;">Refund status: Refunded accepted</h5>
@@ -1362,8 +1367,7 @@ button[type="button"]:hover {
                 <h5 style="color: red;">Refund status: Pending</h5>
               {{/if}}
 
-            {{else}}
-              <button class="btn-return" onclick="returnOrder(event,'{{../_id}}')">Return</button>
+            
             {{/if}}
 
           {{/if}}

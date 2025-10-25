@@ -112,15 +112,17 @@ const signup = async (req, res) => {
 const verifySignupOtp = async (req, res) => {
   try {
     const { otp } = req.body;
-    console.log("Entered Otp: ", otp);
-    console.log("Session OTP:", req.session.userOtp);
 
     if (Date.now() > req.session.otpExpiresAt) {
       delete req.session.userOtp;
       delete req.session.otpExpiresAt;
       return res
         .status(httpStatus.BAD_REQUEST)
-        .json({ success: false, message: "OTP expired. Please resend OTP." });
+        .json({
+          success: false,
+          message:
+            MESSAGES.LOGIN.OTP_EXPIRED || "OTP expired. Please resend OTP.",
+        });
     }
 
     if (String(otp) === String(req.session.userOtp)) {
@@ -157,14 +159,15 @@ const verifySignupOtp = async (req, res) => {
         } else {
           return res
             .status(httpStatus.BAD_REQUEST)
-            .json({ message: "No referral code found" });
+            .json({
+              message:
+                MESSAGES.LOGIN.NO_REFERRAL_CODE || "No referral code found",
+            });
         }
       }
 
       req.session.user = saveUserData._id;
       req.session.isLoggedIn = true;
-
-      console.log("User registered successfully.");
 
       // res.redirect("/");
       res.status(httpStatus.OK).json({ success: true, redirectUrl: "/" });
@@ -196,7 +199,10 @@ const resendSignupOtp = async (req, res) => {
     if (!email) {
       return res
         .status(httpStatus.BAD_REQUEST)
-        .json({ success: false, message: "Email not found in session" });
+        .json({
+          success: false,
+          message: MESSAGES.LOGIN.NO_MAIL_ID || "Email not found in session",
+        });
     }
 
     const otp = generateOtp();
@@ -210,11 +216,16 @@ const resendSignupOtp = async (req, res) => {
       // req.session.touch(); // Refresh session
       res
         .status(httpStatus.OK)
-        .json({ success: true, message: "OTP resent successfully" });
+        .json({
+          success: true,
+          message: MESSAGES.LOGIN.OTP_RESENT || "OTP resent successfully",
+        });
     } else {
       res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to resend OTP. Please try again.",
+        message:
+          MESSAGES.LOGIN.OTP_RESENT_FAILED ||
+          "Failed to resend OTP. Please try again.",
       });
     }
   } catch (error) {
@@ -316,6 +327,36 @@ const loadHomepage = async (req, res) => {
       .limit(12)
       .lean();
 
+    //for trending products
+
+    const trendingProducts = await Order.aggregate([
+      { $unwind: "$orderedItems" },
+      {
+        $group: {
+          _id: "$orderedItems.productId",
+          totalQuantity: { $sum: "$orderedItems.quantity" },
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "_id",
+          as: "products",
+        },
+      },
+      { $unwind: "$products" },
+      {
+        $project: {
+          _id: 0,
+          products: 1,
+          totalQuantity: 1,
+        },
+      },
+      { $sort: { totalQuantity: -1 } },
+      { $limit: 12 },
+    ]);
+
     const randomImages = (images) => {
       if (!images || images.length == 0) return null;
       const randomIndex = Math.floor(Math.random() * images.length);
@@ -339,6 +380,7 @@ const loadHomepage = async (req, res) => {
       adminHeader: true,
       products: productData,
       wishlistProducts,
+      trendingProducts,
       mensImg: mensProduct?.productImages?.[0]
         ? `/images/${randomImages(mensProduct.productImages)}`
         : "default.jpg",
@@ -367,13 +409,16 @@ const loadShop = async (req, res) => {
       sort,
       search,
       page = 1,
-      limit = 12,
+      limit = 21,
     } = req.query;
+
+    const currentPage = parseInt(page) || 1;
+    const perPage = parseInt(limit) || 3;
+    const skip = (currentPage - 1) * perPage;
 
     let isFilter = false;
     let categoryName;
     let brandName;
-    const skip = (page - 1) * limit;
 
     let filter = {
       isBlocked: false,
@@ -382,15 +427,19 @@ const loadShop = async (req, res) => {
       size: { $ne: [] },
     };
 
+    //Category filter
     if (category && category !== "all") {
-      categoryName = await Category.findById(category).lean();
-      categoryName = categoryName.name;
-      filter.category = category;
-      isFilter = true;
+      const categoryDoc = await Category.findById(category).lean();
+      if (categoryDoc) {
+        categoryName = categoryDoc.name;
+        filter.category = category;
+        isFilter = true;
+      }
     }
 
+    //Price filter
     if (price) {
-      let priceRange = price.split("-");
+      const priceRange = price.split("-");
       if (priceRange.length === 2) {
         filter.salePrice = {
           $gte: parseInt(priceRange[0]),
@@ -402,6 +451,7 @@ const loadShop = async (req, res) => {
       isFilter = true;
     }
 
+    //Brand filter
     let selectedBrands = [];
     let brandNames = [];
 
@@ -420,13 +470,14 @@ const loadShop = async (req, res) => {
       isFilter = true;
     }
 
+    // Search filter
     if (search && search.trim() !== "") {
+      filter.productName = { $regex: search.trim(), $options: "i" };
       isFilter = true;
-      filter.productName = { $regex: search, $options: "i" };
     }
 
+    // Sort options
     let sortOption = {};
-
     switch (sort) {
       case "low-high":
         sortOption.salePrice = 1;
@@ -441,19 +492,27 @@ const loadShop = async (req, res) => {
         sortOption = {};
     }
 
+    // Pagination
     const totalProducts = await Product.countDocuments(filter);
-    const totalPages = Math.ceil(totalProducts / limit);
+    const totalPages = Math.ceil(totalProducts / perPage);
 
     const products = await Product.find(filter)
       .sort(sortOption)
       .skip(skip)
-      .limit(parseInt(limit))
+      .limit(perPage)
       .lean();
 
+    // Pagination pages array
+    const pages = [];
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push(i);
+    }
+
+    //Fetch categories and brands
     const categories = await Category.find({ isListed: true }).lean();
     const brands = await Brand.find({ isBlocked: false }).lean();
-    
-    //cheking wishlist
+
+    // Wishlist check
     let wishlistProducts = [];
     if (user) {
       const wishlist = await Wishlist.findOne({ userId: user });
@@ -464,6 +523,7 @@ const loadShop = async (req, res) => {
       }
     }
 
+    // Final render
     return res.render("user/shop", {
       title: "Trenaura - Shop page",
       isLoggedIn: !!user,
@@ -476,16 +536,26 @@ const loadShop = async (req, res) => {
       brand: brandNames,
       search,
       sort,
-      currentPage: parseInt(page),
+      currentPage,
       totalPages,
+      pages,
       isFilter,
       wishlistProducts,
+      hasPrevPage: currentPage > 1,
+      hasNextPage: currentPage < totalPages,
+      prevPage: currentPage - 1,
+      nextPage: currentPage + 1,
+      query: req.query,
     });
   } catch (error) {
     console.error("Error in rendering shop page:", error);
     res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
-      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
+      .json({
+        success: false,
+        message: MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error",
+        error: error.message,
+      });
   }
 };
 
@@ -563,7 +633,9 @@ const logout = async (req, res) => {
     req.session.destroy((err) => {
       if (err) {
         console.error("Error destroying session:", err);
-        return res.status(500).send("Server error");
+        return res
+          .status(httpStatus.INTERNAL_SERVER_ERROR)
+          .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
       }
       res.redirect("/login");
     });
@@ -608,34 +680,56 @@ const forgotPasswordOtp = async (req, res) => {
 
     const user = await userSchema.findOne({ email });
     if (!user) {
-      return res
-        .status(httpStatus.NOT_FOUND)
-        .json({ success: false, message: "User not found with this email" });
+      return res.status(httpStatus.BAD_REQUEST).json({
+        success: false,
+        message:
+          MESSAGES.LOGIN.NO_ACCOUNT ||
+          "No account found with this email address.",
+      });
     }
 
     const otp = generateOtp();
 
     const emailSent = await sendVerificationEmail(email, otp);
     if (!emailSent) {
-      return res
-        .status(httpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: "Failed to send email" });
+      return res.status(500).json({
+        success: false,
+        message:
+          MESSAGES.LOGIN.FAILED_SENT_EMAIL ||
+          "Failed to send email. Try again later.",
+      });
     }
 
     req.session.userOtp = otp;
-    req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000; // 5 mins
+    req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000;
     req.session.userData = { email };
 
     console.log("OTP sent:", otp);
 
-    res.render("user/verifyOtpPswd", {
+    return res.status(200).json({
+      success: true,
+      message: MESSAGES.LOGIN.OTP_SENT || "OTP sent successfully.",
+      redirectUrl: "/verifyOtpPswd",
+    });
+  } catch (error) {
+    console.error("Error in forgotPasswordOtp:", error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: MESSAGES.INTERNAL_SERVER_ERROR || "Internal Server Error",
+    });
+  }
+};
+
+const renderOtpForPswrdChange = async (req, res) => {
+  try {
+    return res.render("user/verifyOtpPswd", {
       title: "Trenaura Verify OTP",
       hideHeader: true,
       hideFooter: true,
       adminHeader: true,
     });
   } catch (error) {
-    console.error("Error in forgotPasswordOtp:", error);
+    console.error("Error in rendering login page:", error);
     res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
@@ -651,7 +745,11 @@ const verifyForgotPasswordOtp = async (req, res) => {
     if (!sessionOtp || !otpExpiresAt) {
       return res
         .status(httpStatus.BAD_REQUEST)
-        .json({ success: false, message: "OTP session expired or invalid." });
+        .json({
+          success: false,
+          message:
+            MESSAGES.LOGIN.OTP_EXPIRED || "OTP session expired or invalid.",
+        });
     }
 
     if (Date.now() > otpExpiresAt) {
@@ -659,7 +757,9 @@ const verifyForgotPasswordOtp = async (req, res) => {
       delete req.session.otpExpiresAt;
       return res.status(httpStatus.BAD_REQUEST).json({
         success: false,
-        message: "OTP expired. Please request a new one.",
+        message:
+          MESSAGES.LOGIN.OTP_EXPIRED ||
+          "OTP expired. Please request a new one.",
       });
     }
 
@@ -672,13 +772,20 @@ const verifyForgotPasswordOtp = async (req, res) => {
     } else {
       return res
         .status(httpStatus.BAD_REQUEST)
-        .json({ success: false, message: "Invalid OTP. Please try again." });
+        .json({
+          success: false,
+          message:
+            MESSAGES.LOGIN.OTP_INVALID || "Invalid OTP. Please try again.",
+        });
     }
   } catch (error) {
     console.error("Error in verifyForgotPasswordOtp:", error);
     res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: "An error occurred." });
+      .json({
+        success: false,
+        message: MESSAGES.INTERNAL_SERVER_ERROR || "An error occurred.",
+      });
   }
 };
 
@@ -705,7 +812,11 @@ const changePassword = async (req, res) => {
     if (password !== confirmPassword) {
       return res
         .status(httpStatus.BAD_REQUEST)
-        .json({ success: false, message: "Passwords do not match." });
+        .json({
+          success: false,
+          message:
+            MESSAGES.LOGIN.PASSWORD_MISMATCH || "Passwords do not match.",
+        });
     }
 
     const user = req.session.userData;
@@ -713,7 +824,9 @@ const changePassword = async (req, res) => {
     if (!user || !user.email) {
       return res.status(httpStatus.UNAUTHORIZED).json({
         success: false,
-        message: "User session expired. Please log in again.",
+        message:
+          MESSAGES.LOGIN.SESSION_EXPIRED ||
+          "User session expired. Please log in again.",
       });
     }
 
@@ -726,13 +839,13 @@ const changePassword = async (req, res) => {
 
     if (passwordChange.modifiedCount > 0) {
       req.session.save(() => {
-        console.log("Session saved.");
         res.status(httpStatus.OK).json({
           success: true,
-          message: "Password changed successfully.",
+          message:
+            MESSAGES.LOGIN.PASSWORD_MISMATCH ||
+            "Password changed successfully.",
           redirectUrl: "/login",
         });
-        console.log("Password changed successfully.");
       });
     } else {
       console.log(
@@ -740,14 +853,18 @@ const changePassword = async (req, res) => {
       );
       res.status(httpStatus.BAD_REQUEST).json({
         success: false,
-        message: "Password not updated. Try a new password.",
+        message:
+          MESSAGES.LOGIN.PASSWORD_CHANGE_FAILURE ||
+          "Password not updated. Try a new password.",
       });
     }
   } catch (error) {
     console.error("Error in changing the password:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "An error occurred. Please try again later.",
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
     });
   }
 };
@@ -757,7 +874,8 @@ const resendPswrdOtp = async (req, res) => {
     if (!req.session.userData) {
       return res.status(httpStatus.BAD_REQUEST).json({
         success: false,
-        message: "Session expired. Please login again.",
+        message:
+          MESSAGES.SESSION_EXPIRED || "Session expired. Please login again.",
       });
     }
 
@@ -766,7 +884,10 @@ const resendPswrdOtp = async (req, res) => {
     if (!email) {
       return res
         .status(httpStatus.BAD_REQUEST)
-        .json({ success: false, message: "Email not found in session" });
+        .json({
+          success: false,
+          message: MESSAGES.LOGIN.NO_MAIL_ID || "Email not found in session",
+        });
     }
 
     const otp = generateOtp();
@@ -780,18 +901,25 @@ const resendPswrdOtp = async (req, res) => {
       // req.session.touch(); // Refresh session
       res
         .status(httpStatus.OK)
-        .json({ success: true, message: "OTP resent successfully" });
+        .json({
+          success: true,
+          message: MESSAGES.LOGIN.OTP_RESENT || "OTP resent successfully",
+        });
     } else {
       res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to resend OTP. Please try again.",
+        message:
+          MESSAGES.LOGIN.OTP_RESENT_FAILED ||
+          "Failed to resend OTP. Please try again.",
       });
     }
   } catch (error) {
     console.error("Error resending OTP", error.message);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Internal server error. Please try later.",
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "Internal server error. Please try later.",
     });
   }
 };
@@ -807,9 +935,9 @@ const productDetails = async (req, res) => {
     })
       .populate("category", "name")
       .lean();
-    
+
     if (!productDoc || productDoc === null) {
-      return res.redirect("/pageNotFound")
+      return res.redirect("/pageNotFound");
     }
 
     const product = {
@@ -873,196 +1001,7 @@ const productDetails = async (req, res) => {
   }
 };
 
-const mensCategory = async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 12;
-    const skip = (page - 1) * limit;
-
-    const categories = await Category.find({
-      isListed: true,
-      isDeleted: false,
-      name: { $regex: "Mens" },
-    });
-    const brand = await Brand.find({ isBlocked: false });
-
-    const categoryIds = categories.map((cat) => cat._id);
-    const brandIds = brand.map((brand) => brand._id);
-
-    const totalProducts = await Product.countDocuments({
-      isBlocked: false,
-      isDeleted: false,
-      isActive: true,
-      category: { $in: categoryIds },
-      brand: { $in: brandIds },
-      size: { $ne: [] },
-    });
-
-    const totalPages = Math.ceil(totalProducts / limit);
-
-    let productData = await Product.find({
-      isDeleted: false,
-      isBlocked: false,
-      isActive: true,
-      category: { $in: categoryIds },
-      brand: { $in: brandIds },
-      size: { $ne: [] },
-    })
-      .skip(skip)
-      .limit(limit);
-
-    productData = productData.map((product) => {
-      return {
-        ...product._doc,
-        firstImage:
-          product.productImages && product.productImages.length > 0
-            ? product.productImages[0]
-            : "default.jpg",
-      };
-    });
-
-    res.render("user/mens", {
-      title: "Mens Category",
-      adminHeader: true,
-      hideFooter: true,
-      products: productData,
-      currentPage: page,
-      totalPages: totalPages,
-    });
-  } catch (error) {
-    console.error("Error in rendering mens category:", error);
-    res
-      .status(httpStatus.INTERNAL_SERVER_ERROR)
-      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
-  }
-};
-
-const womensCategory = async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 12;
-    const skip = (page - 1) * limit;
-
-    const categories = await Category.find({
-      isListed: true,
-      isDeleted: false,
-      name: { $regex: "Womens", $options: "i" },
-    });
-
-    const brand = await Brand.find({ isBlocked: false });
-    const brandIds = brand.map((brand) => brand._id);
-    const categoryIds = categories.map((cat) => cat._id);
-
-    const totalProducts = await Product.countDocuments({
-      isBlocked: false,
-      isDeleted: false,
-      isActive: true,
-      category: { $in: categoryIds },
-      brand: { $in: brandIds },
-      size: { $ne: [] },
-    });
-
-    const totalPages = Math.ceil(totalProducts / limit);
-
-    let productData = await Product.find({
-      isBlocked: false,
-      isDeleted: false,
-      isActive: true,
-      category: { $in: categoryIds },
-      brand: { $in: brandIds },
-      size: { $ne: [] },
-    })
-      .skip(skip)
-      .limit(limit);
-
-    productData = productData.map((product) => {
-      return {
-        ...product._doc,
-        firstImage:
-          product.productImages && product.productImages.length > 0
-            ? product.productImages[0]
-            : "default.jpg",
-      };
-    });
-
-    res.render("user/womens", {
-      title: "Mens Category",
-      adminHeader: true,
-      hideFooter: true,
-      products: productData,
-      currentPage: page,
-      totalPages: totalPages,
-    });
-  } catch (error) {
-    console.error("Error in rendering mens category:", error);
-    res
-      .status(httpStatus.INTERNAL_SERVER_ERROR)
-      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
-  }
-};
-
-const beautyCategory = async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 12;
-    const skip = (page - 1) * limit;
-
-    const categories = await Category.find({
-      isListed: true,
-      isDeleted: false,
-      name: { $regex: "Beauty", $options: "i" },
-    });
-    const brand = await Brand.find({ isBlocked: false });
-    const brandIds = brand.map((brand) => brand._id);
-
-    const categoryIds = categories.map((cat) => cat._id);
-
-    const totalProducts = await Product.countDocuments({
-      isDeleted: false,
-      isBlocked: false,
-      isActive: true,
-      category: { $in: categoryIds },
-      brand: { $in: brandIds },
-    });
-
-    const totalPages = Math.ceil(totalProducts / limit);
-
-    let productData = await Product.find({
-      isBlocked: false,
-      isDeleted: false,
-      isActive: true,
-      category: { $in: categoryIds },
-    })
-      .skip(skip)
-      .limit(limit);
-
-    productData = productData.map((product) => {
-      return {
-        ...product._doc,
-        firstImage:
-          product.productImages && product.productImages.length > 0
-            ? product.productImages[0]
-            : "default.jpg",
-      };
-    });
-
-    res.render("user/beauty", {
-      title: "Mens Category",
-      adminHeader: true,
-      hideFooter: true,
-      products: productData,
-      currentPage: page,
-      totalPages: totalPages,
-    });
-  } catch (error) {
-    console.error("Error in rendering mens category:", error);
-    res
-      .status(httpStatus.INTERNAL_SERVER_ERROR)
-      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
-  }
-};
-
-//user inof management
+//user info management
 
 const loadmyAccount = async (req, res) => {
   try {
@@ -1282,7 +1221,11 @@ const handleForgotPasswordOtpRequest = async (req, res) => {
     if (!emailSent) {
       return res
         .status(httpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: "Failed to send email. Please try again." });
+        .json({
+          message:
+            MESSAGES.LOGIN.FAILED_SENT_EMAIL ||
+            "Failed to send email. Please try again.",
+        });
     }
 
     req.session.userOtp = otp;
@@ -1292,7 +1235,7 @@ const handleForgotPasswordOtpRequest = async (req, res) => {
     console.log("OTP sent:", otp);
 
     return res.status(httpStatus.OK).json({
-      message: "OTP sent successfully",
+      message: MESSAGES.LOGIN.OTP_SENT || "OTP sent successfully",
       success: true,
     });
   } catch (error) {
@@ -1328,7 +1271,11 @@ const changePasswordVerifyOTP = async (req, res) => {
     if (!sessionOtp || !otpExpiresAt) {
       return res
         .status(httpStatus.BAD_REQUEST)
-        .json({ success: false, message: "OTP session expired or invalid." });
+        .json({
+          success: false,
+          message:
+            MESSAGES.LOGIN.OTP_EXPIRED || "OTP session expired or invalid.",
+        });
     }
 
     if (Date.now() > otpExpiresAt) {
@@ -1336,7 +1283,9 @@ const changePasswordVerifyOTP = async (req, res) => {
       delete req.session.otpExpiresAt;
       return res.status(httpStatus.BAD_REQUEST).json({
         success: false,
-        message: "OTP expired. Please request a new one.",
+        message:
+          MESSAGES.LOGIN.OTP_EXPIRED ||
+          "OTP expired. Please request a new one.",
       });
     }
 
@@ -1349,7 +1298,11 @@ const changePasswordVerifyOTP = async (req, res) => {
     } else {
       return res
         .status(httpStatus.BAD_REQUEST)
-        .json({ success: false, message: "Invalid OTP. Please try again." });
+        .json({
+          success: false,
+          message:
+            MESSAGES.LOGIN.OTP_INVALID || "Invalid OTP. Please try again.",
+        });
     }
   } catch (error) {
     console.error("Error in forgotPasswordOtp:", error);
@@ -1383,7 +1336,11 @@ const submitChangedPassword = async (req, res) => {
     if (password !== confirmPassword) {
       return res
         .status(httpStatus.BAD_REQUEST)
-        .json({ success: false, message: "Passwords do not match." });
+        .json({
+          success: false,
+          message:
+            MESSAGES.LOGIN.PASSWORD_MISMATCH || "Passwords do not match.",
+        });
     }
 
     const user = req.session.userData;
@@ -1391,7 +1348,9 @@ const submitChangedPassword = async (req, res) => {
     if (!user || !user.email) {
       return res.status(httpStatus.UNAUTHORIZED).json({
         success: false,
-        message: "User session expired. Please log in again.",
+        message:
+          MESSAGES.SESSION_EXPIRED ||
+          "User session expired. Please log in again.",
       });
     }
 
@@ -1404,13 +1363,13 @@ const submitChangedPassword = async (req, res) => {
 
     if (passwordChange.modifiedCount > 0) {
       req.session.save(() => {
-        console.log("Session saved.");
         res.status(httpStatus.OK).json({
           success: true,
-          message: "Password changed successfully.",
+          message:
+            MESSAGES.LOGIN.PASSWORD_CHANGE_SUCCESS ||
+            "Password changed successfully.",
           redirectUrl: "/login",
         });
-        console.log("Password changed successfully.");
       });
     } else {
       console.log(
@@ -1418,14 +1377,18 @@ const submitChangedPassword = async (req, res) => {
       );
       res.status(httpStatus.BAD_REQUEST).json({
         success: false,
-        message: "Password not updated. Try a new password.",
+        message:
+          MESSAGES.LOGIN.PASSWORD_CHANGE_FAILURE ||
+          "Password not updated. Try a new password.",
       });
     }
   } catch (error) {
     console.error("Error in changing the password:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "An error occurred. Please try again later.",
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
     });
   }
 };
@@ -1452,9 +1415,6 @@ module.exports = {
   resendPswrdOtp,
   productDetails,
   loadShop,
-  mensCategory,
-  womensCategory,
-  beautyCategory,
   editProfileInfo,
   loadChangePassword,
   handleChangePassword,
@@ -1464,4 +1424,5 @@ module.exports = {
   renderChangePassword,
   submitChangedPassword,
   renderVerifyOtpPage,
+  renderOtpForPswrdChange,
 };

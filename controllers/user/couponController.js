@@ -10,21 +10,17 @@ const { default: mongoose } = require("mongoose");
 const loadMyCoupon = async (req, res) => {
   try {
     const userId = req.session.user;
-    const myCoupon = await CouponSchema.find({ userId:userId }).lean();
-    const user=await userSchema.findById(userId)
+    const myCoupon = await CouponSchema.find({ userId: userId }).lean();
+    const user = await userSchema.findById(userId);
 
-    const referalCode=user.referralCode
+    const referalCode = user.referralCode;
 
-    const coupon=myCoupon.map(coupon=>{
-        return {
-            ...coupon,
-            expiryDate:new Date(coupon.expiryDate).toLocaleString()
-
-        }
-    })
-
-    
-    
+    const coupon = myCoupon.map((coupon) => {
+      return {
+        ...coupon,
+        expiryDate: new Date(coupon.expiryDate).toLocaleString(),
+      };
+    });
 
     return res.render("user/myCoupon", {
       title: "Trenaura coupon",
@@ -32,9 +28,13 @@ const loadMyCoupon = async (req, res) => {
       coupon,
       referalCode,
       name: user.name,
-
     });
-  } catch (error) {}
+  } catch (error) {
+    console.error("Error in loadMyCoupon:", error);
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Server error");
+  }
 };
 
 module.exports = {

@@ -52,9 +52,9 @@ const addToCart = async (req, res) => {
     const product = await Product.findById(productId);
 
     if (!product || product.isDeleted || product.isBlocked) {
-      return res
-        .status(httpStatus.BAD_REQUEST)
-        .json({ message: "Product not available" });
+      return res.status(httpStatus.BAD_REQUEST).json({
+        message: MESSAGES.PRODUCT_NOT_FOUND || "Product not available",
+      });
     }
 
     const price = product.salePrice;
@@ -77,26 +77,26 @@ const addToCart = async (req, res) => {
       });
     } else {
       const itemIndex = cart.items.findIndex(
-        (item) => item.productId.toString() === productId && ((item.size || null) === (size || null))
+        (item) =>
+          item.productId.toString() === productId &&
+          (item.size || null) === (size || null)
       );
 
       if (itemIndex > -1) {
         //cart.items[itemIndex].quantity += quantity;
-        const quantity=cart.items[itemIndex].quantity
-        const availableStock=product.variants.get(size) || 0
+        const quantity = cart.items[itemIndex].quantity;
+        const availableStock = product.variants.get(size) || 0;
 
-        if(quantity>=5){
-          cart.items[itemIndex].quantity=5
-        }else if(availableStock>=quantity){
-           cart.items[itemIndex].quantity=availableStock
-        }else{
+        if (quantity >= 5) {
+          cart.items[itemIndex].quantity = 5;
+        } else if (availableStock >= quantity) {
+          cart.items[itemIndex].quantity = availableStock;
+        } else {
           cart.items[itemIndex].quantity += quantity;
-        
         }
 
         cart.items[itemIndex].totalPrice =
           cart.items[itemIndex].quantity * price;
-
       } else {
         cart.items.push({ productId, quantity, price, totalPrice, size });
       }
@@ -105,9 +105,6 @@ const addToCart = async (req, res) => {
     await cart.save();
     const cartCount = await Cart.findOne({ userId }).lean();
     const cartLength = cartCount?.items?.length || 0;
-    // let cartLength=cartCount.items.map((q)=>q.quantity)
-    // cartLength=cartLength.reduce((total,q)=>total+q,0)
-    // console.log(cartLength)
 
     if (fromWishList) {
       await Wishlist.updateOne(
@@ -125,7 +122,9 @@ const addToCart = async (req, res) => {
     console.error("Error in addToCart:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "An error occurred. Please try again later.",
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
     });
   }
 };
@@ -175,7 +174,9 @@ const loadmyCart = async (req, res) => {
     console.error("Error in loadmyCart:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "An error occurred. Please try again later.",
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
     });
   }
 };
@@ -256,7 +257,9 @@ const renderMyCart = async (req, res) => {
     console.error("Error in loadmyCart:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "An error occurred. Please try again later.",
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
     });
   }
 };
@@ -313,7 +316,9 @@ const cartOrderSummary = async (req, res) => {
     console.error("Error in loadmyCart:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "An error occurred. Please try again later.",
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
     });
   }
 };
@@ -329,17 +334,17 @@ const removefromCart = async (req, res) => {
 
     const cartLength = cart ? cart.items.length : 0;
 
-    return res
-      .status(httpStatus.OK)
-      .json({
-        message: MESSAGES.CART.ITEM_DELETED || "item deleted",
-        cartLength: cartLength,
-      });
+    return res.status(httpStatus.OK).json({
+      message: MESSAGES.CART.ITEM_DELETED || "item deleted",
+      cartLength: cartLength,
+    });
   } catch (error) {
     console.error("Error in removing item from cart:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "An error occurred. Please try again later.",
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
     });
   }
 };
@@ -357,10 +362,12 @@ const applyCoupon = async (req, res) => {
     if (!coupon)
       return res
         .status(httpStatus.BAD_REQUEST)
-        .json({ message: "Invalid Coupon" });
+        .json({ message: MESSAGES.COUPON.INVALID_COUPON || "Invalid Coupon" });
 
     if (coupon.expiryDate < new Date()) {
-      return res.status(400).json({ message: "Coupon expired" });
+      return res
+        .status(400)
+        .json({ message: MESSAGES.COUPON.COUPON_EXPIRED || "Coupon expired" });
     }
 
     if (cartTotal < coupon.minOrderValue) {
@@ -410,7 +417,9 @@ const applyCoupon = async (req, res) => {
       });
     }
     if (usage.usageCount >= coupon.usageLimit) {
-      return res.status(400).json({ message: "Coupon usage limit reached" });
+      return res.status(400).json({
+        message: MESSAGES.COUPON.USAGE_LIMIT || "Coupon usage limit reached",
+      });
     }
 
     usage.usageCount += 1;
@@ -426,7 +435,9 @@ const applyCoupon = async (req, res) => {
     console.error("Error in applyCoupon:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "An error occurred. Please try again later.",
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
     });
   }
 };
@@ -439,7 +450,7 @@ const removeCoupon = async (req, res) => {
     if (!req.session.appliedCoupon) {
       return res
         .status(httpStatus.BAD_REQUEST)
-        .json({ message: "No coupon Applied" });
+        .json({ message: MESSAGES.COUPON.NO_COUPON || "No coupon Applied" });
     }
 
     let { discountAmount, finalAmount, couponCode, couponId, cartTotal } =
@@ -458,7 +469,7 @@ const removeCoupon = async (req, res) => {
     cartTotal += deliveryCharge;
 
     return res.json({
-      message: "Coupon removed Successfully",
+      message: MESSAGES.COUPON.COUPON_REMOVED || "Coupon removed ",
       discountAmount,
       finalAmount: cartTotal,
     });
@@ -466,165 +477,12 @@ const removeCoupon = async (req, res) => {
     console.error("Error in removeCoupon:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "An error occurred. Please try again later.",
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
     });
   }
 };
-
-// const increaseQuantity = async (req, res) => {
-//   try {
-//     const { id: itemId } = req.params;
-//     const userId = req.session.user;
-//     const { quantity, size } = req.body;
-
-//     console.log("increaseQuantity", size);
-
-//     if (quantity >= 5) {
-//       return res.status(400).json({
-//         message: "!Sorry,quantity is limited to 5",
-//       });
-//     }
-
-//     const cart = await Cart.findOne({
-//       userId,
-//       "items._id": itemId,
-//       "items.size": size,
-//     }).populate("items.productId", "variants salePrice");
-
-//     if (!cart || !cart.items.length) {
-//       return res.status(400).json({ message: "Item not found" });
-//     }
-
-//     const item = cart.items.find((i) => i._id.toString() === itemId && i.size === size);
-//     const stock = item.productId.variants[cart.items[0].size];
-
-//     if (item.quantity >= stock) {
-//       return res.status(httpStatus.BAD_REQUEST).json({
-//         message: "Quantity should be less than the total stock of the product",
-//       });
-//     }
-
-//     // Increase quantity
-//     await Cart.updateOne(
-//       { userId, "items._id": itemId },
-//       { $inc: { "items.$.quantity": 1 } }
-//     );
-
-//     const updatedCart = await Cart.findOne({ userId })
-//       .populate("items.productId")
-//       .lean();
-
-//     const updatedItem = updatedCart.items.find(
-//       (i) => i._id.toString() === itemId && i.size === size
-//     );
-//     const totalPrice = updatedItem.quantity * updatedItem.price;
-//     let grandTotal = updatedCart.items.reduce((total, item) => {
-//       return total + item.price * item.quantity;
-//     }, 0);
-
-//     let deliveryCharge = 0;
-
-//     if (grandTotal < 2001) {
-//       deliveryCharge = 54;
-//       grandTotal += deliveryCharge;
-//     }
-//     //updating with new values
-//     await Cart.updateOne(
-//       { userId, "items._id": itemId },
-//       { $set: { "items.$.totalPrice": totalPrice } }
-//     );
-
-//     return res.status(httpStatus.OK).json({
-//       message: MESSAGES.CART.QUANTITY_INCREASE || "Increased by One",
-//       quantity: updatedItem.quantity,
-//       totalPrice,
-//       grandTotal,
-//       deliveryCharge,
-//     });
-//   } catch (error) {
-//     console.error("Error in increasing the quantity:", error);
-//     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-//       success: false,
-//       message: "An error occurred. Please try again later.",
-//     });
-//   }
-// };
-
-// const decreaseQuantity = async (req, res) => {
-//   try {
-//     const { id: itemId } = req.params;
-//     const userId = req.session.user;
-//     const { size } = req.body;
-//     console.log("decreaseQuantity+++++++++++++", size);
-
-//     // Fetch current item first
-//     const cart = await Cart.findOne({
-//       userId,
-//       "items._id": itemId,
-//       "items.size": size,
-//     }).lean();
-
-//     if (!cart || !cart.items.length) {
-//       return res
-//         .status(httpStatus.BAD_REQUEST)
-//         .json({ message: "Item not found" });
-//     }
-
-//     const item = cart.items;
-
-//     if (item.quantity <= 1) {
-//       return res
-//         .status(httpStatus.BAD_REQUEST)
-//         .json({ message: "Minimum quantity is 1" });
-//     }
-//     // Decrease quantity
-//     await Cart.updateOne(
-//       { userId, "items._id": itemId },
-//       { $inc: { "items.$.quantity": -1 } }
-//     );
-
-//     const updatedCart = await Cart.findOne({ userId })
-//       .populate("items.productId")
-//       .lean();
-
-//     const updatedItem = updatedCart.items.find(
-//       (i) => i._id.toString() === itemId && i.size === size
-//     );
-
-//     const totalPrice = updatedItem.quantity * updatedItem.price;
-//     const grandTotal = updatedCart.items.reduce((total, item) => {
-//       return total + item.quantity * item.price;
-//     }, 0);
-
-//     let deliveryCharge = 0;
-
-//     if (grandTotal < 2001) {
-//       deliveryCharge = 54;
-//       grandTotal = grandTotal + deliveryCharge;
-//       console.log(deliveryCharge);
-//     }
-
-//     //updating with new values
-//     await Cart.updateOne(
-//       { userId, "items._id": itemId },
-//       { $set: { "items.$.totalPrice": totalPrice } }
-//     );
-
-//     return res.status(httpStatus.OK).json({
-//       message: MESSAGES.CART.QUANTITY_DECREASE || "Quantity decreased",
-//       quantity: updatedItem.quantity,
-//       totalPrice,
-//       grandTotal,
-//       deliveryCharge,
-//     });
-//   } catch (error) {
-//     console.error("Error in decreasing the quantity:", error);
-//     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-//       success: false,
-//       message: "An error occurred. Please try again later.",
-//     });
-//   }
-// };
 
 const increaseQuantity = async (req, res) => {
   try {
@@ -633,9 +491,10 @@ const increaseQuantity = async (req, res) => {
     const { quantity, size } = req.body;
 
     if (quantity >= 5) {
-      return res
-        .status(400)
-        .json({ message: "!Sorry, quantity is limited to 5" });
+      return res.status(httpStatus.BAD_REQUEST).json({
+        message:
+          MESSAGES.CART.QUANTITY_LIMIT || "Sorry, quantity is limited to 5",
+      });
     }
 
     const cart = await Cart.findOne({
@@ -645,22 +504,28 @@ const increaseQuantity = async (req, res) => {
     }).populate("items.productId");
 
     if (!cart) {
-      return res.status(400).json({ message: "Item not found" });
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ message: MESSAGES.CART.ITEM_NOT_FOUND || "Item not found" });
     }
 
     const item = cart.items.find(
       (i) => i._id.toString() === itemId && i.size === size
     );
     if (!item) {
-      return res.status(400).json({ message: "Item not found" });
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ message: MESSAGES.CART.ITEM_NOT_FOUND || "Item not found" });
     }
     //getting stock
     let stock = item.productId.variants;
     stock = stock.get(size);
 
     if (item.quantity >= stock) {
-      return res.status(400).json({
-        message: "Quantity should be less than the total stock of the product",
+      return res.status(httpStatus.BAD_REQUEST).json({
+        message:
+          MESSAGES.CART.LESS_THAN_STOCK ||
+          "Quantity should be less than the total stock of the product",
       });
     }
 
@@ -682,8 +547,8 @@ const increaseQuantity = async (req, res) => {
 
     grandTotal += deliveryCharge;
 
-    return res.status(200).json({
-      message: "Qunatity increased by One",
+    return res.status(httpStatus.OK).json({
+      message: MESSAGES.CART.QUANTITY_INCREASE || "Qunatity increased by One",
       quantity: item.quantity,
       totalPrice: item.totalPrice,
       grandTotal,
@@ -693,7 +558,9 @@ const increaseQuantity = async (req, res) => {
     console.error("Error in increasing the quantity:", error);
     res.status(500).json({
       success: false,
-      message: "An error occurred. Please try again later.",
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
     });
   }
 };
@@ -713,7 +580,7 @@ const decreaseQuantity = async (req, res) => {
     if (!cart) {
       return res
         .status(httpStatus.BAD_REQUEST)
-        .json({ message: "Item not found" });
+        .json({ message: MESSAGES.CART.ITEM_NOT_FOUND || "Item not found" });
     }
 
     const item = cart.items.find(
@@ -722,13 +589,13 @@ const decreaseQuantity = async (req, res) => {
     if (!item) {
       return res
         .status(httpStatus.BAD_REQUEST)
-        .json({ message: "Item not found" });
+        .json({ message: MESSAGES.CART.ITEM_NOT_FOUND || "Item not found" });
     }
 
     if (item.quantity <= 1) {
-      return res
-        .status(httpStatus.BAD_REQUEST)
-        .json({ message: "Minimum quantity is 1" });
+      return res.status(httpStatus.BAD_REQUEST).json({
+        message: MESSAGES.CART.MINIMUM_QTY || "Minimum quantity is 1",
+      });
     }
 
     // Decrease quantity
@@ -747,7 +614,7 @@ const decreaseQuantity = async (req, res) => {
     grandTotal += deliveryCharge;
 
     return res.status(200).json({
-      message: "Quantity decreased",
+      message: MESSAGES.CART.QUANTITY_DECREASE || "Quantity decreased",
       quantity: item.quantity,
       totalPrice: item.totalPrice,
       grandTotal,
@@ -757,7 +624,9 @@ const decreaseQuantity = async (req, res) => {
     console.error("Error in decreasing the quantity:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "An error occurred. Please try again later.",
+      message:
+        MESSAGES.INTERNAL_SERVER_ERROR ||
+        "An error occurred. Please try again later.",
     });
   }
 };

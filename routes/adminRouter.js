@@ -36,8 +36,8 @@ router.post("/addCategory",adminAuth.adminAuth,categoryController.addCategory);
 router.post("/listCategory/:id",adminAuth.adminAuth,categoryController.listCategory);
 router.post("/unlistCategory/:id",adminAuth.adminAuth,categoryController.unlistCategory);
 router.put("/editCategory/:id",adminAuth.adminAuth,categoryController.editCategory);
-router.delete("/deleteCategory/:id",adminAuth.adminAuth,categoryController.deleteCategory);
-router.put("/undoDeleteCategory/:id",adminAuth.adminAuth,categoryController.undoDeleteCategory);
+router.patch("/deleteCategory/:id",adminAuth.adminAuth,categoryController.deleteCategory);
+router.patch("/undoDeleteCategory/:id",adminAuth.adminAuth,categoryController.undoDeleteCategory);
 router.get("/category", adminAuth.adminAuth, categoryController.categoryInfo);
 router.post("/addCategoryOffer", adminAuth.adminAuth, categoryController.addCategoryOffer)
 router.post("/removeCategoryOffer", adminAuth.adminAuth, categoryController.removeCategoryOffer)
@@ -53,8 +53,8 @@ router.get("/addProducts",adminAuth.adminAuth,productController.getAddProducts);
 router.post("/addProducts",adminAuth.adminAuth,upload.array("images", 4),productController.addProducts);
 router.get("/editProducts/:id", adminAuth.adminAuth, productController.getEditProduct);
 router.post("/editProducts/:id",upload.array('images'),adminAuth.adminAuth,productController.editProducts );
-router.delete("/deleteProducts/:id", adminAuth.adminAuth, productController.deleteProducts);
-router.put("/undoDeleteProducts/:id", adminAuth.adminAuth, productController.undoDeleteProducts);
+router.patch("/deleteProducts/:id", adminAuth.adminAuth, productController.deleteProducts);
+router.patch("/undoDeleteProducts/:id", adminAuth.adminAuth, productController.undoDeleteProducts);
 router.post("/addOffer",adminAuth.adminAuth, productController.addProductOffer)
 router.post("/removeOffer",adminAuth.adminAuth, productController.removeProductOffer)
 
@@ -62,9 +62,10 @@ router.post("/removeOffer",adminAuth.adminAuth, productController.removeProductO
 router.get("/brand", adminAuth.adminAuth,brandController.getBrandPage);
 router.post("/addBrand", adminAuth.adminAuth,brandController.addBrandPage);
 router.put("/editBrand/:id",adminAuth.adminAuth,brandController.editBrand );
-router.delete("/deleteBrand/:id",adminAuth.adminAuth,brandController.deleteBrand );
-router.post("/unblockBrand/:id", adminAuth.adminAuth,brandController.unblockBrand);
-router.post("/blockBrand/:id", adminAuth.adminAuth,brandController.blockBrand);
+router.patch("/deleteBrand/:id",adminAuth.adminAuth,brandController.deleteBrand );
+router.patch("/undoDeleteBrand/:id",adminAuth.adminAuth,brandController.undoDeleteBrand );
+router.patch("/unblockBrand/:id", adminAuth.adminAuth,brandController.unblockBrand);
+router.patch("/blockBrand/:id", adminAuth.adminAuth,brandController.blockBrand);
 
 
 //order management

@@ -10,12 +10,12 @@ const loadCoupon = async (req, res) => {
   try {
     const coupons = await CouponSchema.find().lean();
 
-    coupons.forEach(c => {
+    coupons.forEach((c) => {
       const d = new Date(c.expiryDate);
       const day = String(d.getDate()).padStart(2, "0");
       const month = String(d.getMonth() + 1).padStart(2, "0");
       const year = d.getFullYear();
-      
+
       c.expiryDateFormatted = `${day}-${month}-${year}`;
     });
 
@@ -25,7 +25,7 @@ const loadCoupon = async (req, res) => {
       coupons,
     });
   } catch (error) {
-    console.log("Error in loadCoupon", error);
+    console.error("Error in loadCoupon", error);
     res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
@@ -45,7 +45,9 @@ const createCoupon = async (req, res) => {
 
     const exists = await CouponSchema.findOne({ code });
     if (exists) {
-      return res.json({ mesage: "Coupon already exists" });
+      return res.json({
+        mesage: MESSAGES.COUPON.COUPON_EXISTS || "Coupon already exists",
+      });
     }
 
     const coupon = await CouponSchema.create({
@@ -59,9 +61,11 @@ const createCoupon = async (req, res) => {
 
     return res
       .status(httpStatus.OK)
-      .json({ message: "Coupon addedd successfuly" });
+      .json({
+        message: MESSAGES.COUPON.COUPON_ADDED || "Coupon addedd successfuly",
+      });
   } catch (error) {
-    console.log("Error in createCoupon", error);
+    console.error("Error in createCoupon", error);
     res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
@@ -75,9 +79,11 @@ const deleteCoupon = async (req, res) => {
     await CouponSchema.findByIdAndDelete(couponId);
     return res
       .status(httpStatus.OK)
-      .json({ message: "Coupon deleted succesfully" });
+      .json({
+        message: MESSAGES.COUPON.COUPON_DLTD || "Coupon deleted succesfully",
+      });
   } catch (error) {
-    console.log("Error in deleteCoupon", error);
+    console.error("Error in deleteCoupon", error);
     res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
@@ -96,7 +102,6 @@ const editCoupon = async (req, res) => {
       usageLimit,
       isActive,
     } = req.body;
-    console.log("editCoupon:", isActive);
 
     const updatedCoupon = await CouponSchema.findByIdAndUpdate(
       id,
@@ -120,9 +125,12 @@ const editCoupon = async (req, res) => {
 
     return res
       .status(httpStatus.OK)
-      .json({ message: "Updated successfully", coupon: updatedCoupon });
+      .json({
+        message: MESSAGES.COUPON.COUPON_UPDTD || "Updated successfully",
+        coupon: updatedCoupon,
+      });
   } catch (error) {
-    console.log("Error in addEditCoupon", error);
+    console.error("Error in addEditCoupon", error);
     res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });

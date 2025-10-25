@@ -26,78 +26,6 @@ const { settings } = require("cluster");
 
 //order management
 
-// const loadMyOrder = async (req, res) => {
-//   try {
-//     const userId = req.session.user;
-//     const raw = parseInt(req.query.page, 10);
-//     const page = Math.max(1, Number.isFinite(raw) ? raw : 1);
-//     const limit = 5;
-
-//     const myOrders = await Order.find({ userId })
-//       .populate({
-//         path: "orderedItems.productId",
-//         match: { isBlocked: false, isDeleted: false },
-//       })
-//       .sort({ createdAt: -1 })
-//       .skip((page - 1) * limit)
-//       .limit(limit)
-//       .lean();
-
-//     const filteredOrders = myOrders
-//       .map((order) => {
-//         order.orderedItems = order.orderedItems
-//           .filter((item) => item.productId !== null)
-//           .map((item) => ({
-//             id: item._id,
-//             productId: item.productId._id,
-//             productName: item.productId.productName,
-//             productImages: item.productId.productImages,
-//             quantity: item.quantity,
-//             regularPrice: item.productId.regularPrice,
-//             price: item.price,
-//             totalPrice: item.totalPrice,
-//             statusHistory:
-//               item.statusHistory[item.statusHistory.length - 1].status,
-//             isAdminCancelled:
-//               item.statusHistory[item.statusHistory.length - 1]
-//                 .isAdminCancelled,
-//             isReturnInitiated: item.returnRequest.isReturnInitiated,
-//           }));
-//         order.formattedDate = new Date(order.createdAt).toLocaleDateString();
-//         return order;
-//       })
-//       .filter((order) => order.orderedItems.length > 0);
-
-//     const count = await Order.countDocuments({ userId });
-
-//     if (filteredOrders.length === 0) {
-//       return res.render("user/myOrder", {
-//         title: "My order",
-//         adminHeader: true,
-//         isMyOrderEmpty: true,
-//         myOrder: [],
-//       });
-//     }
-
-//     return res.render("user/myOrder", {
-//       title: "My order",
-//       adminHeader: true,
-//       myOrder: filteredOrders,
-//       totalPages: Math.ceil(count / limit),
-//       currentPage: page,
-//       isMyOrderEmpty: filteredOrders.length === 0,
-//     });
-//   } catch (error) {
-//     console.error("Error in loadMyOrder:", error);
-//     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-//       success: false,
-//       message:
-//         MESSAGES.INTERNAL_SERVER_ERROR ||
-//         "An error occurred. Please try again later.",
-//     });
-//   }
-// };
-
 const getDeliveryCharge = async (totalAmount) => {
   const deliveryCharge = await DeliveryCharge.findOne();
 
@@ -197,6 +125,7 @@ const loadMyOrder = async (req, res) => {
             : "Pending",
           latestStatusDate,
           returnRequest: item.returnRequest || null,
+          isUserRequested: item.returnRequest.isUserRequested || false,
         };
       });
 
@@ -224,7 +153,7 @@ const orderDetails = async (req, res) => {
   try {
     const userId = req.session.user;
     const orderId = req.params.id;
-    console.log("orderDetails item id:::", orderId);
+
     const orders = await Order.findOne(
       { userId, _id: orderId },
       {
@@ -273,6 +202,7 @@ const orderDetails = async (req, res) => {
 
       //order return status
       const returnRequest = item.returnRequest;
+      const isUserRequested = returnRequest.isUserRequested;
 
       return {
         ...item,
@@ -280,6 +210,7 @@ const orderDetails = async (req, res) => {
         latestStatus: latestStatus ? latestStatus.status : "Pending",
         latestStatusDate: new Date(latestStatusDate).toLocaleString(),
         returnRequest,
+        isUserRequested,
         isAdminCancelled: latestStatus ? latestStatus.isAdminCancelled : false,
         cancellationReason: latestStatus
           ? latestStatus.cancellationReason
@@ -287,7 +218,6 @@ const orderDetails = async (req, res) => {
       };
     });
     const isOrderPlaced = orders.isOrderPlaced;
-    console.log("order details", isOrderPlaced);
 
     const address = await Address.findOne(
       { "address._id": orders.address },
@@ -321,7 +251,6 @@ const loadAddressForOrder = async (req, res) => {
     const userAddresses = await Address.findOne({ userId });
 
     req.session.productDetails = { size, quantity };
-    console.log("loadAddressForOrder", size);
 
     const addresses = userAddresses ? userAddresses.address : [];
 
@@ -403,10 +332,9 @@ const submitAddress = async (req, res) => {
           item.size === size
       ); //returns -1 if no item found
       if (itemIndex > -1) {
-
         let currentQuantity = cart.items[itemIndex].quantity;
         const availableStock = product.variants.get(size) || 0;
-        
+
         //quantity limits to 5
         if (currentQuantity >= 5) {
           cart.items[itemIndex].quantity = 5;
@@ -482,7 +410,9 @@ const loadOrderSummary = async (req, res) => {
       .lean();
 
     if (!cart || !cart.items || cart.items.length === 0) {
-      return res.status(404).send("Item not found in cart");
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .send(MESSAGES.CART.ITEM_NOT_FOUND || "Item not found in cart");
     }
 
     const item = cart.items[0];
@@ -496,7 +426,9 @@ const loadOrderSummary = async (req, res) => {
     if (!item.productId) {
       return res
         .status(httpStatus.BAD_REQUEST)
-        .send("Product not available for ordering");
+        .send(
+          MESSAGES.PRODUCT_NOT_FOUND || "Product not available for ordering"
+        );
     }
 
     return res.render("user/orderSummary", {
@@ -565,8 +497,6 @@ const loadPaymentMethod = async (req, res) => {
       grandTotal = grandTotal + order.deliveryCharge;
 
       grandTotal = Number(grandTotal);
-      console.log("grandtotal if retry payment", grandTotal);
-      console.log(typeof grandTotal);
 
       return res.render("user/paymentMethod", {
         title: "Payment method",
@@ -623,7 +553,6 @@ const loadPaymentMethod = async (req, res) => {
     let deliveryCharge = await getDeliveryCharge(grandTotal);
     grandTotal += deliveryCharge;
 
-  
     return res.render("user/paymentMethod", {
       title: "Payment method",
       adminHeader: true,
@@ -644,7 +573,6 @@ const loadPaymentMethod = async (req, res) => {
 
 const orderSuccess = async (req, res) => {
   try {
-    
     const userId = req.session.user;
     let { itemId, paymentMethod, couponCode, retryOrderId } = req.body;
     let newOrder;
@@ -781,7 +709,7 @@ const orderSuccess = async (req, res) => {
       if (!item) {
         console.error("Item not found in cart:", itemId);
         return res.status(httpStatus.BAD_REQUEST).send({
-          message: MESSAGES.CART.IREM_NOT_FOUND || "Item not found in cart",
+          message: MESSAGES.CART.ITEM_NOT_FOUND || "Item not found in cart",
         });
       }
       let discount = 0;
@@ -860,15 +788,12 @@ const orderSuccess = async (req, res) => {
         totalPrice: item.totalPrice,
         statusHistory: [{ status: "Pending" }],
       }));
-      const numberOfItems=cart.items.length
-      console.log("Number of items in cart:", numberOfItems);
-      
+      const numberOfItems = cart.items.length;
 
       const totalPrice = orderedItems.reduce(
         (sum, item) => sum + item.totalPrice,
         0
       );
-      console.log("order success totalPrice of whole cart", totalPrice);
 
       let discount = 0;
       let couponApplied = false;
@@ -880,9 +805,10 @@ const orderSuccess = async (req, res) => {
         });
         //cheking of coupon exists
         if (!coupon) {
-          return res
-            .status(400)
-            .json({ message: "Invalid or inactive coupon" });
+          return res.status(httpStatus.BAD_REQUEST).json({
+            message:
+              MESSAGES.COUPON.INVALID_COUPON || "Invalid or inactive coupon",
+          });
         }
 
         if (coupon.discountType === "flat") {
@@ -898,18 +824,17 @@ const orderSuccess = async (req, res) => {
 
       finalAmount = Math.max(totalPrice - discount, 0);
       finalAmount = Math.round(finalAmount);
-      
+
       deliveryCharge = await getDeliveryCharge(totalPrice);
-      
+
       finalAmount += deliveryCharge;
-      
 
       if (discount > 0 && couponApplied) {
         orderedItems.forEach((item) => {
           const itemShare = item.totalPrice / totalPrice;
           const perItemDiscount = Math.round(discount * itemShare);
           item.discount = perItemDiscount;
-          
+
           item.finalAmount = Math.max(item.totalPrice - perItemDiscount, 0);
         });
       } else {
@@ -968,10 +893,6 @@ const orderPlaced = async (req, res) => {
     const isRetryPayment = req.query.isRetryPayment;
     const isWholeCart = req.query.isWholeCart === "true";
 
-    console.log("orderPlaced orderId---", orderId);
-    console.log("orderPlaced userId---", userId);
-    console.log("orderPlaced itemId---", itemId);
-
     const order = await Order.findById(orderId).populate({
       path: "orderedItems.productId",
       populate: {
@@ -982,7 +903,7 @@ const orderPlaced = async (req, res) => {
     if (!order) {
       return res
         .status(httpStatus.BAD_REQUEST)
-        .json({ message: "Order not found" });
+        .json({ message: MESSAGES.ORDER.NOT_FOUND || "Order not found" });
     }
 
     if (isRetryPayment) {
@@ -1091,17 +1012,21 @@ const cancelOrder = async (req, res) => {
     );
 
     const orderId = updatedOrder._id;
-    const productIds = updatedOrder.orderedItems.map((item) => ({
-      productId: item.productId,
-      quantity: item.quantity,
-      variant: item.variant,
-      amount: item.finalAmount,
-      updatedStatus: item.statusHistory[item.statusHistory.length - 1].status,
-    }));
 
-    const { productId, quantity, updatedStatus, variant, amount } =
-      productIds[0];
-    
+    const cancelledItem = updatedOrder.orderedItems.find(
+      (item) => item._id == itemId
+    );
+
+    if (!cancelledItem) {
+      return res.status(404).json({
+        success: false,
+        message: "Cancelled item not found in order.",
+      });
+    }
+
+    const { productId, quantity, updatedStatus, variant, finalAmount } =
+      cancelledItem;
+
     //increasing the quantity after cancel order
     const product = await Product.findOneAndUpdate(
       {
@@ -1119,7 +1044,7 @@ const cancelOrder = async (req, res) => {
       await product.save();
     }
     if (updatedOrder.paymentStatus === "Paid") {
-      await creditWallet(userId, orderId, amount, productId);
+      await creditWallet(userId, orderId, finalAmount, productId);
     }
 
     return res.json({
@@ -1141,8 +1066,6 @@ const cancelOrder = async (req, res) => {
 // return management
 const loadReturnOrder = async (req, res) => {
   try {
-    console.log("loadReturnOrder reached");
-
     const userId = req.session.user;
     const itemId = req.params.id;
 
@@ -1235,9 +1158,9 @@ const returnOrder = async (req, res) => {
       { new: true }
     );
 
-    return res
-      .status(httpStatus.OK)
-      .json({ message: "Return request initiated" });
+    return res.status(httpStatus.OK).json({
+      message: MESSAGES.ORDER.RETURN_INITIATED || "Return request initiated",
+    });
   } catch (error) {
     console.error("Error in returnOrder :", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -1255,7 +1178,7 @@ const walletPayment = async (req, res) => {
     const userId = req.session.user;
     const { itemId, paymentMethod, couponCode, grandTotal, orderId } =
       req.query;
-    console.log("walletPayment", orderId);
+
     req.session.walletData = { itemId, paymentMethod, couponCode, orderId };
     let insufficientBalance = false;
     let noWallet = false;
@@ -1302,14 +1225,12 @@ const walletPayment = async (req, res) => {
 
 const confirmWalletPayment = async (req, res) => {
   try {
-    console.log("confirmWalletPayment");
     const userId = req.session.user;
     const { itemId, paymentMethod, couponCode, orderId } =
       req.session.walletData;
     let item;
     let newOrder, savedOrder;
 
-    console.log("confirmWalletPayment", itemId);
     const cart = await Cart.findOne({ userId });
     const wallet = await Wallet.findOne({ userId });
     const userAddress = await Address.findOne({ userId });
@@ -1319,7 +1240,6 @@ const confirmWalletPayment = async (req, res) => {
       !userAddress.address ||
       userAddress.address.length === 0
     ) {
-      console.error("No address found for user:", userId);
       return res.status(httpStatus.BAD_REQUEST).json({
         message: MESSAGES.ADD_ADDRESS.ADDRESS_NOT_FOUND || "Please add address",
       });
@@ -1329,7 +1249,6 @@ const confirmWalletPayment = async (req, res) => {
     );
 
     if (orderId) {
-      console.log("confirmWalletPayment", orderId);
       const order = await Order.findById(orderId);
       if (!order) {
         return res
@@ -1339,28 +1258,13 @@ const confirmWalletPayment = async (req, res) => {
 
       const finalAmount = order.finalAmount;
       if (!wallet || wallet.balance < finalAmount) {
-        return res
-          .status(httpStatus.BAD_REQUEST)
-          .json({ message: "Insufficient wallet balance" });
+        return res.status(httpStatus.BAD_REQUEST).json({
+          message:
+            MESSAGES.WALLET.INSUFFICIENT_BALANCE ||
+            "Insufficient wallet balance",
+        });
       }
 
-      //updating wallet
-      // const wallets = await Wallet.findOneAndUpdate(
-      //   { userId: userId },
-      //   {
-      //     $inc: { balance: -finalAmount },
-      //     $push: {
-      //       transactions: {
-      //         orderId: order._id,
-      //         type: "debit",
-      //         amount: finalAmount,
-      //         description: `Product purchase on ${new Date()} with orderId:${
-      //           order.orderId
-      //         }`,
-      //       },
-      //     },
-      //   }
-      // );
       await debitWallet(userId, order._id, order.finalAmount);
       await Order.findByIdAndUpdate(
         orderId,
@@ -1374,15 +1278,15 @@ const confirmWalletPayment = async (req, res) => {
         { new: true }
       );
 
-      return res
-        .status(httpStatus.OK)
-        .json({ message: "Order placed successfully" });
+      return res.status(httpStatus.OK).json({
+        message: MESSAGES.ORDER.ORDER_PLACED || "Order placed successfully",
+      });
     }
 
     //for one order
     if (itemId) {
       item = cart.items.find((i) => i._id.toString() === itemId);
-      console.log("itemid found confirmWalletPayment ", item);
+
       let discount = 0;
       let couponApplied = false;
 
@@ -1414,8 +1318,11 @@ const confirmWalletPayment = async (req, res) => {
         }
         if (usage.usageCount >= coupon.usageLimit) {
           return res
-            .status(400)
-            .json({ message: "Coupon usage limit reached" });
+            .status(httpStatus.BAD_REQUEST)
+            .json({
+              message:
+                MESSAGES.COUPON.USAGE_LIMIT || "Coupon usage limit reached",
+            });
         }
 
         usage.usageCount += 1;
@@ -1453,26 +1360,13 @@ const confirmWalletPayment = async (req, res) => {
       if (!wallet || wallet.balance < finalAmount) {
         return res
           .status(httpStatus.BAD_REQUEST)
-          .json({ message: "Insufficient wallet balance" });
+          .json({
+            message:
+              MESSAGES.WALLET.INSUFFICIENT_BALANCE ||
+              "Insufficient wallet balance",
+          });
       }
 
-      //decreasing from wallet
-      // const wallets = await Wallet.findOneAndUpdate(
-      //   { userId: userId },
-      //   {
-      //     $inc: { balance: -finalAmount },
-      //     $push: {
-      //       transactions: {
-      //         orderId: savedOrder._id,
-      //         type: "debit",
-      //         amount: finalAmount,
-      //         description: `Product purchase on ${new Date()} with orderId:${
-      //           savedOrder.orderId
-      //         }`,
-      //       },
-      //     },
-      //   }
-      // );
       await debitWallet(userId, savedOrder._id, finalAmount);
       savedOrder.paymentStatus = "Paid";
       savedOrder.isOrderPlaced = true;
@@ -1528,8 +1422,11 @@ const confirmWalletPayment = async (req, res) => {
         //cheking of coupon exists
         if (!coupon) {
           return res
-            .status(400)
-            .json({ message: "Invalid or inactive coupon" });
+            .status(httpStatus.BAD_REQUEST)
+            .json({
+              message:
+                MESSAGES.COUPON.INVALID_COUPON || "Invalid or inactive coupon",
+            });
         }
 
         if (coupon.discountType === "flat") {
@@ -1552,8 +1449,11 @@ const confirmWalletPayment = async (req, res) => {
         }
         if (usage.usageCount >= coupon.usageLimit) {
           return res
-            .status(400)
-            .json({ message: "Coupon usage limit reached" });
+            .status(httpStatus.BAD_REQUEST)
+            .json({
+              message:
+                MESSAGES.COUPON.USAGE_LIMIT || "Coupon usage limit reached",
+            });
         }
 
         usage.usageCount += 1;
@@ -1581,26 +1481,13 @@ const confirmWalletPayment = async (req, res) => {
       if (!wallet || wallet.balance < finalAmount) {
         return res
           .status(httpStatus.BAD_REQUEST)
-          .json({ message: "Insufficient wallet balance" });
+          .json({
+            message:
+              MESSAGES.WALLET.INSUFFICIENT_BALANCE ||
+              "Insufficient wallet balance",
+          });
       }
 
-      //decreasing from wallet
-      // const wallets = await Wallet.findOneAndUpdate(
-      //   { userId: userId },
-      //   {
-      //     $inc: { balance: -finalAmount },
-      //     $push: {
-      //       transactions: {
-      //         orderId: savedOrder._id,
-      //         type: "debit",
-      //         amount: finalAmount,
-      //         description: `Product purchase on ${new Date()} with orderId:${
-      //           savedOrder.orderId
-      //         }`,
-      //       },
-      //     },
-      //   }
-      // );
       await debitWallet(userId, savedOrder._id, finalAmount);
       savedOrder.paymentStatus = "Paid";
       savedOrder.isOrderPlaced = true;
@@ -1635,7 +1522,9 @@ const confirmWalletPayment = async (req, res) => {
 
     return res
       .status(httpStatus.OK)
-      .json({ message: "Order placed successfully" });
+      .json({
+        message: MESSAGES.ORDER.ORDER_PLACED || "Order placed successfully",
+      });
   } catch (error) {
     console.error("Error in confirmWalletPayment :", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -1650,16 +1539,14 @@ const confirmWalletPayment = async (req, res) => {
 //razorpayPayments
 const createRazorpayOrder = async (req, res) => {
   try {
-    console.log("createRazorpayOrder reached");
     const userId = req.session.user;
     const { itemId, orderId, finalAmount } = req.body;
-    console.log("Mongo OrderId:", orderId);
 
     const order = await Order.findOne({ _id: orderId, userId });
     if (!order) {
       return res.status(httpStatus.BAD_REQUEST).json({
         success: false,
-        message: "Order not found",
+        message: MESSAGES.ORDER.NOT_FOUND || "Order not found",
       });
     }
     let amount = order.finalAmount;
@@ -1697,7 +1584,6 @@ const createRazorpayOrder = async (req, res) => {
 };
 
 const verifyPayment = async (req, res) => {
-  console.log("verifyPayment reached");
   try {
     const {
       razorpay_order_id,
@@ -1731,7 +1617,9 @@ const verifyPayment = async (req, res) => {
       if (!order) {
         return res.status(httpStatus.BAD_REQUEST).json({
           success: false,
-          message: "Order not found while verifying payment",
+          message:
+            MESSAGES.RAZORPAY.NOT_FOUND_AT_VERIFICATION ||
+            "Order not found while verifying payment",
         });
       }
 
@@ -1773,12 +1661,17 @@ const verifyPayment = async (req, res) => {
 
       return res.json({
         success: true,
-        message: "Payment verified successfully",
+        message: MESSAGES.RAZORPAY.VERIFIED || "Payment verified successfully",
       });
     } else {
       return res
         .status(httpStatus.BAD_REQUEST)
-        .json({ success: false, message: "Payment verification failed" });
+        .json({
+          success: false,
+          message:
+            MESSAGES.RAZORPAY.VERIFICATION_FAILED ||
+            "Payment verification failed",
+        });
     }
   } catch (error) {
     console.error("Error verifying Razorpay payment:", error);
@@ -1793,8 +1686,8 @@ const failedPayment = async (req, res) => {
   try {
     const orderId = req.query.id;
     let message = req.query.message;
-    message=JSON.stringify(message, null, 2);
-    console.log(message);
+    message = JSON.stringify(message, null, 2);
+
     return res.render("user/paymentFailure", {
       adminHeader: true,
       orderId,

@@ -578,7 +578,7 @@ document.getElementById("editProductForm").addEventListener("submit", function (
     }
     
 
-    if (regularPrice <= salePrice) {
+    if (regularPrice < salePrice) {
         setError("editRegularPrice-error", "Regular price must be greater than sale price");
         isValid = false;
     }

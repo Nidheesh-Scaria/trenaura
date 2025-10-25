@@ -44,13 +44,12 @@ const getMyWallet = async (req, res) => {
   }
 };
 
-const paymemntFailed=async(req,res)=>{
+const paymemntFailed = async (req, res) => {
   try {
-    
-    return res.render("user/walletPaymentFailed",{
+    return res.render("user/walletPaymentFailed", {
       title: "Wallet payment failed",
       adminHeader: true,
-    })
+    });
   } catch (error) {
     console.error("Error in paymemntFaild :", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -60,23 +59,22 @@ const paymemntFailed=async(req,res)=>{
         "An error occurred. Please try again later.",
     });
   }
-}
+};
 
 const walletTransactionHistory = async (req, res) => {
   try {
-    console.log("reached walletTransactionHistory");
     const userId = req.session.user;
-    let emptyWallet=false;
+    let emptyWallet = false;
 
     const wallet = await Wallet.findOne({ userId }).lean();
 
-    if(!wallet){
+    if (!wallet) {
       return res.render("user/walletTranscations", {
-      title: "Trenaura wallet-transactions",
-      adminHeader: true,
-      wallet,
-      emptyWallet:true,
-    });
+        title: "Trenaura wallet-transactions",
+        adminHeader: true,
+        wallet,
+        emptyWallet: true,
+      });
     }
 
     const transactions = wallet.transactions;
@@ -93,14 +91,12 @@ const walletTransactionHistory = async (req, res) => {
       date: new Date(transaction.createdAt).toLocaleString(),
     }));
 
-    console.log("sorted wallet Transaction History", sortedTransactionHistory);
-
     return res.render("user/walletTranscations", {
       title: "Trenaura wallet-transactions",
       adminHeader: true,
       wallet,
       transactionHistory,
-      emptyWallet
+      emptyWallet,
     });
   } catch (error) {
     console.error("Error in walletTransactionHistory :", error);
@@ -115,7 +111,6 @@ const walletTransactionHistory = async (req, res) => {
 
 const createRazorpayOrderWallet = async (req, res) => {
   try {
-    console.log("createRazorpayOrder reached");
     const userId = req.session.user;
     const { amount } = req.body;
 
@@ -167,9 +162,10 @@ const verifyPaymentForWallet = async (req, res) => {
       .digest("hex");
 
     if (expectedSignature !== razorpay_signature) {
-      return res
-        .status(httpStatus.BAD_REQUEST)
-        .json({ success: false, message: "Invalid payment signature" });
+      return res.status(httpStatus.BAD_REQUEST).json({
+        success: false,
+        message: MESSAGES.RAZORPAY.INVALID_SIGN || "Invalid payment signature",
+      });
     }
 
     const topupOrder = await WalletTopupOrder.findOne({
@@ -230,7 +226,7 @@ const verifyPaymentForWallet = async (req, res) => {
 
     return res.status(httpStatus.OK).json({
       success: true,
-      message: "Amount added to wallet ",
+      message: "Amount added to wallet",
       balance,
     });
   } catch (error) {

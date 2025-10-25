@@ -1,7 +1,7 @@
 const userSchema = require("../../models/userSchema");
 const bcrypt = require("bcrypt");
-const httpStatus=require('../../util/statusCodes')
-const {MESSAGES}=require('../../util/constants')
+const httpStatus = require("../../util/statusCodes");
+const { MESSAGES } = require("../../util/constants");
 
 const loadLogin = async (req, res) => {
   try {
@@ -29,7 +29,6 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      console.log("Missing email or password from form!");
       req.flash("error", "Please fill in all fields.");
       return res.redirect("/admin/login");
     }
@@ -53,13 +52,10 @@ const login = async (req, res) => {
       return res.redirect("/admin/login");
     }
   } catch (error) {
-    console.log("Login error", error);
+    console.error("Login error", error);
     return res.redirect("/pageNotFound");
   }
 };
-
-
-
 
 const logout = async (req, res) => {
   try {
@@ -76,11 +72,8 @@ const logout = async (req, res) => {
   }
 };
 
-
-
 module.exports = {
   loadLogin,
   login,
   logout,
-  
 };

@@ -115,6 +115,56 @@
     </section>
     <!-- Banner Section End -->
 
+    <!--trending products-->
+      <section class="product spad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <ul class="filter__controls">
+
+                        {{!-- <li class="active" data-filter="*">Best Sellers</li> --}}
+                        <li data-filter=".new-arrivals">Trending Products</li>
+                        {{!-- <li data-filter=".hot-sales">Hot Sales</li> --}}
+                    </ul>
+                </div>
+            </div>
+            <div class="row product__filter">
+             {{#each trendingProducts}}
+                <div class="col-lg-3 col-md-6 col-sm-6 mix new-arrivals">
+                    <div class="product__item">
+                        <a href="/productDetails?id={{this.products._id}}">
+                            <div class="product__item__pic set-bg" data-setbg="/images/{{this.products.productImages.[0]}}">
+                               
+                            </div>
+                        </a>
+                        <div class="product__item__text">
+                            <h6>{{this.products.productName}}</h6>
+                            
+                            {{#if (includes ../wishlistProducts this._id)}}
+                                <a id="wishlist-{{this.products._id}}" class="add-cart">❤️ Wishlisted</a>
+                                {{else}}
+                                <a href="#" id="wishlist-{{this.products._id}}" onclick="addWishlist(event,'{{this.products._id}}')" class="add-cart">+ Add to Wish
+                                    list</a>
+                            {{/if}}
+    
+                                {{#if (gt this.products.appliedOffer 0)}}
+                                    <p style="color: red; font-weight:900; font-size:large">{{this.products.appliedOffer}}% off</p> 
+                                {{/if}}
+
+                           
+                            <h5>&#x20b9;{{this.products.salePrice}} <span style="text-decoration: line-through; color: #888;">&#x20b9;{{this.products.regularPrice}}</span> </h5>
+                            
+                        </div>
+                    </div>
+                </div>
+                {{/each}}
+
+
+            </div>
+        </div> 
+    </section>
+
+
 
 
     <!-- Product Section Begin -->
@@ -202,38 +252,6 @@
       }
     });
   });
-
-  
-/*async function addToCarts(event,id){
-    event.preventDefault();
-  const res=await fetch(`/addToCarts/${id}`,{
-    method:"POST",
-    headers:{"Content-type":"application/json"},
-  })
-  const data = await res.json();
-  if(res.ok){
-  
-   Toastify({
-        text: data.message,
-        duration: 3000,
-        close: true,          
-        gravity: "top",       
-        position: "center",    
-        style: {
-            background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)", 
-        },
-        className: "custom-toast", 
-        onClick: () => {     
-            alert("Toast clicked!");
-        }
-        }).showToast();
-
-        document.getElementById("cart-count").textContent = data.cartCount;
-
-
-  }
-}*/
-
 
 async function addWishlist(event,id){
     event.preventDefault();

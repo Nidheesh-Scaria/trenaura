@@ -490,7 +490,20 @@ main {
           document.getElementById("state").value = addressDetails.state || "";
           document.getElementById("locality").value = addressDetails.locality || "";
         } else {
-          alert("Invalid pincode or could not fetch details");
+          
+          Toastify({
+            text: "Invalid pincode or an unexpected error occurred. Please try again.",
+            duration: 3000,
+            gravity: "top", // top or bottom
+            position: "center", // left, center or right
+            stopOnFocus: true, // Prevents dismissing of toast on hover
+            style: {
+              background: "linear-gradient(to right, #ff0000, #ff8c00)", // red to orange gradient
+              color: "#fff",
+              borderRadius: "8px",
+              fontWeight: "500",
+            },
+          }).showToast();
         }
       } catch (err) {
         console.error(err);
@@ -594,7 +607,7 @@ main {
       const data = await res.json();
       let timerInterval;
       await Swal.fire({
-        title: "Alert!",
+        title: "Success!",
         html: data.message,
         timer: 1500,
 

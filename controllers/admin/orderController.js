@@ -11,21 +11,52 @@ const { MESSAGES } = require("../../util/constants");
 
 const loadOrder = async (req, res) => {
   try {
-    const orders = await OrderSchema.find({ isOrderPlaced: true })
+    const page = parseInt(req.query.page) || 1; // current page
+    const limit = 10; // number of orders per page
+    const skip = (page - 1) * limit;
+
+    // Optional search
+    const searchQuery = req.query.search
+      ? { orderId: { $regex: req.query.search, $options: "i" } }
+      : {};
+
+    const ordersPromise = OrderSchema.find({
+      isOrderPlaced: true,
+      ...searchQuery,
+    })
       .sort({ createdAt: -1 })
       .populate("userId", "name email")
       .populate("orderedItems.productId", "productName productImages")
+      .skip(skip)
+      .limit(limit)
       .lean();
+
+    const countPromise = OrderSchema.countDocuments({
+      isOrderPlaced: true,
+      ...searchQuery,
+    });
+
+    const [orders, totalOrders] = await Promise.all([
+      ordersPromise,
+      countPromise,
+    ]);
+
+    const totalPage = Math.ceil(totalOrders / limit);
 
     return res.render("admin/orderList", {
       hideHeader: true,
       hideFooter: true,
       orders,
       isMyOrderEmpty: orders.length === 0,
+      currentPage: page,
+      totalPage,
+      search: req.query.search || "",
     });
   } catch (error) {
     console.error("loadOrder error", error);
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Internal Server Error");
   }
 };
 
@@ -104,7 +135,9 @@ const orderMangement = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Internal Server Error");
   }
 };
 
@@ -121,11 +154,11 @@ const changeOrderStatus = async (req, res) => {
     }
 
     //cheking for refund if paid
-    if (status == 'Cancelled') {
+    if (status == "Cancelled") {
       const order = await OrderSchema.findOne({
         "orderedItems._id": itemId,
       }).lean();
-      console.log("orders if cancelled",order);
+
       if (order.paymentStatus === "Paid") {
         const userId = order.userId._id;
         const item = order.orderedItems[0];
@@ -174,14 +207,16 @@ const changeOrderStatus = async (req, res) => {
     const date = new Date(updatedDate).toLocaleString();
 
     return res.status(httpStatus.OK).json({
-      message: "Status changed",
+      message: MESSAGES.ORDER.STATS_CHNGD || "Status changed",
       status: updatedStatus,
       date: date,
       reason: updatedReason,
     });
   } catch (error) {
     console.error("error in changeOrderStatus ", error);
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Internal Server Error");
   }
 };
 
@@ -211,16 +246,23 @@ const changePyamentStatus = async (req, res) => {
       status = updatedPaymentStatus.paymentStatus;
     } else {
       return res.status(httpStatus.BAD_REQUEST).json({
-        message: "Something wrong in payment change (payment keyword)",
+        message:
+          MESSAGES.ORDER.PYMNT_CHNG_ERR ||
+          "Something wrong in payment change (payment keyword)",
       });
     }
 
     return res
       .status(httpStatus.OK)
-      .json({ message: "Payment method changed", status: status });
+      .json({
+        message: MESSAGES.ORDER.PYMNT_CHNG_SCSS || "Payment status changed",
+        status: status,
+      });
   } catch (error) {
     console.error("error in changePyamentStatus ", error);
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Internal Server Error");
   }
 };
 
@@ -280,8 +322,6 @@ const loadReviewReturn = async (req, res) => {
       returnRequest.requestDate
     ).toLocaleDateString();
 
-    console.log("order.isAdminApproved", order.isAdminApproved);
-
     const address = await AddressSchema.findOne(
       { "address._id": order.address },
       { "address.$": 1 }
@@ -298,7 +338,9 @@ const loadReviewReturn = async (req, res) => {
     });
   } catch (error) {
     console.error("error in loadReviewOrder ", error);
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Internal Server Error");
   }
 };
 
@@ -362,26 +404,23 @@ const changeReturnStatus = async (req, res) => {
     } else if (isRejected) {
       return res
         .status(httpStatus.OK)
-        .json({ message: "Return request rejected " });
+        .json({
+          message: MESSAGES.ORDER.RTRN_RJCTD || "Return request rejected ",
+        });
     }
   } catch (error) {
     console.error("error in changeReturnStatus ", error);
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Internal Server Error");
   }
 };
 
 const loadReturnOrRefund = async (req, res) => {
   try {
-    const order = await OrderSchema.find(
-      {
-        "orderedItems.returnRequest.isUserRequested": true,
-      }
-      // {
-      //   orderedItems: {
-      //     $elemMatch: { "returnRequest.isUserRequested": true },
-      //   },
-      // }
-    )
+    const order = await OrderSchema.find({
+      "orderedItems.returnRequest.isUserRequested": true,
+    })
       .populate("userId", "name")
       .populate("orderedItems.productId", "productName productImages")
       .lean();
@@ -413,8 +452,6 @@ const loadReturnOrRefund = async (req, res) => {
       })
       .filter((order) => order.orderedItems.length > 0);
 
-    console.log("loadReturnOrRefund:", filteredOrders.reason);
-
     return res.render("admin/return-or-refund", {
       hideHeader: true,
       hideFooter: true,
@@ -422,7 +459,9 @@ const loadReturnOrRefund = async (req, res) => {
     });
   } catch (error) {
     console.error("error in loadReturnOrRefund ", error);
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Internal Server Error");
   }
 };
 
@@ -486,13 +525,15 @@ const initiateRefund = async (req, res) => {
     updatedOrder.refundDate = updatedItem.returnRequest.refundDate;
 
     return res.status(httpStatus.OK).json({
-      message: "Refund successfull",
+      message: MESSAGES.ORDER.REFND_SCSS || "Refund successfull",
       refundStatus: updatedOrder.status,
       refundDate: updatedOrder.refundDate,
     });
   } catch (error) {
     console.error("error in initiateRefund ", error);
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).send("Internal Server Error");
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send(MESSAGES.INTERNAL_SERVER_ERROR || "Internal Server Error");
   }
 };
 

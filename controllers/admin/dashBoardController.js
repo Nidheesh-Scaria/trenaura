@@ -232,7 +232,7 @@ const cancelledItemsCount = async () => {
 };
 
 const returnedItemsCount = async () => {
-  let returnedItems =await Order.aggregate([
+  let returnedItems = await Order.aggregate([
     { $unwind: "$orderedItems" },
     {
       $addFields: {
@@ -295,8 +295,6 @@ const getDashboardData = async (req, res) => {
     const topBrands = await getTopBrands(startDate, endDate);
     const salesOverview = await getSalesOverview(startDate, endDate);
 
-
-    
     return res.status(httpStatus.OK).json({
       success: true,
       dailySales,
@@ -325,7 +323,9 @@ const getDashboardData = async (req, res) => {
     console.error("Error in getDashboardData:", error);
     return res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
-      .json({ message: MESSAGES.INTERNAL_SERVER_ERROR });
+      .json({
+        message: MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error",
+      });
   }
 };
 
@@ -336,7 +336,10 @@ const downloadLedger = async (req, res) => {
     if (!startDate || !endDate) {
       return res
         .status(400)
-        .json({ message: "Start date and end date are required" });
+        .json({
+          message:
+            MESSAGES.STRT_END_DATE || "Start date and end date are required",
+        });
     }
 
     const orders = await Order.find({

@@ -1138,7 +1138,7 @@
                 isValid = false;
             }
             
-            if (regularPrice <= salePrice) {
+            if (regularPrice < salePrice) {
                 displayErrorMessage('regularPrice-error', 'Regular price must be greater than sale price');
                 isValid = false;
             }

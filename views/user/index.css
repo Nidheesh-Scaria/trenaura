@@ -1,0 +1,318 @@
+.address-section {
+  flex: 1;
+  padding: 20px;
+}
+
+.address-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.address-header h1 {
+
+  margin-bottom: 10px;
+  color: #233c79;
+}
+
+.address-list {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.address-card {
+  background: #fff;
+  padding: 15px 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  border-left: 4px solid #233c79;
+}
+
+.address-card p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.address-actions {
+  margin-top: 10px;
+}
+
+.address-actions .editButton {
+  padding: 6px 10px;
+  margin-right: 10px;
+  background: #233c79;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.address-actions .deleteButton {
+  padding: 6px 10px;
+  margin-right: 10px;
+  background: #f10346;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+
+.add-address-btn {
+  padding: 8px 14px;
+  background: #233c79;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.addressType {
+  font-weight: bolder;
+}
+
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  transition: opacity 0.3s ease;
+  
+}
+
+.modal-content {
+
+  background-color: #ffffff;
+  margin: 0% auto;
+  padding: 30px 35px;
+  border-radius: 16px;
+  width: 520px;
+  max-width: 95%;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.3s ease, slideUp 0.3s ease;
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.close:hover {
+  color: #000;
+}
+
+.modal-content h3 {
+  margin-bottom: 20px;
+  font-size: 20px;
+  color: #000000;
+  text-align: center;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.row input, .row select, textarea {
+  flex: 1;
+  padding: 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fafafa;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+}
+
+.row input:focus,
+.row select:focus,
+textarea:focus {
+  border-color: #203acd;
+  box-shadow: 0 0 0 2px rgba(32, 58, 205, 0.1);
+  outline: none;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+.radio-group {
+  display: flex;
+  justify-content: start;
+  gap: 20px;
+  margin-top: 5px;
+  font-size: 14px;
+  position: sticky;
+  bottom: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  background: #fff;
+  padding-top: 15px;
+  position: sticky;
+  bottom: 0;
+
+}
+
+button.save {
+  background: #110ae9;
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background 0.2s ease;
+}
+
+button.save:hover {
+  background: #1a2fb1;
+}
+
+button.cancel {
+  background: #e0e0e0;
+  color: #333;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+button.cancel:hover {
+  background: #cfcfcf;
+  color: #ff0000;
+  ;
+}
+
+#error {
+  margin-top: -10px;
+}
+
+/* Delete Modal Styling */
+#deleteModal .modal-content {
+  max-height: 100%;
+  overflow-y: auto;
+  background-color: #ffffff;
+  margin: 10% auto;
+  padding: 30px 35px;
+  border-radius: 16px;
+  width: 400px;
+  max-width: 95%;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.3s ease, slideUp 0.3s ease;
+  position: relative;
+  text-align: center;
+}
+
+#deleteModal .modal-content h3 {
+  font-size: 18px;
+  color: #d1001f;
+  margin-bottom: 10px;
+}
+
+#deleteModal .modal-content p {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+#deleteModal .actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+#deleteModal .save {
+  background: #d1001f;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+#deleteModal .save:hover {
+  background: #a0001a;
+}
+
+#deleteModal .cancel {
+  background: #e0e0e0;
+  color: #333;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+#deleteModal .cancel:hover {
+  background: #cfcfcf;
+  color: #ff0000;
+}
+
+/* Warning icon in delete modal */
+#deleteModal .warning-icon {
+  font-size: 40px;
+  color: #d1001f;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}

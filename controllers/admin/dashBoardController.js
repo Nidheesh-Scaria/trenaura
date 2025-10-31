@@ -259,6 +259,7 @@ const loadDashboard = async (req, res) => {
       hideHeader: true,
       hideFooter: true,
       adminHeader: false,
+      
     });
   } catch (error) {
     console.error("Error rendering dashboard:", error);

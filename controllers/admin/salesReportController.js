@@ -105,312 +105,258 @@ const salesReportDownload = async (req, res) => {
     let { startDate, endDate, format } = req.body;
     let dateFilter = {};
 
+    // Apply date filter if provided
     if (startDate && endDate) {
-      let start = new Date(startDate);
-      let end = new Date(endDate);
+      const start = new Date(startDate);
+      const end = new Date(endDate);
       end.setHours(23, 59, 59, 999);
 
-      dateFilter = {
-        createdAt: { $gte: start, $lte: end },
-      };
+      dateFilter = { createdAt: { $gte: start, $lte: end } };
     }
 
-    const order = await OrderSchema.find({ ...dateFilter, isOrderPlaced: true })
+    // Fetch orders
+    const orders = await OrderSchema.find({
+      ...dateFilter,
+      isOrderPlaced: true,
+    })
       .populate("userId", "name")
       .populate("orderedItems.productId", "productName")
       .sort({ createdAt: -1 })
       .lean();
 
+    if (!orders.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No orders found for the selected period.",
+      });
+    }
+
+    // Summary Calculations
+    const totalOrders = orders.length;
+    const totalRevenue = orders.reduce((sum, o) => sum + (o.finalAmount || 0), 0);
+    const totalDiscount = orders.reduce((sum, o) => sum + (o.discount || 0), 0);
+    const totalCouponDiscount = orders.reduce(
+      (sum, o) => sum + (o.couponDiscount || 0),
+      0
+    );
+    const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+    const paymentStats = {};
+    orders.forEach((o) => {
+      const method = o.paymentMethod || "Unknown";
+      paymentStats[method] = (paymentStats[method] || 0) + 1;
+    });
+
+    
+    // EXCEL EXPORT
+   
     if (format === "excel") {
       const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet("Sales Report");
+      const sheet = workbook.addWorksheet("Sales Report");
 
-      worksheet.columns = [
-        { header: "Date", key: "createdAt", width: 20 },
-        { header: "User Name", key: "user", width: 20 },
-        { header: "Order ID", key: "orderId", width: 30 },
-        { header: "Product", key: "productName", width: 30 },
-        { header: "Quantity", key: "quantity", width: 15 },
-        { header: "Total Price", key: "totalPrice", width: 15 },
+      // --- Summary Section ---
+      sheet.addRow(["SALES REPORT SUMMARY"]).font = { bold: true, size: 14 };
+      sheet.addRow([]);
+      sheet.addRow(["Report Period:", `${startDate || "All"} to ${endDate || "All"}`]);
+      sheet.addRow(["Total Orders:", totalOrders]);
+      sheet.addRow(["Total Revenue:", `₹${totalRevenue.toFixed(2)}`]);
+      sheet.addRow(["Total Discount:", `₹${totalDiscount.toFixed(2)}`]);
+      sheet.addRow(["Coupon Discount:", `₹${totalCouponDiscount.toFixed(2)}`]);
+      sheet.addRow(["Average Order Value:", `₹${averageOrderValue.toFixed(2)}`]);
+      sheet.addRow([]);
+
+      sheet.addRow(["Payment Method Breakdown:"]);
+      Object.entries(paymentStats).forEach(([method, count]) => {
+        sheet.addRow([`${method}:`, count]);
+      });
+      sheet.addRow([]);
+      sheet.addRow([]);
+
+      // --- Table Headers ---
+      sheet.columns = [
+        { header: "Date", key: "date", width: 15 },
+        { header: "User Name", key: "userName", width: 20 },
+        { header: "Order ID", key: "orderId", width: 25 },
+        { header: "Product", key: "product", width: 25 },
+        { header: "Quantity", key: "quantity", width: 10 },
         { header: "Final Amount", key: "finalAmount", width: 15 },
         { header: "Discount", key: "discount", width: 15 },
-        { header: "Coupon Discount", key: "couponDiscount", width: 15 },
-        { header: "Coupon", key: "coupon", width: 15 },
+        { header: "Coupon Discount", key: "couponDiscount", width: 18 },
+        { header: "Payment Method", key: "paymentMethod", width: 20 },
       ];
 
-      order.forEach((orders) => {
-        orders.orderedItems.forEach((item) => {
-          worksheet.addRow({
-            createdAt: new Date(orders.createdAt).toLocaleDateString(),
-            user: orders.userId.name || "N/A",
-            orderId: orders.orderId,
-            productName: item.productId.productName,
+      // --- Add Data Rows ---
+      orders.forEach((order) => {
+        order.orderedItems.forEach((item) => {
+          sheet.addRow({
+            date: new Date(order.createdAt).toLocaleDateString(),
+            userName: order.userId?.name || "N/A",
+            orderId: order.orderId,
+            product: item.productId?.productName || "N/A",
             quantity: item.quantity,
-            totalPrice: item.totalPrice,
-            finalAmount: orders.finalAmount,
-            discount: orders.discount,
-            couponDiscount: orders.couponDiscount,
-            coupon: orders.couponApplied ? "Yes" : "No",
+            finalAmount: `₹${order.finalAmount}`,
+            discount: `₹${order.discount}`,
+            couponDiscount: `₹${order.couponDiscount}`,
+            paymentMethod: order.paymentMethod || "Unknown",
           });
         });
+      });
+
+      // --- Style Header Row ---
+      sheet.getRow(20).eachCell((cell) => {
+        cell.font = { bold: true };
+        cell.alignment = { horizontal: "center", vertical: "middle" };
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFE0E0E0" },
+        };
       });
 
       res.setHeader(
         "Content-Type",
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
       );
-      res.setHeader(
-        "Content-Disposition",
-        "attachment; filename=sales-report.xlsx"
-      );
+      res.setHeader("Content-Disposition", "attachment; filename=sales-report.xlsx");
+
       await workbook.xlsx.write(res);
       res.end();
     }
 
-    //for pdf
+  
+    // PDF EXPORT
+   
     else if (format === "pdf") {
-      const doc = new PDFDocument({ margin: 30, size: "A4" });
-
+      const doc = new PDFDocument({ margin: 34, size: "A4" });
       res.setHeader("Content-Type", "application/pdf");
-      res.setHeader(
-        "Content-Disposition",
-        "attachment; filename=sales-report.pdf"
-      );
-
+      res.setHeader("Content-Disposition", "attachment; filename=sales-report.pdf");
       doc.pipe(res);
 
-      // Title and setup
-      doc.fontSize(12).text("Sales Report", { align: "center" });
+      // --- Title ---
+      doc.fontSize(20).font("Helvetica-Bold").text("Sales Report", { align: "center" });
       doc.moveDown(1);
-      doc.lineWidth(1); // Set line thickness
 
-      const tableTop = 100;
-      const itemX = 30; // Starting X position
-      const tableEnd = doc.page.width - 30; // Ending X position
+      // --- Summary Section ---
+      doc.fontSize(10).font("Helvetica-Bold").text("Summary", { underline: true });
+      doc.moveDown(1);
+      doc.font("Helvetica");
+      doc.text(`Report Period: ${startDate || "All"} TO ${endDate || "All"}`);
+      doc.text(`Total Orders: ${totalOrders}`);
+      doc.text(`Total Revenue: ${totalRevenue.toFixed(2)}`);
+      doc.text(`Total Discount: ${totalDiscount.toFixed(2)}`);
+      doc.text(`Coupon Discount: ${totalCouponDiscount.toFixed(2)}`);
+      doc.text(`Average Order Value: ${averageOrderValue.toFixed(2)}`);
+      doc.moveDown(1);
 
-      // Define Column Widths
-      const columnWidths = {
-        userName: 80,
-        orderId: 75,
-        product: 120,
-        date: 65,
-        quantity: 50,
-        finalAmount: 70,
-        paymentMethod: 70,
-      };
-      // Internal padding for text within cells
-      const cellPadding = 3;
+      doc.font("Helvetica-Bold").text("Payment Method Breakdown:");
+      doc.font("Helvetica");
+      Object.entries(paymentStats).forEach(([method, count]) => {
+        doc.text(`• ${method}: ${count}`);
+      });
+      doc.moveDown(1);
 
-      // X-positions for the left edge of each column
-      const columnPositions = {
-        userName: itemX,
-        orderId: itemX + columnWidths.userName,
-        product: itemX + columnWidths.userName + columnWidths.orderId,
-        date:
-          itemX +
-          columnWidths.userName +
-          columnWidths.orderId +
-          columnWidths.product,
-        quantity:
-          itemX +
-          columnWidths.userName +
-          columnWidths.orderId +
-          columnWidths.product +
-          columnWidths.date,
-        finalAmount:
-          itemX +
-          columnWidths.userName +
-          columnWidths.orderId +
-          columnWidths.product +
-          columnWidths.date +
-          columnWidths.quantity,
-        paymentMethod:
-          itemX +
-          columnWidths.userName +
-          columnWidths.orderId +
-          columnWidths.product +
-          columnWidths.date +
-          columnWidths.quantity +
-          columnWidths.finalAmount,
-      };
-
-      // List of all vertical line X-coordinates (Left edge of each column and table end)
-      const verticalLineX = [
-        itemX,
-        columnPositions.orderId,
-        columnPositions.product,
-        columnPositions.date,
-        columnPositions.quantity,
-        columnPositions.finalAmount,
-        columnPositions.paymentMethod,
-        tableEnd,
+      // --- Table Setup ---
+      const pageWidth = doc.page.width - 2 * doc.page.margins.left;
+      const colWidths = [
+        pageWidth * 0.12, // Date
+        pageWidth * 0.15, // User
+        pageWidth * 0.18, // Order ID
+        pageWidth * 0.18, // Product
+        pageWidth * 0.08, // Qty
+        pageWidth * 0.12, // Final
+        pageWidth * 0.07, // Disc
+        pageWidth * 0.1,  // Pay
       ];
+      const startX = doc.page.margins.left;
+      let startY = doc.y + 10;
+      const rowHeight = 25;
 
-      const rowHeightBase = 18; // Base height for a single-line row
-      const rowPadding = 5;
+      // --- Header ---
+      const headers = [
+        "Date",
+        "User",
+        "Order ID",
+        "Product",
+        "Qty",
+        "FinalAmount",
+        "Discount",
+        "Payment",
+      ];
+      doc.font("Helvetica-Bold").fontSize(9);
+      let x = startX;
+      headers.forEach((header, i) => {
+        doc.rect(x, startY, colWidths[i], rowHeight).stroke();
+        doc.text(header, x + 3, startY + 6, { width: colWidths[i] - 6, align: "center" });
+        x += colWidths[i];
+      });
 
-      // Function to draw header and vertical lines on a page
-      const drawHeader = (startY) => {
-        doc.font("Helvetica-Bold").fontSize(8); // Use smaller font for header to save space
+      startY += rowHeight;
+      doc.font("Helvetica").fontSize(8);
 
-        // Draw Header Text (offset by padding)
-        doc.text("User Name", columnPositions.userName + cellPadding, startY, {
-          width: columnWidths.userName - 2 * cellPadding,
+      // --- Add Rows ---
+      const addRow = (row) => {
+        let x = startX;
+        row.forEach((text, i) => {
+          doc.rect(x, startY, colWidths[i], rowHeight).stroke();
+          doc.text(String(text), x + 3, startY + 6, {
+            width: colWidths[i] - 6,
+            align: i === 5 || i === 6 ? "right" : "left",
+          });
+          x += colWidths[i];
         });
-        doc.text("Order ID", columnPositions.orderId + cellPadding, startY, {
-          width: columnWidths.orderId - 2 * cellPadding,
-        });
-        doc.text(
-          "Product Name",
-          columnPositions.product + cellPadding,
-          startY,
-          { width: columnWidths.product - 2 * cellPadding }
-        );
-        doc.text("Date", columnPositions.date + cellPadding, startY, {
-          width: columnWidths.date - 2 * cellPadding,
-        });
-        doc.text("Quantity", columnPositions.quantity + cellPadding, startY, {
-          width: columnWidths.quantity - 2 * cellPadding,
-          align: "center",
-        });
-        doc.text(
-          "Final Amount",
-          columnPositions.finalAmount + cellPadding,
-          startY,
-          { width: columnWidths.finalAmount - 2 * cellPadding }
-        );
-        doc.text(
-          "Payment Method",
-          columnPositions.paymentMethod + cellPadding,
-          startY,
-          { width: columnWidths.paymentMethod - 2 * cellPadding }
-        );
-
-        // Horizontal line below header
-        doc
-          .font("Helvetica")
-          .moveTo(itemX, startY + rowHeightBase - rowPadding)
-          .lineTo(tableEnd, startY + rowHeightBase - rowPadding)
-          .stroke();
-
-        // Draw Vertical lines for the header row
-        verticalLineX.forEach((x) => {
-          doc
-            .moveTo(x, startY - rowPadding) // Start slightly above text
-            .lineTo(x, startY + rowHeightBase - rowPadding)
-            .stroke();
-        });
-
-        doc.font("Helvetica").fontSize(6); // Reset font and size for data
+        startY += rowHeight;
       };
 
-      // Draw the header on the first page
-      drawHeader(tableTop);
-      let y = tableTop + rowHeightBase; // Starting Y for data rows
-
-      order.forEach((singleOrder) => {
-        const userName = singleOrder.userId ? singleOrder.userId.name : "N/A";
-        const orderId = singleOrder.orderId || "N/A";
-        const finalAmount = `₹ ${
-          singleOrder.finalAmount ? singleOrder.finalAmount.toFixed(2) : "0.00"
-        }`;
-        const dateString = new Date(singleOrder.createdAt).toLocaleDateString();
-        const paymentMethod = singleOrder.paymentMethod || "N/A";
-
-        singleOrder.orderedItems.forEach((item) => {
-          const productName = item.productId.productName;
-
-          // Calculate row height based on the tallest cell (Product Name/User Name)
-          const productHeight = doc.heightOfString(productName, {
-            width: columnWidths.product - 2 * cellPadding,
+      const checkPage = () => {
+        if (startY + rowHeight > doc.page.height - doc.page.margins.bottom) {
+          doc.addPage();
+          startY = doc.page.margins.top;
+          x = startX;
+          doc.font("Helvetica-Bold").fontSize(9);
+          headers.forEach((header, i) => {
+            doc.rect(x, startY, colWidths[i], rowHeight).stroke();
+            doc.text(header, x + 3, startY + 6, {
+              width: colWidths[i] - 6,
+              align: "center",
+            });
+            x += colWidths[i];
           });
-          const userHeight = doc.heightOfString(userName, {
-            width: columnWidths.userName - 2 * cellPadding,
-          });
-          const contentHeight = Math.max(productHeight, userHeight);
+          startY += rowHeight;
+          doc.font("Helvetica").fontSize(9);
+        }
+      };
 
-          // Row height should be content height + padding
-          const currentRowHeight = contentHeight + rowPadding * 2;
-
-          // Page break check
-          if (y + currentRowHeight > doc.page.height - 40) {
-            doc.addPage();
-            drawHeader(70);
-            y = 70 + rowHeightBase; // Reset Y position for new page data
-          }
-
-          const currentY = y; // Store current Y before drawing
-
-          // Draw Horizontal line at the top of the data row
-          doc
-            .moveTo(itemX, currentY - rowPadding)
-            .lineTo(tableEnd, currentY - rowPadding)
-            .stroke("#aaaaaa");
-
-          // Row data (with X offset for padding)
-          // Use height of the row to center text vertically (if needed, but simple text works well)
-          doc.text(userName, columnPositions.userName + cellPadding, currentY, {
-            width: columnWidths.userName - 2 * cellPadding,
-          });
-          doc.text(orderId, columnPositions.orderId + cellPadding, currentY, {
-            width: columnWidths.orderId - 2 * cellPadding,
-          });
-          doc.text(
-            productName,
-            columnPositions.product + cellPadding,
-            currentY,
-            { width: columnWidths.product - 2 * cellPadding }
-          );
-          doc.text(dateString, columnPositions.date + cellPadding, currentY, {
-            width: columnWidths.date - 2 * cellPadding,
-          });
-          doc.text(
-            item.quantity.toString(),
-            columnPositions.quantity + cellPadding,
-            currentY,
-            { align: "center", width: columnWidths.quantity - 2 * cellPadding }
-          );
-          doc.text(
-            finalAmount,
-            columnPositions.finalAmount + cellPadding,
-            currentY,
-            { width: columnWidths.finalAmount - 2 * cellPadding }
-          );
-          doc.text(
-            paymentMethod,
-            columnPositions.paymentMethod + cellPadding,
-            currentY,
-            { width: columnWidths.paymentMethod - 2 * cellPadding }
-          );
-
-          // Draw Vertical lines for the data row
-          verticalLineX.forEach((x) => {
-            doc
-              .moveTo(x, currentY - rowPadding)
-              .lineTo(x, currentY + currentRowHeight - rowPadding) // Span the height of the current row
-              .stroke();
-          });
-
-          // Move y to next row
-          y += currentRowHeight;
+      orders.forEach((order) => {
+        order.orderedItems.forEach((item) => {
+          checkPage();
+          addRow([
+            new Date(order.createdAt).toLocaleDateString(),
+            order.userId?.name || "N/A",
+            order.orderId,
+            item.productId?.productName?.slice(0,25) || "N/A",
+            item.quantity,
+            order.finalAmount.toFixed(2),
+            order.discount.toFixed(2),
+            order.paymentMethod || "Unknown",
+          ]);
         });
       });
 
-      // Draw the final bottom line of the table
-      doc
-        .moveTo(itemX, y - rowPadding)
-        .lineTo(tableEnd, y - rowPadding)
-        .stroke();
-
       doc.end();
-    } else {
-      return res.json("Invaid Format");
+    }
+
+    // Invalid format
+    else {
+      return res.status(400).json({ success: false, message: "Invalid format type." });
     }
   } catch (error) {
     console.error("Error in salesReportDownload:", error);
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false });
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: "Error generating report." });
   }
 };
+
 
 module.exports = {
   loadSalesReport,

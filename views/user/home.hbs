@@ -69,52 +69,8 @@
             </div>
         </div>
     </section>
-    <!-- Hero Section End -->
-
-    <!-- Banner Section Begin -->
-    <section class="banner spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-7 offset-lg-4">
-                    <div class="banner__item">
-                        <div class="banner__item__pic">         
-                            <img src="{{mensImg}}" alt="Mens style" style="width:25rem; height:20rem">
-                        </div>
-                        <div class="banner__item__text">
-                            <h2>Men’s Style</h2>
-                            <a href="/mensCategory">Shop now</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-5">
-                    <div class="banner__item banner__item--middle">
-                        <div class="banner__item__pic">
-                            {{!-- <img src="img/banner/banner-2.jpg" alt=""> --}}
-                            <img src="{{womensImg}}" alt="womens style" style="width:25rem; height:20rem">
-                        </div>
-                        <div class="banner__item__text">
-                            <h2>Women’s Style</h2>
-                            <a href="/womensCategory">Shop now</a>
-                        </div>
-                    </div>
-                </div>
-                 <div class="col-lg-7">
-                    <!--<div class="banner__item banner__item--last">
-                        <div class="banner__item__pic">
-                            {{!-- <img src="img/banner/banner-3.jpg" alt=""> --}}
-                            <img src="{{beautyImg}}" alt="beauty style" style="width:25rem; height:15rem">
-                        </div>
-                        <div class="banner__item__text">
-                            <h2>Own Your Glow</h2>
-                            <a href="/beautyCategory">Shop now</a>
-                        </div>
-                    </div>-->
-                </div> 
-            </div>
-        </div>
-    </section>
-    <!-- Banner Section End -->
-
+    <br>
+    <br>
     <!--trending products-->
       <section class="product spad">
         <div class="container">
@@ -133,7 +89,7 @@
                 <div class="col-lg-3 col-md-6 col-sm-6 mix new-arrivals">
                     <div class="product__item">
                         <a href="/productDetails?id={{this.products._id}}">
-                            <div class="product__item__pic set-bg" data-setbg="/images/{{this.products.productImages.[0]}}">
+                            <div class="product__item__pic set-bg" data-setbg="{{this.products.productImages.[0]}}">
                                
                             </div>
                         </a>
@@ -185,7 +141,7 @@
                 <div class="col-lg-3 col-md-6 col-sm-6 mix new-arrivals">
                     <div class="product__item">
                         <a href="/productDetails?id={{this._id}}">
-                            <div class="product__item__pic set-bg" data-setbg="/images/{{this.productImages.[0]}}">
+                            <div class="product__item__pic set-bg" data-setbg="{{this.productImages.[0]}}">
                                 <span class="label">New</span>
                                 {{!-- <ul class="product__hover">
                                     <li><button  onclick="addWishlist(event,'{{this._id}}')"><img src="img/icon/heart.png" alt=""></button></li>

@@ -6,121 +6,282 @@
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      background: #f5f7fa;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+      min-height: 100vh;
     }
 
     .form-container {
       background: #ffffff;
-      padding: 30px 35px;
-      border-radius: 5px;
+      padding: 40px 45px;
+      border-radius: 16px;
       max-width: 100%;
       width: 100%;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-      animation: fadeIn 0.5s ease-in-out;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+      animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Decorative element */
+    .form-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #233c79, #673ab7, #ff6b6b);
+      background-size: 200% 100%;
+      animation: gradientMove 3s ease infinite;
+    }
+
+    @keyframes gradientMove {
+      0%, 100% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
     }
 
     h2 {
-      font-size: 22px;
-      font-weight: 600;
-      margin-bottom: 25px;
-      border-bottom: 1px solid #e0e0e0;
-      padding-bottom: 10px;
-      color: #333;
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 30px;
+      color: #1a1a1a;
+      position: relative;
+      padding-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
+   
+
+
+    /* Form Labels */
     form label {
       font-size: 14px;
-      color: #555;
-      margin-bottom: 5px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
       display: block;
-      margin-top: 20px;
+      margin-top: 24px;
+      letter-spacing: 0.3px;
+      transition: color 0.3s ease;
     }
 
+    /* Input Fields */
     input[type="text"],
     input[type="email"],
     input[type="tel"] {
       width: 100%;
-      padding: 12px;
-      font-size: 14px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      background-color: #fafafa;
-      transition: all 0.2s;
+      padding: 14px 16px;
+      font-size: 15px;
+      border: 2px solid #e0e6ed;
+      border-radius: 10px;
+      background-color: #fafbfd;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: inherit;
+      color: #333;
     }
 
-    input:focus {
-      border-color: #007bff;
-      outline: none;
+    input[type="text"]:hover,
+    input[type="email"]:hover,
+    input[type="tel"]:hover {
+      border-color: #c5d0dd;
       background-color: #fff;
     }
 
+    input:focus {
+      border-color: #233c79;
+      outline: none;
+      background-color: #fff;
+      box-shadow: 0 0 0 4px rgba(35, 60, 121, 0.1);
+      transform: translateY(-1px);
+    }
+
+    input:disabled {
+      background-color: #f0f3f7;
+      color: #6b7280;
+      cursor: not-allowed;
+      border-color: #e5e7eb;
+    }
+
+    input:disabled:hover {
+      border-color: #e5e7eb;
+      background-color: #f0f3f7;
+      transform: none;
+    }
+
+    /* Gender Radio Group */
     .gender-group {
       display: flex;
-      gap: 30px;
-      margin-top: 10px;
+      gap: 20px;
+      margin-top: 12px;
+      flex-wrap: wrap;
     }
 
     .gender-group label {
       display: flex;
       align-items: center;
-      font-size: 14px;
-      color: #444;
+      font-size: 15px;
+      font-weight: 500;
+      color: #555;
+      padding: 12px 20px;
+      background: #f8f9fc;
+      border: 2px solid #e0e6ed;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 0;
+      min-width: 100px;
+      justify-content: center;
+    }
+
+    .gender-group label:hover {
+      background: #eef1f7;
+      border-color: #233c79;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(35, 60, 121, 0.1);
     }
 
     .gender-group input[type="radio"] {
-      margin-right: 6px;
-      accent-color: #007bff;
+      margin-right: 8px;
+      accent-color: #233c79;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
     }
-   
+
+    .gender-group input[type="radio"]:checked + label,
+    .gender-group label:has(input[type="radio"]:checked) {
+      background: linear-gradient(135deg, #233c79 0%, #1a2c58 100%);
+      color: #fff;
+      border-color: #233c79;
+      box-shadow: 0 4px 16px rgba(35, 60, 121, 0.3);
+    }
+
+    .gender-group input[type="radio"]:disabled {
+      cursor: not-allowed;
+    }
+
+    .gender-group label:has(input[type="radio"]:disabled) {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    /* Button Containers */
+    .buttons,
+    .edit-buttton {
+      display: flex;
+      gap: 15px;
+      margin-top: 35px;
+      flex-wrap: wrap;
+    }
 
     .buttons {
       display: none;
-      gap: 15px;
-      margin-top: 30px;
     }
 
-    button {
-      padding: 10px 20px;
-      font-size: 14px;
+    /* Button Styles */
+    .buttons button {
+      padding: 14px 28px;
+      font-size: 15px;
+      font-weight: 600;
       border: none;
-      border-radius: 6px;
+      border-radius: 10px;
       cursor: pointer;
-      transition: background-color 0.2s;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
+      min-width: 120px;
     }
-    .edit-buttton{
-      display: flex;
-      gap: 15px;
-      margin-top: 30px;
-      
-    }
-    .edit-buttton button{
-      background-color: rgb(14, 14, 169) ;
-      color: white;
-      height: 2rem;
-     }
 
-    #submit {
-      background-color: rgb(14, 14, 169) ;
+    .buttons button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .buttons button:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    /* Edit Button */
+    .edit-buttton .editBtn {
+      background: linear-gradient(135deg, #233c79 0%, #1a2c58 100%);
       color: white;
+      box-shadow: 0 4px 12px rgba(35, 60, 121, 0.3);
+      padding: 14px 28px;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
+      min-width: 120px;
+    }
+
+    .edit-buttton .editBtn:hover {
+      background: linear-gradient(135deg, #1a2c58 0%, #0f1a35 100%);
+      box-shadow: 0 6px 20px rgba(35, 60, 121, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .edit-buttton .editBtn:active {
+      transform: translateY(0);
+    }
+
+    /* Submit Button */
+    #submit {
+      background:linear-gradient(135deg, #233c79 0%, #1a2c58 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(103, 58, 183, 0.3);
+      position: relative;
+      z-index: 1;
     }
 
     #submit:hover {
-      background-color: rgb(0, 55, 254) ;;
+      background: linear-gradient(135deg, #1a2c58 0%, #0f1a35 100%);
+      box-shadow: 0 6px 20px rgba(103, 58, 183, 0.4);
+      transform: translateY(-2px);
     }
 
- `  #cancel  {
-      background: #203acd  !important ;
+    /* Cancel Button */
+    #cancel {
+      background: linear-gradient(135deg, #f23c3c 0%, #e22117 100%) !important;
       color: #fff;
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
     }
 
     #cancel:hover {
-      background-color: #dc1414;
+      background: linear-gradient(135deg, #ee5a52 0%, #e74c3c 100%) !important;
+      box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+      transform: translateY(-2px);
     }
 
-    @keyframes fadeIn {
+    button:active {
+      transform: scale(0.98);
+    }
+
+    /* Animation */
+    @keyframes fadeInUp {
       from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(30px);
       }
       to {
         opacity: 1;
@@ -128,17 +289,141 @@
       }
     }
 
-    @media (max-width: 600px) {
+    /* Focus visible for accessibility */
+    button:focus-visible,
+    input:focus-visible {
+      outline: 3px solid #233c79;
+      outline-offset: 2px;
+    }
+
+    /* ================================================== */
+    /* 📱 Responsive Styles */
+    /* ================================================== */
+
+    @media (max-width: 768px) {
+      .main-content {
+        padding: 24px 16px;
+      }
+
       .form-container {
-        padding: 20px;
+        padding: 30px 24px;
+        border-radius: 12px;
+      }
+
+      h2 {
+        font-size: 22px;
+        margin-bottom: 24px;
+      }
+
+      h2::before {
+        font-size: 24px;
+      }
+
+      form label {
+        margin-top: 20px;
+        font-size: 13px;
+      }
+
+      input[type="text"],
+      input[type="email"],
+      input[type="tel"] {
+        padding: 12px 14px;
+        font-size: 14px;
       }
 
       .gender-group {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .gender-group label {
+        width: 100%;
+        padding: 14px 16px;
+      }
+
+      button {
+        padding: 12px 24px;
+        font-size: 14px;
+        min-width: 100px;
+      }
+
+      .buttons,
+      .edit-buttton {
+        margin-top: 28px;
+        gap: 12px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .main-content {
+        padding: 16px 12px;
+      }
+
+      .form-container {
+        padding: 24px 20px;
+      }
+
+      h2 {
+        font-size: 20px;
+        margin-bottom: 20px;
+      }
+
+      button {
+        width: 100%;
+        padding: 14px 20px;
+      }
+
+      .buttons,
+      .edit-buttton {
         flex-direction: column;
         gap: 10px;
       }
     }
 
+    /* Input icons (optional - add these spans in HTML if needed) */
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper .icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      font-size: 18px;
+    }
+
+    .input-wrapper input {
+      padding-left: 45px;
+    }
+
+    /* Loading state for submit button */
+    button.loading {
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    button.loading::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      top: 50%;
+      left: 50%;
+      margin-left: -8px;
+      margin-top: -8px;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spinner 0.6s linear infinite;
+    }
+
+    @keyframes spinner {
+      to {
+        transform: rotate(360deg);
+      }
+    }
   </style>
 </head>
 
@@ -167,7 +452,7 @@
         <label for="phone">Mobile Number</label>
         <input type="tel" id="phone" name="phone" value="{{phone}}" disabled/>
         <div class="edit-buttton" id="editButtton">
-            <button id="editBtn" type="button">Edit</button>
+            <button class="editBtn" id="editBtn" type="button">Edit</button>
         </div>
         <div class="buttons" id="saveButtons">
           <button type="submit" id="submit">Save</button>
@@ -245,39 +530,12 @@
         position: "center",
         stopOnFocus: true,
         style: {
-          background: "linear-gradient(to right, #ff4d4d, #ff0000)",
+          background: "linear-gradient(to right,  #af0b0b, #f13535)",
         },
         close: true,
       }).showToast();
     }
 
-    // sweet alert
-
-    //     let timerInterval;
-    //     await Swal.fire({
-    //         title: "Alert!",
-    //         html: data.message,
-    //         timer: 1500,
-
-    //         willClose: () => {
-    //           clearInterval(timerInterval);
-    //         },
-    //         }).then((result) => {
-    //           if (result.dismiss === Swal.DismissReason.timer) {
-    //             console.log("I was closed by the timer");
-    //           }
-    //     });
-
-    //     if(res.ok){
-
-    //       window.location.reload()
-    //     }
   }
-
-
-
-
-
-
 
 </script>

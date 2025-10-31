@@ -1228,6 +1228,56 @@
           outline: 2px solid #ff9999; /* focus outline */
           outline-offset: 2px;
         }
+        
+/* ===== Responsive ===== */
+@media (max-width: 992px) {
+  .header h1 {
+    font-size: 20px;
+  }
+  
+  th, td {
+    padding: 10px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 768px) {
+  .search-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  .refresh-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 576px) {
+  .table-container {
+    border-radius: 6px;
+    overflow-x: auto;
+  }
+
+  .header h1 {
+    font-size: 18px;
+  }
+
+  .page-btn, .page-number {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+}
 
     </style>
 
@@ -1289,7 +1339,7 @@
                             <td>{{this.serialNumber}}</td>
                             <td>
                                 {{#if this.firstImage}}
-                                <img src="/images/{{this.firstImage}}" alt="{{this.productName}}"
+                                <img src="{{this.firstImage}}" alt="{{this.productName}}"
                                     style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
                                 {{else}}
                                 <div

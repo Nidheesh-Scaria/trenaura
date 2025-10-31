@@ -1,225 +1,499 @@
 
-  <head>
-    
-    <link rel="stylesheet" href="/css/myAccount.css" type="text/css" />
-    <style>
-      .address-section {
-        flex: 1;
-        padding: 20px;
-      }
+<head>
+  <style>
+    /* Container */
+.container {
+  display: flex;
+  gap: 24px;
+  padding: 24px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+  min-height: 10vh;
+}
 
-      .address-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
+/* Main Address Section */
+.address-section {
+  flex: 1;
+  padding: 40px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
 
-      .address-header h2 {
-        font-size: 22px;
-        margin-bottom: 10px;
-      }
-
-      .address-list {
-        margin-top: 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-      }
-
-      .address-card {
-        background: #fff;
-        padding: 15px 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-        border-left: 4px solid #203acd;
-      }
-
-      .address-card p {
-        margin: 5px 0;
-        font-size: 14px;
-      }
-
-      .address-actions {
-        margin-top: 10px;
-      }
-
-      .address-actions .editButton {
-        padding: 6px 10px;
-        margin-right: 10px;
-        background: #0a14d7;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        font-size: 12px;
-        cursor: pointer;
-      }
-      .address-actions .deleteButton {
-        padding: 6px 10px;
-        margin-right: 10px;
-        background: #f10346;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        font-size: 12px;
-        cursor: pointer;
-      }
+.address-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background-size: 200% 100%;
+}
 
 
-      .add-address-btn {
-        padding: 8px 14px;
-        background: #28a745;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        font-size: 14px;
-        cursor: pointer;
-      }
-      .addressType{
-        font-weight: bolder;
-      }
 
-      /* Modal Styles */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0; top: 0;
-        width: 100%; height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(2px);
-        transition: opacity 0.3s ease;
-    }
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-    .modal-content {
-        {{!-- max-height: 100%;
-        overflow-y: auto; --}}
-        background-color: #ffffff;
-        margin: 0% auto;
-        padding: 30px 35px;
-        border-radius: 16px;
-        width: 520px;
-        max-width: 95%;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-        animation: fadeIn 0.3s ease, slideUp 0.3s ease;
-        position: relative;
-    }
+/* Header Section */
+.address-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f0f3f7;
+  animation: slideDown 0.6s ease;
+}
 
-    .close {
-        position: absolute;
-        top: 15px;
-        right: 20px;
-        font-size: 24px;
-        font-weight: bold;
-        color: #888;
-        cursor: pointer;
-        transition: color 0.2s ease;
-    }
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-    .close:hover {
-        color: #000;
-    }
+.address-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #233c79, #673ab7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
 
-    .modal-content h3 {
-        margin-bottom: 20px;
-        font-size: 20px;
-        color: #000000;
-        text-align: center;
-    }
+.address-header h1::before {
+  content: '📍';
+  -webkit-text-fill-color: initial;
+  font-size: 36px;
+}
 
-    form {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
+/* Add Address Button */
+.add-address-btn {
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
 
-    .row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
+.add-address-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
 
-    .row input, .row select, textarea {
-        flex: 1;
-        padding: 12px;
-        font-size: 14px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        background: #fafafa;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        
-    }
+.add-address-btn:hover::after {
+  width: 300px;
+  height: 300px;
+}
 
-    .row input:focus,
-    .row select:focus,
-    textarea:focus {
-        border-color: #203acd;
-        box-shadow: 0 0 0 2px rgba(32, 58, 205, 0.1);
-        outline: none;
-    }
+.add-address-btn:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  box-shadow: 0 6px 24px rgba(16, 185, 129, 0.4);
+  transform: translateY(-2px);
+}
 
-    textarea {
-        resize: vertical;
-        min-height: 70px;
-    }
+.add-address-btn:active {
+  transform: translateY(0);
+}
 
-    .radio-group {
-        display: flex;
-        justify-content: start;
-        gap: 20px;
-        margin-top: 5px;
-        font-size: 14px;
-        position: sticky;
-        bottom: 0;
-    }
+/* Address List */
+.address-list {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px;
+  animation: fadeIn 0.8s ease;
+}
 
-    .actions {
-        display: flex;
-        gap: 10px;
-        justify-content: flex-end;
-        background: #fff;
-        padding-top: 15px;
-        position: sticky;
-        bottom: 0;
-    
-    }
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
-    button.save {
-        background: #110ae9;
-        color: white;
-        border: none;
-        padding: 10px 22px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: bold;
-        transition: background 0.2s ease;
-    }
+/* Address Cards */
+.address-card {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border: 2px solid #f0f3f7;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
 
-    button.save:hover {
-        background: #1a2fb1;
-    }
+.address-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
 
-    button.cancel {
-        background: #e0e0e0;
-        color: #333;
-        padding: 10px 22px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        transition: background 0.2s ease;
-    }
+.address-card:hover::before {
+  transform: scaleX(1);
+}
 
-    button.cancel:hover {
-        background: #cfcfcf;
-        color: #ff0000;;
-    }
+.address-card:hover {
+  border-color: #233c79;
+  box-shadow: 0 8px 24px rgba(35, 60, 121, 0.15);
+  transform: translateY(-4px);
+}
 
-    #error {
-        margin-top: -10px;
-    }
+/* Card Content */
+.address-card p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #4b5563;
+  line-height: 1.6;
+}
 
-    /* Delete Modal Styling */
+.address-card p strong {
+  font-size: 16px;
+  color: #1a1a1a;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* Address Type Badge */
+.addressType {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin: 12px 0 8px 0;
+}
+
+.addressType[style*="color:#26b708"] {
+  background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+  color: #065f46 !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+}
+
+.addressType[style*="color:#26b708"]::before {
+  content: '🏠 ';
+}
+
+.addressType[style*="color:red"] {
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  color: #991b1b !important;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
+}
+
+.addressType[style*="color:red"]::before {
+  content: '💼 ';
+}
+
+/* Address Actions */
+.address-actions {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed #e5e7eb;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.address-actions .editButton,
+.address-actions .deleteButton {
+  flex: 1;
+  min-width: 100px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.address-actions .editButton::before,
+.address-actions .deleteButton::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s, height 0.4s;
+}
+
+.address-actions .editButton {
+  background: linear-gradient(135deg, #233c79 0%, #1a2c58 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(35, 60, 121, 0.3);
+}
+
+.address-actions .editButton::before {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.address-actions .editButton:hover::before {
+  width: 200px;
+  height: 200px;
+}
+
+.address-actions .editButton:hover {
+  background: linear-gradient(135deg, #1a2c58 0%, #0f1a35 100%);
+  box-shadow: 0 6px 20px rgba(35, 60, 121, 0.4);
+  transform: translateY(-2px);
+}
+
+.address-actions .deleteButton {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.address-actions .deleteButton::before {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.address-actions .deleteButton:hover::before {
+  width: 200px;
+  height: 200px;
+}
+
+.address-actions .deleteButton:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+  transform: translateY(-2px);
+}
+
+.address-actions button:active {
+  transform: translateY(0);
+}
+
+/* Empty State */
+.address-section > p {
+  text-align: center;
+  padding: 80px 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #6b7280;
+  background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+  border-radius: 16px;
+  margin-top: 24px;
+  border: 2px dashed #d1d5db;
+}
+
+.address-section > p::before {
+  content: '📦';
+  display: block;
+  font-size: 64px;
+  margin-bottom: 16px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ===== MODAL STYLES (KEPT ORIGINAL) ===== */
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  transition: opacity 0.3s ease;
+}
+
+.modal-content {
+  background-color: #ffffff;
+  margin: 0% auto;
+  padding: 30px 35px;
+  border-radius: 16px;
+  width: 520px;
+  max-width: 95%;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  animation: fadeInModal 0.3s ease, slideUp 0.3s ease;
+  position: relative;
+}
+
+@keyframes fadeInModal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); }
+  to { transform: translateY(0); }
+}
+
+.close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.close:hover {
+  color: #000;
+}
+
+.modal-content h3 {
+  margin-bottom: 20px;
+  font-size: 20px;
+  color: #000000;
+  text-align: center;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.row input,
+.row select,
+textarea {
+  flex: 1;
+  padding: 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fafafa;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.row input:focus,
+.row select:focus,
+textarea:focus {
+  border-color: #203acd;
+  box-shadow: 0 0 0 2px rgba(32, 58, 205, 0.1);
+  outline: none;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+.radio-group {
+  display: flex;
+  justify-content: start;
+  gap: 20px;
+  margin-top: 5px;
+  font-size: 14px;
+  position: sticky;
+  bottom: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  background: #fff;
+  padding-top: 15px;
+  position: sticky;
+  bottom: 0;
+}
+
+button.save {
+  background: #110ae9;
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background 0.2s ease;
+}
+
+button.save:hover {
+  background: #1a2fb1;
+}
+
+button.cancel {
+  background: #e0e0e0;
+  color: #333;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+button.cancel:hover {
+  background: #cfcfcf;
+  color: #ff0000;
+}
+
+#error {
+  margin-top: -10px;
+}
+
+/* Delete Modal */
 #deleteModal .modal-content {
   max-height: 100%;
   overflow-y: auto;
@@ -230,7 +504,7 @@
   width: 400px;
   max-width: 95%;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-  animation: fadeIn 0.3s ease, slideUp 0.3s ease;
+  animation: fadeInModal 0.3s ease, slideUp 0.3s ease;
   position: relative;
   text-align: center;
 }
@@ -286,7 +560,7 @@
   background: #cfcfcf;
   color: #ff0000;
 }
-/* Warning icon in delete modal */
+
 #deleteModal .warning-icon {
   font-size: 40px;
   color: #d1001f;
@@ -294,27 +568,108 @@
   text-align: center;
 }
 
+/* ===== RESPONSIVE STYLES (FIXED) ===== */
 
-    @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-    }
+@media (max-width: 1024px) {
+  .address-list {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+}
 
-    @keyframes slideUp {
-    from { transform: translateY(20px); }
-    to { transform: translateY(0); }
-    }
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    /* Reduce overall container padding for more screen space */
+    padding: 10px; 
+  }
 
-    </style>
-    
-  </head>
+  .address-section {
+    /* Significantly reduce top padding to minimize the gap */
+    padding: 20px 20px 28px 20px; 
+  }
+
+  .address-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .address-header h1 {
+    font-size: 26px;
+  }
+
+  .address-header h1::before {
+    font-size: 30px;
+  }
+
+  .add-address-btn {
+    width: 100%;
+  }
+
+  .address-list {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .address-card {
+    padding: 20px;
+  }
+
+  .address-actions {
+    flex-direction: column;
+  }
+
+  .address-actions .editButton,
+  .address-actions .deleteButton {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .address-section {
+    /* Further reduce top padding for very small screens */
+    padding: 15px 16px 20px 16px;
+  }
+
+  .address-header h1 {
+    font-size: 22px;
+  }
+
+  .address-header h1::before {
+    font-size: 26px;
+  }
+
+  .add-address-btn {
+    padding: 12px 20px;
+    font-size: 13px;
+  }
+
+  .address-card {
+    padding: 18px;
+  }
+
+  .address-card p {
+    font-size: 13px;
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+button:focus-visible {
+  outline: 3px solid #233c79;
+  outline-offset: 2px;
+}
+  </style>
+</head>
+
  
     <div class="container">
       {{> user/sidebar }} 
 
       <div class="address-section">
         <div class="address-header">
-          <h2>Manage Addresses</h2>
+          <h1>Manage Addresses</h1>
           {{!-- <button class="add-address-btn" onclick=openAddModal(event,'{{userId}}')>+ Add New Address</button> --}}
           <button class="add-address-btn" onclick=addAddress(event)>+ Add New Address</button>
         </div>
@@ -346,55 +701,6 @@
         {{/if}}
       </div>
     </div>
-
-
-    
-<!-- Add New Address Modal -->
-<div id="addressModal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeModal()">&times;</span>
-    <h3>Add a new address</h3>
-     <form onsubmit="submitAddress(event)">
-      <div class="row">
-        <input type="text" placeholder="Enter your name" id="name" name="name">
-        <input type="text" placeholder="Enter your Mobile number" id="phone" name="phone">
-      </div>
-      <div class="row">
-        <input type="text" placeholder="Enter your pincode" name="pincode" id="pincode" onblur="handlePincodeBlur(event)">
-        <input type="text" placeholder="Enter your locality" name="locality" id="locality" >
-      </div>
-      <textarea placeholder="Address (House number,Area, City)" rows="3" name="address" id="address" ></textarea>
-       <div class="row">
-        <input type="text" placeholder="Post" name="post" id="post">
-        <input type="text" placeholder="City/District/Town" name="cityOrTown" id="cityOrTown">
-        <input type="text" placeholder="Enter your State" name="state" id="state" >
-        {{!-- <select name="state" id="states">
-          <option value="">Select State</option>
-          <option value="Kerala">Kerala</option>
-          <option value="Karnataka">Karnataka</option>
-          <option value="Tamilnadu">Tamilnadu</option>
-        </select> --}}
-      </div>
-
-
-      <div class="row">
-        <input type="text" placeholder="Landmark (optional)" name="landmark" id="landmark">
-        <input type="text" placeholder="Alternate Mobile number (optional)" name="altPhone" id="altPhone">
-      </div>
-      <div id="error">
-        <p id="addressError" style="color: red;"></p>
-      </div>
-      <div class="row radio-group">
-        <label><input type="radio" name="addressType" value="home"> Home</label>
-        <label><input type="radio" name="addressType" value="work"> Work</label>
-      </div>
-      <div class="actions">
-        <button type="submit" class="save">Save</button>
-        <button type="button" class="cancel" onclick="closeModal()">Cancel</button>
-      </div>
-    </form>
-  </div>
-</div>
 
 
 <!-- Edit Address Modal -->
@@ -502,16 +808,6 @@ async function confirmDeleteAddress() {
     closeDeleteModal();
     window.location.reload();
   }
-}
-
-//add modal
-function openAddModal(event, id) {
-  const modal=document.getElementById("addressModal")
-  modal.style.display = "block";
-  modal.dataset.userId = id;
-  const errorElement = document.getElementById("addressError");
-  errorElement.textContent = "";
-
 }
 
 

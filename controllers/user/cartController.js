@@ -366,12 +366,12 @@ const applyCoupon = async (req, res) => {
 
     if (coupon.expiryDate < new Date()) {
       return res
-        .status(400)
+        .status(httpStatus.BAD_REQUEST)
         .json({ message: MESSAGES.COUPON.COUPON_EXPIRED || "Coupon expired" });
     }
 
     if (cartTotal < coupon.minOrderValue) {
-      return res.status(400).json({
+      return res.status(httpStatus.BAD_REQUEST).json({
         message: `Minimum order value should be ${coupon.minOrderValue}`,
       });
     }
@@ -386,6 +386,9 @@ const applyCoupon = async (req, res) => {
       discountAmount = coupon.discountValue;
     } else if (coupon.discountType === "percentage") {
       discountAmount = (coupon.discountValue / 100) * cartTotal;
+      if (discountAmount > coupon.maxDiscount) {
+        discountAmount = coupon.maxDiscount;
+      }
     }
 
     discountAmount = Math.min(discountAmount, cartTotal);
@@ -413,11 +416,11 @@ const applyCoupon = async (req, res) => {
       usage = await CouponUsageSchema.create({
         couponId: coupon._id,
         userId,
-        usageCount: 0,
+        usageCount: 1,
       });
     }
     if (usage.usageCount >= coupon.usageLimit) {
-      return res.status(400).json({
+      return res.status(httpStatus.BAD_REQUEST).json({
         message: MESSAGES.COUPON.USAGE_LIMIT || "Coupon usage limit reached",
       });
     }

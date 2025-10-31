@@ -28,7 +28,20 @@ const loadmyAddress = async (req, res) => {
 
     const user = await userSchema.findById(userId);
 
-    const userAddresses = await Address.findOne({ userId });
+    const userAddresses = await Address.findOne(
+      { userId },
+      {
+        address: {
+          $filter: {
+            input: "$address",
+            as: "addr",
+            cond: { $eq: ["$$addr.isDeleted", false] },
+          },
+        },
+      }
+    );
+    
+
 
     const addresses = userAddresses ? userAddresses.address : [];
     // Converting Mongoose documents to plain objects
@@ -245,7 +258,7 @@ const deleteAddress = async (req, res) => {
     //removing address from array
     await Address.updateOne(
       { "address._id": id },
-      { $pull: { address: { _id: id } } }
+      { $set: { "address.$.isDeleted": true } }
     );
     res
       .status(httpStatus.OK)

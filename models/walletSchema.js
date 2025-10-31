@@ -6,7 +6,7 @@ const transactionSchema = new Schema({
     type: String,
     unique: true,
     required: true,
-    default: () => new mongoose.Types.ObjectId().toString(),
+    default: () => `TRNRA-TXN-${Date.now()}-${Math.floor(Math.random() * 1000)}`
   },
   orderId: {
     type: Schema.Types.ObjectId,

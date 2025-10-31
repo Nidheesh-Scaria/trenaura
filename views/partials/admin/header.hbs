@@ -1,40 +1,117 @@
 
+
 <head>
   
-    <link rel="stylesheet" href="/css/adminHeader.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+  <link rel="stylesheet" href="/css/adminHeader.css">
+ 
 </head>
 
-<div class="container">
+<body>
+  <!-- ======= HEADER ======= -->
+  <header class="admin-header">
+    <div class="header-left">
+      <div class="logo">
+        <img src="/img/logo.png" alt="logo of trenaura" style="height: 2rem; width:10rem"> 
+      </div>
+    </div>
 
-  <aside class="sidebar">
-    <div class="logo"><img src="/img/logo.png" alt="logo of trenaura" style="height: 2rem; width:10rem"></div>
-    <nav class="menu">
-      <a href="/admin/dashboard"><i class="fas fa-home "></i> Dashboard</a>
-      <a href="/admin/users" ><i class="fas fa-box"></i> Customer</a>
-      <a href="/admin/products" ><i class="fas fa-tags"></i> Products</a>
-      <a href="/admin/category" ><i class="fas fa-th-list"></i> Category</a>
-      <a href="/admin/brand" ><i class="fa fa-book fa-fw"></i> Brand</a>
-      <a href="/admin/order" ><i class="fas fa-chart-line"></i> Order</a>
-      <a href="/admin/return-or-refund" ><i class="fas fa-undo"></i> Refund/Return</a>
-      <a href="/admin/coupon" ><i class="fas fa-ticket-alt"></i> Coupon</a>
-      <a href="/admin/salesReport" ><i class="fas fa-users"></i> Sales Report</a>
-      <a href="/admin/settings" ><i class="fas fa-cog"></i> Settings</a>
-      <a href="/admin/logout" ><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+    <div class="hamburger" id="hamburger">
+      <i class="fas fa-bars"></i>
+    </div>
+
+    <nav class="nav-menu" id="navMenu">
+      <a href="/admin/dashboard" title="Dashboard"><i class="fas fa-home"></i></a>
+      <a href="/admin/users" title="Customer"><i class="fas fa-user"></i></a>
+      <a href="/admin/products" title="Products"><i class="fas fa-box"></i></a>
+      <a href="/admin/category" title="Category"><i class="fas fa-th-list"></i></a>
+      <a href="/admin/brand" title="Brand"><i class="fa fa-book"></i></a>
+      <a href="/admin/order" title="Order"><i class="fas fa-chart-line"></i></a>
+      <a href="/admin/return-or-refund" title="Refund/Return"><i class="fas fa-undo"></i></a>
+      <a href="/admin/coupon" title="Coupon"><i class="fas fa-ticket-alt"></i></a>
+      <a href="/admin/salesReport" title="Sales Report"><i class="fas fa-file-invoice-dollar"></i></a>
+      <a href="/admin/settings" title="Settings"><i class="fas fa-cog"></i></a>
+      
     </nav>
-  </aside>
+
+    <div class="header-right">
+      <div class="profile">
+        {{!-- <i class="fas fa-user-circle"></i> --}}
+        <a href="/admin/logout" title="Sign Out"><i class="fas fa-sign-out-alt"></i></a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======= DASHBOARD CONTENT ======= -->
+  <main class="dashboard-container">
+    {{!-- <h1 >WELCOME TO TRENAURA's ADMIN PANNEL</h1> 
+    <hr> --}}
+  </main>
 
   <script>
+    // Active link highlight
     const currentPath = window.location.pathname;
-    const menuLinks = document.querySelectorAll(".menu a");
-
-    menuLinks.forEach(link => {
+    document.querySelectorAll(".nav-menu a").forEach(link => {
       if (link.getAttribute("href") === currentPath) {
         link.classList.add("active");
-      } else {
-        link.classList.remove("active");
       }
     });
 
+    // Hamburger toggle
+    const hamburger = document.getElementById("hamburger");
+    const navMenu = document.getElementById("navMenu");
+    
+    hamburger.addEventListener("click", () => {
+      navMenu.classList.toggle("active");
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
+        navMenu.classList.remove("active");
+      }
+    });
+
+    // Close menu when clicking on a link (mobile)
+    document.querySelectorAll(".nav-menu a").forEach(link => {
+      link.addEventListener("click", () => {
+        if (window.innerWidth <= 768) {
+          navMenu.classList.remove("active");
+        }
+      });
+    });
+
+    // Show titles in mobile menu
+    function updateMobileMenu() {
+      const navLinks = document.querySelectorAll('.nav-menu a');
+      
+      navLinks.forEach(link => {
+        const title = link.getAttribute('title');
+        
+        // Check if we're in mobile view
+        if (window.innerWidth <= 768) {
+          // Add title text if it doesn't exist
+          if (!link.querySelector('.menu-title')) {
+            const titleSpan = document.createElement('span');
+            titleSpan.className = 'menu-title';
+            titleSpan.textContent = title;
+            link.appendChild(titleSpan);
+          }
+        } else {
+          // Remove title text in desktop view
+          const titleSpan = link.querySelector('.menu-title');
+          if (titleSpan) {
+            titleSpan.remove();
+          }
+        }
+      });
+    }
+
+    // Run on load and resize
+    updateMobileMenu();
+    window.addEventListener('resize', updateMobileMenu);
   </script>
+</body>

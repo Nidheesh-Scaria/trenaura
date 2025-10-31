@@ -218,7 +218,8 @@ const orderDetails = async (req, res) => {
       };
     });
     const isOrderPlaced = orders.isOrderPlaced;
-
+    console.log(orders)
+    console.log('address',orders.address)
     const address = await Address.findOne(
       { "address._id": orders.address },
       { "address.$": 1 }
@@ -1011,7 +1012,7 @@ const cancelOrder = async (req, res) => {
       { new: true }
     );
 
-    const orderId = updatedOrder._id;
+    const orderId = updatedOrder.orderId;
 
     const cancelledItem = updatedOrder.orderedItems.find(
       (item) => item._id == itemId
@@ -1265,7 +1266,7 @@ const confirmWalletPayment = async (req, res) => {
         });
       }
 
-      await debitWallet(userId, order._id, order.finalAmount);
+      await debitWallet(userId, order.orderId, order.finalAmount);
       await Order.findByIdAndUpdate(
         orderId,
         {
@@ -1367,7 +1368,7 @@ const confirmWalletPayment = async (req, res) => {
           });
       }
 
-      await debitWallet(userId, savedOrder._id, finalAmount);
+      await debitWallet(userId, savedOrder.orderId, finalAmount);
       savedOrder.paymentStatus = "Paid";
       savedOrder.isOrderPlaced = true;
       await savedOrder.save();
@@ -1488,7 +1489,7 @@ const confirmWalletPayment = async (req, res) => {
           });
       }
 
-      await debitWallet(userId, savedOrder._id, finalAmount);
+      await debitWallet(userId, savedOrder.orderId, finalAmount);
       savedOrder.paymentStatus = "Paid";
       savedOrder.isOrderPlaced = true;
       await savedOrder.save();

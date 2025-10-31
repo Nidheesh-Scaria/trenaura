@@ -714,9 +714,12 @@
                             <div class="thumbnails-container" id="thumbnailPreview"></div>
 
                             <div class="mt-4">
+
+                                <div id="main-error" class="error-message"></div>
                                 <button class="btn btn-primary btn-lg" type="submit">Publish Product</button>
                                 
                             </div>
+                        
                         </form>
                     </div>
                 </div>
@@ -741,7 +744,7 @@
     <script>
         
         if (typeof Cropper === 'undefined') {
-            console.log('Primary CDN failed, trying fallback...');
+            
             const script = document.createElement('script');
             script.src = 'https://unpkg.com/cropperjs@1.5.12/dist/cropper.min.js';
             script.onload = function() {
@@ -840,7 +843,7 @@
         }
 
         function createThumbnail(index, imageSrc) {
-            console.log('Creating thumbnail for index:', index);
+            
             const previewContainer = document.getElementById('thumbnailPreview');
             
             const thumbnailDiv = document.createElement('div');
@@ -860,7 +863,7 @@
             cropBtn.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('Crop button clicked for index:', index);
+                
                 openCropper(index, imageSrc);
             };
             
@@ -871,7 +874,7 @@
             removeBtn.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('Remove button clicked for index:', index);
+                
                 removeImage(index);
             };
             
@@ -881,14 +884,11 @@
             thumbnailDiv.appendChild(actionsDiv);
             previewContainer.appendChild(thumbnailDiv);
             
-            console.log('Thumbnail created for index:', index);
+            
         }
 
         function openCropper(index, imageSrc) {
-            console.log('Opening cropper for index:', index);
-            console.log('Image source:', imageSrc);
             
-           
             if (typeof Cropper === 'undefined') {
                 console.error('Cropper library not available');
                 Swal.fire({
@@ -920,8 +920,6 @@
             
           
             modalImage.onload = function() {
-                console.log('Modal image loaded, initializing cropper');
-                console.log('Image dimensions:', modalImage.naturalWidth, 'x', modalImage.naturalHeight);
                 
                 if (cropper) {
                     try {
@@ -985,7 +983,7 @@
                 event.preventDefault();
                 event.stopPropagation();
             }
-            console.log('Closing modal');
+            
             const modal = document.getElementById('cropModal');
             modal.style.display = 'none';
             
@@ -1004,7 +1002,7 @@
                 event.preventDefault();
                 event.stopPropagation();
             }
-            console.log('Saving crop for index:', currentImageIndex);
+            
             if (cropper) {
                 try {
                     const canvas = cropper.getCroppedCanvas({
@@ -1204,10 +1202,6 @@
                     const form = document.getElementById('productForm');
                     const formData = new FormData(form);
                     
-                    console.log("Form element:", form);
-                    console.log("Form action:", form.action);
-                    console.log("Form method:", form.method);
-                
                                    
                     formData.delete('images');
                     croppedImages.forEach((croppedImage, index) => {
@@ -1218,9 +1212,6 @@
                         }
                     });
                     
-                    console.log("FormData prepared with files");
-                
-                
                 Swal.fire({
                     title: 'Adding Product...',
                     text: 'Please wait while we process your product',
@@ -1231,50 +1222,37 @@
                         Swal.showLoading();
                     }
                 });
-                
-               
-              
-                for (let [key, value] of formData.entries()) {
-                    console.log(key, value);
-                }
 
                 fetch(form.action, {
                     method: "POST",
                     body: formData,
                 })
                 .then((response) => {
-                    console.log('Response status:', response.status);
-                    console.log('Response headers:', response.headers);
-                    
-                   
+        
                     const contentType = response.headers.get('content-type');
                     if (contentType && contentType.includes('application/json')) {
                         return response.json();
                     } else {
                        
                         return response.text().then(text => {
-                            console.log('Non-JSON response:', text);
+                            
                             throw new Error(`Server returned non-JSON response: ${text}`);
                         });
                     }
                 })
                 .then((data) => {
-                    console.log('Response data:', data);
+                    
                     if (data.success) {
-                        
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
                             text: data.message || 'Product added successfully!',
-                            confirmButtonText: 'Add Products',
-                            confirmButtonColor: '#28a745'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = "/admin/addProducts";
-                            }
+                            showConfirmButton: false,   // hide the button
+                            timer: 2000,                // auto-close after 2 seconds
+                        }).then(() => {
+                            window.location.reload();   // reload after Swal closes
                         });
-                        /*window.location.href = "/admin/addProducts";*/
-                    } else {
+                    }else {
                         
                         Swal.fire({
                             icon: 'error',
@@ -1286,7 +1264,7 @@
                     }
                 })
                 .catch((error) => {
-                    console.error("Form submission error:", error);
+                    
                     console.error("Error details:", {
                         name: error.name,
                         message: error.message,
@@ -1309,8 +1287,11 @@
 
         function displayErrorMessage(elementId, message) {
             const element = document.getElementById(elementId);
+            const error=document.getElementById('main-error')
             element.textContent = message;
             element.style.display = 'block';
+            error.textContent="Please fix the errors"
+            error.style.display='block'
         }
 
         function clearErrorMessage(elementId) {

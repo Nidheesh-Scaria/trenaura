@@ -1,71 +1,293 @@
+
+
 <head>
-    <style>
-        .wallet-summary {
-        margin-bottom: 1.5rem;
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: #1a237e;
-        }
+  <style>
+    main {
+      padding: 40px 5%;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+      min-height: 100vh;
+      animation: fadeIn 0.6s ease;
+    }
 
-        .wallet-summary span {
-        color: #ff6f00;
-        }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
 
-        .transaction-table {
-        width: 100%;
-        border-collapse: collapse;
-        background-color: #fff;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
+    main h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 30px;
+      background: #233c79;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: inline-block;
+      position: relative;
+    }
 
-        .transaction-table th, .transaction-table td {
-        padding: 12px 15px;
-        text-align: left;
-        }
+    main h1::before { content: '📜 '; -webkit-text-fill-color: initial; }
+    main h1::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, #233c79, #673ab7);
+      border-radius: 2px;
+    }
 
-        .transaction-table thead {
-        background-color: #070d48;
-        color: #fff;
-        }
+    .wallet-summary {
+      margin-bottom: 32px;
+      padding: 24px 32px;
+      background: linear-gradient(135deg, #233c79 0%, #1a2c58 100%);
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(35, 60, 121, 0.3);
+      position: relative;
+      overflow: hidden;
+      animation: slideUp 0.6s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
 
-        .transaction-table tbody tr:nth-child(even) {
-        background-color: #f2f2f2;
-        }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
 
-        .transaction-table tbody tr.credit td {
-        color: #1a237e;
-        font-weight: bold;
-        }
+    .wallet-summary p {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      white-space: nowrap;
+    }
 
-        .transaction-table tbody tr.debit td {
-        color: #ff0000;
-        font-weight: bold;
-        }
+    .wallet-summary p::before { content: '💰'; font-size: 24px; }
+    .wallet-summary span {
+      color: #ffd700;
+      font-size: 28px;
+      font-weight: 800;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      margin-left: auto;
+      white-space: nowrap;
+    }
 
-        .transaction-table tbody tr:hover {
-        background-color: #e8f0fe;
-        transition: 0.2s;
-        }
+    .table-wrapper {
+      background: #fff;
+      border-radius: 16px;
+      padding: 0;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      overflow-x: auto;
+      animation: fadeInUp 0.7s ease;
+      margin-bottom: 2rem;
+      position: relative;
+    }
 
-    </style>
+    /* Scroll hint arrow */
+    .table-wrapper::after {
+      content: '→';
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #233c79;
+      opacity: 0.3;
+      font-size: 20px;
+      pointer-events: none;
+      display: none; /* shown only on narrow screens */
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+
+    .transaction-table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      table-layout: fixed;
+      min-width: 700px;
+    }
+
+    .transaction-table th,
+    .transaction-table td {
+      padding: 16px 14px;
+      font-size: 14px;
+      border-bottom: 1px solid #f0f3f7;
+      text-align: left;
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+      white-space: normal;
+    }
+
+    .transaction-table thead {
+      background: linear-gradient(135deg, #233c79 0%, #1a2c58 100%);
+      color: #fff;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .transaction-table th:nth-child(1),
+    .transaction-table td:nth-child(1) { width: 14%; }
+    .transaction-table th:nth-child(2),
+    .transaction-table td:nth-child(2) { width: 28%; }
+    .transaction-table th:nth-child(3),
+    .transaction-table td:nth-child(3) { width: 24%; }
+    .transaction-table th:nth-child(4),
+    .transaction-table td:nth-child(4) { width: 10%; text-align: center;}
+    .transaction-table th:nth-child(5),
+    .transaction-table td:nth-child(5) { width: 24%; text-align: right;}
+
+    .transaction-table tbody tr.credit td { color: #065f46; font-weight: 600; }
+    .transaction-table tbody tr.debit td { color: #991b1b; font-weight: 600; }
+    .transaction-table tbody tr.credit td:last-child { color: #10b981; font-weight: 700;}
+    .transaction-table tbody tr.debit td:last-child { color: #ef4444; font-weight: 700;}
+    .transaction-table tbody tr.credit td:last-child::before { content: '+ '; }
+    .transaction-table tbody tr.debit td:last-child::before { content: '- '; }
+    .transaction-table tbody tr:nth-child(even) { background-color: #f9fafb;}
+    .transaction-table tbody tr:hover {
+      background: linear-gradient(90deg, #f5f7fb 0%, #ffffff 100%);
+      box-shadow: 0 2px 8px rgba(35, 60, 121, 0.08);
+    }
+
+    .transaction-table tbody td.transaction-id {
+      font-family: 'Courier New', monospace;
+      background: #f9fafb;
+      color: #675c72;
+      border-radius: 6px;
+      padding: 6px 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+      display: inline-block;
+    }
+
+    @media (max-width: 1024px) {
+      main { padding: 32px 3%; }
+      .transaction-table th, .transaction-table td { font-size: 13px; padding: 12px 8px;}
+    }
+
+    @media (max-width: 768px) {
+      main { padding: 16px 3%; }
+      h1 { font-size: 24px; }
+      .wallet-summary {
+        padding: 16px 16px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .wallet-summary p {
+        font-size: 16px;
+        white-space: normal;
+      }
+      .wallet-summary span {
+        font-size: 22px;
+        margin-left: 0;
+      }
+
+      .table-wrapper {
+        overflow-x: auto;
+      }
+
+      .table-wrapper::after {
+        display: block;
+      }
+
+      .transaction-table {
+        min-width: 600px;
+      }
+
+      .transaction-table th, .transaction-table td {
+        font-size: 13px;
+        padding: 10px 8px;
+      }
+    }
+
+
+    @media (max-width: 480px) {
+      main {
+        padding: 16px 2%;
+      }
+
+      h1 {
+        font-size: 20px;
+      }
+
+      .wallet-summary {
+        padding: 12px 12px;
+      }
+
+      .wallet-summary p {
+        font-size: 14px;
+      }
+
+      .wallet-summary span {
+        font-size: 20px;
+      }
+
+      .transaction-table {
+        min-width: 500px;
+      }
+
+      .transaction-table th, .transaction-table td {
+        font-size: 12px;
+        padding: 8px 6px;
+      }
+    }
+
+
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      animation: fadeInUp 0.6s ease;
+      margin-top: 2rem;
+    }
+
+    .empty-state::before {
+      content: '📭';
+      font-size: 48px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .empty-state p {
+      font-size: 18px;
+      color: #6b7280;
+      font-weight: 500;
+      margin: 0;
+    }
+  </style>
 </head>
 
 
 
-<main style="padding: 2rem 5%; background-color: #f9f9f9; min-height: 80vh;">
-  <h1 style="font-size: 2rem; margin-bottom: 1rem; color: #1a237e;">Wallet Transaction History</h1>
 
+<main>
+  <h1>Wallet Transaction History</h1>
   <div class="wallet-summary">
     <p>Total Balance: <span>₹{{wallet.balance}}</span></p>
   </div>
-  
+
 
   {{#if transactionHistory.length}}
+   <div class="table-wrapper"></div>
     <table class="transaction-table">
       <thead>
         <tr>
+          
           <th>Date</th>
           <th>Description</th>
           <th>Transaction ID</th>
@@ -83,7 +305,7 @@
             <td>{{transactionId}}</td>
             <td>{{type}}</td>
             {{#if (eq type 'debit')}}
-            <td>₹-{{amount}}</td>
+            <td>-₹{{amount}}</td>
             {{else}}
             <td>₹ {{amount}}</td>
             {{/if}}
@@ -93,6 +315,7 @@
         {{/each}}
       </tbody>
     </table>
+  </div>
   {{else}}
     <p style="text-align:center; font-size:1rem; color:#555;">No transactions found.</p>
   {{/if}}

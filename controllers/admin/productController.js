@@ -8,6 +8,7 @@ const sharp = require("sharp");
 const httpStatus = require("../../util/statusCodes");
 const { MESSAGES } = require("../../util/constants");
 const { Http2ServerRequest } = require("http2");
+const cloudinary = require("cloudinary").v2
 
 const getProductPage = async (req, res) => {
   try {
@@ -171,6 +172,7 @@ const getEditProduct = async (req, res) => {
   }
 };
 
+//add products
 const addProducts = async (req, res) => {
   try {
     const productData = req.body;
@@ -189,10 +191,10 @@ const addProducts = async (req, res) => {
         success: false,
         message:
           `${MESSAGES.MISSING_FIELDS}: ${missingFields.join(", ")}` ||
-          "missing fields",
+          "Missing required fields",
       });
     }
-
+    //setting variants
     const variants = {
       XS: parseInt(productData["quantity-xs"], 10) || 0,
       S: parseInt(productData["quantity-s"], 10) || 0,
@@ -211,49 +213,33 @@ const addProducts = async (req, res) => {
     });
 
     if (productExists) {
-      return res.status(400).json({
+      return res.status(httpStatus.BAD_REQUEST).json({
         success: false,
         message: MESSAGES.PRODUCT_EXISTS,
       });
     }
 
-    //new image add code
-
+    // Image upload to Cloudinary
     const images = [];
-    if (req.files && req.files.length >= 3) {
-      const bucket = req.app.locals.bucket;
 
-      for (const file of req.files) {
-        const filename = `product-${Date.now()}-${file.originalname}`;
-
-        const uploadStream = bucket.openUploadStream(filename, {
-          contentType: "image/jpg",
-        });
-        try {
-          await new Promise((resolve, reject) => {
-            sharp(file.buffer)
-              .resize({ width: 800, height: 800, fit: "cover" })
-              .jpeg({ quality: 90 })
-              .pipe(uploadStream)
-              .on("error", reject)
-              .on("finish", resolve);
-          });
-          images.push(filename);
-        } catch (error) {
-          console.error(`error uploading ${filename}:`, error);
-        }
+    if(req.files && req.files.length>=3){
+      for(const file of req.files){
+        const uploadResult=await cloudinary.uploader.upload(file.path,{
+          folder:"Trenaura_Products",
+          transformation:[{ width: 800, height: 800, crop: "fill" }],
+        })
+        images.push(uploadResult.secure_url);
       }
-    } else {
+    }else{
       return res.status(httpStatus.BAD_REQUEST).json({
         success: false,
         message:
           MESSAGES.UPLOAD_AT_LEAST_3_IMAGES ||
-          "Please upload at least 3 images",
+          "Please upload at least 3 product images",
       });
     }
 
     // Find category
-
     const category = await Category.findOne({ name: productData.category });
 
     const brand = await Brand.findOne({ brandName: productData.brand });
@@ -338,54 +324,90 @@ const editProducts = async (req, res) => {
       brand,
     } = req.body;
 
+    // Handle deleted images
     const deleteImages = Array.isArray(req.body.deleteImages)
       ? req.body.deleteImages
       : req.body.deleteImages
       ? [req.body.deleteImages]
       : [];
+
     const categoryData = await Category.findById(category).lean();
     const brandData = await Brand.findById(brand).lean();
     const product = await Product.findById(id);
+
     if (!product) {
       return res.status(httpStatus.NOT_FOUND).json({
         success: false,
         message: MESSAGES.PRODUCT_NOT_FOUND || "Product not found",
       });
     }
+    if (!categoryData || !brandData) {
+      return res.status(httpStatus.BAD_REQUEST).json({
+        success: false,
+        message: "Invalid category or brand",
+      });
+    }
 
     // Deleting images
-    for (const filename of deleteImages) {
-      const file = await bucket.find({ filename }).toArray();
-      if (file.length > 0) {
-        await bucket.delete(file[0]._id);
+    // for (const filename of deleteImages) {
+    //   const file = await bucket.find({ filename }).toArray();
+    //   if (file.length > 0) {
+    //     await bucket.delete(file[0]._id);
+    //   }
+    //   product.productImages = product.productImages.filter(
+    //     (img) => img !== filename
+    //   );
+    // }
+
+    if(deleteImages.length>0){
+      for(const imageUrl of deleteImages){
+        const publicId=imageUrl.split('/').pop().split(".")[0];
+        try{
+          await cloudinary.uploader.destroy(`Trenaura_Products/${publicId}`)
+        }catch(err){
+          console.error("Cloudinary delete error:", err)
+        }
+        product.productImages=product.productImages.filter((img)=>img!==imageUrl)
       }
-      product.productImages = product.productImages.filter(
-        (img) => img !== filename
-      );
     }
+
+    // Upload new images to Cloudinary
+    if(req.files && req.files.length > 0){
+      for(const file of req.files){
+        const uploadedResult=await cloudinary.uploader.upload(file.path,{
+          folder: "Trenaura_Products",
+          transformation: [{ width: 800, height: 800, crop: "fill" }],
+        })
+        product.productImages.push(uploadedResult.secure_url)
+      }
+    } 
+
 
     // Uploading new image
-    if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
-        const filename = `product-${Date.now()}-${file.originalname}`;
+    // if (req.files && req.files.length > 0) {
+    //   for (const file of req.files) {
+    //     const filename = `product-${Date.now()}-${file.originalname}`;
 
-        await new Promise((resolve, reject) => {
-          const uploadStream = bucket.openUploadStream(filename, {
-            contentType: file.mimetype,
-          });
+    //     await new Promise((resolve, reject) => {
+    //       const uploadStream = bucket.openUploadStream(filename, {
+    //         contentType: file.mimetype,
+    //       });
 
-          sharp(file.buffer)
-            .resize({ width: 800, height: 800 })
-            .jpeg({ quality: 90 })
-            .pipe(uploadStream)
-            .on("error", reject)
-            .on("finish", resolve);
-        });
+    //       sharp(file.buffer)
+    //         .resize({ width: 800, height: 800 })
+    //         .jpeg({ quality: 90 })
+    //         .pipe(uploadStream)
+    //         .on("error", reject)
+    //         .on("finish", resolve);
+    //     });
 
-        product.productImages.push(filename);
-      }
-    }
+    //     product.productImages.push(filename);
+    //   }
+    // }
 
+
+
+    // Handle variants
     let variants;
     let availableSizes;
 
@@ -420,7 +442,7 @@ const editProducts = async (req, res) => {
       availableSizes = [];
     }
 
-    // Updateing other product fields
+    // Updating other product fields
     product.productName = productName;
     product.regularPrice = regularPrice;
     product.salePrice = salePrice;

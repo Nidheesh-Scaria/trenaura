@@ -328,7 +328,7 @@
 
       {{#each cartItems}}
       <div class="cart-item" id="cart-item-{{this._id}}">
-        <img src="/images/{{this.productId.productImages.[0]}}" alt="{{this.productId.productName}}" class="cart-item-image" />
+        <img src="{{this.productId.productImages.[0]}}" alt="{{this.productId.productName}}" class="cart-item-image" />
         <div class="cart-item-details">
           <h5>{{this.productId.productName}}</h5>
           <p>Color: {{this.productId.color}}</p>
@@ -373,20 +373,7 @@
         <span>Delivery Charge</span>
         <span>₹<span id="deliveryCharge">{{deliveryCharge}}</span></span>
       </div>
-      {{!-- <div class="summary-line">
-        <span>Platform Fee</span>
-        <span>₹0</span>
-      </div>
-      <div class="summary-line">
-        <span>Coupon Discount</span>
-        <span id="couponDiscount">₹0</span>
-      </div>
-      <div class="couponDiv">
-        <input type="hidden" id="couponCode">
-        <input type="text" placeholder="APPLY A COUPON CODE -eg:COP101" class="coupon-input" id="coupon-input"/><button onclick="applyCoupon(event)">Apply</button>
-        <p id="coupon-error" style="color: red;"></p>
-        <hr />
-      </div> --}}
+      
       <div class="summary-line total">
         <span>Total</span>
         <span>₹<span id="finalAmount">{{finalAmount}}</span></span>
@@ -414,7 +401,7 @@
                 <div class="col-lg-3 col-md-6 col-sm-6 mix new-arrivals">
                     <div class="product__item">
                         <a href="/productDetails?id={{this._id}}">
-                            <div class="product__item__pic set-bg" data-setbg="/images/{{this.productImages.[0]}}">
+                            <div class="product__item__pic set-bg" data-setbg="{{this.productImages.[0]}}">
                                 
                             </div>
                         </a>

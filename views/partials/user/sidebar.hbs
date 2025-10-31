@@ -1,29 +1,307 @@
-  <head><link rel="stylesheet" href="css/myAccount.css" type="text/css"></head>
-  
+
+
+<head>
+  <style>
+    /* ------------------- CONTAINER ------------------- */
+    .container {
+      display: flex;
+      gap: 25px;
+      margin: 20px;
+      position: relative;
+    }
+
+    .sidebar-container {
+      position: relative;
+    }
+
+    /* ------------------- SIDEBAR ------------------- */
+    .sidebar {
+      width: 280px;
+      background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+
+    .user-info {
+      text-align: center;
+      margin-bottom: 35px;
+      padding: 20px;
+      background: linear-gradient(135deg, rgb(10, 10, 130) 0%, rgb(7, 7, 112) 100%);
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(14, 14, 169, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .user-info::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 0.5;
+      }
+      50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+      }
+    }
+
+    .user-info h3 {
+      font-size: 22px;
+      color: #ffffff;
+      font-weight: 600;
+      position: relative;
+      z-index: 1;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .menu h4 {
+      margin-top: 25px;
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+      padding-left: 5px;
+    }
+
+    .menu button {
+      width: 100%;
+      padding: 14px 18px;
+      margin-top: 8px;
+      background: linear-gradient(145deg, #f3f4f6, #ffffff);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: left;
+      font-size: 15px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-weight: 500;
+      color: #374151;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .menu button:hover {
+      background: linear-gradient(135deg, rgb(14, 14, 169) 0%, rgb(10, 10, 135) 100%);
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(14, 14, 169, 0.4);
+    }
+
+    #logout {
+      background: linear-gradient(145deg, #fef2f2, #fff5f5);
+      color: #dc2626;
+      margin-top: 25px;
+      border: 1px solid #fecaca;
+    }
+
+    #logout:hover {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      color: #fff;
+      transform: translateX(0) scale(1.02);
+      box-shadow: 0 8px 20px rgba(220, 38, 38, 0.4);
+    }
+
+    /* ------------------- MENU TOGGLE BUTTON ------------------- */
+    .menu-toggle {
+      all: unset;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      position: absolute !important;
+      top: 20px;
+      left: 20px;
+      width: 56px !important;
+      height: 56px !important;
+      background: linear-gradient(135deg, rgb(14, 14, 169) 0%, rgb(10, 10, 135) 100%);
+      color: white;
+      font-size: 28px;
+      border-radius: 50% !important;
+      box-shadow: 0 4px 15px rgba(14, 14, 169, 0.5);
+      cursor: pointer;
+      z-index: 10;
+      line-height: 1;
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+
+    .menu-toggle:hover {
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 991px) {
+      .menu-toggle {
+        display: flex !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .menu-toggle {
+        width: 50px !important;
+        height: 50px !important;
+        font-size: 26px;
+        top: 15px;
+        left: 15px;
+      }
+    }
+
+    /* ------------------- MAIN CONTENT ------------------- */
+    .main-content {
+      flex: 1;
+      padding: 30px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      min-height: 500px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    /* ------------------- OVERLAY ------------------- */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .overlay.active {
+      display: block;
+      opacity: 1;
+    }
+
+    /* ------------------- RESPONSIVE ------------------- */
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        margin: 0;
+        gap: 0;
+      }
+
+      .sidebar {
+        display: none;
+        width: 300px;
+        max-width: 85vw;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 1000;
+        box-shadow: 4px 0 25px rgba(0, 0, 0, 0.3);
+        border-radius: 0 20px 20px 0;
+        overflow-y: auto;
+        padding: 90px 25px 30px;
+        transform: translateX(-100%);
+      }
+
+      .sidebar.active {
+        display: block;
+        transform: translateX(0);
+        animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+
+      .main-content {
+        margin-top: 85px;
+        margin-left: 10px;
+        margin-right: 10px;
+        padding: 20px;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 -5px 40px rgba(0, 0, 0, 0.15);
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(-100%);
+          opacity: 0.8;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+    }
+
+    @media (max-width: 480px) {
+      .sidebar {
+        width: 280px;
+      }
+
+      .main-content {
+        margin-top: 75px;
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Overlay for mobile -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Sidebar Toggle Button -->
+  <button class="menu-toggle" id="menuToggle" aria-label="Toggle sidebar">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+
   <div class="container">
-    <aside class="sidebar">
-      <div class="user-info">
-        {{!-- <img src="" alt="User Avatar" class="avatar"> --}}
-        <h3>Hello {{name}}</h3>
-      </div>
+    <div class="sidebar-container">
+      <aside class="sidebar" id="sidebar">
+        <div class="user-info">
+          <h3>Hello {{name}}</h3>
+        </div>
 
-      <nav class="menu">
-        <button onclick="window.location.href='/loadMyOrder'">My orders</button>
-        <h4>Account Settings</h4>
-        
-        <button onclick="window.location.href='/myAccount'">Profile Information</a></button>
-        <button onclick="window.location.href='/manageAddress'">Manage Addresses</button>
-        <button onclick="window.location.href='/changePassword'">Change Password</button>
+        <nav class="menu">
+          <button onclick="window.location.href='/loadMyOrder'">My Orders</button>
 
-        <h4>My Stuffs</h4>
-        <button onclick="window.location.href='/myCoupons'">My Coupons</button>
-        
-        <button onclick="window.location.href='/myWallet'">My Wallet</button>
-        <form action="/logout" method="post">
-        <button type="submit"  id="logout">Log out</button>
-        </form>
-      </nav>
-    </aside>
+          <h4>Account Settings</h4>
+          <button onclick="window.location.href='/myAccount'">Profile Information</button>
+          <button onclick="window.location.href='/manageAddress'">Manage Addresses</button>
+          <button onclick="window.location.href='/changePassword'">Change Password</button>
 
+          <h4>My Stuff</h4>
+          <button onclick="window.location.href='/myCoupons'">My Coupons</button>
+          <button onclick="window.location.href='/myWallet'">My Wallet</button>
+
+          <form action="/logout" method="post">
+            <button type="submit" id="logout">Log out</button>
+          </form>
+        </nav>
+      </aside>
+    </div>
   </div>
-  
+
+  <script>
+    const menuToggle = document.getElementById("menuToggle");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+
+    menuToggle.addEventListener("click", () => {
+      sidebar.classList.toggle("active");
+      overlay.classList.toggle("active");
+    });
+
+    overlay.addEventListener("click", () => {
+      sidebar.classList.remove("active");
+      overlay.classList.remove("active");
+    });
+  </script>
+</body>

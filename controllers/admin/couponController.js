@@ -8,8 +8,8 @@ const { default: mongoose } = require("mongoose");
 
 const loadCoupon = async (req, res) => {
   try {
-    const coupons = await CouponSchema.find().lean();
-
+    const coupons = await CouponSchema.find().sort({createdAt:-1}).lean();
+  
     coupons.forEach((c) => {
       const d = new Date(c.expiryDate);
       const day = String(d.getDate()).padStart(2, "0");
@@ -41,6 +41,7 @@ const createCoupon = async (req, res) => {
       minOrderValue,
       couponExpiry,
       usageLimit,
+      maxDiscount,
     } = req.body;
 
     const exists = await CouponSchema.findOne({ code });
@@ -57,6 +58,7 @@ const createCoupon = async (req, res) => {
       minOrderValue,
       expiryDate: couponExpiry,
       usageLimit,
+      maxDiscount,
     });
 
     return res

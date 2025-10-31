@@ -1375,7 +1375,7 @@ button[type="button"]:hover {
       </div>
 
       <div class="order-img">
-        <img src="/images/{{this.productId.productImages.[0]}}" 
+        <img src="{{this.productId.productImages.[0]}}" 
              alt="{{this.productId.productName}}">
       </div>
       {{#if (and (eq ../orders.isOrderPlaced true) (ne this.latestStatus "Returned"))}}

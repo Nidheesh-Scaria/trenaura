@@ -30,7 +30,7 @@ form.addEventListener('submit',async(e)=>{
             position: "center", // `left`, `center` or `right`
             stopOnFocus: true, // Prevents dismissing of toast on hover
             style: {
-                background: "linear-gradient(to right, #1904ffe7, #0a67f3f7)",
+                background: "linear-gradient(to right, #261f79e7, #13438cf7)",
             },
             onClick: function(){} // Callback after click
             }).showToast();

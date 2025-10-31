@@ -495,7 +495,7 @@
           <div class="image-preview">
             {{#each product.productImages}}
               <div class="text-center">
-                <img src="/images/{{this}}" />
+                <img src="{{this}}" />
                 <br />
                 <input type="checkbox" name="deleteImages" value="{{this}}" /> Delete
               </div>
@@ -603,6 +603,15 @@ document.getElementById("editProductForm").addEventListener("submit", function (
     // Submit form
     const form = document.getElementById("editProductForm");
     const formData = new FormData(form);
+
+    Swal.fire({
+        title: "Applying changes to product...",
+        text: "Please wait while we update your product details.",
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
 
     fetch(`/admin/editProducts/${id}`, {
         method: "POST",

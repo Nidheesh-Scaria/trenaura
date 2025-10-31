@@ -40,6 +40,10 @@ const couponSchema = new Schema(
       ref: "User",
       default: null, 
     },
+    maxDiscount:{
+      type: Number,
+      default:0
+    },
   },
   { timestamps: true }
 );

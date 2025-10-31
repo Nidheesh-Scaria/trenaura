@@ -15,200 +15,437 @@
     {{!-- toastify --}}
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
+
 <style>
-/* Sidebar Container */
-.sidebar {
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-    position: sticky;
-    top: 5px;
-    transition: transform 0.3s ease;
-}
+ /* --------------------------------------------------- */
+ /*  General & Base Styles */
+ /* --------------------------------------------------- */
 
-/* Sidebar Hidden on Mobile */
-@media (max-width: 991px) {
-    .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100%;
-        width: 250px;
-        z-index: 999;
-        transform: translateX(-100%);
-        overflow-y: auto;
-        box-shadow: 3px 0 15px rgba(0,0,0,0.2);
-    }
-    .sidebar.active {
-        transform: translateX(0);
-    }
+ .product.spad {
+     padding-top: 50px;
+     padding-bottom: 50px;
+ }
 
-    /* Overlay */
-    .overlay {
-        display: none;
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: rgba(0,0,0,0.5);
-        z-index: 998;
-    }
-    .overlay.active {
-        display: block;
-    }
+ /* Main search bar styling */
+ #mainSearch {
+     border-radius: 6px;
+     padding: 8px 12px;
+     border: 1px solid #ccc;
+     width: 100%;
+     max-width: 300px;
+     transition: border-color 0.3s, box-shadow 0.3s;
+ }
 
-    /* Sidebar Toggle Button */
-    #sidebarToggle {
-        display: inline-block;
-        margin-bottom: 15px;
-        background: #233c79;
-        color: #fff;
-        padding: 8px 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        border: none;
-    }
-}
+ #mainSearch:focus {
+     border-color: #233c79;
+     box-shadow: 0 0 5px rgba(35, 60, 121, 0.3);
+     outline: none;
+ }
 
-/* Sidebar Items */
-.sidebar__item {
-    margin-bottom: 25px;
-}
+ /* --------------------------------------------------- */
+ /* 💻 Desktop Sidebar Styles */
+ /* --------------------------------------------------- */
+ .sidebar {
+     background: #fff;
+     padding: 25px;
+     border-radius: 12px;
+     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+     position: sticky;
+     top: 20px;
+     transition: transform 0.3s ease, box-shadow 0.3s ease;
+     max-height: calc(100vh - 40px);
+     overflow-y: auto;
+ }
 
-.sidebar__item h5 {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 15px;
-    color: #333;
-    border-bottom: 2px solid #f2f2f2;
-    padding-bottom: 8px;
-}
+ /* Custom scrollbar for sidebar */
+ .sidebar::-webkit-scrollbar {
+     width: 6px;
+ }
 
-/* Lists */
-.sidebar__item ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
+ .sidebar::-webkit-scrollbar-track {
+     background: #f1f1f1;
+     border-radius: 10px;
+ }
 
-.sidebar__item ul li {
-    margin-bottom: 10px;
-}
+ .sidebar::-webkit-scrollbar-thumb {
+     background: #233c79;
+     border-radius: 10px;
+ }
 
-.sidebar__item ul li a {
-    color: #555;
-    text-decoration: none;
-    transition: all 0.2s;
-    display: inline-block;
-}
+ .sidebar::-webkit-scrollbar-thumb:hover {
+     background: #1a2c58;
+ }
 
-.sidebar__item ul li a:hover {
-    color: #233c79;
-    padding-left: 4px;
-}
+ /* Sidebar Items */
+ .sidebar__item {
+     margin-bottom: 35px;
+     padding-bottom: 25px;
+     border-bottom: 1px solid #e8e8e8;
+ }
 
-/* Price Filter Links */
-.price-range ul li a {
-    font-size: 14px;
-}
+ .sidebar__item:last-child {
+     border-bottom: none;
+     margin-bottom: 0;
+     padding-bottom: 0;
+ }
 
-/* Checkbox Style */
-.sidebar__item input[type="checkbox"] {
-    margin-right: 6px;
-    accent-color: #007bff;
-    cursor: pointer;
-}
+ .sidebar__item h5 {
+     font-size: 16px;
+     font-weight: 700;
+     margin-bottom: 18px;
+     color: #1a1a1a;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+     position: relative;
+     padding-left: 12px;
+ }
 
-/* Dropdown (Sorting) */
-.sidebar__item select.form-control {
-    font-size: 14px;
-    padding: 6px 10px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    cursor: pointer;
-    transition: border-color 0.2s;
-}
+ .sidebar__item h5::before {
+     content: '';
+     position: absolute;
+     left: 0;
+     top: 50%;
+     transform: translateY(-50%);
+     width: 4px;
+     height: 18px;
+     background: #233c79;
+     border-radius: 2px;
+ }
 
-.sidebar__item select.form-control:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
-}
+ /* Lists */
+ .sidebar__item ul {
+     list-style: none;
+     padding: 0;
+     margin: 0;
+ }
 
-/* Search Bar */
-#sidebarSearch {
-    border-radius: 6px;
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-    width: 100%;
-    transition: border-color 0.2s;
-}
+ .sidebar__item ul li {
+     margin-bottom: 10px;
+ }
 
-#sidebarSearch:focus {
-    border-color: #007bff;
-    outline: none;
-}
+ .sidebar__item ul li a {
+     color: #555;
+     font-size: 14px;
+     text-decoration: none;
+     transition: all 0.3s ease;
+     display: flex;
+     align-items: center;
+     padding: 8px 12px;
+     border-radius: 6px;
+     position: relative;
+ }
 
-/* Pagination */
-.pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    padding: 20px 0;
-    font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-}
+ .sidebar__item ul li a::before {
+     content: '›';
+     margin-right: 8px;
+     opacity: 0;
+     transform: translateX(-5px);
+     transition: all 0.3s ease;
+     color: #233c79;
+     font-weight: bold;
+     font-size: 18px;
+ }
 
-.page-btn, .page-number {
-    background: #2a2a2a;
-    color: #b0b0b0;
-    border: none;
-    min-width: 42px;
-    height: 42px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0 10px;
-    border-radius: 50%;
-    font-size: 15px;
-    text-decoration: none;
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    cursor: pointer;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.5), -2px -2px 5px rgba(50,50,50,0.2);
-}
+ .sidebar__item ul li a:hover {
+     color: #233c79;
+     background: #f5f7fb;
+     padding-left: 16px;
+ }
 
-.page-btn i {
-    font-size: 14px;
-}
+ .sidebar__item ul li a:hover::before {
+     opacity: 1;
+     transform: translateX(0);
+ }
 
-.page-btn:hover, .page-number:hover {
-    background: #333;
-    color: #fff;
-    box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5), inset -2px -2px 5px rgba(50,50,50,0.2);
-    transform: scale(1.05);
-}
+ /* Active link styling */
+ .sidebar__item ul li a.active {
+     color: #233c79;
+     background: #f5f7fb;
+     font-weight: 600;
+ }
 
-.page-number.current {
-    background: linear-gradient(145deg, #333, #111);
-    color: #fff;
-    font-weight: bold;
-    pointer-events: none;
-    box-shadow: inset 2px 2px 5px rgba(0,0,0,0.8), inset -2px -2px 5px rgba(50,50,50,0.3);
-}
+ /* Dropdown (Sorting) */
+ .sidebar__item select {
+     width: 100%;
+     font-size: 14px;
+     padding: 12px 40px 12px 14px;
+     border-radius: 8px;
+     border: 1px solid #ddd;
+     background-color: #fff;
+     cursor: pointer;
+     transition: all 0.3s ease;
+     -webkit-appearance: none;
+     -moz-appearance: none;
+     appearance: none;
+     background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%23233c79%22%20d%3D%22M10.293%203.293L6%207.586%201.707%203.293A1%201%200%2000.293%204.707l5%205a1%201%200%20001.414%200l5-5a1%201%200%2000-1.414-1.414z%22%2F%3E%3C%2Fsvg%3E");
+     background-repeat: no-repeat;
+     background-position: right 14px center;
+     font-weight: 500;
+     color: #333;
+ }
 
-.page-btn[disabled] {
-    opacity: 0.2;
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
-}
+ .sidebar__item select:hover {
+     border-color: #233c79;
+     background-color: #fafbfc;
+ }
 
-.dots {
-    color: #666;
-    font-size: 20px;
-    line-height: 1;
-}
+ .sidebar__item select:focus {
+     border-color: #233c79;
+     box-shadow: 0 0 0 3px rgba(35, 60, 121, 0.1);
+     outline: none;
+ }
+
+ /* --------------------------------------------------- */
+ /* 📱 Mobile Toggle Button */
+ /* --------------------------------------------------- */
+ #sidebarToggle {
+     background: linear-gradient(135deg, #233c79 0%, #1a2c58 100%);
+     color: #fff;
+     padding: 14px 24px;
+     border-radius: 8px;
+     cursor: pointer;
+     border: none;
+     font-weight: 600;
+     font-size: 15px;
+     transition: all 0.3s ease;
+     box-shadow: 0 4px 12px rgba(35, 60, 121, 0.3);
+     width: 100%;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     gap: 10px;
+ }
+
+ #sidebarToggle::before {
+     content: '☰';
+     font-size: 18px;
+ }
+
+ #sidebarToggle:hover {
+     background: linear-gradient(135deg, #1a2c58 0%, #0f1a35 100%);
+     box-shadow: 0 6px 16px rgba(35, 60, 121, 0.4);
+     transform: translateY(-2px);
+ }
+
+ #sidebarToggle:active {
+     transform: translateY(0);
+     box-shadow: 0 2px 8px rgba(35, 60, 121, 0.3);
+ }
+
+ /* --------------------------------------------------- */
+ /* 📱 Mobile Responsive Styles (Max 991px) */
+ /* --------------------------------------------------- */
+ @media (max-width: 991px) {
+
+     /* Mobile Sidebar - Off Canvas Menu */
+     .sidebar {
+         position: fixed;
+         top: 0;
+         left: 0;
+         height: 100vh;
+         width: 320px;
+         max-width: 85vw;
+         z-index: 9999;
+         transform: translateX(-100%);
+         overflow-y: auto;
+         box-shadow: 5px 0 20px rgba(0, 0, 0, 0.3);
+         padding: 20px;
+         border-radius: 0;
+         padding-top: 70px;
+     }
+
+     .sidebar.active {
+         transform: translateX(0);
+     }
+
+     /* Close button for mobile sidebar */
+     .sidebar::before {
+         content: '×';
+         position: fixed;
+         top: 15px;
+         right: 15px;
+         width: 40px;
+         height: 40px;
+         background: #233c79;
+         color: white;
+         border-radius: 50%;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         font-size: 32px;
+         cursor: pointer;
+         z-index: 10000;
+         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+         line-height: 1;
+         font-weight: 300;
+     }
+
+     /* Overlay */
+     .overlay {
+         display: none;
+         position: fixed;
+         top: 0;
+         left: 0;
+         width: 100%;
+         height: 100%;
+         background: rgba(0, 0, 0, 0.7);
+         z-index: 9998;
+         backdrop-filter: blur(2px);
+     }
+
+     .overlay.active {
+         display: block;
+         animation: fadeIn 0.3s ease;
+     }
+
+     @keyframes fadeIn {
+         from {
+             opacity: 0;
+         }
+
+         to {
+             opacity: 1;
+         }
+     }
+
+     /* Adjust spacing */
+     .col-lg-3.col-md-4 {
+         margin-bottom: 20px;
+     }
+
+     /* Full width search on mobile */
+     .d-flex.justify-content-end.mb-3 {
+         justify-content: flex-start !important;
+         flex-wrap: wrap;
+         gap: 10px;
+     }
+
+     #mainSearch {
+         width: 100%;
+         max-width: none;
+         flex: 1;
+         min-width: 0;
+     }
+
+     /* Adjust sidebar items spacing for mobile */
+     .sidebar__item {
+         margin-bottom: 25px;
+         padding-bottom: 20px;
+     }
+
+     .sidebar__item h5 {
+         font-size: 15px;
+     }
+
+     .sidebar__item ul li a {
+         font-size: 14px;
+         padding: 10px 12px;
+     }
+ }
+
+ /* Tablet adjustments */
+ @media (max-width: 767px) {
+     .sidebar {
+         width: 280px;
+     }
+
+     .product.spad {
+         padding-top: 30px;
+         padding-bottom: 30px;
+     }
+ }
+
+ /* Small mobile adjustments */
+ @media (max-width: 480px) {
+     .sidebar {
+         width: 100%;
+         max-width: 100vw;
+     }
+
+     #sidebarToggle {
+         padding: 12px 20px;
+         font-size: 14px;
+     }
+ }
+
+ /* --------------------------------------------------- */
+ /* 📄 Pagination Styles */
+ /* --------------------------------------------------- */
+ .pagination {
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     gap: 8px;
+     padding: 40px 0;
+     font-family: 'Nunito Sans', sans-serif;
+     flex-wrap: wrap;
+ }
+
+ .page-btn, .page-number {
+     background: #2a2a2a;
+     color: #b0b0b0;
+     border: none;
+     min-width: 42px;
+     height: 42px;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     padding: 0 10px;
+     border-radius: 50%;
+     font-size: 15px;
+     text-decoration: none;
+     transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+     cursor: pointer;
+     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5), -2px -2px 5px rgba(50, 50, 50, 0.2);
+ }
+
+ .page-btn i {
+     font-size: 14px;
+ }
+
+ .page-btn:hover, .page-number:hover {
+     background: #333;
+     color: #fff;
+     box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.5), inset -2px -2px 5px rgba(50, 50, 50, 0.2);
+     transform: scale(1.05);
+ }
+
+ .page-number.current {
+     background: linear-gradient(145deg, #333, #111);
+     color: #fff;
+     font-weight: bold;
+     pointer-events: none;
+     box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.8), inset -2px -2px 5px rgba(50, 50, 50, 0.3);
+ }
+
+ .page-btn[disabled] {
+     opacity: 0.2;
+     cursor: not-allowed;
+     box-shadow: none;
+     transform: none;
+ }
+
+ .dots {
+     color: #666;
+     font-size: 20px;
+     line-height: 1;
+ }
+
+ @media (max-width: 480px) {
+     .pagination {
+         gap: 6px;
+         padding: 30px 0;
+     }
+
+     .page-btn, .page-number {
+         min-width: 36px;
+         height: 36px;
+         font-size: 14px;
+     }
+ }
+
 </style>
+
 </head>
 
 <body>
@@ -301,7 +538,7 @@
                         <div class="col-lg-4 col-md-6 col-sm-6 mix new-arrivals">
                             <div class="product__item">
                                 <a href="/productDetails?id={{this._id}}">
-                                    <div class="product__item__pic set-bg" data-setbg="/images/{{this.productImages.[0]}}">
+                                    <div class="product__item__pic set-bg" data-setbg="{{this.productImages.[0]}}">
                                     </div>
                                 </a>
                                 <div class="product__item__text">
@@ -332,6 +569,7 @@
 
             <!-- Pagination Start -->
             <div class="pagination">
+                
                 {{#if (gt totalPages 1)}}
                     {{#each (paginationRange currentPage totalPages)}}
                     <a 
@@ -349,6 +587,7 @@
 <script src="js/jquery-3.3.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script>
+
 $(document).ready(function () {
     $('.set-bg').each(function () {
         const bg = $(this).data('setbg');
@@ -361,10 +600,33 @@ $(document).ready(function () {
         $('#overlay').toggleClass('active');
     });
 
+    // Close sidebar by clicking the overlay
     $('#overlay').click(function() {
         $('#sidebar').removeClass('active');
         $(this).removeClass('active');
     });
+
+
+    $('#sidebar').click(function(event) {
+        // Only trigger on mobile view where the sidebar is fixed/off-canvas (max-width: 991px)
+        if ($(window).width() <= 991 && $(this).hasClass('active')) {
+            // Check if the click is in the general area of the 'X' or on the sidebar background
+            // We use the event target to make sure we don't accidentally close when clicking links/inputs
+            if (event.target === this || $(event.target).is('h5, a, select')) {
+                 // A simple way to check if the click is near the 'X' button area (top 150px)
+                 const rect = this.getBoundingClientRect();
+                 const y = event.clientY - rect.top;
+                 const x = event.clientX - rect.left;
+
+                 // A heuristic check for the top-right corner on mobile
+                 if (y < 70 && x > (rect.width - 70) ) {
+                    $('#sidebar').removeClass('active');
+                    $('#overlay').removeClass('active');
+                 }
+            }
+        }
+    });
+
 });
 
 
@@ -458,5 +720,6 @@ function applySort() {
     url.searchParams.set("sort", sortValue);
     window.location.href = url.toString();
 }
+
 </script>
 </body>

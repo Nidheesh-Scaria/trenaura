@@ -224,13 +224,13 @@
 <div class="container">
 
   <div class="easyzoom easyzoom--overlay" id="main-easyzoom">
-    <a id="main-easyzoom-link" href="/images/{{product.productImages.[0]}}">
-      <img id="main-product-image" style="height: 25rem; width:28rem" src="/images/{{product.productImages.[0]}}"
+    <a id="main-easyzoom-link" href="{{product.productImages.[0]}}">
+      <img id="main-product-image" style="height: 25rem; width:28rem" src="{{product.productImages.[0]}}"
         alt="Zoomed Product Image" />
     </a>
     <div class="product-thumbnails" style="margin-top: 1rem; display: flex; gap: 10px;">
       {{#each product.productImages}}
-      <img class="product-thumbnail" data-image="/images/{{this}}" src="/images/{{this}}"
+      <img class="product-thumbnail" data-image="{{this}}" src="{{this}}"
         style="width: 60px; height: 60px; object-fit: cover; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;"
         alt="Product Thumbnail" />
       {{/each}}
@@ -314,8 +314,8 @@
       <div class="col-lg-3 col-md-6 col-sm-6 mix new-arrivals">
         <div class="product__item">
           <a href="/productDetails?id={{this._id}}">
-            <div class="product__item__pic set-bg" data-setbg="/images/{{this.productImages.[0]}}">
-              {{!-- <span class="label">New</span> --}}
+            <div class="product__item__pic set-bg" data-setbg="{{this.productImages.[1]}}">
+              
               <ul class="product__hover">
                 {{!-- <li><button onclick="addWishlist(event,'{{this._id}}')"><img src="img/icon/heart.png" alt=""></button>
                 </li>--}}
@@ -331,13 +331,7 @@
                 <a href="#" id="wishlist-{{this._id}}" onclick="addWishlist(event,'{{this._id}}')" class="add-cart">+ Add to Wish
                     list</a>
             {{/if}}
-            {{!-- <div class="rating">
-              <i class="fa fa-star-o"></i>
-              <i class="fa fa-star-o"></i>
-              <i class="fa fa-star-o"></i>
-              <i class="fa fa-star-o"></i>
-              <i class="fa fa-star-o"></i>
-            </div> --}}
+            
             {{#if (gt this.appliedOffer 0)}}
               <p style="color: red; font-weight:900; font-size:large">{{this.appliedOffer}}% off</p> 
             {{/if}}

@@ -5,81 +5,22 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            background: #f5f6fa;
-            min-height: 100vh;
-            display: flex;
-        }
-
+    
 
         .container {
             display: flex;
             width: 100%;
-        }
-
-        .sidebar {
-            width: 250px;
-            background: #ffffff;
-            min-height: 100vh;
-            padding: 20px;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 100;
-            overflow-y: auto;
+            
         }
 
         .main-content {
-            flex: 1;
-            margin-left: 250px;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
+        flex: 1;
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.3s ease;
         }
 
-        /* Sidebar Styles */
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 30px;
-            color: #132043;
-        }
-
-        .menu a {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 12px 15px;
-            text-decoration: none;
-            color: #555;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .menu a:hover {
-            background: #eef2f6;
-            color: #132043;
-        }
-
-        .menu a.active,
-        .menu a.active:hover {
-            background: red;
-            color: white;
-            box-shadow: 0 4px 10px rgba(255, 0, 0, 0.2);
-        }
-
-        .menu a i {
-            font-size: 1rem;
-        }
 
         /* Header Styles */
         .header {
@@ -531,7 +472,6 @@
             <header class="header">
                 <h1>Admin Dashboard</h1>
                 <div class="header-icons">
-                    <i class="fas fa-envelope"></i>
                     <img src="https://i.pravatar.cc/40" alt="Profile">
                 </div>
             </header>

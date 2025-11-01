@@ -13,9 +13,24 @@
     <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">
     <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
     <link rel="stylesheet" href="css/home.css" type="text/css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Owl Carousel CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" />
+
+    <!-- jQuery -->
+   
+
+
+    <!-- Owl Carousel JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+
     {{!-- toastify --}}
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-
+    <style>
+            /* Core responsiveness for Hero Section */
+    
+    </style>
 </head>
 
 
@@ -31,16 +46,14 @@
     <!-- Hero Section Begin -->
     <section class="hero">
         <div class="hero__slider owl-carousel">
-            <div class="hero__items set-bg" data-setbg="img/hero/hero-1.jpg">
+            <div class="hero__items set-bg" data-setbg="img/hero/hero-3.png">
                 <div class="container">
                     <div class="row">
                         <div class="col-xl-5 col-lg-7 col-md-8">
                             <div class="hero__text">
                                 <h6>Be bold. Be timeless. Be you</h6>
                                 <h2>Style delivered to your door step</h2>
-                                <p>A specialist label creating luxury essentials. Ethically crafted with an unwavering
-                                commitment to exceptional quality.</p>
-                                <a href="/shop" class="primary-btn">Shop now <span class="arrow_right"></span></a>
+                                {{!-- <a href="/shop" class="primary-btn">Shop now <span class="arrow_right"></span></a> --}}
                                 <div class="hero__social">
                                     
                                 </div>
@@ -49,16 +62,13 @@
                     </div>
                 </div>
             </div>  
-            <div class="hero__items set-bg" data-setbg="img/hero/hero-2.jpg">
+            <div class="hero__items set-bg" data-setbg="img/hero/hero-4.png">
                 <div class="container">
                     <div class="row">
                         <div class="col-xl-5 col-lg-7 col-md-8">
                             <div class="hero__text">
                                 <h6>Be bold. Be timeless. Be you</h6>
                                 <h2>Style delivered to your door step</h2>
-                                <p>A specialist label creating luxury essentials. Ethically crafted with an unwavering
-                                commitment to exceptional quality.</p>
-                                <a href="#" class="primary-btn">Shop now <span class="arrow_right"></span></a>
                                 <div class="hero__social">
                                    
                                 </div>
@@ -197,7 +207,7 @@
     <!-- Search End -->
 
 
-<script src="js/jquery-3.3.1.min.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script>
   $(document).ready(function () {
@@ -206,6 +216,23 @@
       if (bg) {
         $(this).css('background-image', 'url(' + bg + ')');
       }
+    });
+  });
+
+  
+//owlCarousel
+
+  $(document).ready(function(){
+    $(".hero__slider").owlCarousel({
+      items: 1,
+      loop: true,
+      autoplay: true,           // enables automatic slide
+      autoplayTimeout: 5000,    // time between slides
+      autoplayHoverPause: true, // pauses when mouse hovers
+      smartSpeed: 1000,         // smooth transition speed
+      dots: false,              // hide dots if you don't want them
+      nav: false,               // hides left/right buttons (optional)
+      animateOut: 'fadeOut',    // fade transition for smoother effect
     });
   });
 
@@ -244,6 +271,8 @@ async function addWishlist(event,id){
         console.log(data.wishlistCount)
     }
 }
+
+
 
 
 

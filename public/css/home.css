@@ -559,12 +559,22 @@ ol {
 }
 
 .hero__items {
-	height: 800px;
+	height: 500px;
 	padding-top: 230px;
+}
+.hero__items::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.25); /* adjust darkness */
+  z-index: 1;
 }
 
 .hero__text h6 {
-	color: #e53637;
+	color: #ff0202;
 	font-size: 14px;
 	font-weight: 700;
 	text-transform: uppercase;
@@ -634,6 +644,7 @@ ol {
 .hero__social a:last-child {
 	margin-right: 0;
 }
+
 
 /*---------------------
   Banner
@@ -3823,4 +3834,20 @@ ol {
 	.categories__text:before {
 		height: 250px;
 	}
+}
+
+@media only screen and (max-width: 991px) {
+	.hero__items { height: 350px; padding-top: 100px; }
+	.hero__text h2 { font-size: 36px; }
+	.hero__text { text-align: center; }
+}
+@media only screen and (max-width: 767px) {
+	.hero__items { height: auto; padding-top: 80px; padding-bottom: 30px; }
+	.hero__text h2 { font-size: 28px; line-height: 36px; }
+	.primary-btn { padding: 10px 20px; font-size: 12px; }
+	.hero__social { margin-top: 100px; }
+}
+@media only screen and (max-width: 479px) {
+	.hero__items { padding-top: 40px; }
+	.hero__text h2 { font-size: 22px; }
 }

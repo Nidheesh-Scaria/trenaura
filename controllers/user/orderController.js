@@ -80,7 +80,7 @@ const creditWallet = async (userId, orderId, amount, productId) => {
           orderId,
           type: "credit",
           amount,
-          description: `Refund on ${new Date().toLocaleString()} | OrderId: ${orderId} | Product: ${productName}`,
+          description: `Refund on ${new Date().toLocaleString()} || Product: ${productName}`,
         },
       },
     },
@@ -1012,7 +1012,7 @@ const cancelOrder = async (req, res) => {
       { new: true }
     );
 
-    const orderId = updatedOrder.orderId;
+    const orderId = updatedOrder._id;
 
     const cancelledItem = updatedOrder.orderedItems.find(
       (item) => item._id == itemId

@@ -290,7 +290,7 @@
           
           <th>Date</th>
           <th>Description</th>
-          <th>Transaction ID</th>
+          {{!-- <th>Transaction ID</th> --}}
           <th>Type</th>
           <th>Amount</th>
           
@@ -302,7 +302,7 @@
           <tr class="{{#if (eq type 'credit')}}credit{{else}}debit{{/if}}">
             <td>{{date}}</td>
             <td>{{description}}</td>
-            <td>{{transactionId}}</td>
+            {{!-- <td>{{transactionId}}</td> --}}
             <td>{{type}}</td>
             {{#if (eq type 'debit')}}
             <td>-₹{{amount}}</td>

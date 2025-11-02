@@ -252,12 +252,10 @@ const changePyamentStatus = async (req, res) => {
       });
     }
 
-    return res
-      .status(httpStatus.OK)
-      .json({
-        message: MESSAGES.ORDER.PYMNT_CHNG_SCSS || "Payment status changed",
-        status: status,
-      });
+    return res.status(httpStatus.OK).json({
+      message: MESSAGES.ORDER.PYMNT_CHNG_SCSS || "Payment status changed",
+      status: status,
+    });
   } catch (error) {
     console.error("error in changePyamentStatus ", error);
     res
@@ -402,11 +400,9 @@ const changeReturnStatus = async (req, res) => {
         .status(httpStatus.OK)
         .json({ message: "Return request accepted " });
     } else if (isRejected) {
-      return res
-        .status(httpStatus.OK)
-        .json({
-          message: MESSAGES.ORDER.RTRN_RJCTD || "Return request rejected ",
-        });
+      return res.status(httpStatus.OK).json({
+        message: MESSAGES.ORDER.RTRN_RJCTD || "Return request rejected ",
+      });
     }
   } catch (error) {
     console.error("error in changeReturnStatus ", error);
@@ -420,11 +416,11 @@ const loadReturnOrRefund = async (req, res) => {
   try {
     const order = await OrderSchema.find({
       "orderedItems.returnRequest.isUserRequested": true,
-    })
+    }).sort({createdAt:-1})
       .populate("userId", "name")
       .populate("orderedItems.productId", "productName productImages")
       .lean();
-
+   
     const filteredOrders = order
       .map((order) => {
         order.orderedItems = order.orderedItems

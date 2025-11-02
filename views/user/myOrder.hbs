@@ -376,15 +376,10 @@
                 <button type="button" class="payment" onclick="retryPayment(event,'{{_id}}')">Retry Payment</button>
               {{/if}}
             {{/if}}
-            {{#if (and (eq isUserRequested true) (eq isAdminApproved false))}}
-            <button class="payment"  disabled>
-                Return Initiated
-            </button>
-            {{else if (and (eq isUserRequested true) (eq isAdminApproved true))}}
-            <button class="payment" disabled>
-                Return Accepted
-            </button>
-            {{/if}}
+            {{!-- {{#if (eq isUserRequested true)}}
+            <button class="payment" onclick="retryPayment(event,'{{_id}}')" disabled>Return Initiated</button>
+            
+            {{/if}} --}}
             <button type="button" class="details" onclick="viewOrderDetails(event,'{{_id}}')">View Details</button>
         </div>
 
@@ -409,8 +404,13 @@
                       Status: <span class="order-status {{latestStatus}}">{{latestStatus}}</span> 
                       <small>on {{latestStatusDate}}</small>
                     </p>
-                     {{#if (eq isUserRequested true)}}
-                        <button id="returnRequested"  disabled>Return Initiated</button>
+                   
+                    {{#if (and (eq isUserRequested true) (eq isAdminApproved null))}}
+                        <button id="returnRequested" style="background-color: #34c92c;" disabled>Return Initiated</button>
+                    {{else if (and (eq isUserRequested true) (eq isAdminApproved true))}}
+                    <button id="returnRequested" style="background-color: #a4c92c;" disabled>Return Accepted</button>
+                    {{else if (and (eq isUserRequested true) (eq isAdminApproved false))}}
+                    <button id="returnRequested"  disabled>Return Rejected</button>
                     {{/if}}
                 </div>
             </div>

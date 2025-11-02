@@ -125,8 +125,8 @@ const loadMyOrder = async (req, res) => {
             : "Pending",
           latestStatusDate,
           returnRequest: item.returnRequest || null,
-          isUserRequested: item.returnRequest.isUserRequested || false,
-          isAdminApproved: item.returnRequest.isAdminApproved||false,
+          isUserRequested: item.returnRequest?.isUserRequested || false,
+          isAdminApproved: item.returnRequest?.isAdminApproved || false,
         };
       });
 
@@ -219,8 +219,8 @@ const orderDetails = async (req, res) => {
       };
     });
     const isOrderPlaced = orders.isOrderPlaced;
-    console.log(orders)
-    console.log('address',orders.address)
+    console.log(orders);
+    console.log("address", orders.address);
     const address = await Address.findOne(
       { "address._id": orders.address },
       { "address.$": 1 }
@@ -1319,12 +1319,10 @@ const confirmWalletPayment = async (req, res) => {
           });
         }
         if (usage.usageCount >= coupon.usageLimit) {
-          return res
-            .status(httpStatus.BAD_REQUEST)
-            .json({
-              message:
-                MESSAGES.COUPON.USAGE_LIMIT || "Coupon usage limit reached",
-            });
+          return res.status(httpStatus.BAD_REQUEST).json({
+            message:
+              MESSAGES.COUPON.USAGE_LIMIT || "Coupon usage limit reached",
+          });
         }
 
         usage.usageCount += 1;
@@ -1360,13 +1358,11 @@ const confirmWalletPayment = async (req, res) => {
       savedOrder = await newOrder.save();
 
       if (!wallet || wallet.balance < finalAmount) {
-        return res
-          .status(httpStatus.BAD_REQUEST)
-          .json({
-            message:
-              MESSAGES.WALLET.INSUFFICIENT_BALANCE ||
-              "Insufficient wallet balance",
-          });
+        return res.status(httpStatus.BAD_REQUEST).json({
+          message:
+            MESSAGES.WALLET.INSUFFICIENT_BALANCE ||
+            "Insufficient wallet balance",
+        });
       }
 
       await debitWallet(userId, savedOrder.orderId, finalAmount);
@@ -1423,12 +1419,10 @@ const confirmWalletPayment = async (req, res) => {
         });
         //cheking of coupon exists
         if (!coupon) {
-          return res
-            .status(httpStatus.BAD_REQUEST)
-            .json({
-              message:
-                MESSAGES.COUPON.INVALID_COUPON || "Invalid or inactive coupon",
-            });
+          return res.status(httpStatus.BAD_REQUEST).json({
+            message:
+              MESSAGES.COUPON.INVALID_COUPON || "Invalid or inactive coupon",
+          });
         }
 
         if (coupon.discountType === "flat") {
@@ -1450,12 +1444,10 @@ const confirmWalletPayment = async (req, res) => {
           });
         }
         if (usage.usageCount >= coupon.usageLimit) {
-          return res
-            .status(httpStatus.BAD_REQUEST)
-            .json({
-              message:
-                MESSAGES.COUPON.USAGE_LIMIT || "Coupon usage limit reached",
-            });
+          return res.status(httpStatus.BAD_REQUEST).json({
+            message:
+              MESSAGES.COUPON.USAGE_LIMIT || "Coupon usage limit reached",
+          });
         }
 
         usage.usageCount += 1;
@@ -1481,13 +1473,11 @@ const confirmWalletPayment = async (req, res) => {
       savedOrder = await newOrder.save();
 
       if (!wallet || wallet.balance < finalAmount) {
-        return res
-          .status(httpStatus.BAD_REQUEST)
-          .json({
-            message:
-              MESSAGES.WALLET.INSUFFICIENT_BALANCE ||
-              "Insufficient wallet balance",
-          });
+        return res.status(httpStatus.BAD_REQUEST).json({
+          message:
+            MESSAGES.WALLET.INSUFFICIENT_BALANCE ||
+            "Insufficient wallet balance",
+        });
       }
 
       await debitWallet(userId, savedOrder.orderId, finalAmount);
@@ -1522,11 +1512,9 @@ const confirmWalletPayment = async (req, res) => {
       await Cart.deleteOne({ userId });
     }
 
-    return res
-      .status(httpStatus.OK)
-      .json({
-        message: MESSAGES.ORDER.ORDER_PLACED || "Order placed successfully",
-      });
+    return res.status(httpStatus.OK).json({
+      message: MESSAGES.ORDER.ORDER_PLACED || "Order placed successfully",
+    });
   } catch (error) {
     console.error("Error in confirmWalletPayment :", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -1666,14 +1654,12 @@ const verifyPayment = async (req, res) => {
         message: MESSAGES.RAZORPAY.VERIFIED || "Payment verified successfully",
       });
     } else {
-      return res
-        .status(httpStatus.BAD_REQUEST)
-        .json({
-          success: false,
-          message:
-            MESSAGES.RAZORPAY.VERIFICATION_FAILED ||
-            "Payment verification failed",
-        });
+      return res.status(httpStatus.BAD_REQUEST).json({
+        success: false,
+        message:
+          MESSAGES.RAZORPAY.VERIFICATION_FAILED ||
+          "Payment verification failed",
+      });
     }
   } catch (error) {
     console.error("Error verifying Razorpay payment:", error);

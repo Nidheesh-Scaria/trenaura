@@ -1349,14 +1349,21 @@ button[type="button"]:hover {
             </h3>
           
             {{!-- {{#if (and (eq this.returnRequest.isUserRequested true) (eq this.returnRequest.isAdminApproved false))}} --}}
-            {{#if (eq ../returnRequest.isUserRequested true)}}
+            {{#if (and (eq ../returnRequest.isUserRequested true) (eq ../returnRequest.isAdminApproved null))}}
               <h3 style="color: red; font-weight: 700;">Return initiated</h3>
              
               <h5 style="color: red;">Reason for Return :{{../returnRequest.reason}}</h5>
+            {{else if (and (eq ../returnRequest.isUserRequested true) (eq ../returnRequest.isAdminApproved true))}}
+
+            <h5 style="color: red;">Reason for Return :{{../returnRequest.reason}}</h5>
+
             {{else}}
+
+              <h3 style="color: red; font-weight: 700;">Return Rejected try again</h3>
               <button class="btn-return" onclick="returnOrder(event,'{{../_id}}')">Return</button>
+              
             {{/if}}
-            {{#if (eq ../returnRequest.isAdminApproved true)}}
+            {{#if (and (eq ../returnRequest.isUserRequested true) (eq ../returnRequest.isAdminApproved true))}}
               <h3 style="color: red; font-weight: 700;">Return accepted by admin</h3>
 
               {{#if (eq ../returnRequest.refundStatus true)}}

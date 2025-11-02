@@ -149,6 +149,7 @@ router.get("/auth/google", (req, res, next) => {
 
 router.get(
   "/auth/google/callback",
+  (req, res, next) => { console.log("Google OAuth callback query:", req.query); next(); },
   passport.authenticate("google", { failureRedirect: "/signup" }),
   (req, res) => {
     req.session.isLoggedIn = true;

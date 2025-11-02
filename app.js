@@ -65,7 +65,6 @@ app.use((req, res) => {
   res.status(404).json({ success: false, message: "Route not found" });
 });
 
-app.set("trust proxy", 1);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Server is running at ${port}`));

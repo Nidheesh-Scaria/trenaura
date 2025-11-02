@@ -132,24 +132,65 @@ router.get("/aboutUs",consumerPolicy.aboutUs)
 
 
 
+// router.get("/auth/google", (req, res, next) => {
+//   if (req.isAuthenticated()) {
+//     // If the user is already authenticated, redirect them to profile
+//     return res.redirect("/");
+//   }
+
+//   // If not, proceed with Google login
+//   passport.authenticate("google", {
+//     scope: ["profile", "email"],
+//     prompt: "consent",
+//   })(req, res, next);
+// });
+
+  
+
+// router.get(
+//   "/auth/google/callback",
+//   passport.authenticate("google", { failureRedirect: "/signup" }),
+//   (req, res) => {
+//     req.session.isLoggedIn = true;
+//     req.session.user = req.user._id;
+//     res.redirect("/");
+//   }
+// );
+// STEP 1: Google Login Route
 router.get("/auth/google", (req, res, next) => {
   if (req.isAuthenticated()) {
-    // If the user is already authenticated, redirect them to profile
     return res.redirect("/");
   }
-  // If not, proceed with Google login
-  passport.authenticate("google", { scope: ["profile", "email"] ,prompt: "consent" })(req, res, next);
+
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+    prompt: "consent",
+  })(req, res, next);
 });
 
-router.get(
-  "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/signup" }),
-  (req, res) => {
-    req.session.isLoggedIn = true;
-    req.session.user = req.user._id;
-    res.redirect("/");
-  }
-);
+// STEP 2: Google Callback Route
+router.get("/auth/google/callback", (req, res, next) => {
+  passport.authenticate("google", (err, user, info) => {
+    if (err) {
+      console.error("Google OAuth Error:", err);
+      return res.status(500).json({ success: false, message: "OAuth Error" });
+    }
 
+    if (!user) {
+      return res.redirect("/signup");
+    }
+
+    req.logIn(user, (err) => {
+      if (err) {
+        console.error("Login Error:", err);
+        return res.status(500).json({ success: false, message: "Login Error" });
+      }
+
+      req.session.isLoggedIn = true;
+      req.session.user = user._id;
+      return res.redirect("/");
+    });
+  })(req, res, next);
+});
 
 module.exports = router;

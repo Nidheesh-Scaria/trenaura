@@ -126,6 +126,7 @@ const loadMyOrder = async (req, res) => {
           latestStatusDate,
           returnRequest: item.returnRequest || null,
           isUserRequested: item.returnRequest.isUserRequested || false,
+          isAdminApproved: item.returnRequest.isAdminApproved||false,
         };
       });
 

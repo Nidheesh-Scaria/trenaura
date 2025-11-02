@@ -376,8 +376,14 @@
                 <button type="button" class="payment" onclick="retryPayment(event,'{{_id}}')">Retry Payment</button>
               {{/if}}
             {{/if}}
-            {{#if (eq isUserRequested true)}}
-            <button class="payment" onclick="retryPayment(event,'{{_id}}')" disabled>Return Initiated</button>
+            {{#if (and (eq isUserRequested true) (eq isAdminApproved false))}}
+            <button class="payment"  disabled>
+                Return Initiated
+            </button>
+            {{else if (and (eq isUserRequested true) (eq isAdminApproved true))}}
+            <button class="payment" disabled>
+                Return Accepted
+            </button>
             {{/if}}
             <button type="button" class="details" onclick="viewOrderDetails(event,'{{_id}}')">View Details</button>
         </div>

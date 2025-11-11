@@ -9,7 +9,7 @@ const categoryInfo = async (req, res) => {
   try {
     const search = req.query.search || "";
     const page = parseInt(req.query.page) || 1;
-    const limit = 3;
+    const limit = 12;
     const skip = (page - 1) * limit;
 
     const query = {
@@ -80,7 +80,8 @@ const addCategory = async (req, res) => {
     });
   }
 
-  const trimmedName = name.trim();
+  let trimmedName = name.trim();
+  trimmedName=trimmedName.toUpperCase()
   const trimmedDescription = description.trim();
 
   try {
@@ -158,18 +159,24 @@ const editCategory = async (req, res) => {
     const id = req.params.id;
     const { name, description } = req.body;
 
-    const sameName = await categorySchema.find({ name, _id: { $ne: id } });
+    let correctedName=name.trim()
+    console.log("correctedName",correctedName)
+    correctedName=correctedName.toUpperCase()
+
+    const sameName = await categorySchema.find({ name:correctedName, _id: { $ne: id } });
+
+    console.log("correctedName",sameName)
 
     if (sameName.length > 0) {
-      res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: MESSAGES.CATEGORY.CATEGORY_EXISTS || "Category already exists",
       });
     }
 
-    await categorySchema.findByIdAndUpdate(id, { $set: { name, description } });
+    await categorySchema.findByIdAndUpdate(id, { $set: { name:correctedName, description } });
 
-    res.status(200).json({
+    return res.status(httpStatus.OK).json({
       success: true,
       message: MESSAGES.CATEGORY.UPDATED || "Category updated successfully!",
     });

@@ -543,8 +543,8 @@ const increaseQuantity = async (req, res) => {
     await cart.save();
 
     // Recalculate grand total
-    // let grandTotal = cart.items.reduce((total, i) => total + i.totalPrice, 0);
-    let grandTotal = item.totalPrice;
+    let grandTotal = cart.items.reduce((total, i) => total + i.totalPrice, 0);
+    
 
     let deliveryCharge = await getDeliveryCharge(grandTotal);
 
@@ -559,7 +559,7 @@ const increaseQuantity = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in increasing the quantity:", error);
-    res.status(500).json({
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message:
         MESSAGES.INTERNAL_SERVER_ERROR ||
@@ -612,11 +612,11 @@ const decreaseQuantity = async (req, res) => {
     await cart.save();
 
     // Recalculate grand total
-    let grandTotal = item.totalPrice;
+    let grandTotal = cart.items.reduce((total, i) => total + i.totalPrice, 0);
     let deliveryCharge = await getDeliveryCharge(grandTotal);
     grandTotal += deliveryCharge;
 
-    return res.status(200).json({
+    return res.status(httpStatus.OK).json({
       message: MESSAGES.CART.QUANTITY_DECREASE || "Quantity decreased",
       quantity: item.quantity,
       totalPrice: item.totalPrice,

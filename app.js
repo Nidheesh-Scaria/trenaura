@@ -8,7 +8,7 @@ const cookieParser = require("cookie-parser");
 const db = require("./config/db");
 const hbs = require("./config/handlebars");
 const initGridFS = require("./config/gridfs");
-const sessionMiddleware = require("./middleware/session");
+const { userSession, adminSession } = require("./middleware/session");
 const localsMiddleware = require("./middleware/locals");
 const errorHandler = require("./middleware/errorHandler");
 
@@ -30,7 +30,8 @@ app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "views"));
 
 // Middlewares
-app.use(sessionMiddleware);
+app.use("/admin", adminSession);
+app.use("/", userSession);
 app.use(flash());
 app.use(nocache());
 app.use(passport.initialize());
@@ -64,7 +65,6 @@ app.use((req, res) => {
   console.log("404 - Route not found:", req.method, req.url);
   res.status(404).json({ success: false, message: "Route not found" });
 });
-
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Server is running at ${port}`));

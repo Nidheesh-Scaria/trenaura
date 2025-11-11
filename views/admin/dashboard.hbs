@@ -691,6 +691,7 @@
         document.getElementById("applyFilter").addEventListener("click", () => {
             const startDate = document.getElementById("startDate").value;
             const endDate = document.getElementById("endDate").value;
+            
 
             if (!startDate || !endDate) {
                 Toastify({
@@ -712,12 +713,19 @@
 
         window.addEventListener("DOMContentLoaded", () => {
             const today = new Date().toISOString().split("T")[0];
-            document.getElementById("endDate").value = today;
+            
+            const startDateInput = document.getElementById("startDate");
+            const endDateInput = document.getElementById("endDate");
+            //preventing future date
+            startDateInput.max = today;
+            endDateInput.max = today;
+            //setting today as end date
+            endDateInput.value = today;
 
             const past = new Date();
             past.setDate(past.getDate() - 30);
             const pastDate = past.toISOString().split("T")[0];
-            document.getElementById("startDate").value = pastDate;
+            startDateInput.value = pastDate;
 
             fetchDashboardData(pastDate, today);
         });
@@ -741,6 +749,13 @@
     document.addEventListener("DOMContentLoaded",()=>{
         const startDateInput=document.getElementById("ledgerStartDate")
         const endDateInput=document.getElementById("ledgerEndDate")
+
+        // Prevening future dates
+        // Geting today's date in YYYY-MM-DD
+        const today = new Date().toISOString().split('T')[0];
+        startDateInput.max = today;
+        endDateInput.max = today;
+
 
         startDateInput.addEventListener('change',()=>{
             const startDateValue=startDateInput.value;

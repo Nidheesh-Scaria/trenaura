@@ -287,19 +287,21 @@ button {
     const resendBtn = document.getElementById('resend');
     const timerDisplay = document.getElementById('timer');
     const message = document.getElementById('message');
+    resendBtn.style.display='none'
 
     let countdown;
-    let timeLeft = 120;
+    let timeLeft =120;
 
     function startTimer() {
       clearInterval(countdown);
-      timeLeft = 120;
+      timeLeft;
       updateTimerDisplay();
 
       countdown = setInterval(() => {
         timeLeft--;
         updateTimerDisplay();
         if (timeLeft <= 0) {
+          resendBtn.style.display='block'
           clearInterval(countdown);
           timerDisplay.textContent = "Expired";
         }
@@ -356,6 +358,7 @@ button {
               title: "OTP Resent",
               text: "OTP has been resent to your email!"
             });
+            resendBtn.style.display='none'
           } else {
             Swal.fire({
               icon: "error",

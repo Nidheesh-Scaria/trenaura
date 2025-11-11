@@ -555,6 +555,12 @@
         const startDateInput = document.getElementById('startDate');
         const endDateInput = document.getElementById('endDate');
 
+        // Prevening future dates
+        // Geting today's date in YYYY-MM-DD
+        const today = new Date().toISOString().split('T')[0];
+        startDateInput.max = today;
+        endDateInput.max = today;
+
         startDateInput.addEventListener('change', () => {
             // Get the value of the start date
             const startDateValue = startDateInput.value;

@@ -41,7 +41,7 @@ router.post('/changePassword',userController.changePassword)
 router.post('/resendPswrdOtp',userController.resendPswrdOtp)
 
 //product
-router.get('/shop',userAuth.userBlocked,userController.loadShop)
+router.get('/shop',userController.loadShop)
 router.get('/productDetails', userController.productDetails)
 
 

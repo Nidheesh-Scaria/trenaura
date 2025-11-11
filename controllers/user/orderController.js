@@ -67,7 +67,7 @@ const debitWallet = async (userId, orderId, amount) => {
   );
 };
 
-const creditWallet = async (userId, orderId, amount, productId) => {
+const creditWallet = async (userId, objectId, orderId, amount, productId) => {
   const product = await Product.findById(productId).lean();
   productName = product.productName || "Unknown product";
 
@@ -77,10 +77,10 @@ const creditWallet = async (userId, orderId, amount, productId) => {
       $inc: { balance: amount },
       $push: {
         transactions: {
-          orderId,
+          objectId,
           type: "credit",
           amount,
-          description: `Refund on ${new Date().toLocaleString()} || Product: ${productName}`,
+          description: `Refund on ${new Date().toLocaleString()} ||OrderId:${orderId} || Product: ${productName}`,
         },
       },
     },
@@ -116,7 +116,9 @@ const loadMyOrder = async (req, res) => {
 
         let latestStatusDate = new Date(
           latestStatusEntry.changedAt
-        ).toLocaleString();
+        ).toLocaleString("en-IN", {
+          timeZone: "Asia/Kolkata",
+        });
 
         return {
           ...item,
@@ -185,7 +187,9 @@ const orderDetails = async (req, res) => {
 
     orders.orderedItems = orders.orderedItems.filter((item) => item.productId);
 
-    orders.formattedDate = new Date(orders.createdAt).toLocaleDateString();
+    orders.formattedDate = new Date(orders.createdAt).toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+    });
 
     orders.orderedItems = orders.orderedItems.map((item) => {
       const fullStatusHistory = item.statusHistory || [];
@@ -1013,7 +1017,8 @@ const cancelOrder = async (req, res) => {
       { new: true }
     );
 
-    const orderId = updatedOrder._id;
+    const objectId = updatedOrder._id;
+    const orderId = updatedOrder.orderId;
 
     const cancelledItem = updatedOrder.orderedItems.find(
       (item) => item._id == itemId
@@ -1046,7 +1051,7 @@ const cancelOrder = async (req, res) => {
       await product.save();
     }
     if (updatedOrder.paymentStatus === "Paid") {
-      await creditWallet(userId, orderId, finalAmount, productId);
+      await creditWallet(userId, objectId, orderId, finalAmount, productId);
     }
 
     return res.json({

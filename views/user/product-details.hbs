@@ -17,9 +17,8 @@
     
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easyzoom@2.5.0/css/easyzoom.css">
-
     <style>
-        * {
+      * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -78,67 +77,70 @@
             margin-bottom: 15px;
         }
 
-      .size-selection {
-        margin: 1rem 0;
-        font-family: Arial, sans-serif;
+        .size-selection {
+            margin: 1rem 0;
+            font-family: Arial, sans-serif;
         }
 
         .size-selection label {
-        display: block;
-        font-weight: bold;
-        margin-bottom: 0.5rem;
-        font-size: 1.1rem;
-        color: #333;
+            display: block;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            color: #333;
         }
 
         .size-options {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
         .size-option {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .size-option button {
-        padding: 8px 14px;
-        border: 2px solid #333;
-        border-radius: 6px;
-        background-color: white;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 600;
-        transition: all 0.2s ease;
+            padding: 8px 14px;
+            border: 2px solid #333;
+            border-radius: 6px;
+            background-color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
         }
+
         .size-btn.selected {
-        background-color: #333;
-        color: #fff;
-        border: 2px solid #000;
+            background-color: #333;
+            color: #fff;
+            border: 2px solid #000;
         }
 
         .size-option button:hover:not(:disabled) {
-        background-color: #333;
-        color: #fff;
+            background-color: #333;
+            color: #fff;
         }
 
         .size-option button:disabled {
-        border-color: #aaa;
-        background-color: #f2f2f2;
-        color: #888;
-        cursor: not-allowed;
+            border-color: #aaa;
+            background-color: #f2f2f2;
+            color: #888;
+            cursor: not-allowed;
         }
 
         .size-option small {
-        margin-top: 4px;
-        font-size: 12px;
-        color: #28a745; /* green for stock */
+            margin-top: 4px;
+            font-size: 12px;
+            color: #28a745;
+            /* green for stock */
         }
 
-        .size-option button:disabled + small {
-        display: none; /* hide stock info if disabled */
+        .size-option button:disabled+small {
+            display: none;
+            /* hide stock info if disabled */
         }
 
 
@@ -201,338 +203,483 @@
                 max-width: 100%;
             }
         }
+
         .easyzoom {
-        position: relative;
-        display: inline-block;
-        }
-        .easyzoom img {
-        display: block;
-        }
-        .easyzoom-flyout {
-        position: absolute;
-        z-index: 100;
-        overflow: hidden;
-        border: 1px solid #ccc;
-        background: #fff;
+            position: relative;
+            display: inline-block;
         }
 
-     
-        
+        .easyzoom img {
+            display: block;
+        }
+
+        .easyzoom-flyout {
+            position: absolute;
+            z-index: 100;
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background: #fff;
+        }
+
+
+        .image-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .main-image {
+            position: relative;
+            width: 28rem;
+            height: 25rem;
+            overflow: hidden;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+
+        .main-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: crosshair;
+        }
+
+        .zoom-result {
+            position: absolute;
+            top: 0;
+            left: 105%;
+            width: 28rem;
+            height: 25rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-repeat: no-repeat;
+            background-size: 200%;
+            background-color: #fff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 999;
+        }
+
+        /* Fade in when active */
+        .zoom-result.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Mobile Image Zoom Modal */
+        @media (max-width: 768px) {
+
+            /* --- Mobile zoom modal --- */
+            #zoomModal {
+                display: none !important;
+                /* <-- ensures it's hidden on load */
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+            }
+
+            /* Only visible when active */
+            #zoomModal.active {
+                display: flex !important;
+            }
+
+            #zoomModal img {
+                max-width: 90%;
+                max-height: 90%;
+                border-radius: 10px;
+                transition: transform 0.3s ease;
+            }
+
+            #closeZoom {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background: #fff;
+                color: #000;
+                font-size: 18px;
+                padding: 5px 12px;
+                border-radius: 50%;
+                cursor: pointer;
+                z-index: 10000;
+            }
+
+        }
     </style>
 </head>
-
-<div class="container">
-
-  <div class="easyzoom easyzoom--overlay" id="main-easyzoom">
-    <a id="main-easyzoom-link" href="{{product.productImages.[0]}}">
-      <img id="main-product-image" style="height: 25rem; width:28rem" src="{{product.productImages.[0]}}"
-        alt="Zoomed Product Image" />
-    </a>
-    <div class="product-thumbnails" style="margin-top: 1rem; display: flex; gap: 10px;">
-      {{#each product.productImages}}
-      <img class="product-thumbnail" data-image="{{this}}" src="{{this}}"
-        style="width: 60px; height: 60px; object-fit: cover; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;"
-        alt="Product Thumbnail" />
-      {{/each}}
-    </div>
-  </div>
-  <!-- Thumbnails of product-->
-
-
-
-  <div class="product-details">
-    <h1 class="product-title">{{product.productName}}</h1>
-    {{#if (gt product.appliedOffer 0)}}
-      <p style="color: red; font-weight:900; font-size:large">{{product.appliedOffer}}% off</p> 
-    {{/if}}
-    <p class="product-price">&#x20b9;{{product.salePrice}}
-      <span style="text-decoration: line-through; color: #888;">
-        &#x20b9;{{product.regularPrice}}
-      </span>
-    </p>
-
-    <div class="size-selection">
-      <label for="size">Select Size</label>
-      <div class="size-options">
-        {{#each product.allVariants}}
-        
-        <div class="size-option">
-            <button type="button" value="{{@key}}" class="size-btn" {{#if (eq this 0)}}disabled{{/if}}>
-            {{@key}}
-            </button>
-          
-            {{#if (gt this 0)}}
-              {{#if (lt this 6)}}
-                <small style="color: red;">Hurry! Only {{this}} left</small>
-            {{else}}
-              <small>{{this}} in stock</small>
-              {{/if}}
-            {{/if}}
-          
-        </div>
-        {{/each}}
-      </div>
-      
+ <!-- Mobile zoom modal -->
+    <div id="zoomModal" style="display: none;">
+      <span id="closeZoom">&times;</span>
+      <img id="zoomedImg" src="{{product.productImages.[0]}}" alt="Zoomed Image" />
     </div>
 
-    {{#if (eq isOutOfStock false)}}
-
-    <div>
-      <button class="add-to-cart" onclick="addToCart(event,'{{product._id}}')">Add to Cart</button>
-      <button class="add-to-cart" onclick="buyItNow(event,'{{product._id}}')">Buy it Now</button>
-
-    </div>
-    <p id="error" style="color: red;"></p>
-    {{else}}
-    <p style="color: red;">Out of of stock</p>
-
-    {{/if}}
-    {{!-- {{/if}} --}}
-    <div class="product-info">
-      <h3 style="color: black;">About this item</h3>
-      <p>{{product.description}}</p>
-    </div>
-  </div>
-</div>
+    <div class="container">
+         <!-- Thumbnails of product-->
+        <div class="easyzoom easyzoom--overlay" id="main-easyzoom">
+            <div class="image-container">
+                <div class="main-image">
+                    <img id="main-product-image" src="{{product.productImages.[0]}}" alt="Product Image" />
+                </div>
 
 
-<section class="product spad">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-12">
+                <div class="zoom-result" id="zoom-result"></div>
 
-        <ul class="filter__controls">
-
-
-          <li data-filter=".new-arrivals">Your Choices</li>
-
-        </ul>
-      </div>
-    </div>
-    <div class="row product__filter">
-      {{#each products}}
-      <div class="col-lg-3 col-md-6 col-sm-6 mix new-arrivals">
-        <div class="product__item">
-          <a href="/productDetails?id={{this._id}}">
-            <div class="product__item__pic set-bg" data-setbg="{{this.productImages.[1]}}">
-              
-              <ul class="product__hover">
-                {{!-- <li><button onclick="addWishlist(event,'{{this._id}}')"><img src="img/icon/heart.png" alt=""></button>
-                </li>--}}
-              </ul>
             </div>
-          </a>
-          <div class="product__item__text">
-            <h6>{{this.productName}}</h6>
-           
-            {{#if (includes ../wishlistProducts this._id)}}
-                <a id="wishlist-{{this._id}}" class="add-cart">❤️ Wishlisted</a>
-                {{else}}
-                <a href="#" id="wishlist-{{this._id}}" onclick="addWishlist(event,'{{this._id}}')" class="add-cart">+ Add to Wish
-                    list</a>
-            {{/if}}
-            
-            {{#if (gt this.appliedOffer 0)}}
-              <p style="color: red; font-weight:900; font-size:large">{{this.appliedOffer}}% off</p> 
-            {{/if}}
-            <h5>&#x20b9;{{this.salePrice}} <span
-                style="text-decoration: line-through; color: #888;">&#x20b9;{{this.regularPrice}}</span> </h5>
-          </div>
+            <div class="product-thumbnails" style="margin-top: 1rem; display: flex; gap: 10px;">
+                {{#each product.productImages}}
+                <img class="product-thumbnail" data-image="{{this}}" src="{{this}}"
+                    style="width: 60px; height: 60px; object-fit: cover; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;"
+                    alt="Product Thumbnail" />
+                {{/each}}
+            </div>
         </div>
-      </div>
-      {{/each}}
+       
+        <div class="product-details">
+            <h1 class="product-title">{{product.productName}}</h1>
+            {{#if (gt product.appliedOffer 0)}}
+            <p style="color: red; font-weight:900; font-size:large">{{product.appliedOffer}}% off</p>
+            {{/if}}
+            <p class="product-price">&#x20b9;{{product.salePrice}}
+                <span style="text-decoration: line-through; color: #888;">
+                    &#x20b9;{{product.regularPrice}}
+                </span>
+            </p>
 
+            <div class="size-selection">
+                <label for="size">Select Size</label>
+                <div class="size-options">
+                    {{#each product.allVariants}}
 
+                    <div class="size-option">
+                        <button type="button" value="{{@key}}" class="size-btn" {{#if (eq this 0)}}disabled{{/if}}>
+                            {{@key}}
+                        </button>
+
+                        {{#if (gt this 0)}}
+                        {{#if (lt this 6)}}
+                        <small style="color: red;">Hurry! Only {{this}} left</small>
+                        {{else}}
+                        <small>{{this}} in stock</small>
+                        {{/if}}
+                        {{/if}}
+
+                    </div>
+                    {{/each}}
+                </div>
+
+            </div>
+
+            {{#if (eq isOutOfStock false)}}
+
+            <div>
+                <button class="add-to-cart" onclick="addToCart(event,'{{product._id}}')">Add to Cart</button>
+                <button class="add-to-cart" onclick="buyItNow(event,'{{product._id}}')">Buy it Now</button>
+
+            </div>
+            <p id="error" style="color: red;"></p>
+            {{else}}
+            <p style="color: red;">Out of of stock</p>
+
+            {{/if}}
+
+            <div class="product-info">
+                <h3 style="color: black;">About this item</h3>
+                <p>{{product.description}}</p>
+            </div>
+        </div>
     </div>
-  </div>
-</section>
 
 
+    <section class="product spad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+
+                    <ul class="filter__controls">
+
+
+                        <li data-filter=".new-arrivals">Your Choices</li>
+
+                    </ul>
+                </div>
+            </div>
+            <div class="row product__filter">
+                {{#each products}}
+                <div class="col-lg-3 col-md-6 col-sm-6 mix new-arrivals">
+                    <div class="product__item">
+                        <a href="/productDetails?id={{this._id}}">
+                            <div class="product__item__pic set-bg" data-setbg="{{this.productImages.[1]}}">
+
+                                <ul class="product__hover">
+                                    {{!-- <li><button onclick="addWishlist(event,'{{this._id}}')"><img
+                                                src="img/icon/heart.png" alt=""></button>
+                                    </li>--}}
+                                </ul>
+                            </div>
+                        </a>
+                        <div class="product__item__text">
+                            <h6>{{this.productName}}</h6>
+
+                            {{#if (includes ../wishlistProducts this._id)}}
+                            <a id="wishlist-{{this._id}}" class="add-cart">❤️ Wishlisted</a>
+                            {{else}}
+                            <a href="#" id="wishlist-{{this._id}}" onclick="addWishlist(event,'{{this._id}}')"
+                                class="add-cart">+ Add to Wish
+                                list</a>
+                            {{/if}}
+
+                            {{#if (gt this.appliedOffer 0)}}
+                            <p style="color: red; font-weight:900; font-size:large">{{this.appliedOffer}}% off</p>
+                            {{/if}}
+                            <h5>&#x20b9;{{this.salePrice}} <span
+                                    style="text-decoration: line-through; color: #888;">&#x20b9;{{this.regularPrice}}</span>
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+                {{/each}}
+
+
+            </div>
+        </div>
+    </section>
 
 <script src="/js/jquery-3.3.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/easyzoom@2.5.0/dist/easyzoom.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/elevatezoom-plus@1.1.21/dist/jquery.ez-plus.min.js"></script>
+
 
 <script>
-let selectedSize;
-document.querySelectorAll(".size-btn").forEach(btn => {
-  btn.addEventListener("click", (e) => {
-    document.querySelectorAll(".size-btn").forEach(b => b.classList.remove("selected"));
-    e.target.classList.add("selected");
-    
+  let selectedSize;
+  document.querySelectorAll(".size-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      document
+        .querySelectorAll(".size-btn")
+        .forEach((b) => b.classList.remove("selected"));
+      e.target.classList.add("selected");
+    });
   });
-});
 
   $(document).ready(function () {
-    $('.set-bg').each(function () {
-      const bg = $(this).data('setbg');
+    $(".set-bg").each(function () {
+      const bg = $(this).data("setbg");
       if (bg) {
-        $(this).css('background-image', 'url(' + bg + ')');
+        $(this).css("background-image", "url(" + bg + ")");
       }
     });
     // Only initialize EasyZoom if the plugin loaded
     var easyzoomApi = null;
     if ($.fn.easyZoom) {
-      easyzoomApi = $('#main-easyzoom').easyZoom().data('easyZoom');
+      easyzoomApi = $("#main-easyzoom").easyZoom().data("easyZoom");
     } else {
-      console.error('EasyZoom plugin not loaded!');
+      console.error("EasyZoom plugin not loaded!");
     }
     // Thumbnail click handler
-    $('.product-thumbnail').on('click', function() {
-      var newImage = $(this).data('image');
-      $('#main-product-image').attr('src', newImage);
-      $('#main-easyzoom-link').attr('href', newImage);
+    $(".product-thumbnail").on("click", function () {
+      var newImage = $(this).data("image");
+      $("#main-product-image").attr("src", newImage);
+      $("#main-easyzoom-link").attr("href", newImage);
       // Swap EasyZoom image
       if (easyzoomApi) {
         easyzoomApi.swap(newImage, newImage);
       }
     });
   });
-  
-//if cart is empty
-async function addToCart(event, id) {
 
-event.preventDefault();
-document.getElementById("error").innerText=""
-const selectedBtn = document.querySelector(".size-btn.selected");
-const cartLength=document.getElementById("cart-count")
+  //if cart is empty
+  async function addToCart(event, id) {
+    event.preventDefault();
+    document.getElementById("error").innerText = "";
+    const selectedBtn = document.querySelector(".size-btn.selected");
+    const cartLength = document.getElementById("cart-count");
 
-if (!selectedBtn) {
-    document.getElementById("error").innerText="Please select a size before adding to cart."
-    return;
-  }
+    if (!selectedBtn) {
+      document.getElementById("error").innerText =
+        "Please select a size before adding to cart.";
+      return;
+    }
 
-const size=selectedBtn.value
+    const size = selectedBtn.value;
 
-  const res = await fetch(`/addToCart/${id}`, {
-    method:"POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body:JSON.stringify({size})
-  });
+    const res = await fetch(`/addToCart/${id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ size }),
+    });
 
-  
-  const data = await res.json();
+    const data = await res.json();
 
-  if (res.ok) {
-    Toastify({
+    if (res.ok) {
+      Toastify({
         text: data.message,
         duration: 3000,
-        close: true,          
-        gravity: "top",       
-        position: "center",    
+        close: true,
+        gravity: "top",
+        position: "center",
         style: {
-            background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)", 
+          background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
         },
-        className: "custom-toast", 
-        
-        }).showToast();
+        className: "custom-toast",
+      }).showToast();
 
-
-  cartLength.innerHTML=data.cartCount
-    
-  } else {
-    console.error("Failed to add item:", data.message || "Unknown error");
-  }
-}
-//linear-gradient(to right,  #1e3c72, #6dd5ed)
-
-async function addWishlist(event,id){
-    event.preventDefault();
-    console.log('addWishlist loaded with id   :::::::',id)
-    const wishlistCount=document.getElementById("wishlist-count")
-    const res=await fetch(`/addWishlist/${id}`,{
-        method:"POST",
-        headers:{"Content-type":"application/json"}
-    })
-
-    const data=await res.json()
-
-
-    if(res.ok){
-        Toastify({
-            text: "Added to wishlist",
-            duration: 3000,
-            close: true,          
-            gravity: "top",
-            position: "center",    
-            style: {
-                background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)", 
-            },
-            className: "custom-toast", 
-            onClick: () => {     
-                alert("Toast clicked!");
-        }
-        }).showToast();
-        document.getElementById(`wishlist-${id}`).innerHTML="❤️ Wishlisted"
-        /* wishlistBtn.onclick = null;
-        wishlistBtn.removeAttribute("onclick");
-        wishlistBtn.style.pointerEvents = "none"; */
-        wishlistCount.innerHTML=data.wishlistCount
-        console.log("Count::::",data.wishlistCount)
-
-
+      cartLength.innerHTML = data.cartCount;
+    } else {
+      console.error("Failed to add item:", data.message || "Unknown error");
     }
-}
+  }
+  //linear-gradient(to right,  #1e3c72, #6dd5ed)
 
-     
-async function buyItNow(event,id){
-    event.preventDefault()
+  async function addWishlist(event, id) {
+    event.preventDefault();
+    console.log("addWishlist loaded with id   :::::::", id);
+    const wishlistCount = document.getElementById("wishlist-count");
+    const res = await fetch(`/addWishlist/${id}`, {
+      method: "POST",
+      headers: { "Content-type": "application/json" },
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      Toastify({
+        text: "Added to wishlist",
+        duration: 3000,
+        close: true,
+        gravity: "top",
+        position: "center",
+        style: {
+          background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+        },
+        className: "custom-toast",
+        onClick: () => {
+          alert("Toast clicked!");
+        },
+      }).showToast();
+      document.getElementById(`wishlist-${id}`).innerHTML = "❤️ Wishlisted";
+      /* wishlistBtn.onclick = null;
+          wishlistBtn.removeAttribute("onclick");
+          wishlistBtn.style.pointerEvents = "none"; */
+      wishlistCount.innerHTML = data.wishlistCount;
+      console.log("Count::::", data.wishlistCount);
+    }
+  }
+
+  async function buyItNow(event, id) {
+    event.preventDefault();
 
     const selectedBtnEl = document.querySelector(".size-btn.selected");
     const selectedBtn = selectedBtnEl ? selectedBtnEl.value : null;
-    
 
     if (!selectedBtn) {
-        document.getElementById("error").innerText="Please select a size before check out."
-        return;
-      }
-    const size=selectedBtn
+      document.getElementById("error").innerText =
+        "Please select a size before check out.";
+      return;
+    }
+    const size = selectedBtn;
     window.location.href = `/loadAddressForOrder/${id}?size=${size}`;
-}
+  }
 
-//beauty
-async function addToCartBeauty(event, id) {
+  $(document).ready(function () {
+    // Background images for other items
+    $(".set-bg").each(function () {
+      const bg = $(this).data("setbg");
+      if (bg) $(this).css("background-image", "url(" + bg + ")");
+    });
 
-event.preventDefault();
-const beauty=true
-  const res = await fetch(`/addToCart/${id}`, {
-    method:"POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body:JSON.stringify({beauty})
+    // === Flipkart-style Hover Zoom ===
+    const mainImg = document.getElementById("main-product-image");
+    const zoomResult = document.getElementById("zoom-result");
+
+    mainImg.addEventListener("mousemove", (e) => {
+      zoomResult.classList.add("show");
+
+      const rect = mainImg.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const xPercent = (x / rect.width) * 100;
+      const yPercent = (y / rect.height) * 100;
+
+      zoomResult.style.backgroundImage = `url('${mainImg.src}')`;
+      zoomResult.style.backgroundPosition = `${xPercent}% ${yPercent}%`;
+    });
+
+    mainImg.addEventListener("mouseleave", () => {
+      zoomResult.classList.remove("show");
+    });
+
+    // Change main image on thumbnail click
+    $(".product-thumbnail").on("click", function () {
+      const newImage = $(this).data("image");
+      $("#main-product-image").attr("src", newImage);
+      zoomResult.style.backgroundImage = `url('${newImage}')`;
+    });
   });
 
-  
-  const data = await res.json();
+  const zoomModal = document.getElementById("zoomModal");
+  const zoomedImg = document.getElementById("zoomedImg");
+  const closeZoom = document.getElementById("closeZoom");
+  const mainImage = document.getElementById("main-product-image");
 
-  if (res.ok) {
-    Toastify({
-        text: data.message,
-        duration: 3000,
-        close: true,          
-        gravity: "top",       
-        position: "center",    
-        style: {
-            background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)", 
-        },
-        className: "custom-toast", 
-        
-        }).showToast();
+  let scale = 1;
 
-
-        
-    
-  } else {
-    console.error("Failed to add item:", data.message || "Unknown error");
+  // Open modal only on mobile
+  if (mainImage) {
+    mainImage.addEventListener("click", function () {
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        zoomedImg.src = this.src;
+        zoomModal.classList.add("active");
+        scale = 1;
+        zoomedImg.style.transform = "scale(1)";
+      }
+    });
   }
-}
 
-async function buyItNowBeauty(event,id){
-    event.preventDefault()
+  // Close modal on X click or background click
+  closeZoom.addEventListener("click", () => {
+    zoomModal.classList.remove("active");
+  });
 
-    window.location.href = `/loadAddressForOrder/${id}`;
-}
+  zoomModal.addEventListener("click", (e) => {
+    if (e.target === zoomModal) {
+      zoomModal.classList.remove("active");
+    }
+  });
+
+  // Double-tap zoom
+  let lastTap = 0;
+  zoomedImg.addEventListener("click", () => {
+    const now = Date.now();
+    const delta = now - lastTap;
+
+    if (delta < 300) {
+      scale = scale === 1 ? 2 : 1;
+      zoomedImg.style.transform = `scale(${scale})`;
+    }
+    lastTap = now;
+  });
+
+  // Always hide modal if resized to desktop
+  window.addEventListener("resize", () => {
+    if (!window.matchMedia("(max-width: 768px)").matches) {
+      zoomModal.classList.remove("active");
+    }
+  });
+
+  // Hide modal on page load (safety check)
+  window.addEventListener("load", () => {
+    zoomModal.classList.remove("active");
+    zoomModal.style.display = "none";
+  });
 
 </script>

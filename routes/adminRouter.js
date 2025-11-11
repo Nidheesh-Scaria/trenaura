@@ -36,7 +36,7 @@ router.post("/unlistCategory/:id",adminAuth.adminAuth,categoryController.unlistC
 router.put("/editCategory/:id",adminAuth.adminAuth,categoryController.editCategory);
 router.patch("/deleteCategory/:id",adminAuth.adminAuth,categoryController.deleteCategory);
 router.patch("/undoDeleteCategory/:id",adminAuth.adminAuth,categoryController.undoDeleteCategory);
-router.get("/category", adminAuth.adminAuth, categoryController.categoryInfo);
+router.get("/category",adminAuth.adminAuth,categoryController.categoryInfo);
 router.post("/addCategoryOffer", adminAuth.adminAuth, categoryController.addCategoryOffer)
 router.post("/removeCategoryOffer", adminAuth.adminAuth, categoryController.removeCategoryOffer)
 

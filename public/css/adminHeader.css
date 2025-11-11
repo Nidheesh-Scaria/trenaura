@@ -40,6 +40,7 @@ body {
 
 .logo:hover {
   transform: scale(1.05);
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
 }
 
 .logo img {
@@ -152,12 +153,11 @@ body {
 .profile i {
   font-size: 2rem;
   color: #091c6d;
-  transition: all 0.3s ease;
+  transition: all 0.8s ease;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 .profile:hover i {
-  color: #58327d;
   transform: rotate(360deg);
 }
 

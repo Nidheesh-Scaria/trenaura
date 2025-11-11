@@ -684,7 +684,7 @@
         <button onclick="incrementAmount(1000)">+ ₹ 1000</button>
         <button onclick="incrementAmount(1500)">+ ₹ 1500</button>
       </div>
-      <button class="add-btn" onclick="addMoneyToWallet()">Add money to wallet</button>
+      <button class="add-btn" id="addMoneyBtn" onclick="addMoneyToWallet()">Add money to wallet</button>
     </div>
 
    
@@ -724,13 +724,13 @@
   }
 
 
-async function addMoneyToWallet() {
+{{!-- async function addMoneyToWallet() {
 
   const amount = getInputValue();
   if (amount === null) return; 
 
-  console.log("addMoneyToWallet",amount)
-  //creating razorpay order
+ 
+  //1.creating razorpay order
   const res = await fetch("/create-razorpay-order-wallet", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -738,8 +738,8 @@ async function addMoneyToWallet() {
   });
 
   const razorData = await res.json();
-  console.log("key",razorData.key)
 
+  //3. Configure Razorpay options
   const options = {
     key: razorData.key,
     amount: razorData.amount * 100,
@@ -748,7 +748,7 @@ async function addMoneyToWallet() {
     name: "Trenaura",
     description: "The Aura of Trend",
     handler: async function (response) {
-      //payment verification in backend
+      //3.payment verification in backend
       const verifyRes = await fetch("/verify-payment-wallet", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -787,16 +787,18 @@ async function addMoneyToWallet() {
           },
           className: "custom-toast",
         }).showToast();
+        // redirect to walletPaymentFailed
+        setTimeout(() => {
+          window.location.href = "/walletPaymentFailed";
+        }, 1500);
         
       }
     },
     modal: {
         ondismiss: function () {
-                                
-        console.log("Payment popup closed by user");
-        setTimeout(() => {
-            window.location.href = `/walletPaymentFailed`;
-        }, 500);
+          setTimeout(() => {
+              window.location.href = `/walletPaymentFailed`;
+          }, 500);
         },
     },
     theme: {
@@ -804,18 +806,167 @@ async function addMoneyToWallet() {
     },
   };
 
-  // Step 5: Open Razorpay
+  // 5: Open Razorpay
   const rzp1 = new window.Razorpay(options);
   rzp1.open();
   rzp1.on("payment.failed",function(response){
-    console.error("Payment failed:", response.error);
+    
+ 
+
     console.log(orderId)
         setTimeout(()=>{
              window.location.href = `/walletPaymentFailed`
         },1000)
   })
-}  
 
+ 
+}  
+ --}}
+
+
+let isSubmitting = false; // prevent double click
+
+async function addMoneyToWallet() {
+  const amount = getInputValue();
+  if (amount === null) return;
+
+  const addBtn = document.getElementById("addMoneyBtn");
+  if (isSubmitting) return;
+
+  try {
+    isSubmitting = true;
+    addBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+    addBtn.disabled = true;
+
+    // Step 1: Create Razorpay order for wallet
+    const res = await fetch("/create-razorpay-order-wallet", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount }),
+    });
+
+    const razorData = await res.json();
+
+    if (!res.ok || !razorData.key) {
+      throw new Error(razorData.message || "Failed to create Razorpay order");
+    }
+
+    // Step 2: Configure Razorpay options
+    const options = {
+      key: razorData.key,
+      amount: razorData.amount * 100,
+      currency: razorData.currency,
+      order_id: razorData.orderId,
+      name: "Trenaura",
+      description: "The Aura of Trend",
+
+      // Step 3: Payment success handler
+      handler: async function (response) {
+        try {
+          const verifyRes = await fetch("/verify-payment-wallet", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(response),
+          });
+
+          const verifyData = await verifyRes.json();
+
+          if (verifyData.success) {
+            Toastify({
+              text: verifyData.message || "Wallet credited successfully!",
+              duration: 3000,
+              close: true,
+              gravity: "top",
+              position: "center",
+              style: {
+                background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
+              },
+            }).showToast();
+
+            document.getElementById("totalBalance").innerText = `₹ ${verifyData.balance}`;
+            addBtn.innerHTML = '<i class="fas fa-check me-2"></i>Success!';
+            
+          } else {
+            throw new Error(verifyData.message || "Payment verification failed");
+          }
+        } catch (err) {
+          console.error("Verification Error:", err);
+          Toastify({
+            text: err.message || "Error verifying payment",
+            duration: 3000,
+            close: true,
+            gravity: "top",
+            position: "center",
+            style: {
+              background: "linear-gradient(to right,#730202f2, #ba0d0d, #e00808e8)",
+            },
+          }).showToast();
+
+          setTimeout(() => {
+            window.location.href = `/walletPaymentFailed?message=${encodeURIComponent(err.message)}`;
+          }, 1500);
+        }
+      },
+
+      // Step 4: Razorpay modal dismissed
+      modal: {
+        ondismiss: function () {
+          console.warn("Payment popup closed by user");
+          setTimeout(() => {
+            window.location.href = `/walletPaymentFailed?message=Payment cancelled by user`;
+          }, 500);
+        },
+      },
+
+      theme: {
+        color: "#3399cc",
+      },
+    };
+
+    // Step 5: Open Razorpay
+    const rzp1 = new window.Razorpay(options);
+
+    // Step 6: Handle Payment Failure
+    rzp1.on("payment.failed", function (response) {
+      console.error("Payment failed:", response.error);
+
+      Toastify({
+        text: "Payment failed. Redirecting...",
+        duration: 2000,
+        close: true,
+        gravity: "top",
+        position: "center",
+        style: {
+          background: "linear-gradient(to right,#730202f2, #ba0d0d, #e00808e8)",
+        },
+      }).showToast();
+
+      setTimeout(() => {
+        window.location.href = `/walletPaymentFailed?message=${encodeURIComponent(
+          response.error.description || "Payment failed"
+        )}`;
+      }, 1000);
+    });
+
+    rzp1.open();
+  } catch (err) {
+    console.error("Error in Razorpay wallet payment:", err);
+    Toastify({
+      text: err.message || "Something went wrong. Please try again.",
+      duration: 3000,
+      close: true,
+      gravity: "top",
+      position: "center",
+      style: {
+        background: "linear-gradient(to right,#730202f2, #ba0d0d, #e00808e8)",
+      },
+    }).showToast();
+  } finally {
+    addBtn.innerHTML = "Add Money";
+    addBtn.disabled = false;
+    isSubmitting = false;
+  }
+}
 
 //modal management
 

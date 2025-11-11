@@ -444,6 +444,47 @@
      }
  }
 
+/* 🔹 Clear Filters Button Style */
+.clear-filters-btn {
+  display: inline-block;
+  width: 100%;
+  padding: 12px 15px;
+  background: linear-gradient(135deg, #233c79, #0b2977);
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+  border: none;
+  border-radius: 10px;
+  margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(36, 48, 221, 0.4);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.clear-filters-btn:hover {
+  background:linear-gradient(135deg, #24418b, #1346c5);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(36, 48, 221, 0.5);
+}
+
+.clear-filters-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 6px rgba(221, 36, 118, 0.3);
+}
+
+/* Make sure it looks nice on mobile too */
+@media (max-width: 991px) {
+  .clear-filters-btn {
+    padding: 14px;
+    font-size: 16px;
+    border-radius: 8px;
+  }
+}
+
+
+
 </style>
 
 </head>
@@ -482,9 +523,9 @@
                         <div class="sidebar__item"><br>
                             <h5>Categories</h5>
                             <ul>
-                                <li><a href="/shop?category=all">All</a></li>
+                                <li><a href="#" onclick="filterCategory('all')">All</a></li>
                                 {{#each categories}}
-                                <li><a href="/shop?category={{this._id}}">{{this.name}}</a></li>
+                                <li><a href="#" onclick="filterCategory('{{this._id}}')">{{this.name}}</a></li>
                                 {{/each}}
                             </ul>
                         </div>
@@ -494,20 +535,28 @@
                             <h5>Filter by Price</h5>
                             <div class="price-range">
                                 <ul>
-                                    <li><a href="/shop?price=0-1000">₹0 - ₹1000</a></li>
-                                    <li><a href="/shop?price=1000-2000">₹1000 - ₹2000</a></li>
-                                    <li><a href="/shop?price=2000-4000">₹2000 - ₹4000</a></li>
-                                    <li><a href="/shop?price=4000-8000">₹4000 - ₹8000</a></li>
-                                    <li><a href="/shop?price=8000+">₹8000+</a></li>
+                                   <li><a href="#" onclick="filterPrice('0-1000')">₹0 - ₹1000</a></li>
+                                   <li><a href="#" onclick="filterPrice('1000-2000')">₹1000 - ₹2000</a></li>
+                                   <li><a href="#" onclick="filterPrice('2000-4000')">₹2000 - ₹4000</a></li>
+                                   <li><a href="#" onclick="filterPrice('4000-8000')">₹4000 - ₹8000</a></li>
+                                   <li><a href="#" onclick="filterPrice('8000+')">₹8000+</a></li>
+                                   
                                 </ul>
                             </div>
                         </div>
+                        <!-- Clear Filters Button -->
+                        <div class="sidebar__item mt-4 text-center">
+                            <button class="clear-filters-btn" id="clearFilter" onclick="resetFilters()">🧹Clear All Filters</button>
+                        </div>
+
                     </div>
                 </div>
                 <!-- Sidebar End -->
 
                 <!-- Product Grid Start -->
                 <div class="col-lg-9 col-md-8">
+                   
+                    <input type="hidden" id="isFilter" value="{{isFilter}}">
                     {{#if isFilter}}
                     <div>
                         <p>Filters applied:
@@ -531,6 +580,7 @@
                         <input type="text" class="form-control w-50" placeholder="Search products..." id="mainSearch"
                             value="{{search}}" onkeypress="if(event.key === 'Enter') searchProducts()">
                         <button class="btn btn-secondary ms-2" onclick="searchProducts()">Search</button>
+                        <button class="btn btn-outline-danger ms-2" id="clearSearch" onclick="clearSearch()">Clear</button>
                     </div>
 
                     <div class="row product__filter">
@@ -629,7 +679,22 @@ $(document).ready(function () {
 
 });
 
+document.addEventListener('DOMContentLoaded',()=>{
+    const isFilter = document.getElementById('isFilter')?.value?.trim();
+    const clearButton = document.getElementById('clearFilter');
+    const mainSearch = document.getElementById('mainSearch')?.value?.trim()
+    const clearSearch = document.getElementById('clearSearch')
 
+    clearSearch.style.display='none'
+    clearButton.style.display='none'
+    
+    if (isFilter && isFilter !== 'false' && isFilter !== '0') {
+        clearButton.style.display='block'
+    }
+    if(mainSearch && mainSearch.length!==0){
+        clearSearch.style.display='block'
+    }
+})
 
 async function addWishlist(event,id){
     event.preventDefault();
@@ -705,6 +770,15 @@ function searchProducts() {
     window.location.href = url.toString();
 }
 
+function clearSearch() {
+    const searchInput = document.getElementById("mainSearch");
+    searchInput.value = ""; // Clear input box
+    const url = new URL(window.location.href);
+    url.searchParams.delete("search"); // Remove 'search' from query string
+    window.location.href = url.toString(); // Reload without search
+}
+
+
 function filterBrand() {
     const selectedBrands = Array.from(document.querySelectorAll("input[type=checkbox]:checked"))
         .map((el) => el.value);
@@ -720,6 +794,38 @@ function applySort() {
     url.searchParams.set("sort", sortValue);
     window.location.href = url.toString();
 }
+
+function filterCategory(categoryId) {
+  const url = new URL(window.location.href);
+  if (categoryId && categoryId !== 'all') {
+    url.searchParams.set("category", categoryId);
+  } else {
+    url.searchParams.delete("category");
+  }
+  url.searchParams.set("page", 1); // reset pagination
+  window.location.href = url.toString();
+}
+
+function filterPrice(priceRange) {
+  const url = new URL(window.location.href);
+  if (priceRange) {
+    url.searchParams.set("price", priceRange);
+  } else {
+    url.searchParams.delete("price");
+  }
+  url.searchParams.set("page", 1);
+  window.location.href = url.toString();
+}
+
+function resetFilters() {
+    const url = new URL(window.location.href);
+    // Remove all filter-related query parameters
+    const filterParams = ["search", "brand", "sort", "category", "price", "page"];
+    filterParams.forEach(param => url.searchParams.delete(param));
+    // Reload page
+    window.location.href = url.pathname; 
+}
+
 
 </script>
 </body>

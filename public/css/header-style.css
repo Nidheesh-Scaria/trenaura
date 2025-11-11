@@ -47,7 +47,13 @@ html, body {
   height: auto;
   object-fit: contain;
   display: block;
+  transition: transform 0.3s ease;
 }
+.logo img:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+}
+
 
 /* ---------------- HEADER ICONS ---------------- */
 .header-icons {
@@ -192,6 +198,18 @@ footer {
 .footer-col li a:hover {
   color: #fff;
 }
+
+#login-signUp-btn{
+  font-weight: 600;
+  font-size: 1rem;
+  transition: transform 0.3s ease;
+}
+#login-signUp-btn:hover{
+  color: red;
+  transform: scale(1.05);
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+}
+
 
 /* ---------------- RESPONSIVE DESIGN ---------------- */
 

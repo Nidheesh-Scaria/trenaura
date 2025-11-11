@@ -20,6 +20,7 @@ const razorpay = require("../../config/razorpay");
 const razorpayInstance = require("../../config/razorpay");
 const crypto = require("crypto");
 
+
 //wallet management
 
 const getMyWallet = async (req, res) => {
@@ -88,7 +89,7 @@ const walletTransactionHistory = async (req, res) => {
       amount: transaction.amount,
       description: transaction.description,
       transactionId: transaction.transactionId,
-      date: new Date(transaction.createdAt).toLocaleString(),
+      date: new Date(transaction.createdAt).toLocaleString("en-IN", {timeZone: "Asia/Kolkata",}),
     }));
 
     return res.render("user/walletTranscations", {

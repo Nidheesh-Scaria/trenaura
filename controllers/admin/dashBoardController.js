@@ -259,7 +259,6 @@ const loadDashboard = async (req, res) => {
       hideHeader: true,
       hideFooter: true,
       adminHeader: false,
-      
     });
   } catch (error) {
     console.error("Error rendering dashboard:", error);
@@ -322,29 +321,148 @@ const getDashboardData = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in getDashboardData:", error);
-    return res
-      .status(httpStatus.INTERNAL_SERVER_ERROR)
-      .json({
-        message: MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error",
-      });
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      message: MESSAGES.INTERNAL_SERVER_ERROR || "Internal server error",
+    });
   }
 };
+
+
+// const downloadLedger = async (req, res) => {
+//   try {
+//     const { startDate, endDate } = req.query;
+
+//     if (!startDate || !endDate) {
+//       return res.status(400).json({ message: MESSAGES.STRT_END_DATE });
+//     }
+
+//     // Ensure endDate includes the full day (23:59:59)
+//     const start = new Date(startDate);
+//     const end = new Date(endDate);
+//     end.setHours(23, 59, 59, 999);
+
+//     // Fetch orders with product & user details
+//     const orders = await Order.find({
+//       createdAt: { $gte: start, $lte: end },
+//     })
+//       .populate("userId", "name email")
+//       .populate({
+//         path: "orderedItems.productId",
+//         select: "productName brand category",
+//         populate: [
+//           { path: "brand", select: "brandName" },
+//           { path: "category", select: "name" },
+//         ],
+//       });
+
+//     // Create workbook and worksheet
+//     const workbook = new ExcelJS.Workbook();
+//     const worksheet = workbook.addWorksheet("General Ledger");
+
+//     // Define columns
+//     worksheet.columns = [
+//       { header: "Date", key: "date", width: 15 },
+//       { header: "Order ID", key: "orderId", width: 20 },
+//       { header: "Customer", key: "customer", width: 25 },
+//       { header: "Product", key: "product", width: 25 },
+//       { header: "Category", key: "category", width: 20 },
+//       { header: "Brand", key: "brand", width: 20 },
+//       { header: "Quantity", key: "quantity", width: 10 },
+//       { header: "Price", key: "price", width: 15 },
+//       { header: "Total", key: "total", width: 15 },
+//       { header: "Discount", key: "discount", width: 15 },
+//       { header: "Payment Method", key: "payment", width: 20 },
+//       { header: "Status", key: "status", width: 15 },
+//     ];
+
+//     // Style header row
+//     const headerRow = worksheet.getRow(1);
+//     headerRow.eachCell((cell) => {
+//       cell.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 12 };
+//       cell.alignment = { horizontal: "center", vertical: "middle" };
+//       cell.fill = {
+//         type: "pattern",
+//         pattern: "solid",
+//         fgColor: { argb: "FF4F81BD" }, // Blue background
+//       };
+//       cell.border = {
+//         top: { style: "thin" },
+//         left: { style: "thin" },
+//         bottom: { style: "thin" },
+//         right: { style: "thin" },
+//       };
+//     });
+
+//     // Freeze header row
+//     worksheet.views = [{ state: "frozen", ySplit: 1 }];
+
+//     // Fill data
+//     orders.forEach((order) => {
+//       order.orderedItems.forEach((item) => {
+//         // Get the latest status from statusHistory
+//         const latestStatus =
+//           item.statusHistory?.length > 0
+//             ? item.statusHistory[item.statusHistory.length - 1].status
+//             : "Pending";
+
+//         const discount =
+//           (item.offerDiscount || 0) + (item.couponDiscount || 0);
+
+//         worksheet.addRow({
+//           date: order.createdAt.toISOString().split("T")[0],
+//           orderId: order.orderId,
+//           customer: order.userId ? order.userId.name : "Guest",
+//           product: item.productId?.productName || "Unknown product",
+//           category: item.productId?.category?.name || "Unknown category",
+//           brand: item.productId?.brand?.brandName || "Unknown brand",
+//           quantity: item.quantity || 0,
+//           price: item.price || 0,
+//           total: item.finalAmount || (item.price || 0) * (item.quantity || 0),
+//           discount:item.couponDiscount,
+//           payment: order.paymentMethod || "N/A",
+//           status: latestStatus,
+//         });
+//       });
+//     });
+
+//     // Set headers for Excel download
+//     res.setHeader(
+//       "Content-Type",
+//       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+//     );
+//     res.setHeader(
+//       "Content-Disposition",
+//       `attachment; filename=Ledger_${startDate}_to_${endDate}.xlsx`
+//     );
+
+//     await workbook.xlsx.write(res);
+//     res.end();
+//   } catch (error) {
+//     console.error("Ledger Download Error:", error);
+//     res
+//       .status(httpStatus.INTERNAL_SERVER_ERROR)
+//       .json({ success: false, error: error.message });
+//   }
+// };
+
+
 
 const downloadLedger = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
 
     if (!startDate || !endDate) {
-      return res
-        .status(400)
-        .json({
-          message:
-            MESSAGES.STRT_END_DATE || "Start date and end date are required",
-        });
+      return res.status(400).json({ message: "Please provide start and end dates" });
     }
 
+    // Include the entire end day (23:59:59)
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+
+    // Fetch orders with populated relations
     const orders = await Order.find({
-      createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) },
+      createdAt: { $gte: start, $lte: end },
     })
       .populate("userId", "name email")
       .populate({
@@ -356,9 +474,11 @@ const downloadLedger = async (req, res) => {
         ],
       });
 
+    // Create workbook and sheet
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Ledger");
+    const worksheet = workbook.addWorksheet("General Ledger");
 
+    // Define columns
     worksheet.columns = [
       { header: "Date", key: "date", width: 15 },
       { header: "Order ID", key: "orderId", width: 20 },
@@ -369,30 +489,60 @@ const downloadLedger = async (req, res) => {
       { header: "Quantity", key: "quantity", width: 10 },
       { header: "Price", key: "price", width: 15 },
       { header: "Total", key: "total", width: 15 },
+      { header: "Discount", key: "discount", width: 15 },
       { header: "Payment Method", key: "payment", width: 20 },
+      { header: "Status", key: "status", width: 15 },
     ];
 
+    // Style header row
+    const headerRow = worksheet.getRow(1);
+    headerRow.eachCell((cell) => {
+      cell.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 12 };
+      cell.alignment = { horizontal: "center", vertical: "middle" };
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF4F81BD" }, // Blue header
+      };
+      cell.border = {
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" },
+      };
+    });
+
+    worksheet.views = [{ state: "frozen", ySplit: 1 }];
+
+    // Fill rows
     orders.forEach((order) => {
       order.orderedItems.forEach((item) => {
+        const latestStatus =
+          item.statusHistory?.length > 0
+            ? item.statusHistory[item.statusHistory.length - 1].status
+            : "Pending";
+
+        // Combined discount for that item
+        const totalDiscount = (item.offerDiscount || 0) + (item.couponDiscount || 0);
+
         worksheet.addRow({
           date: order.createdAt.toISOString().split("T")[0],
           orderId: order.orderId,
-          customer: order.userId ? order.userId.name : "Guest",
-          product: item.productId
-            ? item.productId.productName
-            : "Unknown product",
+          customer: order.userId?.name || "Guest",
+          product: item.productId?.productName || "Unknown product",
           category: item.productId?.category?.name || "Unknown category",
           brand: item.productId?.brand?.brandName || "Unknown brand",
           quantity: item.quantity || 0,
           price: item.price || 0,
-          total: item.price * item.quantity,
+          total: item.finalAmount || item.totalPrice || item.price * item.quantity,
+          discount: totalDiscount,
           payment: order.paymentMethod || "N/A",
+          status: latestStatus,
         });
       });
     });
 
-    //set headers
-
+    // Set headers and send file
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -406,9 +556,13 @@ const downloadLedger = async (req, res) => {
     res.end();
   } catch (error) {
     console.error("Ledger Download Error:", error);
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false });
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({ success: false, error: error.message });
   }
 };
+
+
 
 module.exports = {
   loadDashboard,

@@ -1357,9 +1357,11 @@ button[type="button"]:hover {
 
             <h5 style="color: red;">Reason for Return :{{../returnRequest.reason}}</h5>
 
-            {{else}}
+            {{else if (and (eq ../returnRequest.isUserRequested true) (eq ../returnRequest.isAdminApproved false)) }}
 
               <h3 style="color: red; font-weight: 700;">Return Rejected try again</h3>
+              <button class="btn-return" onclick="returnOrder(event,'{{../_id}}')">Return</button>
+            {{else}}
               <button class="btn-return" onclick="returnOrder(event,'{{../_id}}')">Return</button>
               
             {{/if}}

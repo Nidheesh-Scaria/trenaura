@@ -360,6 +360,8 @@
     event.preventDefault();
     document.getElementById(`error-${id}`).innerText = "";
     const selectedBtn = document.querySelector(".size-btn.selected");
+    const cartLength = document.getElementById("cart-count");
+    const wishlistCount=document.getElementById("wishlist-count")
 
     if (!selectedBtn) {
       document.getElementById(`error-${id}`).innerText =
@@ -392,6 +394,9 @@
         },
         className: "custom-toast",
       }).showToast();
+
+      cartLength.innerHTML = data.cartCount;
+      wishlistCount.innerHTML=data.wishlistCount
 
       document.getElementById(`wishlist-item-${id}`)?.remove();
     } else {

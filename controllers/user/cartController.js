@@ -108,16 +108,18 @@ const addToCart = async (req, res) => {
 
     if (fromWishList) {
       await Wishlist.updateOne(
-        { "products.productsId": productId },
+        { userId },
         {
           $pull: { products: { productsId: productId } },
         }
       );
     }
+    const wishlist = await Wishlist.findOne({ userId }).lean();
+    wishlistCount = wishlist?.products?.length || 0;
 
     return res
       .status(httpStatus.OK)
-      .json({ message: "Added to cart", cartCount: cartLength });
+      .json({ message: "Added to cart", cartCount: cartLength ,wishlistCount});
   } catch (error) {
     console.error("Error in addToCart:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({

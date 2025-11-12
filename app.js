@@ -14,6 +14,7 @@ const errorHandler = require("./middleware/errorHandler");
 
 const userRouter = require("./routes/userRouter");
 const adminRouter = require("./routes/adminRouter");
+const errorController=require('./controllers/errorController')
 
 const app = express();
 
@@ -46,6 +47,11 @@ app.use(express.json());
 // Routes
 app.use("/", userRouter);
 app.use("/admin", adminRouter);
+
+// Catch-all route for unknown paths
+app.use("/admin/", errorController.adminPageNotFound);
+app.use("/",errorController.userPageNotFound);
+
 
 // GridFS image route
 app.get("/images/:filename", (req, res) => {

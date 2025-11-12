@@ -486,7 +486,7 @@
             <p><strong>Total Sales:</strong> ₹{{totalSales}}</p>
             <p><strong>Total Discount:</strong> ₹{{totalDiscount}}</p>
             <p><strong>Coupon Deduction:</strong> ₹{{totalCoupon}}</p>
-            <p><strong>Total Orders:</strong> {{order.length}}</p>
+            <p><strong>Total Orders:</strong> {{totalOrders}}</p>
         </div>
 
         {{!-- Download Buttons --}}
@@ -508,7 +508,7 @@
                 <th>User Name</th>
                 <th>Order ID</th>
                 <th>Date</th>
-                <th>Total</th>
+                <th>Quantity</th>
                 <th>Final Amount</th>
                 <th>Coupon Discount</th>
             </tr>
@@ -517,11 +517,11 @@
             {{#if order.length}}
             {{#each order}}
             <tr>
-                <td>{{this.user.name}}</td>
+                <td>{{this.userName}}</td>
                 <td>{{this.orderId}}</td>
                 <td>{{this.date}}</td>
-                <td>₹{{this.totalPrice}}</td>
-                <td>₹{{this.finalAmounts}}</td>
+                <td>₹{{this.quantity}}</td>
+                <td>₹{{this.price}}</td>
                 <td>₹{{this.couponDiscount}}</td>
             </tr>
             {{/each}}

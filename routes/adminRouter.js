@@ -88,21 +88,4 @@ router.get("/salesReport",adminAuth.adminAuth,salesReportController.loadSalesRep
 router.post("/sales-report/download",adminAuth.adminAuth,salesReportController.salesReportDownload)
 
 
-
-
-
-
-
-
-
-
-
-
 module.exports = router;
-
-
-
-
-
-
-  

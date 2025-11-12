@@ -541,7 +541,7 @@
 
   async function addWishlist(event, id) {
     event.preventDefault();
-    console.log("addWishlist loaded with id   :::::::", id);
+    
     const wishlistCount = document.getElementById("wishlist-count");
     const res = await fetch(`/addWishlist/${id}`, {
       method: "POST",
@@ -570,7 +570,7 @@
           wishlistBtn.removeAttribute("onclick");
           wishlistBtn.style.pointerEvents = "none"; */
       wishlistCount.innerHTML = data.wishlistCount;
-      console.log("Count::::", data.wishlistCount);
+      
     }
   }
 

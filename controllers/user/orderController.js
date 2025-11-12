@@ -50,17 +50,18 @@ const getDeliveryCharge = async (totalAmount) => {
   return 0;
 };
 
-const debitWallet = async (userId, orderId, amount) => {
+const debitWallet = async (userId,id, orderId, amount) => {
+
   return Wallet.findOneAndUpdate(
     { userId },
     {
       $inc: { balance: -amount },
       $push: {
         transactions: {
-          orderId,
+          orderId:id,
           type: "debit",
           amount,
-          description: `Product purchase on ${new Date()} with orderId:${orderId}`,
+          description: `Product purchase on ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} with orderId:${orderId}`,
         },
       },
     }
@@ -128,7 +129,8 @@ const loadMyOrder = async (req, res) => {
           latestStatusDate,
           returnRequest: item.returnRequest || null,
           isUserRequested: item.returnRequest?.isUserRequested || false,
-          isAdminApproved: item.returnRequest?.isAdminApproved || false,
+          isAdminApproved: item.returnRequest?.isAdminApproved ?? null,
+
         };
       });
 
@@ -760,7 +762,7 @@ const orderSuccess = async (req, res) => {
             price: item.price,
             variant: item.size,
             totalPrice: item.totalPrice,
-            discount,
+            couponDiscount:discount,
             finalAmount,
             statusHistory: [
               {
@@ -839,7 +841,7 @@ const orderSuccess = async (req, res) => {
         orderedItems.forEach((item) => {
           const itemShare = item.totalPrice / totalPrice;
           const perItemDiscount = Math.round(discount * itemShare);
-          item.discount = perItemDiscount;
+          item.couponDiscount = perItemDiscount;
 
           item.finalAmount = Math.max(item.totalPrice - perItemDiscount, 0);
         });
@@ -1272,7 +1274,7 @@ const confirmWalletPayment = async (req, res) => {
         });
       }
 
-      await debitWallet(userId, order.orderId, order.finalAmount);
+      await debitWallet(userId, order._id ,order.orderId, order.finalAmount);
       await Order.findByIdAndUpdate(
         orderId,
         {
@@ -1370,7 +1372,7 @@ const confirmWalletPayment = async (req, res) => {
         });
       }
 
-      await debitWallet(userId, savedOrder.orderId, finalAmount);
+      await debitWallet(userId,savedOrder._id, savedOrder.orderId, finalAmount);
       savedOrder.paymentStatus = "Paid";
       savedOrder.isOrderPlaced = true;
       await savedOrder.save();
@@ -1470,7 +1472,7 @@ const confirmWalletPayment = async (req, res) => {
         finalAmount,
         address: selectedAddress._id,
         paymentMethod: "WALLET",
-        paymentStatus: "unpaid",
+        paymentStatus: "Unpaid",
       });
 
       isWholeCart = true;
@@ -1485,7 +1487,7 @@ const confirmWalletPayment = async (req, res) => {
         });
       }
 
-      await debitWallet(userId, savedOrder.orderId, finalAmount);
+      await debitWallet(userId,savedOrder._id, savedOrder.orderId, finalAmount);
       savedOrder.paymentStatus = "Paid";
       savedOrder.isOrderPlaced = true;
       await savedOrder.save();

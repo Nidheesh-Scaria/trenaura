@@ -132,6 +132,7 @@ router.get("/aboutUs",consumerPolicy.aboutUs)
 
 
 
+
 router.get("/auth/google", (req, res, next) => {
   if (req.isAuthenticated()) {
     // If the user is already authenticated, redirect them to profile

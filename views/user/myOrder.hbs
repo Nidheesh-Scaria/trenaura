@@ -404,7 +404,7 @@
                       Status: <span class="order-status {{latestStatus}}">{{latestStatus}}</span> 
                       <small>on {{latestStatusDate}}</small>
                     </p>
-                   
+                    
                     {{#if (and (eq isUserRequested true) (eq isAdminApproved null))}}
                         <button id="returnRequested" style="background-color: #34c92c;" disabled>Return Initiated</button>
                     {{else if (and (eq isUserRequested true) (eq isAdminApproved true))}}
